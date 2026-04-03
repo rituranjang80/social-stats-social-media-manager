@@ -8,7 +8,7 @@ POST /api/ai/post-ideas/{id}/add-to-calendar/ — convert approved ideas → Cal
 import calendar
 import json
 import logging
-from datetime import date
+from datetime import date, datetime
 
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
@@ -19,6 +19,7 @@ import anthropic
 
 from django.conf import settings
 from .models import Client, PostIdeaSet, PostIdea, CalendarPost
+from .ai_context import build_client_ai_context
 
 logger = logging.getLogger(__name__)
 
@@ -49,9 +50,6 @@ CALENDAR_POST_TYPE_MAP = {
     'short':     'short',
 }
 
-DAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-
-
 def _check_rate_limit(client: Client, month: int, year: int) -> bool:
     count = PostIdeaSet.objects.filter(
         client=client, month=month, year=year
@@ -59,23 +57,27 @@ def _check_rate_limit(client: Client, month: int, year: int) -> bool:
     return count < MONTHLY_RATE_LIMIT
 
 
-def _build_user_prompt(business_type, location, target_audience, platforms, posts_per_week, upcoming_events, month, year):
+def _build_user_prompt(business_type, location, target_audience, platforms, post_count, upcoming_events, month, year, client_context):
     month_name = calendar.month_name[month]
     platform_list = ', '.join(PLATFORM_MAP.get(p, p) for p in platforms)
 
-    return f"""Create a complete {month_name} {year} content calendar for this business:
+    return f"""Create exactly {post_count} social media post ideas for this business for {month_name} {year}.
+
+{client_context}
 
 Business type: {business_type}
 Location: {location or 'Not specified'}
 Target audience: {target_audience or 'General audience'}
 Platforms: {platform_list}
-Posts per week: {posts_per_week}
+Total posts needed: {post_count}
 Upcoming events/promotions: {upcoming_events or 'None'}
 
 Month context: Include relevant {month_name} themes, holidays, and seasonal opportunities.
+Do not group ideas by week. Keep the output lean and token efficient.
 
 For each post idea include:
-- Which day of week and time to post
+- A suggested publish date in YYYY-MM-DD format inside {month_name} {year}
+- A suggested publish time
 - Which platform
 - Post type (Reel, Image, Carousel, Story, Text)
 - Topic/concept (specific, not generic)
@@ -89,44 +91,44 @@ Return ONLY this JSON (no other text, no markdown):
 {{
   "month_theme": "Overall theme for the month",
   "strategy_notes": "Key strategy for this month",
-  "weeks": [
+  "posts": [
     {{
-      "week": 1,
-      "theme": "Week theme",
-      "posts": [
-        {{
-          "day": "Monday",
-          "time": "7:00 PM",
-          "platform": "instagram",
-          "post_type": "Reel",
-          "topic": "Specific topic here",
-          "caption_direction": "Write a caption that...",
-          "hashtags": ["#tag1","#tag2","#tag3","#tag4","#tag5"],
-          "notes": "Optional extra guidance"
-        }}
-      ]
+      "date": "{year}-{month:02d}-05",
+      "time": "7:00 PM",
+      "platform": "instagram",
+      "post_type": "Reel",
+      "topic": "Specific topic here",
+      "caption_direction": "Write a caption that...",
+      "hashtags": ["#tag1","#tag2","#tag3","#tag4","#tag5"],
+      "notes": "Optional extra guidance"
     }}
   ]
 }}"""
 
 
 def _flatten_ideas(ideas_json: dict) -> list:
-    """Flatten weeks → posts into a list of PostIdea-ready dicts."""
+    """Flatten AI response into a list of PostIdea-ready dicts."""
     result = []
-    for week in ideas_json.get('weeks', []):
-        week_num = week.get('week', 1)
-        for post in week.get('posts', []):
-            result.append({
-                'week_number':   week_num,
-                'day_of_week':   post.get('day', ''),
-                'platform':      (post.get('platform') or '').lower().replace(' ', '_'),
-                'post_type':     (post.get('post_type') or 'image').lower(),
-                'topic':         post.get('topic', ''),
-                'caption_hint':  post.get('caption_direction', ''),
-                'hashtag_hints': post.get('hashtags', []),
-                'best_time':     post.get('time', ''),
-                'notes':         post.get('notes', ''),
-            })
+    for post in ideas_json.get('posts', []):
+        scheduled_date = None
+        raw_date = (post.get('date') or '').strip()
+        if raw_date:
+            try:
+                scheduled_date = datetime.strptime(raw_date, '%Y-%m-%d').date()
+            except ValueError:
+                scheduled_date = None
+        result.append({
+            'week_number':   1,
+            'day_of_week':   scheduled_date.strftime('%A') if scheduled_date else '',
+            'scheduled_date': scheduled_date,
+            'platform':      (post.get('platform') or '').lower().replace(' ', '_'),
+            'post_type':     (post.get('post_type') or 'image').lower(),
+            'topic':         post.get('topic', ''),
+            'caption_hint':  post.get('caption_direction', ''),
+            'hashtag_hints': post.get('hashtags', []),
+            'best_time':     post.get('time', ''),
+            'notes':         post.get('notes', ''),
+        })
     return result
 
 
@@ -165,7 +167,7 @@ def _get_history(request):
     data = []
     for idea_set in qs:
         ideas_list = list(idea_set.post_ideas.values(
-            'id', 'week_number', 'day_of_week', 'platform', 'post_type',
+            'id', 'week_number', 'day_of_week', 'scheduled_date', 'platform', 'post_type',
             'topic', 'caption_hint', 'hashtag_hints', 'best_time', 'notes',
             'is_approved', 'is_added_to_calendar', 'converted_post_id',
         ))
@@ -181,7 +183,7 @@ def _get_history(request):
             'posts_per_week':   idea_set.posts_per_week,
             'month_theme':      idea_set.ideas.get('month_theme', ''),
             'strategy_notes':   idea_set.ideas.get('strategy_notes', ''),
-            'weeks':            idea_set.ideas.get('weeks', []),
+            'posts':            idea_set.ideas.get('posts', []),
             'ideas':            ideas_list,
             'generated_at':     idea_set.generated_at.isoformat(),
         })
@@ -217,8 +219,6 @@ def _generate_ideas(request):
         errors['month'] = 'Required.'
     if not year:
         errors['year'] = 'Required.'
-    if not business_type:
-        errors['business_type'] = 'Required.'
     if not platforms:
         errors['platforms'] = 'At least one platform is required.'
     if errors:
@@ -231,6 +231,14 @@ def _generate_ideas(request):
         client = Client.objects.get(id=client_id)
     except Client.DoesNotExist:
         return Response({'error': 'Client not found.'}, status=404)
+
+    business_type = business_type or client.business_category or client.company
+    location = location or client.business_location
+    target_audience = target_audience or client.target_audience
+    client_context = build_client_ai_context(client)
+
+    if not business_type:
+        return Response({'errors': {'business_type': 'Required.'}}, status=400)
 
     # Rate limit: 3 per client per month
     if not _check_rate_limit(client, month, year):
@@ -249,7 +257,7 @@ def _generate_ideas(request):
         claude       = anthropic.Anthropic(api_key=api_key)
         user_prompt  = _build_user_prompt(
             business_type, location, target_audience, platforms,
-            posts_per_week, upcoming_events, month, year,
+            posts_per_week, upcoming_events, month, year, client_context,
         )
 
         raw = ''
@@ -308,6 +316,7 @@ def _generate_ideas(request):
             idea_set     = idea_set,
             week_number  = p['week_number'],
             day_of_week  = p['day_of_week'],
+            scheduled_date = p['scheduled_date'],
             platform     = p['platform'],
             post_type    = p['post_type'],
             topic        = p['topic'],
@@ -322,7 +331,7 @@ def _generate_ideas(request):
 
     # Build response
     ideas_list = list(idea_set.post_ideas.values(
-        'id', 'week_number', 'day_of_week', 'platform', 'post_type',
+        'id', 'week_number', 'day_of_week', 'scheduled_date', 'platform', 'post_type',
         'topic', 'caption_hint', 'hashtag_hints', 'best_time', 'notes',
         'is_approved', 'is_added_to_calendar',
     ))
@@ -339,7 +348,7 @@ def _generate_ideas(request):
         'posts_per_week': posts_per_week,
         'month_theme':    ideas_json.get('month_theme', ''),
         'strategy_notes': ideas_json.get('strategy_notes', ''),
-        'weeks':          ideas_json.get('weeks', []),
+        'posts':          ideas_json.get('posts', []),
         'ideas':          ideas_list,
         'generated_at':   idea_set.generated_at.isoformat(),
     }, status=201)
@@ -376,16 +385,28 @@ def update_idea(request, pk, idea_pk):
         return Response({'error': 'Not found.'}, status=404)
 
     editable = ['topic', 'caption_hint', 'hashtag_hints', 'best_time', 'notes',
-                'day_of_week', 'platform', 'post_type', 'is_approved']
+                'day_of_week', 'scheduled_date', 'platform', 'post_type', 'is_approved']
     for field in editable:
         if field in request.data:
-            setattr(idea, field, request.data[field])
+            value = request.data[field]
+            if field == 'scheduled_date':
+                if value:
+                    try:
+                        value = datetime.strptime(value, '%Y-%m-%d').date()
+                        idea.day_of_week = value.strftime('%A')
+                    except ValueError:
+                        return Response({'error': 'scheduled_date must use YYYY-MM-DD format.'}, status=400)
+                else:
+                    value = None
+                    idea.day_of_week = ''
+            setattr(idea, field, value)
     idea.save()
 
     return Response({
         'id':                  idea.id,
         'week_number':         idea.week_number,
         'day_of_week':         idea.day_of_week,
+        'scheduled_date':      idea.scheduled_date.isoformat() if idea.scheduled_date else None,
         'platform':            idea.platform,
         'post_type':           idea.post_type,
         'topic':               idea.topic,
@@ -426,25 +447,6 @@ def add_to_calendar(request, pk):
     target_month = idea_set.month
     target_year  = idea_set.year
 
-    # Map day names to weekday numbers
-    day_to_weekday = {d: i for i, d in enumerate(DAY_ORDER)}
-
-    # Find first occurrence of each weekday in the target month
-    import datetime
-    first_day = datetime.date(target_year, target_month, 1)
-
-    def first_weekday_in_month(day_name: str, week_number: int) -> datetime.date:
-        wd = day_to_weekday.get(day_name, 0)
-        # Start from first_day, find first occurrence of that weekday
-        delta = (wd - first_day.weekday()) % 7
-        base  = first_day + datetime.timedelta(days=delta)
-        # Offset by week_number - 1 weeks
-        target = base + datetime.timedelta(weeks=week_number - 1)
-        # Keep within month
-        if target.month != target_month:
-            target = base  # fall back to week 1 occurrence
-        return target
-
     created_count = 0
     for idea in qs:
         # Resolve post_type
@@ -453,7 +455,7 @@ def add_to_calendar(request, pk):
         # Parse time
         scheduled_dt = None
         try:
-            target_date = first_weekday_in_month(idea.day_of_week, idea.week_number)
+            target_date = idea.scheduled_date or date(target_year, target_month, 1)
             hour = 12
             minute = 0
             if idea.best_time:
@@ -469,7 +471,7 @@ def add_to_calendar(request, pk):
                     elif ampm == 'AM' and hour == 12:
                         hour = 0
             scheduled_dt = timezone.make_aware(
-                datetime.datetime(target_year, target_date.month, target_date.day, hour, minute)
+                datetime(target_date.year, target_date.month, target_date.day, hour, minute)
             )
         except Exception:
             pass

@@ -117,14 +117,14 @@ export default function AllClientsPage({ onSelectClient }) {
                       onClick={() => { onSelectClient?.(c); navigate(`/admin/client/${c.id}/settings`); }}
                       style={styles.iconBtn}
                     >
-                      <span style={styles.btnInner}><Settings size={13} /> Connect</span>
+                      <span style={styles.btnInner}><Settings size={13} /> Account</span>
                     </button>
-                    <button
+                    {/* <button
                       onClick={() => { onSelectClient?.(c); navigate(`/admin/client/${c.id}/edit`); }}
                       style={styles.iconBtn}
                     >
                       <span style={styles.btnInner}><Pencil size={13} /> Edit</span>
-                    </button>
+                    </button> */}
                   </div>
                 </td>
               </tr>

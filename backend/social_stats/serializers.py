@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Client, UserProfile, PlatformCredential, DailyMetric, PostMetric, SyncLog, ClientGoal, Alert, AIInsight, WeeklyTopPost, SharedReport, OnboardingStep, ONBOARDING_STEP_DESCRIPTIONS, ROISettings, ROIReport
+from .models import Client, UserProfile, PlatformCredential, DailyMetric, PostMetric, SyncLog, ClientGoal, Alert, AIInsight, WeeklyTopPost, SharedReport, OnboardingStep, Competitor, ONBOARDING_STEP_DESCRIPTIONS, ROISettings, ROIReport
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -14,9 +14,20 @@ class UserSerializer(serializers.ModelSerializer):
 
 class ClientSerializer(serializers.ModelSerializer):
     logo = serializers.ImageField(required=False)
+    profile_image = serializers.ImageField(required=False)
+    competitors = serializers.SerializerMethodField()
 
     class Meta:
-        model  = Client
+        model = Client
+        fields = '__all__'
+
+    def get_competitors(self, obj):
+        return CompetitorSerializer(obj.competitors.all(), many=True).data
+
+
+class CompetitorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Competitor
         fields = '__all__'
 
 

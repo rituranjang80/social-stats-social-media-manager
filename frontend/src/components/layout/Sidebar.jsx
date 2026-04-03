@@ -264,7 +264,7 @@ export default function Sidebar({ clients = [], selectedClient, onSelectClient, 
             <NavItem to="/dashboard/post-ideas"     end pathname={location.pathname} icon={Lightbulb} label="Post Ideas" />
 
             <SectionTitle>Settings</SectionTitle>
-            <NavItem to="/dashboard/settings" end pathname={location.pathname} icon={Sparkles} label="Connect Accounts" />
+            <NavItem to="/dashboard/settings" end pathname={location.pathname} icon={Sparkles} label="Accounts" />
           </>
         )}
       </div>
@@ -375,7 +375,7 @@ const styles = {
   },
   navRowActive: {
     background: '#E0F9FF',
-    borderLeftColor: '#00B8DA',
+    borderLeft: '2px solid #00B8DA',
     color: '#006E88',
     fontWeight: 700,
     boxShadow: 'inset 0 0 0 1px #BAF0FC',

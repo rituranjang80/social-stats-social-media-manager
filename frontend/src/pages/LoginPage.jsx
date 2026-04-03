@@ -36,7 +36,13 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const user = await login(email, password, accepted);
-      navigate(user.role === 'superadmin' || user.role === 'staff' ? '/admin' : '/dashboard');
+      if (user.role === 'superadmin' || user.role === 'staff') {
+        navigate('/admin');
+      } else if (user.role === 'client' && !user.onboarding_complete) {
+        navigate('/dashboard/onboarding');
+      } else {
+        navigate('/dashboard');
+      }
     } catch {
       setError('Invalid email or password. Please try again.');
     } finally {

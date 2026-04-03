@@ -83,6 +83,25 @@ export function useROICalculator(clientId) {
   });
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year,  setYear]  = useState(now.getFullYear());
+  const inputsRef = useRef(inputs);
+  const monthRef = useRef(month);
+  const yearRef = useRef(year);
+
+  useEffect(() => {
+    inputsRef.current = inputs;
+  }, [inputs]);
+
+  useEffect(() => {
+    monthRef.current = month;
+  }, [month]);
+
+  useEffect(() => {
+    yearRef.current = year;
+  }, [year]);
+
+  useEffect(() => () => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+  }, []);
 
   const loadFromSettings = useCallback((settings) => {
     if (!settings) return;
@@ -105,9 +124,9 @@ export function useROICalculator(clientId) {
 
   const calculate = useCallback(async (overrideInputs, overrideMonth, overrideYear) => {
     if (!clientId) return;
-    const inp = overrideInputs || inputs;
-    const m   = overrideMonth  || month;
-    const y   = overrideYear   || year;
+    const inp = overrideInputs || inputsRef.current;
+    const m   = overrideMonth  || monthRef.current;
+    const y   = overrideYear   || yearRef.current;
 
     if (isDemoClient(clientId)) {
       const result = calculateDemoROI(inp, m, y);
@@ -131,7 +150,7 @@ export function useROICalculator(clientId) {
     } finally {
       setLoading(false);
     }
-  }, [clientId, inputs, month, year]);
+  }, [clientId]);
 
   const recalculate = useCallback((newInputs, newMonth, newYear) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -141,31 +160,34 @@ export function useROICalculator(clientId) {
   }, [calculate]);
 
   const updateInput = useCallback((field, value) => {
-    const newInputs = { ...inputs, [field]: value };
+    const newInputs = { ...inputsRef.current, [field]: value };
+    inputsRef.current = newInputs;
     setInputs(newInputs);
-    recalculate(newInputs, month, year);
-  }, [inputs, month, year, recalculate]);
+    recalculate(newInputs, monthRef.current, yearRef.current);
+  }, [recalculate]);
 
   const setMonthYear = useCallback((m, y) => {
+    monthRef.current = m;
+    yearRef.current = y;
     setMonth(m);
     setYear(y);
-    recalculate(inputs, m, y);
-  }, [inputs, recalculate]);
+    recalculate(inputsRef.current, m, y);
+  }, [recalculate]);
 
   const saveReport = useCallback(async () => {
     if (!clientId) return;
     if (isDemoClient(clientId)) {
-      setResult(calculateDemoROI(inputs, month, year));
+      setResult(calculateDemoROI(inputsRef.current, monthRef.current, yearRef.current));
       return { success: true };
     }
     try {
-      const res = await roiAPI.calculate({ client_id: clientId, month, year });
+      const res = await roiAPI.calculate({ client_id: clientId, month: monthRef.current, year: yearRef.current });
       setResult(res.data);
       return { success: true };
     } catch (e) {
       return { success: false, error: e.response?.data?.error || 'Failed to save.' };
     }
-  }, [clientId, month, year]);
+  }, [clientId]);
 
   return {
     result, loading, error,

@@ -32,16 +32,62 @@ class Client(models.Model):
     company    = models.CharField(max_length=200)
     email      = models.EmailField(unique=True)
     phone      = models.CharField(max_length=30, blank=True)
-    logo       = models.ImageField(upload_to='logos/', blank=True, null=True)
+    whatsapp_number = models.CharField(max_length=30, blank=True)
     website    = models.URLField(blank=True)
+    gmb_url    = models.URLField(blank=True, help_text="Google My Business profile URL")
+    logo       = models.ImageField(upload_to='logos/', blank=True, null=True)
     is_active  = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    # Business Profile Fields
+    business_category = models.CharField(max_length=100, blank=True, help_text="e.g., Electronics, Retail, Services")
+    business_subcategories = models.JSONField(default=list, blank=True, help_text="List of subcategories")
+    brand_description = models.TextField(blank=True)
+    usp = models.TextField(blank=True, help_text="Unique Selling Points")
+    brand_tone = models.CharField(max_length=50, blank=True, choices=[
+        ('professional', 'Professional'),
+        ('casual', 'Casual'),
+        ('funny', 'Funny'),
+        ('inspirational', 'Inspirational'),
+        ('urgent', 'Urgent'),
+        ('friendly', 'Friendly'),
+    ])
+    target_audience = models.TextField(blank=True)
+    gender = models.CharField(max_length=20, blank=True, choices=[
+        ('all', 'All'),
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('non_binary', 'Non-binary'),
+        ('unspecified', 'Unspecified'),
+    ])
+    business_location = models.CharField(max_length=200, blank=True)
+    target_locations = models.JSONField(default=list, blank=True, help_text="List of target countries/cities")
+    brand_assets = models.JSONField(default=dict, blank=True, help_text="Logo URL, email, phone, etc.")
+    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+    product_images = models.JSONField(default=list, blank=True, help_text="List of product image URLs")
+
+    # Onboarding status
+    onboarding_complete = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.company} ({self.name})"
 
     class Meta:
         ordering = ['company']
+
+
+# ── Competitors ───────────────────────────────────────────────────────────────
+class Competitor(models.Model):
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='competitors')
+    name = models.CharField(max_length=200)
+    social_links = models.JSONField(default=dict, blank=True, help_text="Dict of platform -> URL")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.client.company} - {self.name}"
+
+    class Meta:
+        ordering = ['name']
 
 
 # ── User Profile (roles) ──────────────────────────────────────────────────────
@@ -832,6 +878,7 @@ class PostIdea(models.Model):
     idea_set             = models.ForeignKey(PostIdeaSet, on_delete=models.CASCADE, related_name='post_ideas')
     week_number          = models.IntegerField()
     day_of_week          = models.CharField(max_length=20)
+    scheduled_date       = models.DateField(null=True, blank=True)
     platform             = models.CharField(max_length=30)
     post_type            = models.CharField(max_length=30)
     topic                = models.CharField(max_length=500)
@@ -847,10 +894,10 @@ class PostIdea(models.Model):
     )
 
     class Meta:
-        ordering = ['week_number', 'id']
+        ordering = ['scheduled_date', 'week_number', 'id']
 
     def __str__(self):
-        return f"{self.idea_set.client.company} | W{self.week_number} | {self.day_of_week} | {self.topic[:50]}"
+        return f"{self.idea_set.client.company} | {self.scheduled_date or self.day_of_week} | {self.topic[:50]}"
 
 
 # ── AI Hashtag Research Tool ───────────────────────────────────────────────────

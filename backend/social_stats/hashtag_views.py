@@ -19,6 +19,7 @@ from rest_framework.response import Response
 import anthropic
 
 from .models import Client, HashtagSet
+from .ai_context import build_client_ai_context
 
 logger = logging.getLogger(__name__)
 
@@ -59,11 +60,13 @@ def _check_rate_limit(client: Client) -> bool:
     return count < DAILY_RATE_LIMIT
 
 
-def _build_user_prompt(niche, location, platform, post_topic, post_type):
+def _build_user_prompt(niche, location, platform, post_topic, post_type, client_context):
     platform_rule = PLATFORM_RULES.get(platform, '')
     location_line = f'Location: {location}' if location else 'Location: Global / Not specified'
 
     return f"""Research and recommend hashtags for:
+
+{client_context}
 
 Niche: {niche}
 {location_line}
@@ -181,17 +184,23 @@ def _generate_hashtags(request):
     # Validation
     if not client_id:
         return Response({'error': 'client_id is required'}, status=400)
-    if not niche:
-        return Response({'error': 'niche is required'}, status=400)
     if not platform:
         return Response({'error': 'platform is required'}, status=400)
-    if not post_topic:
-        return Response({'error': 'post_topic is required'}, status=400)
 
     try:
         client = Client.objects.get(id=client_id)
     except Client.DoesNotExist:
         return Response({'error': 'Client not found'}, status=404)
+
+    niche = niche or client.business_category or client.company
+    location = location or client.business_location
+    post_topic = post_topic or client.brand_description or client.usp
+    client_context = build_client_ai_context(client)
+
+    if not niche:
+        return Response({'error': 'niche is required'}, status=400)
+    if not post_topic:
+        return Response({'error': 'post_topic is required'}, status=400)
 
     # Rate limit
     if not _check_rate_limit(client):
@@ -214,7 +223,7 @@ def _generate_hashtags(request):
 
     try:
         claude      = anthropic.Anthropic(api_key=api_key)
-        user_prompt = _build_user_prompt(niche, location, platform, post_topic, post_type)
+        user_prompt = _build_user_prompt(niche, location, platform, post_topic, post_type, client_context)
 
         message = claude.messages.create(
             model='claude-haiku-4-5-20251001',

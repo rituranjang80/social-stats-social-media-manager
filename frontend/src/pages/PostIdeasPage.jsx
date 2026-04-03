@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useClients } from '../hooks/useData';
 import { postIdeasAPI } from '../services/api';
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip,
@@ -36,10 +38,11 @@ const PLATFORMS = [
 ];
 
 const POSTS_PER_WEEK_OPTIONS = [
-  { value: 3,  label: '3 / week' },
-  { value: 5,  label: '5 / week' },
-  { value: 7,  label: '7 / week' },
-  { value: 14, label: 'Daily ×2' },
+  { value: 1, label: '1 Post' },
+  { value: 2, label: '2 Posts' },
+  { value: 3, label: '3 Posts' },
+  { value: 4, label: '4 Posts' },
+  { value: 5, label: '5 Posts' },
 ];
 
 const PLATFORM_COLORS = {
@@ -68,13 +71,22 @@ function classifyPostType(pt, topic) {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
-export default function PostIdeasPage() {
+export default function PostIdeasPage({ clientId: propClientId = null }) {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
+  const { clients } = useClients();
   const isAdmin  = user?.role === 'superadmin' || user?.role === 'staff';
+  const showClientSelector = isAdmin && !propClientId;
+  const queryClientId = searchParams.get('client');
+  const parsedClientId = queryClientId ? parseInt(queryClientId, 10) : null;
+  const [selectedClientId, setSelectedClientId] = useState(
+    propClientId || parsedClientId || (isAdmin ? null : user?.client_id) || null
+  );
+  const clientId = selectedClientId;
 
   const now = new Date();
   const [form, setForm] = useState({
-    client_id:       user?.client_id || '',
+    client_id:       propClientId || parsedClientId || (isAdmin ? '' : user?.client_id) || '',
     month:           now.getMonth() + 1,
     year:            now.getFullYear(),
     business_type:   '',
@@ -90,17 +102,44 @@ export default function PostIdeasPage() {
   const [error, setError]       = useState('');
   const [ideaSet, setIdeaSet]   = useState(null);     // current result
   const [history, setHistory]   = useState([]);
-  const [activeWeek, setActiveWeek]   = useState(1);
   const [editingIdea, setEditingIdea] = useState(null); // { id, field, value }
   const [saving, setSaving]           = useState(false);
   const [calMsg, setCalMsg]           = useState('');
   const loadTimer = useRef(null);
 
+  const updateSearch = useCallback((updates) => {
+    const next = new URLSearchParams(searchParams);
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null || value === undefined || value === '') next.delete(key);
+      else next.set(key, String(value));
+    });
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
+
+  useEffect(() => {
+    if (!clientId && !isAdmin && user?.client_id) {
+      setSelectedClientId(user.client_id);
+    }
+  }, [user, isAdmin, clientId]);
+
+  useEffect(() => {
+    if (parsedClientId && parsedClientId !== clientId) {
+      setSelectedClientId(parsedClientId);
+    }
+  }, [parsedClientId, clientId]);
+
+  useEffect(() => {
+    setForm(f => {
+      const nextClientId = clientId || '';
+      return f.client_id === nextClientId ? f : { ...f, client_id: nextClientId };
+    });
+  }, [clientId]);
+
   // ── Load history ────────────────────────────────────────────────────────────
   const loadHistory = useCallback(async () => {
     const params = {};
     if (!isAdmin && user?.client_id) params.client_id = user.client_id;
-    else if (form.client_id)          params.client_id = form.client_id;
+    else if (clientId)                params.client_id = clientId;
     if (!params.client_id) return;
     try {
       const res = await postIdeasAPI.getHistory(params);
@@ -108,7 +147,7 @@ export default function PostIdeasPage() {
     } catch {
       // silently ignore
     }
-  }, [isAdmin, user, form.client_id]);
+  }, [isAdmin, user, clientId]);
 
   useEffect(() => { loadHistory(); }, [loadHistory]);
 
@@ -144,7 +183,6 @@ export default function PostIdeasPage() {
     try {
       const res = await postIdeasAPI.generate(payload);
       setIdeaSet(res.data);
-      setActiveWeek(1);
       setStep('results');
       loadHistory();
     } catch (e) {
@@ -159,7 +197,6 @@ export default function PostIdeasPage() {
   // ── Load from history ────────────────────────────────────────────────────────
   const loadFromHistory = (set) => {
     setIdeaSet(set);
-    setActiveWeek(1);
     setCalMsg('');
     setStep('results');
   };
@@ -261,8 +298,12 @@ export default function PostIdeasPage() {
   };
 
   // ── Derived stats ────────────────────────────────────────────────────────────
-  const weekIdeas = ideaSet
-    ? ideaSet.ideas.filter(i => i.week_number === activeWeek)
+  const datedIdeas = ideaSet
+    ? [...ideaSet.ideas].sort((a, b) => {
+        const left = a.scheduled_date || '9999-12-31';
+        const right = b.scheduled_date || '9999-12-31';
+        return left.localeCompare(right);
+      })
     : [];
 
   const approvedCount     = ideaSet ? ideaSet.ideas.filter(i => i.is_approved).length : 0;
@@ -294,10 +335,6 @@ export default function PostIdeasPage() {
       })()
     : [];
 
-  const weeks = ideaSet
-    ? [...new Set(ideaSet.ideas.map(i => i.week_number))].sort()
-    : [];
-
   const MIX_COLORS = ['#00d7ff', '#22c55e', '#f59e0b', '#ec4899'];
 
   // ── Render ───────────────────────────────────────────────────────────────────
@@ -317,7 +354,49 @@ export default function PostIdeasPage() {
         )}
       </div>
 
-      {step === 'form' && (
+      {showClientSelector && !clientId && (
+        <div style={styles.clientEmptyState}>
+          <div style={styles.clientEmptyIcon}>💡</div>
+          <h2 style={styles.clientEmptyTitle}>Post Ideas Generator</h2>
+          <p style={styles.clientEmptyText}>
+            Select a user to generate post ideas and monthly content calendars.
+          </p>
+          <select
+            onChange={e => {
+              const nextClientId = e.target.value ? parseInt(e.target.value, 10) : null;
+              setSelectedClientId(nextClientId);
+              updateSearch({ client: nextClientId });
+            }}
+            style={styles.clientEmptySelect}
+          >
+            <option value="">- Select a user -</option>
+            {clients.map(c => (
+              <option key={c.id} value={c.id}>{c.company}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {showClientSelector && clientId && (
+        <div style={styles.clientBanner}>
+          <span style={styles.clientBannerLabel}>Generating ideas for:</span>
+          <select
+            value={clientId || ''}
+            onChange={e => {
+              const nextClientId = e.target.value ? parseInt(e.target.value, 10) : null;
+              setSelectedClientId(nextClientId);
+              updateSearch({ client: nextClientId });
+            }}
+            style={styles.clientBannerSelect}
+          >
+            {clients.map(c => (
+              <option key={c.id} value={c.id}>{c.company}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {step === 'form' && clientId && (
         <SetupForm
           form={form}
           setForm={setForm}
@@ -330,17 +409,14 @@ export default function PostIdeasPage() {
         />
       )}
 
-      {step === 'loading' && (
+      {step === 'loading' && clientId && (
         <LoadingScreen steps={LOADING_STEPS} currentStep={loadStep} />
       )}
 
-      {step === 'results' && ideaSet && (
+      {step === 'results' && ideaSet && clientId && (
         <ResultsView
           ideaSet={ideaSet}
-          weeks={weeks}
-          activeWeek={activeWeek}
-          setActiveWeek={setActiveWeek}
-          weekIdeas={weekIdeas}
+          datedIdeas={datedIdeas}
           approvedCount={approvedCount}
           addedCount={addedCount}
           totalIdeas={totalIdeas}
@@ -375,7 +451,7 @@ function SetupForm({ form, setForm, isAdmin, error, onGenerate, history, onLoadH
     <div style={styles.formPage}>
       <div style={styles.formCard}>
         <h2 style={styles.formTitle}>Generate Your Content Calendar</h2>
-        <p style={styles.formSub}>Fill in your business details to get {form.posts_per_week * 4}+ unique post ideas</p>
+        <p style={styles.formSub}>Fill in your business details to generate a lean, date-based content plan with exactly {form.posts_per_week} post ideas.</p>
 
         <div style={styles.formGrid}>
           {/* Business Type */}
@@ -467,9 +543,9 @@ function SetupForm({ form, setForm, isAdmin, error, onGenerate, history, onLoadH
             </div>
           </div>
 
-          {/* Posts per week */}
+          {/* Number of posts */}
           <div style={{ ...styles.formField, gridColumn: '1 / -1' }}>
-            <label style={styles.label}>Posts per Week</label>
+            <label style={styles.label}>Number of Posts</label>
             <div style={styles.ppwRow}>
               {POSTS_PER_WEEK_OPTIONS.map(opt => (
                 <button
@@ -510,7 +586,7 @@ function SetupForm({ form, setForm, isAdmin, error, onGenerate, history, onLoadH
           ✨ Generate My Content Calendar
         </button>
         <p style={styles.generateNote}>
-          Generates {form.posts_per_week * 4}–{form.posts_per_week * 5} unique post ideas using AI
+          Generates exactly {form.posts_per_week} scheduled post ideas for the selected month
         </p>
       </div>
 
@@ -575,7 +651,7 @@ function LoadingScreen({ steps, currentStep }) {
 // ── Results view ──────────────────────────────────────────────────────────────
 
 function ResultsView({
-  ideaSet, weeks, activeWeek, setActiveWeek, weekIdeas,
+  ideaSet, datedIdeas,
   approvedCount, addedCount, totalIdeas,
   contentMix, platformMix, mixColors,
   editingIdea, saving, calMsg,
@@ -610,33 +686,13 @@ function ResultsView({
           <div style={styles.calMsg}>{calMsg}</div>
         )}
 
-        {/* Week tabs */}
-        <div style={styles.weekTabs}>
-          {weeks.map(w => (
-            <button
-              key={w}
-              type="button"
-              onClick={() => setActiveWeek(w)}
-              style={{
-                ...styles.weekTab,
-                ...(activeWeek === w ? styles.weekTabActive : {}),
-              }}
-            >
-              Week {w}
-            </button>
-          ))}
+        <div style={styles.scheduleHint}>
+          Pick or adjust a calendar date for each post before sending it to the content calendar.
         </div>
-
-        {/* Week theme */}
-        {ideaSet.weeks && ideaSet.weeks[activeWeek - 1] && (
-          <div style={styles.weekThemeBadge}>
-            {ideaSet.weeks[activeWeek - 1].theme}
-          </div>
-        )}
 
         {/* Ideas grid */}
         <div style={styles.ideasGrid}>
-          {weekIdeas.map(idea => (
+          {datedIdeas.map(idea => (
             <IdeaCard
               key={idea.id}
               idea={idea}
@@ -649,8 +705,8 @@ function ResultsView({
               setEditingIdea={setEditingIdea}
             />
           ))}
-          {weekIdeas.length === 0 && (
-            <div style={styles.emptyWeek}>No ideas for this week.</div>
+          {datedIdeas.length === 0 && (
+            <div style={styles.emptyWeek}>No ideas generated yet.</div>
           )}
         </div>
       </div>
@@ -767,7 +823,7 @@ function IdeaCard({ idea, editingIdea, saving, onToggleApprove, onAddToCalendar,
       {/* Top row */}
       <div style={styles.cardTop}>
         <div style={styles.dayBadge}>
-          <span style={styles.dayText}>{idea.day_of_week.slice(0, 3)}</span>
+          <span style={styles.dayText}>{idea.scheduled_date || (idea.day_of_week ? idea.day_of_week.slice(0, 3) : 'Date')}</span>
           {idea.best_time && (
             <span style={styles.timeText}>{idea.best_time}</span>
           )}
@@ -778,6 +834,17 @@ function IdeaCard({ idea, editingIdea, saving, onToggleApprove, onAddToCalendar,
         <div style={{ ...styles.typePill, background: '#f0f4f9', color: '#475569' }}>
           {idea.post_type}
         </div>
+      </div>
+
+      <div style={styles.dateRow}>
+        <input
+          type="date"
+          value={idea.scheduled_date || ''}
+          onChange={(e) => setEditingIdea({ id: idea.id, field: 'scheduled_date', value: e.target.value })}
+          onBlur={onCommitEdit}
+          style={styles.dateInput}
+        />
+        <span style={styles.dateHint}>Set the date this post should land on the calendar</span>
       </div>
 
       {/* Topic */}
@@ -921,6 +988,63 @@ const styles = {
     fontWeight: 700,
     fontSize: 14,
     cursor: 'pointer',
+  },
+  clientBanner: {
+    marginBottom: 20,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+    flexWrap: 'wrap',
+  },
+  clientBannerLabel: {
+    fontSize: 13,
+    color: '#64748b',
+    fontWeight: 600,
+  },
+  clientBannerSelect: {
+    padding: '8px 12px',
+    borderRadius: 8,
+    border: '1px solid #e2e8f0',
+    fontSize: 13,
+    background: '#fff',
+    color: '#0f172a',
+    fontWeight: 600,
+  },
+  clientEmptyState: {
+    maxWidth: 520,
+    margin: '64px auto',
+    padding: '40px 32px',
+    textAlign: 'center',
+    background: '#fff',
+    borderRadius: 20,
+    border: '1px solid #e2e8f0',
+    boxShadow: '0 4px 24px rgba(15,23,42,.08)',
+  },
+  clientEmptyIcon: {
+    fontSize: 44,
+    marginBottom: 14,
+  },
+  clientEmptyTitle: {
+    margin: '0 0 8px',
+    fontSize: 22,
+    fontWeight: 800,
+    color: '#0f172a',
+  },
+  clientEmptyText: {
+    margin: '0 0 22px',
+    color: '#64748b',
+    fontSize: 14,
+    lineHeight: 1.5,
+  },
+  clientEmptySelect: {
+    width: '100%',
+    padding: '12px 14px',
+    borderRadius: 10,
+    border: '1.5px solid #e5e7eb',
+    fontSize: 14,
+    background: '#fff',
+    color: '#0f172a',
+    outline: 'none',
   },
 
   // Form
@@ -1256,35 +1380,16 @@ const styles = {
     border: '1px solid #e6fbff',
     marginBottom: 16,
   },
-  weekTabs: {
-    display: 'flex',
-    gap: 8,
+  scheduleHint: {
     marginBottom: 16,
-  },
-  weekTab: {
-    padding: '9px 20px',
-    borderRadius: 10,
-    border: '1.5px solid #e2e8f0',
-    background: '#fff',
-    color: '#475569',
+    padding: '14px 16px',
+    borderRadius: 14,
+    background: 'linear-gradient(135deg, #ecfeff, #f8fafc)',
+    border: '1px solid #bae6fd',
+    color: '#155e75',
     fontSize: 13,
     fontWeight: 700,
-    cursor: 'pointer',
-  },
-  weekTabActive: {
-    border: '1.5px solid #00d7ff',
-    background: '#e6fbff',
-    color: '#4338ca',
-  },
-  weekThemeBadge: {
-    display: 'inline-block',
-    padding: '6px 14px',
-    borderRadius: 999,
-    background: '#fef9c3',
-    color: '#854d0e',
-    fontSize: 12,
-    fontWeight: 700,
-    marginBottom: 16,
+    boxShadow: '0 8px 24px rgba(14, 116, 144, .08)',
   },
   ideasGrid: {
     display: 'grid',
@@ -1348,6 +1453,32 @@ const styles = {
     fontSize: 11,
     fontWeight: 700,
     textTransform: 'capitalize',
+  },
+  dateRow: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 6,
+    padding: '10px 12px',
+    borderRadius: 12,
+    background: 'linear-gradient(135deg, #f8fafc, #eef2ff)',
+    border: '1px solid #dbeafe',
+  },
+  dateInput: {
+    width: '100%',
+    padding: '10px 12px',
+    borderRadius: 10,
+    border: '1.5px solid #bfdbfe',
+    background: '#fff',
+    color: '#0f172a',
+    fontSize: 13,
+    fontWeight: 700,
+    outline: 'none',
+    boxSizing: 'border-box',
+  },
+  dateHint: {
+    fontSize: 11,
+    color: '#475569',
+    lineHeight: 1.4,
   },
   topicWrap: { minHeight: 40 },
   topicText: {

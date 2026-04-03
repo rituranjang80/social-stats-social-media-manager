@@ -131,12 +131,12 @@ const PLATFORM_CONFIGS = [
 ];
 
 // ── Sub-components ────────────────────────────────────────────────────────────
-function CurrencyInput({ label, value, onChange, symbol, helper }) {
+function CurrencyInput({ label, value, onChange, symbol, helper, disabled = false }) {
   const sym = symbol || '$';
   return (
     <div style={{ marginBottom: 12 }}>
       {label && <label style={inputLabel}>{label}</label>}
-      <div style={inputWrap}>
+      <div style={disabled ? disabledInputWrap : inputWrap}>
         <span style={inputPrefix}>{sym}</span>
         <input
           type="number"
@@ -144,7 +144,8 @@ function CurrencyInput({ label, value, onChange, symbol, helper }) {
           step="50"
           value={value}
           onChange={e => onChange(parseFloat(e.target.value) || 0)}
-          style={inputField}
+          disabled={disabled}
+          style={disabled ? disabledInputField : inputField}
         />
       </div>
       {helper && <p style={helperText}>{helper}</p>}
@@ -152,7 +153,7 @@ function CurrencyInput({ label, value, onChange, symbol, helper }) {
   );
 }
 
-function SliderInput({ label, value, onChange, min, max, step, unit, helper }) {
+function SliderInput({ label, value, onChange, min, max, step, unit, helper, disabled = false }) {
   const u = unit || '%';
   const pct = ((value - min) / (max - min)) * 100;
   return (
@@ -169,6 +170,7 @@ function SliderInput({ label, value, onChange, min, max, step, unit, helper }) {
         min={min} max={max} step={step}
         value={value}
         onChange={e => onChange(parseFloat(e.target.value))}
+        disabled={disabled}
         style={{ '--val': `${pct}%` }}
       />
       {helper && <p style={helperText}>{helper}</p>}
@@ -266,12 +268,16 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
   const { reports } = useROIReports(clientId);
 
   const [saveMsg, setSaveMsg] = useState('');
+  const [isEditingSettings, setIsEditingSettings] = useState(false);
 
   // Load settings into calculator inputs when settings arrive
   useEffect(() => {
     if (settings) {
       loadFromSettings(settings);
       calculate(settings, month, year);
+      setIsEditingSettings(false);
+    } else {
+      setIsEditingSettings(true);
     }
   }, [settings, loadFromSettings, calculate, month, year]);
 
@@ -288,8 +294,26 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
 
   const handleSaveSettings = async () => {
     const res = await saveSettings(inputs);
+    if (res.success) {
+      setIsEditingSettings(false);
+    }
     setSaveMsg(res.success ? '✓ Settings saved' : '✗ Save failed');
     setTimeout(() => setSaveMsg(''), 3000);
+  };
+
+  const handleEditSettings = () => {
+    setIsEditingSettings(true);
+    setSaveMsg('');
+  };
+
+  const handleCancelEdit = () => {
+    if (settings) {
+      loadFromSettings(settings);
+      calculate(settings, month, year);
+      setIsEditingSettings(false);
+      setSaveMsg('Changes discarded');
+      setTimeout(() => setSaveMsg(''), 3000);
+    }
   };
 
   const handleSaveReport = async () => {
@@ -300,6 +324,8 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
 
   const roi    = result?.roi_percentage || 0;
   const rLabel = roiLabel(roi);
+  const hasSavedSettings = Boolean(settings);
+  const fieldsDisabled = hasSavedSettings && !isEditingSettings;
 
   const yearOptions = [];
   const thisYear = new Date().getFullYear();
@@ -387,6 +413,14 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
           {/* Monthly Investment */}
           <div style={card}>
             <h3 style={cardTitle}><DollarSign size={16} style={{ color: '#2563EB' }} /> Monthly Investment</h3>
+            {hasSavedSettings && (
+              <div style={settingsBanner}>
+                <span style={{ color: '#0F172A', fontWeight: 700 }}>Settings saved</span>
+                <span style={{ color: '#64748B' }}>
+                  {fieldsDisabled ? 'Click Edit Settings to change budgets and business numbers.' : 'You are editing the saved ROI settings.'}
+                </span>
+              </div>
+            )}
 
             {PLATFORM_CONFIGS.map(pc => {
               const pl = PLATFORMS[pc.platformKey] || {};
@@ -396,13 +430,14 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
                     <span style={{ fontSize: 14 }}>{pl.icon || '📊'}</span>
                     {pl.label || pc.label}
                   </label>
-                  <div style={inputWrap}>
+                  <div style={fieldsDisabled ? disabledInputWrap : inputWrap}>
                     <span style={inputPrefix}>{symbol}</span>
                     <input
                       type="number" min="0" step="50"
                       value={inputs[pc.key]}
                       onChange={e => updateInput(pc.key, parseFloat(e.target.value) || 0)}
-                      style={inputField}
+                      disabled={fieldsDisabled}
+                      style={fieldsDisabled ? disabledInputField : inputField}
                     />
                   </div>
                 </div>
@@ -411,13 +446,14 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
 
             <div style={{ marginBottom: 10 }}>
               <label style={inputLabel}>Agency Management Fee</label>
-              <div style={inputWrap}>
+              <div style={fieldsDisabled ? disabledInputWrap : inputWrap}>
                 <span style={inputPrefix}>{symbol}</span>
                 <input
                   type="number" min="0" step="50"
                   value={inputs.agency_fee}
                   onChange={e => updateInput('agency_fee', parseFloat(e.target.value) || 0)}
-                  style={inputField}
+                  disabled={fieldsDisabled}
+                  style={fieldsDisabled ? disabledInputField : inputField}
                 />
               </div>
             </div>
@@ -440,6 +476,7 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
               onChange={v => updateInput('avg_sale_value', v)}
               symbol={symbol}
               helper="Average revenue per customer / sale"
+              disabled={fieldsDisabled}
             />
 
             <SliderInput
@@ -448,6 +485,7 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
               onChange={v => updateInput('conversion_rate', v)}
               min={0.1} max={20} step={0.1}
               helper="Industry average: 2–3%"
+              disabled={fieldsDisabled}
             />
 
             <SliderInput
@@ -456,6 +494,7 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
               onChange={v => updateInput('lead_to_sale_rate', v)}
               min={1} max={100} step={1}
               helper="How many leads become paying customers"
+              disabled={fieldsDisabled}
             />
           </div>
 
@@ -469,17 +508,19 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
               onChange={v => updateInput('monthly_revenue_goal', v)}
               symbol={symbol}
               helper="Target revenue for this month"
+              disabled={fieldsDisabled}
             />
 
             <div style={{ marginBottom: 12 }}>
               <label style={inputLabel}>Leads Goal</label>
-              <div style={inputWrap}>
+              <div style={fieldsDisabled ? disabledInputWrap : inputWrap}>
                 <span style={inputPrefix}>#</span>
                 <input
                   type="number" min="0" step="10"
                   value={inputs.monthly_leads_goal}
                   onChange={e => updateInput('monthly_leads_goal', parseInt(e.target.value) || 0)}
-                  style={inputField}
+                  disabled={fieldsDisabled}
+                  style={fieldsDisabled ? disabledInputField : inputField}
                 />
               </div>
               <p style={helperText}>Target number of leads this month</p>
@@ -488,9 +529,22 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
 
           {/* Action buttons */}
           <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-            <button onClick={handleSaveSettings} disabled={saving} style={secondaryBtn}>
-              <Save size={14} /> {saving ? 'Saving…' : 'Save Settings'}
-            </button>
+            {fieldsDisabled ? (
+              <button onClick={handleEditSettings} style={secondaryBtn}>
+                <Save size={14} /> Edit Settings
+              </button>
+            ) : (
+              <>
+                <button onClick={handleSaveSettings} disabled={saving} style={secondaryBtn}>
+                  <Save size={14} /> {saving ? 'Saving…' : 'Save Settings'}
+                </button>
+                {hasSavedSettings && (
+                  <button onClick={handleCancelEdit} disabled={saving} style={ghostBtn}>
+                    Cancel
+                  </button>
+                )}
+              </>
+            )}
             <button onClick={handleSaveReport} style={primaryBtn}>
               <RefreshCw size={14} /> Save Report
             </button>
@@ -753,13 +807,17 @@ const cardTitle    = {
 };
 const inputLabel   = { fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 5 };
 const inputWrap    = { display: 'flex', alignItems: 'center', border: '1.5px solid #E2E8F0', borderRadius: 10, background: '#f0f4f9', overflow: 'hidden' };
+const disabledInputWrap = { ...inputWrap, background: '#F8FAFC', border: '1.5px solid #E5E7EB' };
 const inputPrefix  = { padding: '8px 12px', fontSize: 14, fontWeight: 600, color: '#64748B', background: '#f0f4f9', borderRight: '1px solid #E2E8F0' };
 const inputField   = { flex: 1, padding: '8px 12px', fontSize: 14, border: 'none', background: 'transparent', outline: 'none', color: '#0F172A' };
+const disabledInputField = { ...inputField, color: '#94A3B8', cursor: 'not-allowed' };
 const helperText   = { margin: '4px 0 0', fontSize: 11, color: '#94A3B8' };
 const totalDisplay = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#e6fbff', borderRadius: 10 };
 const selectStyle  = { padding: '8px 12px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 13, background: '#fff', outline: 'none', cursor: 'pointer', color: '#0F172A' };
 const primaryBtn   = { display: 'flex', alignItems: 'center', gap: 6, flex: 1, justifyContent: 'center', padding: '11px 16px', background: '#00d7ff', color: '#0f172a', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer' };
 const secondaryBtn = { display: 'flex', alignItems: 'center', gap: 6, flex: 1, justifyContent: 'center', padding: '11px 16px', background: '#fff', color: '#374151', border: '1.5px solid #E2E8F0', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer' };
+const ghostBtn     = { display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center', padding: '11px 16px', background: '#F8FAFC', color: '#64748B', border: '1.5px solid #E2E8F0', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer' };
+const settingsBanner = { display: 'grid', gap: 4, marginBottom: 16, padding: '12px 14px', borderRadius: 12, background: '#EFF6FF', border: '1px solid #BFDBFE', fontSize: 12 };
 const loadingSkeleton = { padding: 0 };
 const thStyle = { textAlign: 'left', padding: '8px 10px', background: '#f0f4f9', color: '#64748B', fontWeight: 700, fontSize: 11, textTransform: 'uppercase', borderBottom: '1px solid #E2E8F0', whiteSpace: 'nowrap' };
 const trStyle = { borderBottom: '1px solid #F1F5F9' };

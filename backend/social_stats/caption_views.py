@@ -17,6 +17,7 @@ from rest_framework.response import Response
 import anthropic
 
 from .models import Client, CaptionRequest
+from .ai_context import build_client_ai_context
 
 logger = logging.getLogger(__name__)
 
@@ -52,11 +53,13 @@ def _check_rate_limit(client: Client) -> bool:
     return count < DAILY_RATE_LIMIT
 
 
-def _build_user_prompt(topic, tone, post_type, platforms, keywords, cta):
+def _build_user_prompt(topic, tone, post_type, platforms, keywords, cta, client_context):
     platform_rules = '\n'.join(PLATFORM_RULES[p] for p in platforms if p in PLATFORM_RULES)
     platform_list = ', '.join(platforms)
 
     return f"""Write social media captions for the following:
+
+{client_context}
 
 Topic: {topic}
 Tone: {tone}
@@ -156,6 +159,8 @@ def _generate_caption(request):
     except Client.DoesNotExist:
         return Response({'error': 'Client not found'}, status=404)
 
+    client_context = build_client_ai_context(client)
+
     # Rate limit check
     if not _check_rate_limit(client):
         return Response({'error': f'Daily limit of {DAILY_RATE_LIMIT} caption requests reached. Try again tomorrow.'}, status=429)
@@ -173,7 +178,7 @@ def _generate_caption(request):
 
     try:
         claude = anthropic.Anthropic(api_key=api_key)
-        user_prompt = _build_user_prompt(topic, tone, post_type, platforms, keywords, cta)
+        user_prompt = _build_user_prompt(topic, tone, post_type, platforms, keywords, cta, client_context)
 
         message = claude.messages.create(
             model='claude-haiku-4-5-20251001',

@@ -49,7 +49,13 @@ export const clientsAPI = {
   list:        ()           => api.get('/clients/'),
   get:         (id)         => api.get(`/clients/${id}/`),
   create:      (data)       => api.post('/clients/', data),
-  update:      (id, data)   => api.patch(`/clients/${id}/`, data),
+  update:      (id, data)   => api.patch(
+    `/clients/${id}/`,
+    data,
+    data instanceof FormData
+      ? { headers: { 'Content-Type': 'multipart/form-data' } }
+      : undefined
+  ),
   delete:      (id)         => api.delete(`/clients/${id}/`),
   summary:     (id, params) => api.get(`/clients/${id}/summary/`, { params }),
   timeseries:  (id, params) => api.get(`/clients/${id}/timeseries/`, { params }),

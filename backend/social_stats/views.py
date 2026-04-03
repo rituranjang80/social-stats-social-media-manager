@@ -6,6 +6,7 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -116,6 +117,7 @@ def me(request):
         from .permissions import PermissionChecker
         profile = user.profile
         data['permissions'] = PermissionChecker.get_user_permissions(profile)
+        data['onboarding_complete'] = profile.client.onboarding_complete if profile.client else False
         if profile.role == 'client' and profile.client:
             try:
                 cfg = profile.client.page_config
@@ -144,6 +146,7 @@ def me(request):
 # ── Clients ───────────────────────────────────────────────────────────────────
 class ClientViewSet(viewsets.ModelViewSet):
     serializer_class = ClientSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_queryset(self):
         try:

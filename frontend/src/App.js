@@ -17,6 +17,7 @@ import PublicReportPage  from './pages/PublicReportPage';
 import ROICalculatorPage from './pages/ROICalculatorPage';
 import CalendarPage      from './pages/CalendarPage';
 import AdminOnboardingPage from './pages/AdminOnboardingPage';
+import ClientOnboardingPage from './pages/ClientOnboardingPage';
 import MyPostsPage from './pages/MyPostsPage';
 import AlertsPage from './pages/AlertsPage';
 import ReportsPage from './pages/ReportsPage';
@@ -102,6 +103,12 @@ function AdminClientView() {
 function ClientLayout() {
   const { user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Redirect to onboarding if not complete (except when already on onboarding page)
+  if (user && user.role === 'client' && !user.onboarding_complete && !window.location.pathname.includes('/onboarding')) {
+    return <Navigate to="/dashboard/onboarding" replace />;
+  }
+
   return (
     <div style={{ display: 'flex' }}>
       <MobileHeader onMenuOpen={() => setMobileOpen(true)} />
@@ -117,6 +124,7 @@ function ClientLayout() {
           <Route index           element={<ClientDashboard clientId={user?.client_id} />} />
           <Route path="posts"    element={<MyPostsPage />} />
           <Route path="settings" element={<SettingsPage clientId={user?.client_id} />} />
+          <Route path="onboarding" element={<ClientOnboardingPage />} />
           <Route path="roi"      element={<ROICalculatorPage clientId={user?.client_id} />} />
           <Route path="calendar"        element={<CalendarPage clientId={user?.client_id} />} />
           <Route path="caption-writer"  element={<CaptionWriterPage />} />
