@@ -43,11 +43,8 @@ export default function AuthCallbackPage() {
     authAPI.me()
       .then(res => {
         const role = res.data.role;
-        const onboardingComplete = res.data.onboarding_complete;
         if (role === 'superadmin' || role === 'staff') {
           navigate('/admin');
-        } else if (role === 'client' && !onboardingComplete) {
-          navigate('/dashboard/onboarding');
         } else {
           navigate('/dashboard');
         }
