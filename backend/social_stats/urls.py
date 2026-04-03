@@ -23,6 +23,7 @@ from .oauth_views import (
 from .social_auth_views import (
     google_social_start, google_social_callback,
     microsoft_social_start, microsoft_social_callback,
+    facebook_social_start, facebook_social_callback,
 )
 from .management_views import (
     StaffListView, StaffDetailView, StaffPermissionsView, StaffClientsView,
@@ -54,9 +55,11 @@ urlpatterns = [
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('auth/me/',      me,                     name='me'),
 
-    # Social login (Google + Microsoft — client-only)
+    # Social login (Google + Facebook + Microsoft — client-only)
     path('auth/social/google/start/',            google_social_start,       name='google_social_start'),
     path('auth/social/google/callback/',         google_social_callback,    name='google_social_callback'),
+    path('auth/social/facebook/start/',          facebook_social_start,     name='facebook_social_start'),
+    path('auth/social/facebook/callback/',       facebook_social_callback,  name='facebook_social_callback'),
     path('auth/social/microsoft/start/',         microsoft_social_start,    name='microsoft_social_start'),
     path('auth/social/microsoft/callback/',      microsoft_social_callback, name='microsoft_social_callback'),
 

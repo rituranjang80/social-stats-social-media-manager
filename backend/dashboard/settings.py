@@ -179,6 +179,7 @@ MICROSOFT_CLIENT_ID           = os.environ.get('MICROSOFT_CLIENT_ID', '')
 MICROSOFT_CLIENT_SECRET       = os.environ.get('MICROSOFT_CLIENT_SECRET', '')
 MICROSOFT_SOCIAL_REDIRECT_URI = os.environ.get('MICROSOFT_SOCIAL_REDIRECT_URI', 'http://localhost:8000/api/auth/social/microsoft/callback/')
 GOOGLE_SOCIAL_REDIRECT_URI    = os.environ.get('GOOGLE_SOCIAL_REDIRECT_URI',    'http://localhost:8000/api/auth/social/google/callback/')
+FACEBOOK_SOCIAL_REDIRECT_URI  = os.environ.get('FACEBOOK_SOCIAL_REDIRECT_URI',  'http://localhost:8000/api/auth/social/facebook/callback/')
 
 # ── LinkedIn OAuth ────────────────────────────────────
 LINKEDIN_CLIENT_ID     = os.environ.get('LINKEDIN_CLIENT_ID', '')

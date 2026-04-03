@@ -1,5 +1,5 @@
 """
-Social login views for Google and Microsoft OAuth.
+Social login views for Google, Microsoft, and Facebook OAuth.
 Client users only — superadmin/staff are blocked.
 """
 import secrets
@@ -21,6 +21,13 @@ GOOGLE_CLIENT_SECRET  = settings.GOOGLE_CLIENT_SECRET
 GOOGLE_SOCIAL_REDIRECT_URI = getattr(
     settings, 'GOOGLE_SOCIAL_REDIRECT_URI',
     'http://localhost:8000/api/auth/social/google/callback/'
+)
+
+FACEBOOK_APP_ID     = getattr(settings, 'META_APP_ID', '')
+FACEBOOK_APP_SECRET = getattr(settings, 'META_APP_SECRET', '')
+FACEBOOK_SOCIAL_REDIRECT_URI = getattr(
+    settings, 'FACEBOOK_SOCIAL_REDIRECT_URI',
+    'http://localhost:8000/api/auth/social/facebook/callback/'
 )
 
 MICROSOFT_CLIENT_ID     = getattr(settings, 'MICROSOFT_CLIENT_ID', '')
@@ -164,6 +171,79 @@ def google_social_callback(request):
 
     if not email:
         return _frontend_error('Your Google account has no email address.')
+
+    user, err = _find_or_create_client(email, first_name, last_name)
+    if err:
+        return _frontend_error(err)
+
+    access, refresh = _make_jwt(user)
+    return redirect(f'{FRONTEND_CALLBACK}?access={access}&refresh={refresh}')
+
+
+# ── Facebook ───────────────────────────────────────────────────────────────────
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def facebook_social_start(request):
+    """Redirect browser to Facebook OAuth consent screen."""
+    state = secrets.token_urlsafe(16)
+    request.session['social_state'] = state
+    params = {
+        'client_id':     FACEBOOK_APP_ID,
+        'redirect_uri':  FACEBOOK_SOCIAL_REDIRECT_URI,
+        'response_type': 'code',
+        'scope':         'email,public_profile',
+        'state':         state,
+    }
+    url = 'https://www.facebook.com/v18.0/dialog/oauth?' + urllib.parse.urlencode(params)
+    return redirect(url)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def facebook_social_callback(request):
+    """Facebook redirects here; exchange code → profile → JWT → frontend."""
+    error = request.query_params.get('error')
+    code  = request.query_params.get('code')
+
+    if error or not code:
+        return _frontend_error('Facebook sign-in was cancelled.')
+
+    # Exchange code for access token
+    token_resp = http_requests.get(
+        'https://graph.facebook.com/v18.0/oauth/access_token',
+        params={
+            'client_id':     FACEBOOK_APP_ID,
+            'client_secret': FACEBOOK_APP_SECRET,
+            'redirect_uri':  FACEBOOK_SOCIAL_REDIRECT_URI,
+            'code':          code,
+        },
+        timeout=10,
+    )
+    if token_resp.status_code != 200:
+        return _frontend_error('Facebook sign-in failed. Please try again.')
+
+    access_token = token_resp.json().get('access_token')
+
+    # Get user info from Facebook Graph API
+    userinfo_resp = http_requests.get(
+        'https://graph.facebook.com/v18.0/me',
+        params={
+            'fields':       'id,email,first_name,last_name',
+            'access_token': access_token,
+        },
+        timeout=10,
+    )
+    if userinfo_resp.status_code != 200:
+        return _frontend_error('Could not retrieve your Facebook profile.')
+
+    info       = userinfo_resp.json()
+    email      = info.get('email', '').lower()
+    first_name = info.get('first_name', '')
+    last_name  = info.get('last_name', '')
+
+    if not email:
+        return _frontend_error('Your Facebook account has no email address. Please use email/password login instead.')
 
     user, err = _find_or_create_client(email, first_name, last_name)
     if err:
