@@ -32,12 +32,17 @@ export default function AuthCallbackPage() {
     localStorage.setItem('access_token',  access);
     localStorage.setItem('refresh_token', refresh);
 
+    const state = params.get('state');
+
     authAPI.me()
       .then(res => {
         const role = res.data.role;
         const onboardingComplete = res.data.onboarding_complete;
+        const clientId = res.data.client_id;
         if (role === 'superadmin' || role === 'staff') {
           navigate('/admin');
+        } else if (state === 'self' || (role === 'client' && !clientId)) {
+          navigate('/pending');
         } else if (!onboardingComplete) {
           navigate('/dashboard/onboarding');
         } else {

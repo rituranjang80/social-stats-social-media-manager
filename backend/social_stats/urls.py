@@ -8,7 +8,7 @@ from .views import (
     SharedReportViewSet, public_report, public_report_verify,
     OnboardingViewSet,
     OverviewView, PublicSiteContentView, PublicLookupView, create_client_user,
-    gmb_info, gmb_reviews,
+    gmb_info, gmb_reviews, setup_solo_client,
 )
 from .roi_views import ROISettingsView, ROICalculateView, ROIReportView, ROILiveView
 from .calendar_views import (
@@ -32,6 +32,12 @@ from .management_views import (
     ClientPermissionsView, ClientPortalConfigView,
     PermissionListView, RoleDefaultsView,
 )
+from .invitation_views import (
+    send_invitation, get_invitation, respond_invitation,
+    list_invitations, cancel_invitation,
+    list_notifications, mark_read, mark_all_read,
+)
+from .auth_views import signup, verify_email, resend_verification, password_reset_request, password_reset_confirm
 from .caption_views import caption_view
 from .post_ideas_views import post_ideas_view, approve_all, update_idea, add_to_calendar
 from .hashtag_views import hashtag_view, save_set, get_saved_sets
@@ -52,9 +58,14 @@ router.register(r'calendar/schedule', PostingScheduleViewSet, basename='calendar
 
 urlpatterns = [
     # Auth
-    path('auth/login/',   LoginView.as_view(),    name='login'),
-    path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('auth/me/',      me,                     name='me'),
+    path('auth/login/',                   LoginView.as_view(),           name='login'),
+    path('auth/refresh/',                 TokenRefreshView.as_view(),    name='token_refresh'),
+    path('auth/me/',                      me,                            name='me'),
+    path('auth/signup/',                  signup,                        name='signup'),
+    path('auth/verify-email/',            verify_email,                  name='verify_email'),
+    path('auth/resend-verification/',     resend_verification,           name='resend_verification'),
+    path('auth/password-reset/',          password_reset_request,        name='password_reset_request'),
+    path('auth/password-reset/confirm/',  password_reset_confirm,        name='password_reset_confirm'),
 
     # Social login (Google + Facebook + Microsoft — client-only)
     path('auth/social/google/start/',            google_social_start,       name='google_social_start'),
@@ -63,6 +74,21 @@ urlpatterns = [
     path('auth/social/facebook/callback/',       facebook_social_callback,  name='facebook_social_callback'),
     path('auth/social/microsoft/start/',         microsoft_social_start,    name='microsoft_social_start'),
     path('auth/social/microsoft/callback/',      microsoft_social_callback, name='microsoft_social_callback'),
+
+    # Invitations
+    path('invitations/send/',                        send_invitation,    name='invitation_send'),
+    path('invitations/mine/',                        list_invitations,   name='invitation_mine'),
+    path('invitations/token/<uuid:token>/',          get_invitation,     name='invitation_get'),
+    path('invitations/token/<uuid:token>/respond/',  respond_invitation, name='invitation_respond'),
+    path('invitations/<int:pk>/cancel/',             cancel_invitation,  name='invitation_cancel'),
+
+    # Notifications
+    path('notifications/',              list_notifications, name='notif_list'),
+    path('notifications/<int:pk>/read/', mark_read,          name='notif_read'),
+    path('notifications/read-all/',     mark_all_read,      name='notif_read_all'),
+
+    # Solo client setup
+    path('client/setup-solo/', setup_solo_client, name='setup_solo_client'),
 
     # Admin actions
     path('admin/create-client/', create_client_user, name='create_client'),

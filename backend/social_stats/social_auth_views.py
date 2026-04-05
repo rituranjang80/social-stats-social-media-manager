@@ -105,7 +105,7 @@ def _find_or_create_client(email, first_name='', last_name=''):
     )
     user.set_unusable_password()
     user.save()
-    UserProfile.objects.create(user=user, role='client')
+    UserProfile.objects.create(user=user, role='client', is_self_registered=True)
     return user, ''
 
 
@@ -180,6 +180,12 @@ def google_social_callback(request):
         return _frontend_error(err)
 
     access, refresh = _make_jwt(user)
+    try:
+        has_client = user.profile.client_id is not None
+    except Exception:
+        has_client = False
+    if not has_client:
+        return redirect(f'{FRONTEND_CALLBACK}?access={access}&refresh={refresh}&state=self')
     return redirect(f'{FRONTEND_CALLBACK}?access={access}&refresh={refresh}')
 
 
@@ -253,6 +259,12 @@ def facebook_social_callback(request):
         return _frontend_error(err)
 
     access, refresh = _make_jwt(user)
+    try:
+        has_client = user.profile.client_id is not None
+    except Exception:
+        has_client = False
+    if not has_client:
+        return redirect(f'{FRONTEND_CALLBACK}?access={access}&refresh={refresh}&state=self')
     return redirect(f'{FRONTEND_CALLBACK}?access={access}&refresh={refresh}')
 
 
@@ -328,4 +340,10 @@ def microsoft_social_callback(request):
         return _frontend_error(err)
 
     access, refresh = _make_jwt(user)
+    try:
+        has_client = user.profile.client_id is not None
+    except Exception:
+        has_client = False
+    if not has_client:
+        return redirect(f'{FRONTEND_CALLBACK}?access={access}&refresh={refresh}&state=self')
     return redirect(f'{FRONTEND_CALLBACK}?access={access}&refresh={refresh}')

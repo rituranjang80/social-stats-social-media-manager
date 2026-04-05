@@ -74,6 +74,22 @@ class LoginView(TokenObtainPairView):
                 {'detail': 'You must accept the Terms of Service and Privacy Policy to sign in.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+        # Check for unverified email/password accounts before simplejwt rejects them
+        username = request.data.get('username', '').strip().lower()
+        try:
+            candidate = User.objects.get(username=username)
+            if not candidate.is_active:
+                # Check if they have an email verification pending
+                has_token = hasattr(candidate, 'email_verification')
+                if has_token:
+                    return Response(
+                        {'detail': 'email_not_verified', 'email': candidate.email},
+                        status=status.HTTP_401_UNAUTHORIZED,
+                    )
+        except User.DoesNotExist:
+            pass
+
         response = super().post(request, *args, **kwargs)
         if response.status_code == 200:
             from django.contrib.auth.models import User
@@ -972,4 +988,51 @@ def gmb_reviews(request, client_id):
         'count':   total,
         'page':    page,
         'results': GMBReviewSerializer(items, many=True).data,
+    })
+
+
+# ── Solo Client Setup ──────────────────────────────────────────────────────────
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def setup_solo_client(request):
+    """
+    Create a Client record for a self-registered user who has no client yet.
+    Returns new JWT tokens with updated client_id claim.
+    """
+    profile = getattr(request.user, 'profile', None)
+    if not profile or profile.role != 'client':
+        return Response({'error': 'Only client users can use this endpoint.'}, status=403)
+    if profile.client_id:
+        return Response({'error': 'You already have a client account.'}, status=400)
+
+    user  = request.user
+    email = user.email.strip().lower()
+
+    # Find or create a Client record
+    client = Client.objects.filter(email__iexact=email).first()
+    if not client:
+        full_name  = user.get_full_name() or user.username or email.split('@')[0]
+        first_name = (user.first_name or '').strip()
+        company    = first_name or full_name or email.split('@')[0]
+        client = Client.objects.create(
+            name=full_name, company=company, email=email,
+        )
+
+    profile.client = client
+    profile.save(update_fields=['client'])
+
+    # Create onboarding steps
+    STEP_KEYS = [
+        'connect_platform', 'sync_data', 'set_goals',
+        'add_competitor', 'view_analytics', 'share_report',
+    ]
+    for step_key in STEP_KEYS:
+        OnboardingStep.objects.get_or_create(client=client, step_key=step_key)
+
+    from .social_auth_views import _make_jwt
+    access, refresh = _make_jwt(user)
+    return Response({
+        'access':    access,
+        'refresh':   refresh,
+        'client_id': client.id,
     })

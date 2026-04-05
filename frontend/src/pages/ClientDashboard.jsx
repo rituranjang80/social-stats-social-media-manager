@@ -11,7 +11,7 @@ import { clientsAPI } from '../services/api';
 import { Eye, Radio, MousePointer2, Heart, Play, UserPlus, Globe, Phone, RefreshCw, Loader2, FileText, Share2, Clock, TrendingDown, Timer, Mail, ThumbsDown, Video, MessageCircle, Navigation } from 'lucide-react';
 import GMBWidget from '../components/ui/GMBWidget';
 import GoalTracker from '../components/ui/GoalTracker';
-import AlertBell from '../components/ui/AlertBell';
+import NotificationBell from '../components/ui/NotificationBell';
 import AIInsightCard from '../components/ui/AIInsightCard';
 import BestPostWidget from '../components/ui/BestPostWidget';
 import ShareReportModal from '../components/ui/ShareReportModal';
@@ -88,7 +88,7 @@ export default function ClientDashboard({ clientId: propClientId }) {
         subtitle="Social Media Analytics"
         actions={(
           <div style={styles.headerActions}>
-            <AlertBell clientId={clientId} />
+            <NotificationBell clientId={clientId} />
             <button onClick={handleSync} disabled={syncing} style={styles.syncBtn}>
               <span style={styles.btnInner}>
                 {syncing

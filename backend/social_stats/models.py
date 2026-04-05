@@ -101,6 +101,9 @@ class UserProfile(models.Model):
     created_at        = models.DateTimeField(auto_now_add=True)
     terms_accepted    = models.BooleanField(default=False)
     terms_accepted_at = models.DateTimeField(null=True, blank=True)
+    is_self_registered = models.BooleanField(default=False)
+    email_verified     = models.BooleanField(default=True)   # False for email/password signups until verified
+    agency             = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='managed_clients')
 
     def __str__(self):
         return f"{self.user.email} ({self.role})"
@@ -113,6 +116,44 @@ class UserProfile(models.Model):
         if self.role == 'staff':
             return self.assigned_clients.filter(id=client_id).exists()
         return False
+
+
+class EmailVerificationToken(models.Model):
+    user       = models.OneToOneField(User, on_delete=models.CASCADE, related_name='email_verification')
+    token      = models.UUIDField(default=uuid.uuid4, unique=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_used    = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.expires_at = timezone.now() + timedelta(hours=24)
+        super().save(*args, **kwargs)
+
+    def is_valid(self):
+        return not self.is_used and timezone.now() < self.expires_at
+
+    def __str__(self):
+        return f"Verification token for {self.user.email}"
+
+
+class PasswordResetToken(models.Model):
+    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='password_resets')
+    token      = models.UUIDField(default=uuid.uuid4, unique=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_used    = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.expires_at = timezone.now() + timedelta(hours=2)
+        super().save(*args, **kwargs)
+
+    def is_valid(self):
+        return not self.is_used and timezone.now() < self.expires_at
+
+    def __str__(self):
+        return f"Reset token for {self.user.email}"
 
 
 def ensure_client_profile(profile):
@@ -1094,3 +1135,65 @@ class LookupItem(models.Model):
 
     def __str__(self):
         return f"{self.collection.key} — {self.label}"
+
+
+# ── Client Invitation ─────────────────────────────────────────────────────────
+INVITATION_STATUS_CHOICES = [
+    ('pending',   'Pending'),
+    ('accepted',  'Accepted'),
+    ('rejected',  'Rejected'),
+    ('cancelled', 'Cancelled'),
+    ('expired',   'Expired'),
+]
+
+class ClientInvitation(models.Model):
+    invited_by    = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_invitations')
+    client_user   = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='received_invitations')
+    client_email  = models.EmailField()
+    client_record = models.ForeignKey(Client, null=True, blank=True, on_delete=models.SET_NULL, related_name='invitations')
+    token         = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    status        = models.CharField(max_length=20, choices=INVITATION_STATUS_CHOICES, default='pending')
+    message       = models.TextField(blank=True)
+    invited_at    = models.DateTimeField(auto_now_add=True)
+    responded_at  = models.DateTimeField(null=True, blank=True)
+    expires_at    = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-invited_at']
+
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(days=7)
+        super().save(*args, **kwargs)
+
+    @property
+    def is_expired(self):
+        return self.status == 'pending' and timezone.now() > self.expires_at
+
+    def __str__(self):
+        return f"Invitation from {self.invited_by.email} to {self.client_email} ({self.status})"
+
+
+# ── Notification ──────────────────────────────────────────────────────────────
+NOTIF_TYPE_CHOICES = [
+    ('invitation_received',  'Invitation Received'),
+    ('invitation_accepted',  'Invitation Accepted'),
+    ('invitation_rejected',  'Invitation Rejected'),
+    ('invitation_cancelled', 'Invitation Cancelled'),
+    ('system',               'System'),
+]
+
+class Notification(models.Model):
+    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    notif_type = models.CharField(max_length=30, choices=NOTIF_TYPE_CHOICES, default='system')
+    title      = models.CharField(max_length=200)
+    body       = models.TextField(blank=True)
+    data       = models.JSONField(default=dict, blank=True)
+    is_read    = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.email} — {self.title}"

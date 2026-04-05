@@ -29,6 +29,11 @@ import PostIdeasPage       from './pages/PostIdeasPage';
 import PrivacyPolicyPage   from './pages/PrivacyPolicyPage';
 import TermsOfServicePage  from './pages/TermsOfServicePage';
 import DataDeletionPage    from './pages/DataDeletionPage';
+import PendingDashboard    from './pages/PendingDashboard';
+import InvitationPage      from './pages/InvitationPage';
+import SignupPage          from './pages/SignupPage';
+import VerifyEmailPage     from './pages/VerifyEmailPage';
+import ResetPasswordPage   from './pages/ResetPasswordPage';
 import logoStatoxBig from './assets/logo_statox_big.png';
 
 const shellMainStyle = {
@@ -185,11 +190,12 @@ function ClientLayout() {
 
 // ── Root redirect ─────────────────────────────────────────────────────────────
 function RootRedirect() {
-  const { user, loading } = useAuth();
+  const { user, loading, isPending } = useAuth();
   if (loading) return <Loader />;
   if (!user)   return <Navigate to="/login" replace />;
   if (user.role === 'superadmin' || user.role === 'staff')
     return <Navigate to="/admin" replace />;
+  if (isPending) return <Navigate to="/pending" replace />;
   return <Navigate to="/dashboard" replace />;
 }
 
@@ -246,10 +252,21 @@ export default function App() {
           <Route path="/"       element={<RootRedirect />} />
           <Route path="/login"         element={<LoginPage />} />
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
-          <Route path="/report/:token" element={<PublicReportPage />} />
-          <Route path="/privacy"         element={<PrivacyPolicyPage />} />
-          <Route path="/terms"           element={<TermsOfServicePage />} />
-          <Route path="/data-deletion"   element={<DataDeletionPage />} />
+          <Route path="/report/:token"    element={<PublicReportPage />} />
+          <Route path="/privacy"          element={<PrivacyPolicyPage />} />
+          <Route path="/terms"            element={<TermsOfServicePage />} />
+          <Route path="/data-deletion"    element={<DataDeletionPage />} />
+          <Route path="/invitation/:token" element={<InvitationPage />} />
+          <Route path="/signup"            element={<SignupPage />} />
+          <Route path="/verify-email"     element={<VerifyEmailPage />} />
+          <Route path="/forgot-password"  element={<ResetPasswordPage />} />
+          <Route path="/reset-password"   element={<ResetPasswordPage />} />
+
+          <Route path="/pending" element={
+            <Protected roles={['client']}>
+              <PendingDashboard />
+            </Protected>
+          } />
 
           <Route path="/admin/*" element={
             <Protected roles={['superadmin','staff']}>

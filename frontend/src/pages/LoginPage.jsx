@@ -70,13 +70,20 @@ export default function LoginPage() {
       const user = await login(email, password, accepted);
       if (user.role === 'superadmin' || user.role === 'staff') {
         navigate('/admin');
+      } else if (user.role === 'client' && !user.client_id) {
+        navigate('/pending');
       } else if (user.role === 'client' && !user.onboarding_complete) {
         navigate('/dashboard/onboarding');
       } else {
         navigate('/dashboard');
       }
-    } catch {
-      setError('Invalid email or password. Please try again.');
+    } catch (err) {
+      const detail = err?.response?.data?.detail;
+      if (detail === 'email_not_verified') {
+        setError('Please verify your email before signing in. Check your inbox for the verification link.');
+      } else {
+        setError('Invalid email or password. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -184,9 +191,9 @@ export default function LoginPage() {
             <div style={styles.field}>
               <div style={styles.labelRow}>
                 <label style={styles.label}>Password <span style={{ color: '#ef4444', marginLeft: 2, fontWeight: 800 }}>*</span></label>
-                <button type="button" style={styles.inlineLink}>
+                <a href="/forgot-password" style={{ ...styles.inlineLink, textDecoration: 'none' }}>
                   Forgot Password?
-                </button>
+                </a>
               </div>
               <div style={styles.inputWrap(focused === 'password', !!errors.password)}>
                 <Lock size={16} color={focused === 'password' ? CYAN : '#6B7D85'} strokeWidth={2} style={{ flexShrink: 0 }} />
@@ -258,6 +265,11 @@ export default function LoginPage() {
               Google
             </button>
           </div>
+
+          <p style={{ textAlign: 'center', marginTop: 18, fontSize: 13, color: '#64748b' }}>
+            New user?{' '}
+            <a href="/signup" style={{ color: CYAN, fontWeight: 600, textDecoration: 'none' }}>Create an account</a>
+          </p>
 
         </div>
       </section>

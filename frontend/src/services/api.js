@@ -39,9 +39,14 @@ api.interceptors.response.use(
 
 // ── Auth ──────────────────────────────────────────────
 export const authAPI = {
-  login:   (email, password, termsAccepted) => api.post('/auth/login/', { username: email, password, terms_accepted: termsAccepted }),
-  me:      ()                => api.get('/auth/me/'),
-  refresh: (refresh)         => api.post('/auth/refresh/', { refresh }),
+  login:              (email, password, termsAccepted) => api.post('/auth/login/', { username: email, password, terms_accepted: termsAccepted }),
+  me:                 ()              => api.get('/auth/me/'),
+  refresh:            (refresh)       => api.post('/auth/refresh/', { refresh }),
+  signup:             (data)          => api.post('/auth/signup/', data),
+  verifyEmail:        (token)         => api.get('/auth/verify-email/', { params: { token } }),
+  resendVerification: (email)         => api.post('/auth/resend-verification/', { email }),
+  passwordResetRequest: (email)       => api.post('/auth/password-reset/', { email }),
+  passwordResetConfirm: (token, password) => api.post('/auth/password-reset/confirm/', { token, password }),
 };
 
 // ── Clients ───────────────────────────────────────────
@@ -184,6 +189,34 @@ export const lookupsAPI = {
 
 export const contentAPI = {
   getPublic: (key) => publicApi.get(`/public/content/${key}/`),
+};
+
+// ── Social Auth URLs ──────────────────────────────────────────────────────────
+export const socialAuthAPI = {
+  googleUrl:    () => `${process.env.REACT_APP_API_URL || 'http://localhost:8000/api'}/auth/social/google/start/`,
+  facebookUrl:  () => `${process.env.REACT_APP_API_URL || 'http://localhost:8000/api'}/auth/social/facebook/start/`,
+  microsoftUrl: () => `${process.env.REACT_APP_API_URL || 'http://localhost:8000/api'}/auth/social/microsoft/start/`,
+};
+
+// ── Invitations ───────────────────────────────────────────────────────────────
+export const invitationAPI = {
+  send:       (data)         => api.post('/invitations/send/', data),
+  getByToken: (token)        => api.get(`/invitations/token/${token}/`),
+  respond:    (token, action) => api.post(`/invitations/token/${token}/respond/`, { action }),
+  mine:       ()             => api.get('/invitations/mine/'),
+  cancel:     (id)           => api.delete(`/invitations/${id}/cancel/`),
+};
+
+// ── Notifications ─────────────────────────────────────────────────────────────
+export const notificationAPI = {
+  list:     ()   => api.get('/notifications/'),
+  markRead: (id) => api.post(`/notifications/${id}/read/`),
+  markAll:  ()   => api.post('/notifications/read-all/'),
+};
+
+// ── Solo Client Setup ─────────────────────────────────────────────────────────
+export const soloAPI = {
+  setup: () => api.post('/client/setup-solo/'),
 };
 
 // ── Management (superadmin only) ──────────────────────

@@ -39,6 +39,15 @@ export function AuthProvider({ children }) {
     return me.data;
   }, []);
 
+  // Called after invitation acceptance or solo setup returns new tokens.
+  const refreshAuth = useCallback(async (newAccessToken, newRefreshToken) => {
+    if (newAccessToken) localStorage.setItem('access_token', newAccessToken);
+    if (newRefreshToken) localStorage.setItem('refresh_token', newRefreshToken);
+    const me = await authAPI.me();
+    setUser(me.data);
+    return me.data;
+  }, []);
+
   // Check if the current user has a given permission code.
   // Superadmin always returns true. Others check the permissions dict from /me.
   const can = useCallback((code) => {
@@ -47,8 +56,11 @@ export function AuthProvider({ children }) {
     return user.permissions?.[code] === true;
   }, [user]);
 
+  // True when a client is logged in but has no client_id yet (self-registered, no agency)
+  const isPending = !!(user && user.role === 'client' && !user.client_id);
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, can, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, can, refreshUser, refreshAuth, isPending }}>
       {children}
     </AuthContext.Provider>
   );
