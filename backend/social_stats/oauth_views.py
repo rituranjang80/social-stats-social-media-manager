@@ -54,17 +54,21 @@ def _settings_redirect(client_id, query=''):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def facebook_oauth_start(request, client_id):
-    """Step 1: Consumer app — request public_profile + email."""
+    """
+    Use the Business app to request page + Instagram access.
+    This is the platform-connect flow (not social login).
+    Redirect goes to facebook_oauth_callback which fetches pages + IG.
+    """
     state = f"{client_id}:{secrets.token_urlsafe(16)}"
     request.session['oauth_state']     = state
     request.session['oauth_client_id'] = str(client_id)
 
-    logger.info("FB oauth start: client_id=%s app_id=%s", client_id, FACEBOOK_CONSUMER_APP_ID)
+    logger.info("FB oauth start (business app): client_id=%s app_id=%s", client_id, settings.META_APP_ID)
 
     params = {
-        'client_id':     FACEBOOK_CONSUMER_APP_ID,
-        'redirect_uri':  FACEBOOK_CONSUMER_REDIRECT,
-        'scope':         'public_profile,email,pages_show_list,pages_read_engagement,instagram_basic',
+        'client_id':     settings.META_APP_ID,
+        'redirect_uri':  settings.META_REDIRECT_URI,
+        'scope':         'pages_show_list,pages_read_engagement,pages_manage_metadata,instagram_basic,instagram_manage_insights,read_insights',
         'response_type': 'code',
         'state':          state,
     }
@@ -217,11 +221,10 @@ def facebook_oauth_callback(request):
     code      = request.GET.get('code')
     state     = request.GET.get('state', '')
     error     = request.GET.get('error')
+    client_id = state.split(':')[0] if ':' in state else state or '0'
 
     if error:
-        return redirect(f"{settings.FRONTEND_URL}/settings?error=facebook_denied")
-
-    client_id = state.split(':')[0]
+        return _settings_redirect(client_id, '?error=facebook_denied')
 
     # Step 1: Short-lived token
     token_resp = requests.get(
@@ -234,8 +237,11 @@ def facebook_oauth_callback(request):
         }, timeout=10
     ).json()
 
+    logger.info("FB business callback: client_id=%s token_resp_keys=%s", client_id, list(token_resp.keys()))
+
     if 'error' in token_resp:
-        return redirect(f"{settings.FRONTEND_URL}/settings?error=facebook_token")
+        logger.error("FB business token error: %s", token_resp)
+        return _settings_redirect(client_id, '?error=facebook_token')
 
     short_token = token_resp['access_token']
 
