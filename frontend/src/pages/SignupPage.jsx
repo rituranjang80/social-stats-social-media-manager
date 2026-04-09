@@ -139,6 +139,11 @@ export default function SignupPage() {
     window.location.href = `${API_BASE}/auth/social/google/start/`;
   };
 
+  const handleFacebook = () => {
+    if (inviteToken) localStorage.setItem('pending_invite_token', inviteToken);
+    window.location.href = `${API_BASE}/auth/social/facebook/start/`;
+  };
+
   const particles = [
     { top: '12%', left: '18%', size: 6, delay: '0s' },
     { top: '26%', left: '62%', size: 5, delay: '0.8s' },
@@ -401,10 +406,16 @@ export default function SignupPage() {
                 <span style={styles.dividerLine} />
               </div>
 
-              <button type="button" onClick={handleGoogle} style={styles.googleBtn}>
-                <SocialPlatformIcon platform="google" size={18} />
-                Continue with Google
-              </button>
+              <div style={styles.socialRow}>
+                <button type="button" onClick={handleGoogle} style={styles.socialBtn}>
+                  <SocialPlatformIcon platform="google" size={18} />
+                  Google
+                </button>
+                <button type="button" onClick={handleFacebook} style={styles.socialBtn}>
+                  <SocialPlatformIcon platform="facebook" size={18} />
+                  Facebook
+                </button>
+              </div>
 
               <p style={{ textAlign: 'center', marginTop: 18, fontSize: 13, color: '#64748b' }}>
                 Already have an account?{' '}
@@ -624,9 +635,10 @@ const styles = {
   dividerRow: { display: 'flex', alignItems: 'center', gap: 12, margin: '18px 0 14px' },
   dividerLine: { flex: 1, height: 1, background: 'rgba(148,163,184,0.25)' },
   dividerText: { color: '#64748b', fontSize: 12, whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '0.14em' },
-  googleBtn: {
-    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-    width: '100%', height: 48, background: 'rgba(255,255,255,0.92)',
+  socialRow: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 },
+  socialBtn: {
+    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+    height: 48, background: 'rgba(255,255,255,0.92)',
     border: '1px solid rgba(148,163,184,0.22)', borderRadius: 14,
     fontSize: 14, fontWeight: 600, color: '#0f172a', cursor: 'pointer',
     transition: 'all 0.18s ease',

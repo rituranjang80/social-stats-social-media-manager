@@ -200,7 +200,7 @@ def respond_invitation(request, token):
             data__token=str(inv.token),
         ).update(is_read=True)
 
-        # Notify agency
+        # Notify agency (in-app)
         Notification.objects.create(
             user=inv.invited_by,
             notif_type='invitation_accepted',
@@ -210,6 +210,13 @@ def respond_invitation(request, token):
                 'client_email': inv.client_email,
             },
         )
+
+        # Email to client confirming connection
+        try:
+            from .profile_views import send_invitation_accepted_email
+            send_invitation_accepted_email(request.user, agency_name, inv.invited_by.email)
+        except Exception:
+            pass
 
         access, refresh = _make_jwt(request.user)
         return Response({

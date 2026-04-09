@@ -245,8 +245,8 @@ export default function Sidebar({ clients = [], selectedClient, onSelectClient, 
             )}
 
             <SectionTitle>Settings</SectionTitle>
-            <NavItem to="/admin/settings"    pathname={location.pathname} icon={Settings}   label="Settings" />
-            <NavItem to="/admin/billing"     pathname={location.pathname} icon={CreditCard}  label="Billing" />
+            <NavItem to="/admin/account-settings" pathname={location.pathname} icon={Settings}   label="Account Settings" />
+            <NavItem to="/admin/billing"          pathname={location.pathname} icon={CreditCard}  label="Billing" />
             {user?.role === 'superadmin' && (
               <NavItem to="/admin/management" pathname={location.pathname} icon={KeyRound} label="Access Management" />
             )}
@@ -264,7 +264,8 @@ export default function Sidebar({ clients = [], selectedClient, onSelectClient, 
             <NavItem to="/dashboard/post-ideas"     end pathname={location.pathname} icon={Lightbulb} label="Post Ideas" />
 
             <SectionTitle>Settings</SectionTitle>
-            <NavItem to="/dashboard/settings" end pathname={location.pathname} icon={Sparkles} label="Accounts" />
+            <NavItem to="/dashboard/settings"         end pathname={location.pathname} icon={Sparkles} label="Accounts" />
+            <NavItem to="/dashboard/account-settings" end pathname={location.pathname} icon={Settings} label="Account Settings" />
           </>
         )}
       </div>

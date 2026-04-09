@@ -92,7 +92,6 @@ class LoginView(TokenObtainPairView):
 
         response = super().post(request, *args, **kwargs)
         if response.status_code == 200:
-            from django.contrib.auth.models import User
             username = request.data.get('username', '')
             try:
                 user = User.objects.get(username=username)
@@ -187,12 +186,23 @@ class ClientViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_queryset(self):
+        from django.db.models import Q
         try:
             profile = self.request.user.profile
         except Exception:
             return Client.objects.none()
 
         if profile.role == 'superadmin':
+            if self.action == 'list':
+                # AllClientsPage: only show properly onboarded clients
+                # (admin-created OR accepted invitation from this agency)
+                return Client.objects.filter(
+                    Q(userprofile__isnull=True) |
+                    Q(userprofile__is_self_registered=False) |
+                    Q(userprofile__agency=self.request.user)
+                ).distinct().order_by('company')
+            # All other actions (trigger_sync, dashboard, settings, etc.)
+            # allow full access to every client
             return Client.objects.all().order_by('company')
         if profile.role == 'staff':
             return profile.assigned_clients.all()
@@ -351,12 +361,36 @@ class ClientViewSet(viewsets.ModelViewSet):
 
 
 # ── Platform Credentials ──────────────────────────────────────────────────────
+def _agency_client_ids(request):
+    """Return list of client IDs this user is allowed to see."""
+    from django.db.models import Q
+    try:
+        profile = request.user.profile
+        role    = profile.role
+    except Exception:
+        return []
+    if role == 'staff':
+        return list(profile.assigned_clients.values_list('id', flat=True))
+    if role == 'superadmin':
+        return list(
+            Client.objects.filter(
+                Q(userprofile__isnull=True) |
+                Q(userprofile__is_self_registered=False) |
+                Q(userprofile__agency=request.user)
+            ).distinct().values_list('id', flat=True)
+        )
+    if role == 'client' and profile.client_id:
+        return [profile.client_id]
+    return []
+
+
 class CredentialViewSet(viewsets.ModelViewSet):
     serializer_class = PlatformCredentialSerializer
 
     def get_queryset(self):
-        client_id = self.request.query_params.get('client')
-        qs = PlatformCredential.objects.select_related('client').all()
+        client_ids = _agency_client_ids(self.request)
+        client_id  = self.request.query_params.get('client')
+        qs = PlatformCredential.objects.select_related('client').filter(client_id__in=client_ids)
         if client_id:
             qs = qs.filter(client_id=client_id)
         return qs
@@ -367,11 +401,12 @@ class SyncLogViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = SyncLogSerializer
 
     def get_queryset(self):
-        qs = SyncLog.objects.select_related('client').all()
-        client_id = self.request.query_params.get('client')
+        client_ids = _agency_client_ids(self.request)
+        client_id  = self.request.query_params.get('client')
+        qs = SyncLog.objects.select_related('client').filter(client_id__in=client_ids)
         if client_id:
             qs = qs.filter(client_id=client_id)
-        return qs[:100]
+        return qs.order_by('-started_at')[:100]
 
 
 # ── Goals ─────────────────────────────────────────────────────────────────────
@@ -379,10 +414,11 @@ class GoalViewSet(viewsets.ModelViewSet):
     serializer_class = ClientGoalSerializer
 
     def get_queryset(self):
-        qs = ClientGoal.objects.select_related('client').all()
-        client_id = self.request.query_params.get('client')
-        month     = self.request.query_params.get('month')
-        year      = self.request.query_params.get('year')
+        client_ids = _agency_client_ids(self.request)
+        client_id  = self.request.query_params.get('client')
+        month      = self.request.query_params.get('month')
+        year       = self.request.query_params.get('year')
+        qs = ClientGoal.objects.select_related('client').filter(client_id__in=client_ids)
         if client_id:
             qs = qs.filter(client_id=client_id)
         if month:
@@ -501,12 +537,8 @@ class AlertViewSet(viewsets.ModelViewSet):
         except Exception:
             return Alert.objects.none()
 
-        if profile.role == 'client':
-            qs = Alert.objects.filter(client_id=profile.client_id)
-        elif profile.role == 'staff':
-            qs = Alert.objects.filter(client__in=profile.assigned_clients.all())
-        else:
-            qs = Alert.objects.select_related('client').all()
+        client_ids = _agency_client_ids(self.request)
+        qs = Alert.objects.select_related('client').filter(client_id__in=client_ids)
 
         client_id = self.request.query_params.get('client')
         is_read   = self.request.query_params.get('is_read')
@@ -897,17 +929,34 @@ def public_report_verify(request, token):
     return Response(data)
 
 
-# ── Overview (superadmin) ─────────────────────────────────────────────────────
+# ── Overview (superadmin / agency-scoped) ────────────────────────────────────
 class OverviewView(APIView):
     def get(self, request):
+        from django.db.models import Q
         try:
-            if request.user.profile.role not in ('superadmin', 'staff'):
-                return Response({'error': 'Forbidden'}, status=403)
+            profile = request.user.profile
+            role    = profile.role
         except Exception:
             return Response({'error': 'Forbidden'}, status=403)
 
+        if role not in ('superadmin', 'staff'):
+            return Response({'error': 'Forbidden'}, status=403)
+
+        # Scope clients to what this agency/staff user owns
+        if role == 'staff':
+            client_qs = profile.assigned_clients.filter(is_active=True)
+        else:
+            # superadmin — only their own clients (admin-created or agency-invited)
+            client_qs = Client.objects.filter(is_active=True).filter(
+                Q(userprofile__isnull=True) |
+                Q(userprofile__is_self_registered=False) |
+                Q(userprofile__agency=request.user)
+            ).distinct()
+
+        client_ids = list(client_qs.values_list('id', flat=True))
+
         since, until = parse_dates(request)
-        qs = DailyMetric.objects.filter(date__range=(since, until))
+        qs = DailyMetric.objects.filter(date__range=(since, until), client_id__in=client_ids)
 
         by_platform = list(qs.values('platform').annotate(
             impressions=Sum('impressions'),
@@ -917,8 +966,8 @@ class OverviewView(APIView):
             followers=Sum('followers'),
         ))
 
-        total_clients  = Client.objects.filter(is_active=True).count()
-        recent_syncs   = SyncLog.objects.order_by('-started_at')[:10]
+        total_clients = len(client_ids)
+        recent_syncs  = SyncLog.objects.filter(client_id__in=client_ids).order_by('-started_at')[:10]
 
         return Response({
             'period':        {'since': since.isoformat(), 'until': until.isoformat()},
@@ -926,6 +975,54 @@ class OverviewView(APIView):
             'by_platform':   by_platform,
             'recent_syncs':  SyncLogSerializer(recent_syncs, many=True).data,
         })
+
+
+@api_view(['POST'])
+def sync_all_clients(request):
+    """Queue sync for this agency's active clients. Superadmin / staff only."""
+    from django.db.models import Q
+    try:
+        profile = request.user.profile
+        role    = profile.role
+    except Exception:
+        return Response({'error': 'Forbidden'}, status=403)
+    if role not in ('superadmin', 'staff'):
+        return Response({'error': 'Forbidden'}, status=403)
+
+    # Scope to this agency's clients only
+    if role == 'staff':
+        client_ids = list(profile.assigned_clients.filter(is_active=True).values_list('id', flat=True))
+    else:
+        client_ids = list(
+            Client.objects.filter(is_active=True).filter(
+                Q(userprofile__isnull=True) |
+                Q(userprofile__is_self_registered=False) |
+                Q(userprofile__agency=request.user)
+            ).distinct().values_list('id', flat=True)
+        )
+
+    from .tasks import sync_facebook, sync_instagram, sync_youtube, sync_linkedin, sync_gmb
+    task_map = {
+        'facebook': sync_facebook,
+        'instagram': sync_instagram,
+        'youtube': sync_youtube,
+        'linkedin': sync_linkedin,
+        'google_my_business': sync_gmb,
+    }
+
+    active_creds = PlatformCredential.objects.filter(
+        is_active=True, client_id__in=client_ids
+    ).exclude(access_token='').values('client_id', 'platform').distinct()
+
+    queued = {}
+    for row in active_creds:
+        cid = row['client_id']
+        p   = row['platform']
+        if p in task_map:
+            task_map[p].delay(cid)
+            queued.setdefault(cid, []).append(p)
+
+    return Response({'queued_clients': len(queued), 'detail': queued})
 
 
 class PublicSiteContentView(APIView):

@@ -40,17 +40,16 @@ def sync_facebook(self, client_id, days=30):
         cred  = PlatformCredential.objects.get(client_id=client_id, platform='facebook', is_active=True)
         since, until = _date_range(days)
 
+        # page_impressions, page_fan_adds/removes, page_consumptions,
+        # page_negative_feedback, page_video_view_time deprecated in v18+
         metrics_to_fetch = ','.join([
-            'page_impressions',
-            'page_impressions_unique',
-            'page_post_engagements',
-            'page_views_total',
-            'page_fan_adds',
-            'page_fan_removes',
-            'page_consumptions',
-            'page_negative_feedback',
-            'page_video_views',
-            'page_video_view_time',
+            'page_impressions_unique',  # daily reach (impressions deprecated)
+            'page_post_engagements',    # engagements
+            'page_views_total',         # page views
+            'page_daily_follows',       # new followers (page_fan_adds deprecated)
+            'page_daily_unfollows',     # unfollows (page_fan_removes deprecated)
+            'page_video_views',         # video views
+            'page_total_actions',       # total actions on page
         ])
 
         insights = requests.get(
@@ -64,7 +63,7 @@ def sync_facebook(self, client_id, days=30):
             }, timeout=15
         ).json()
 
-        # Fetch reactions breakdown separately (returns dict per day)
+        # Fetch reactions breakdown separately
         reactions_resp = requests.get(
             f"https://graph.facebook.com/v18.0/{cred.page_id}/insights",
             params={
@@ -78,16 +77,13 @@ def sync_facebook(self, client_id, days=30):
 
         daily = {}
         metric_map = {
-            'page_impressions':        'impressions',
             'page_impressions_unique': 'reach',
             'page_post_engagements':   'likes',
             'page_views_total':        'profile_views',
-            'page_fan_adds':           'followers',
-            'page_fan_removes':        'followers_lost',
-            'page_consumptions':       'clicks',
-            'page_negative_feedback':  'negative_feedback',
+            'page_daily_follows':      'followers',
+            'page_daily_unfollows':    'followers_lost',
             'page_video_views':        'fb_video_views',
-            'page_video_view_time':    'fb_video_watch_time',
+            'page_total_actions':      'clicks',
         }
         for m in insights.get('data', []):
             key = metric_map.get(m['name'])
@@ -95,9 +91,6 @@ def sync_facebook(self, client_id, days=30):
             for v in m.get('values', []):
                 day = v['end_time'][:10]
                 val = v.get('value', 0)
-                # page_video_view_time comes in ms → convert to seconds
-                if m['name'] == 'page_video_view_time' and val:
-                    val = int(val / 1000)
                 daily.setdefault(day, {})[key] = val if isinstance(val, (int, float)) else 0
 
         # Merge reactions
@@ -123,6 +116,63 @@ def sync_facebook(self, client_id, days=30):
             )
             count += 1
 
+        # ── Per-post metrics ──────────────────────────────────────────────────
+        from .models import PostMetric
+        fb_posts = requests.get(
+            f"https://graph.facebook.com/v18.0/{cred.page_id}/posts",
+            params={
+                'fields': 'id,message,story,created_time,permalink_url,full_picture',
+                'limit':  25,
+                'access_token': cred.access_token,
+            }, timeout=15
+        ).json()
+
+        for post in fb_posts.get('data', []):
+            try:
+                pi = requests.get(
+                    f"https://graph.facebook.com/v18.0/{post['id']}/insights",
+                    params={
+                        'metric': 'post_impressions_unique,post_engaged_users,post_clicks',
+                        'access_token': cred.access_token,
+                    }, timeout=10
+                ).json()
+                pm = {x['name']: x['values'][0]['value'] for x in pi.get('data', []) if x.get('values')}
+
+                # Reactions
+                react_resp = requests.get(
+                    f"https://graph.facebook.com/v18.0/{post['id']}/reactions",
+                    params={'summary': 'true', 'access_token': cred.access_token},
+                    timeout=10
+                ).json()
+                likes = react_resp.get('summary', {}).get('total_count', 0)
+
+                comments_resp = requests.get(
+                    f"https://graph.facebook.com/v18.0/{post['id']}/comments",
+                    params={'summary': 'true', 'access_token': cred.access_token},
+                    timeout=10
+                ).json()
+                comments = comments_resp.get('summary', {}).get('total_count', 0)
+
+                caption = (post.get('message') or post.get('story') or '')[:500]
+                PostMetric.objects.update_or_create(
+                    client_id=client_id, platform='facebook', post_id=post['id'],
+                    defaults={
+                        'post_url':      post.get('permalink_url', ''),
+                        'post_type':     'post',
+                        'caption':       caption,
+                        'published_at':  post.get('created_time'),
+                        'thumbnail_url': post.get('full_picture', ''),
+                        'impressions':   pm.get('post_impressions_unique', 0),
+                        'reach':         pm.get('post_impressions_unique', 0),
+                        'likes':         likes,
+                        'comments':      comments,
+                        'clicks':        pm.get('post_clicks', 0),
+                        'shares':        0,
+                    }
+                )
+            except Exception:
+                pass
+
         log.status = 'success'; log.records_synced = count
     except Exception as e:
         log.status = 'failed'; log.error_message = str(e)
@@ -140,23 +190,15 @@ def sync_instagram(self, client_id, days=30):
         cred  = PlatformCredential.objects.get(client_id=client_id, platform='instagram', is_active=True)
         since, until = _date_range(days)
 
-        ig_metrics = ','.join([
-            'impressions',
-            'reach',
-            'profile_views',
-            'website_clicks',
-            'follower_count',
-            'accounts_engaged',
-            'total_interactions',
-            'email_contacts',
-            'phone_call_clicks',
-            'direction_clicks',
-        ])
+        # In API v18+, metrics are split into two groups:
+        # Group 1: period=day (standard)
+        # Group 2: period=day + metric_type=total_value (new requirement)
 
-        insights = requests.get(
+        # Group 1 — standard day metrics
+        day_insights = requests.get(
             f"https://graph.facebook.com/v18.0/{cred.instagram_account_id}/insights",
             params={
-                'metric': ig_metrics,
+                'metric': 'reach,follower_count',
                 'period': 'day',
                 'since':  since.isoformat(),
                 'until':  (until + timedelta(days=1)).isoformat(),
@@ -164,12 +206,17 @@ def sync_instagram(self, client_id, days=30):
             }, timeout=15
         ).json()
 
-        # Fetch follows/unfollows separately (lifetime metric, use day period)
-        follows_resp = requests.get(
+        # Group 2 — total_value metrics (profile_views, website_clicks, etc.)
+        total_insights = requests.get(
             f"https://graph.facebook.com/v18.0/{cred.instagram_account_id}/insights",
             params={
-                'metric': 'follows_and_unfollows',
-                'period': 'day',
+                'metric': ','.join([
+                    'profile_views', 'website_clicks', 'accounts_engaged',
+                    'total_interactions', 'likes', 'comments', 'shares', 'saves',
+                    'follows_and_unfollows',
+                ]),
+                'period':      'day',
+                'metric_type': 'total_value',
                 'since':  since.isoformat(),
                 'until':  (until + timedelta(days=1)).isoformat(),
                 'access_token': cred.access_token,
@@ -177,36 +224,43 @@ def sync_instagram(self, client_id, days=30):
         ).json()
 
         daily = {}
-        for m in insights.get('data', []):
+
+        # Parse Group 1 (standard values array)
+        for m in day_insights.get('data', []):
             name = m['name']
             for v in m.get('values', []):
                 day = v['end_time'][:10]
                 daily.setdefault(day, {})[name] = v.get('value', 0)
 
-        # Merge follows/unfollows — value is a dict {follows: N, unfollows: N}
-        for m in follows_resp.get('data', []):
+        # Parse Group 2 (total_value — each item has a single value dict)
+        for m in total_insights.get('data', []):
+            name = m['name']
             for v in m.get('values', []):
                 day = v['end_time'][:10]
-                val = v.get('value', {})
-                if isinstance(val, dict):
+                val = v.get('value', 0)
+                if name == 'follows_and_unfollows' and isinstance(val, dict):
                     daily.setdefault(day, {})['ig_followers_lost'] = val.get('unfollows', 0)
+                    daily.setdefault(day, {})['followers_gained'] = val.get('follows', 0)
+                else:
+                    daily.setdefault(day, {})[name] = val if isinstance(val, (int, float)) else 0
 
         count = 0
         for day_str, vals in daily.items():
             DailyMetric.objects.update_or_create(
                 client_id=client_id, platform='instagram', date=day_str,
                 defaults={
-                    'impressions':       vals.get('impressions', 0),
-                    'reach':             vals.get('reach', 0),
-                    'profile_views':     vals.get('profile_views', 0),
-                    'website_clicks':    vals.get('website_clicks', 0),
-                    'followers':         vals.get('follower_count', 0),
-                    'accounts_engaged':  vals.get('accounts_engaged', 0),
-                    'total_interactions':vals.get('total_interactions', 0),
-                    'email_contacts':    vals.get('email_contacts', 0),
-                    'phone_call_clicks': vals.get('phone_call_clicks', 0),
-                    'direction_clicks':  vals.get('direction_clicks', 0),
-                    'ig_followers_lost': vals.get('ig_followers_lost', 0),
+                    'impressions':        vals.get('total_interactions', 0),
+                    'reach':              vals.get('reach', 0),
+                    'profile_views':      vals.get('profile_views', 0),
+                    'website_clicks':     vals.get('website_clicks', 0),
+                    'followers':          vals.get('follower_count', 0),
+                    'accounts_engaged':   vals.get('accounts_engaged', 0),
+                    'total_interactions': vals.get('total_interactions', 0),
+                    'likes':              vals.get('likes', 0),
+                    'comments':           vals.get('comments', 0),
+                    'shares':             vals.get('shares', 0),
+                    'saves':              vals.get('saves', 0),
+                    'ig_followers_lost':  vals.get('ig_followers_lost', 0),
                 }
             )
             count += 1
@@ -215,7 +269,7 @@ def sync_instagram(self, client_id, days=30):
         posts = requests.get(
             f"https://graph.facebook.com/v18.0/{cred.instagram_account_id}/media",
             params={
-                'fields': 'id,caption,media_type,permalink,timestamp',
+                'fields': 'id,caption,media_type,permalink,timestamp,media_url,thumbnail_url',
                 'limit':  25,
                 'access_token': cred.access_token,
             }, timeout=15
@@ -223,28 +277,56 @@ def sync_instagram(self, client_id, days=30):
 
         for post in posts.get('data', []):
             try:
+                media_type = post.get('media_type', '').upper()  # IMAGE, VIDEO, CAROUSEL_ALBUM, REEL
+                thumb = post.get('thumbnail_url') or post.get('media_url', '')
+
+                # In v18.0, valid metrics differ by media type:
+                # - IMAGE/CAROUSEL: reach, saved, shares  (impressions deprecated)
+                # - VIDEO: reach, saved, shares, video_views
+                # - REEL: reach, saved, shares, plays  (impressions/video_views not valid)
+                if media_type == 'VIDEO':
+                    insight_metrics = 'reach,saved,shares,video_views'
+                elif media_type in ('REEL', 'IG_REEL'):
+                    insight_metrics = 'reach,saved,shares,plays'
+                else:
+                    insight_metrics = 'reach,saved,shares'
+
                 pi = requests.get(
                     f"https://graph.facebook.com/v18.0/{post['id']}/insights",
                     params={
-                        'metric': 'impressions,reach,likes,comments,saved,video_views,shares',
+                        'metric': insight_metrics,
                         'access_token': cred.access_token,
                     }, timeout=10
                 ).json()
-                m = {x['name']: x['values'][0]['value'] for x in pi.get('data', [])}
+                m = {}
+                for x in pi.get('data', []):
+                    vals = x.get('values', [])
+                    m[x['name']] = vals[0]['value'] if vals else 0
+
+                # likes and comments come from the media node directly in v18+
+                post_detail = requests.get(
+                    f"https://graph.facebook.com/v18.0/{post['id']}",
+                    params={
+                        'fields': 'like_count,comments_count',
+                        'access_token': cred.access_token,
+                    }, timeout=10
+                ).json()
+
                 PostMetric.objects.update_or_create(
                     client_id=client_id, platform='instagram', post_id=post['id'],
                     defaults={
-                        'post_url':    post.get('permalink', ''),
-                        'post_type':   post.get('media_type', '').lower(),
-                        'caption':     post.get('caption', '')[:500],
-                        'published_at':post.get('timestamp'),
-                        'impressions': m.get('impressions', 0),
-                        'reach':       m.get('reach', 0),
-                        'likes':       m.get('likes', 0),
-                        'comments':    m.get('comments', 0),
-                        'saves':       m.get('saved', 0),
-                        'video_views': m.get('video_views', 0),
-                        'shares':      m.get('shares', 0),
+                        'post_url':      post.get('permalink', ''),
+                        'post_type':     media_type.lower(),
+                        'caption':       (post.get('caption') or '')[:500],
+                        'published_at':  post.get('timestamp'),
+                        'thumbnail_url': thumb,
+                        'impressions':   m.get('plays', m.get('video_views', 0)),  # plays for reels
+                        'reach':         m.get('reach', 0),
+                        'likes':         post_detail.get('like_count', 0),
+                        'comments':      post_detail.get('comments_count', 0),
+                        'saves':         m.get('saved', 0),
+                        'video_views':   m.get('video_views', m.get('plays', 0)),
+                        'shares':        m.get('shares', 0),
                     }
                 )
             except Exception:

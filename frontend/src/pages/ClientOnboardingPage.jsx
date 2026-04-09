@@ -65,12 +65,15 @@ export default function ClientOnboardingPage() {
   const socialPlatformOptions = lookups.platforms?.map(item => ({ value: item.key, label: item.label })) || SOCIAL_PLATFORMS;
   const getCategoryKey = (category) => businessCategoryOptions.find(item => item.label === category)?.key;
 
+  const STEP_STORAGE_KEY = `onboarding_step_${user?.client_id || 'new'}`;
+
   const [currentStep, setCurrentStep] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [loading, setLoading]         = useState(false);
+  const [saving, setSaving]           = useState(false);
+  const [errors, setErrors]           = useState({});
   const [submitError, setSubmitError] = useState('');
+  const [dataLoaded, setDataLoaded]   = useState(false);
   const [formData, setFormData] = useState({
-    // Business Basics
     name: user?.first_name + ' ' + user?.last_name || '',
     company: '',
     email: user?.email || '',
@@ -78,8 +81,6 @@ export default function ClientOnboardingPage() {
     whatsapp_number: '',
     website: '',
     gmb_url: '',
-
-    // Brand Profile
     business_category: '',
     business_subcategories: [],
     brand_description: '',
@@ -89,15 +90,46 @@ export default function ClientOnboardingPage() {
     gender: 'all',
     business_location: '',
     target_locations: [],
-
-    // Assets
     profile_image: null,
     product_images: [],
     brand_assets: {},
-
-    // Competitors
     competitors: [],
   });
+
+  // Load existing client data and resume saved step on mount
+  useEffect(() => {
+    if (!clientId || dataLoaded) return;
+    clientsAPI.get(clientId).then(res => {
+      const c = res.data;
+      setFormData(prev => ({
+        ...prev,
+        name:                  [c.name].filter(Boolean).join(' ') || prev.name,
+        company:               c.company               || prev.company,
+        email:                 c.email                 || prev.email,
+        phone:                 c.phone                 || prev.phone,
+        whatsapp_number:       c.whatsapp_number       || prev.whatsapp_number,
+        website:               c.website               || prev.website,
+        gmb_url:               c.gmb_url               || prev.gmb_url,
+        business_category:     c.business_category     || prev.business_category,
+        business_subcategories: c.business_subcategories || prev.business_subcategories,
+        brand_description:     c.brand_description     || prev.brand_description,
+        usp:                   c.usp                   || prev.usp,
+        brand_tone:            c.brand_tone            || prev.brand_tone,
+        target_audience:       c.target_audience       || prev.target_audience,
+        gender:                c.gender                || prev.gender,
+        business_location:     c.business_location     || prev.business_location,
+        target_locations:      c.target_locations      || prev.target_locations,
+        competitors:           (c.competitors || []).map(comp => ({
+          name: comp.name || '',
+          social_links: Object.entries(comp.social_links || {}).map(([platform, url]) => ({ platform, url })),
+        })),
+      }));
+      // Resume from last saved step
+      const savedStep = parseInt(sessionStorage.getItem(STEP_STORAGE_KEY) || '0', 10);
+      if (savedStep > 0) setCurrentStep(Math.min(savedStep, 5));
+      setDataLoaded(true);
+    }).catch(() => setDataLoaded(true));
+  }, [clientId, dataLoaded, STEP_STORAGE_KEY]);
 
   const competitorLinksArrayToObject = (links) => {
     return (links || []).reduce((acc, link) => {
@@ -312,16 +344,51 @@ export default function ClientOnboardingPage() {
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleNext = () => {
+  const buildSubmitData = () => {
+    const normalizedData = {
+      ...formData,
+      competitors: formData.competitors.map(comp => ({
+        name: comp.name,
+        social_links: competitorLinksArrayToObject(comp.social_links),
+      })),
+    };
+    const fd = new FormData();
+    Object.keys(normalizedData).forEach(key => {
+      if (normalizedData[key] === null || normalizedData[key] === undefined) return;
+      if (key === 'profile_image' && normalizedData[key] instanceof File) {
+        fd.append(key, normalizedData[key]);
+      } else if (key === 'product_images') {
+        fd.append(key, JSON.stringify([]));
+      } else if (Array.isArray(normalizedData[key]) || typeof normalizedData[key] === 'object') {
+        fd.append(key, JSON.stringify(normalizedData[key]));
+      } else {
+        fd.append(key, normalizedData[key]);
+      }
+    });
+    return fd;
+  };
+
+  const saveProgress = async () => {
+    if (!clientId) return;
+    try {
+      setSaving(true);
+      await clientsAPI.update(clientId, buildSubmitData());
+    } catch { /* silent */ } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleNext = async () => {
     if (!validateStep(currentStep)) {
       focusStep(currentStep);
       return;
     }
     setSubmitError('');
-    setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    await saveProgress();
+    const nextStep = Math.min(currentStep + 1, steps.length - 1);
+    setCurrentStep(nextStep);
+    sessionStorage.setItem(STEP_STORAGE_KEY, String(nextStep));
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSubmit = async () => {
@@ -342,32 +409,7 @@ export default function ClientOnboardingPage() {
     setLoading(true);
     setSubmitError('');
     try {
-      const submitData = new FormData();
-
-      const normalizedData = {
-        ...formData,
-        competitors: formData.competitors.map(comp => ({
-          name: comp.name,
-          social_links: competitorLinksArrayToObject(comp.social_links)
-        })),
-      };
-
-      // Add all form fields
-      Object.keys(normalizedData).forEach(key => {
-        if (normalizedData[key] === null || normalizedData[key] === undefined) {
-          return;
-        }
-        if (key === 'profile_image' && normalizedData[key] instanceof File) {
-          submitData.append(key, normalizedData[key]);
-        } else if (key === 'product_images') {
-          submitData.append(key, JSON.stringify([]));
-        } else if (Array.isArray(normalizedData[key]) || typeof normalizedData[key] === 'object') {
-          submitData.append(key, JSON.stringify(normalizedData[key]));
-        } else {
-          submitData.append(key, normalizedData[key]);
-        }
-      });
-
+      const submitData = buildSubmitData();
       submitData.append('onboarding_complete', 'true');
 
       if (clientId) {
@@ -376,6 +418,7 @@ export default function ClientOnboardingPage() {
         await clientsAPI.create(submitData);
         await refreshUser();
       }
+      sessionStorage.removeItem(STEP_STORAGE_KEY);
       navigate('/dashboard');
     } catch (error) {
       console.error('Onboarding submission failed:', error);

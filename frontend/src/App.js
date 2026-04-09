@@ -16,8 +16,6 @@ import EditClientPage    from './pages/EditClientPage';
 import PublicReportPage  from './pages/PublicReportPage';
 import ROICalculatorPage from './pages/ROICalculatorPage';
 import CalendarPage      from './pages/CalendarPage';
-import AdminOnboardingPage from './pages/AdminOnboardingPage';
-import ClientOnboardingPage from './pages/ClientOnboardingPage';
 import MyPostsPage from './pages/MyPostsPage';
 import AlertsPage from './pages/AlertsPage';
 import ReportsPage from './pages/ReportsPage';
@@ -34,6 +32,8 @@ import InvitationPage      from './pages/InvitationPage';
 import SignupPage          from './pages/SignupPage';
 import VerifyEmailPage     from './pages/VerifyEmailPage';
 import ResetPasswordPage   from './pages/ResetPasswordPage';
+import UserSettingsPage    from './pages/UserSettingsPage';
+import ClientOnboardingPage from './pages/ClientOnboardingPage';
 import logoStatoxBig from './assets/logo_statox_big.png';
 
 const shellMainStyle = {
@@ -80,7 +80,6 @@ function AdminLayout() {
           <Route path="client/:clientId/*" element={<AdminClientView />} />
           <Route path="clients"            element={<AllClientsPage onSelectClient={setSelected} />} />
           <Route path="synclogs"           element={<SyncLogsPage />} />
-          <Route path="onboarding"         element={<AdminOnboardingPage />} />
           <Route path="roi"                element={<ROICalculatorPage clientId={null} />} />
           <Route path="calendar"           element={<CalendarPage clientId={null} />} />
           <Route path="alerts"             element={<AlertsPage />} />
@@ -90,6 +89,8 @@ function AdminLayout() {
           <Route path="caption-writer"     element={<CaptionWriterPage />} />
           <Route path="post-ideas"         element={<PostIdeasPage />} />
           <Route path="hashtags"           element={<CaptionWriterPage defaultTab="hashtag" />} />
+          <Route path="account-settings"   element={<UserSettingsPage />} />
+          <Route path="onboarding"          element={<Navigate to="/admin" replace />} />
         </Routes>
       </main>
       <BottomNav onMenuOpen={() => setMobileOpen(true)} />
@@ -111,49 +112,6 @@ function AdminClientView() {
   );
 }
 
-// ── Onboarding reminder banner ────────────────────────────────────────────────
-function OnboardingBanner() {
-  const { user } = useAuth();
-  const [dismissed, setDismissed] = useState(
-    () => sessionStorage.getItem('onboarding_banner_dismissed') === 'true'
-  );
-
-  if (!user || user.onboarding_complete || dismissed) return null;
-
-  const handleDismiss = () => {
-    sessionStorage.setItem('onboarding_banner_dismissed', 'true');
-    setDismissed(true);
-  };
-
-  return (
-    <div style={{
-      background: 'linear-gradient(90deg, #00d7ff 0%, #0099bb 100%)',
-      color: '#fff',
-      padding: '10px 20px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: 12,
-      fontSize: 13,
-      fontWeight: 600,
-      zIndex: 100,
-    }}>
-      <span>
-        🚀 Complete your profile setup to unlock all features.{' '}
-        <a href="/dashboard/onboarding" style={{ color: '#fff', textDecoration: 'underline' }}>
-          Complete setup →
-        </a>
-      </span>
-      <button
-        onClick={handleDismiss}
-        style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 18, lineHeight: 1, padding: 0 }}
-      >
-        ×
-      </button>
-    </div>
-  );
-}
-
 // ── Client layout with sidebar ────────────────────────────────────────────────
 function ClientLayout() {
   const { user } = useAuth();
@@ -170,17 +128,17 @@ function ClientLayout() {
         className="main-content"
         style={shellMainStyle}
       >
-        <OnboardingBanner />
         <Routes>
           <Route index           element={<ClientDashboard clientId={user?.client_id} />} />
           <Route path="posts"    element={<MyPostsPage />} />
           <Route path="settings" element={<SettingsPage clientId={user?.client_id} />} />
-          <Route path="onboarding" element={<ClientOnboardingPage />} />
           <Route path="roi"      element={<ROICalculatorPage clientId={user?.client_id} />} />
           <Route path="calendar"        element={<CalendarPage clientId={user?.client_id} />} />
           <Route path="caption-writer"  element={<CaptionWriterPage />} />
           <Route path="post-ideas"      element={<PostIdeasPage />} />
           <Route path="hashtags"        element={<CaptionWriterPage defaultTab="hashtag" />} />
+          <Route path="account-settings" element={<UserSettingsPage />} />
+          <Route path="onboarding"       element={<ClientOnboardingPage />} />
         </Routes>
       </main>
       <BottomNav onMenuOpen={() => setMobileOpen(true)} />

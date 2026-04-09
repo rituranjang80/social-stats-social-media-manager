@@ -808,7 +808,7 @@ export default function AdminOverview() {
               <table style={styles.table}>
                 <thead>
                   <tr>
-                    {['User','Platform','Status','Records','Started'].map(h => (
+                    {['Client','Platform','Status','Daily Rows','Started'].map(h => (
                       <th key={h} style={styles.th}>{h}</th>
                     ))}
                   </tr>

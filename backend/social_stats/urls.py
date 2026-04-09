@@ -8,7 +8,7 @@ from .views import (
     SharedReportViewSet, public_report, public_report_verify,
     OnboardingViewSet,
     OverviewView, PublicSiteContentView, PublicLookupView, create_client_user,
-    gmb_info, gmb_reviews, setup_solo_client,
+    gmb_info, gmb_reviews, setup_solo_client, sync_all_clients,
 )
 from .roi_views import ROISettingsView, ROICalculateView, ROIReportView, ROILiveView
 from .calendar_views import (
@@ -16,7 +16,7 @@ from .calendar_views import (
     PostingScheduleViewSet, SuggestTimesView,
 )
 from .oauth_views import (
-    facebook_oauth_start, facebook_oauth_callback,
+    facebook_oauth_start, facebook_oauth_callback, facebook_consumer_callback,
     google_oauth_start, google_oauth_callback,
     linkedin_oauth_start, linkedin_oauth_callback,
     oauth_status, oauth_disconnect,
@@ -38,6 +38,7 @@ from .invitation_views import (
     list_notifications, mark_read, mark_all_read,
 )
 from .auth_views import signup, verify_email, resend_verification, password_reset_request, password_reset_confirm
+from .profile_views import user_profile, change_password, agency_info, disconnect_agency
 from .caption_views import caption_view
 from .post_ideas_views import post_ideas_view, approve_all, update_idea, add_to_calendar
 from .hashtag_views import hashtag_view, save_set, get_saved_sets
@@ -62,6 +63,13 @@ urlpatterns = [
     path('auth/refresh/',                 TokenRefreshView.as_view(),    name='token_refresh'),
     path('auth/me/',                      me,                            name='me'),
     path('auth/signup/',                  signup,                        name='signup'),
+
+    # User profile & account settings
+    path('profile/',                      user_profile,                  name='user_profile'),
+    path('profile/change-password/',      change_password,               name='change_password'),
+    path('profile/agency/',               agency_info,                   name='agency_info'),
+    path('profile/disconnect-agency/',    disconnect_agency,             name='disconnect_agency'),
+
     path('auth/verify-email/',            verify_email,                  name='verify_email'),
     path('auth/resend-verification/',     resend_verification,           name='resend_verification'),
     path('auth/password-reset/',          password_reset_request,        name='password_reset_request'),
@@ -91,12 +99,14 @@ urlpatterns = [
     path('client/setup-solo/', setup_solo_client, name='setup_solo_client'),
 
     # Admin actions
-    path('admin/create-client/', create_client_user, name='create_client'),
+    path('admin/create-client/', create_client_user,  name='create_client'),
+    path('admin/sync-all/',      sync_all_clients,     name='sync_all_clients'),
     path('overview/',            OverviewView.as_view(), name='overview'),
 
     # OAuth — Facebook + Instagram
-    path('oauth/facebook/start/<int:client_id>/',  facebook_oauth_start,    name='fb_start'),
-    path('oauth/facebook/callback/',               facebook_oauth_callback, name='fb_callback'),
+    path('oauth/facebook/start/<int:client_id>/',      facebook_oauth_start,       name='fb_start'),
+    path('oauth/facebook/consumer/callback/',          facebook_consumer_callback, name='fb_consumer_callback'),
+    path('oauth/facebook/callback/',                   facebook_oauth_callback,    name='fb_callback'),
 
     # OAuth — Google (YouTube + GMB)
     path('oauth/google/start/<int:client_id>/',    google_oauth_start,    name='google_start'),

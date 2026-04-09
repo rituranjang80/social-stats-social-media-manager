@@ -93,6 +93,10 @@ export default function LoginPage() {
     window.location.href = `${API_BASE}/auth/social/google/start/`;
   };
 
+  const handleFacebook = () => {
+    window.location.href = `${API_BASE}/auth/social/facebook/start/`;
+  };
+
 
   const particles = [
     { top: '12%', left: '18%', size: 6, delay: '0s' },
@@ -263,6 +267,10 @@ export default function LoginPage() {
             <button type="button" onClick={handleGoogle} style={styles.socialBtn}>
               <SocialPlatformIcon platform="google" size={18} />
               Google
+            </button>
+            <button type="button" onClick={handleFacebook} style={styles.socialBtn}>
+              <SocialPlatformIcon platform="facebook" size={18} />
+              Facebook
             </button>
           </div>
 

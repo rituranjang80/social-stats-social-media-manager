@@ -46,19 +46,82 @@ def _settings_redirect(client_id, query=''):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def facebook_oauth_start(request, client_id):
-    """Redirect to Facebook login consent screen."""
+    """
+    Step 1: Consumer app — request public_profile + email.
+    After callback we redirect to Step 2 (Business app).
+    """
     state = f"{client_id}:{secrets.token_urlsafe(16)}"
-    request.session['oauth_state'] = state
+    request.session['oauth_state']     = state
+    request.session['oauth_client_id'] = str(client_id)
+
+    consumer_redirect = getattr(
+        settings, 'FACEBOOK_CONSUMER_CONNECT_REDIRECT_URI',
+        f"{settings.FRONTEND_URL.rstrip('/')}/api/oauth/facebook/consumer/callback/"
+    )
+    # Use the backend URL directly
+    consumer_redirect = f"{settings.BACKEND_URL.rstrip('/')}/api/oauth/facebook/consumer/callback/" \
+        if hasattr(settings, 'BACKEND_URL') else \
+        f"https://statox.ai/api/oauth/facebook/consumer/callback/"
+
+    params = {
+        'client_id':     getattr(settings, 'FACEBOOK_SOCIAL_APP_ID', settings.META_APP_ID),
+        'redirect_uri':  consumer_redirect,
+        'scope':         'public_profile,email',
+        'response_type': 'code',
+        'state':          state,
+    }
+    return redirect(f"https://www.facebook.com/dialog/oauth?{urlencode(params)}")
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def facebook_consumer_callback(request):
+    """
+    Step 1 callback: exchange code for user identity, then redirect to Step 2 (Business app).
+    """
+    code  = request.GET.get('code')
+    state = request.GET.get('state', '')
+    error = request.GET.get('error')
+
+    if error or not code:
+        client_id = state.split(':')[0] if state else '0'
+        return _settings_redirect(client_id, '?error=facebook_denied')
+
+    client_id = state.split(':')[0]
+
+    consumer_redirect = f"https://statox.ai/api/oauth/facebook/consumer/callback/"
+    consumer_app_id     = getattr(settings, 'FACEBOOK_SOCIAL_APP_ID', settings.META_APP_ID)
+    consumer_app_secret = getattr(settings, 'FACEBOOK_SOCIAL_APP_SECRET', settings.META_APP_SECRET)
+
+    # Exchange code for consumer token (just to confirm identity — we don't need to store it)
+    token_resp = requests.get(
+        f"https://graph.facebook.com/v18.0/oauth/access_token",
+        params={
+            'client_id':     consumer_app_id,
+            'client_secret': consumer_app_secret,
+            'redirect_uri':  consumer_redirect,
+            'code':          code,
+        }, timeout=10
+    ).json()
+
+    if 'error' in token_resp:
+        return _settings_redirect(client_id, '?error=facebook_consumer_token')
+
+    # Step 2: now redirect to Business app for page permissions
+    biz_state = f"{client_id}:{secrets.token_urlsafe(16)}"
+    request.session['oauth_state']     = biz_state
     request.session['oauth_client_id'] = str(client_id)
 
     params = {
         'client_id':     settings.META_APP_ID,
         'redirect_uri':  settings.META_REDIRECT_URI,
         'scope':         ','.join([
+            'pages_show_list',
+            'pages_read_engagement',
             'pages_manage_metadata',
         ]),
         'response_type': 'code',
-        'state':          state,
+        'state':          biz_state,
     }
     return redirect(f"https://www.facebook.com/dialog/oauth?{urlencode(params)}")
 

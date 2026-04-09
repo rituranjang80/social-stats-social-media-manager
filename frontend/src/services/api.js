@@ -38,6 +38,14 @@ api.interceptors.response.use(
 );
 
 // ── Auth ──────────────────────────────────────────────
+export const profileAPI = {
+  get:               ()       => api.get('/profile/'),
+  update:            (data)   => api.patch('/profile/', data, data instanceof FormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : undefined),
+  changePassword:    (data)   => api.post('/profile/change-password/', data),
+  agencyInfo:        ()       => api.get('/profile/agency/'),
+  disconnectAgency:  ()       => api.post('/profile/disconnect-agency/'),
+};
+
 export const authAPI = {
   login:              (email, password, termsAccepted) => api.post('/auth/login/', { username: email, password, terms_accepted: termsAccepted }),
   me:                 ()              => api.get('/auth/me/'),
@@ -67,6 +75,7 @@ export const clientsAPI = {
   posts:       (id, params) => api.get(`/clients/${id}/posts/`, { params }),
   triggerSync: (id, platforms) => api.post(`/clients/${id}/trigger_sync/`, { platforms }),
   syncStatus:  (id)         => api.get(`/clients/${id}/sync_status/`),
+  syncAll:     ()           => api.post('/admin/sync-all/'),
 };
 
 // ── OAuth ─────────────────────────────────────────────

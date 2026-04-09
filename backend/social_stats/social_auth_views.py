@@ -23,8 +23,8 @@ GOOGLE_SOCIAL_REDIRECT_URI = getattr(
     'http://localhost:8000/api/auth/social/google/callback/'
 )
 
-FACEBOOK_APP_ID     = getattr(settings, 'META_APP_ID', '')
-FACEBOOK_APP_SECRET = getattr(settings, 'META_APP_SECRET', '')
+FACEBOOK_APP_ID     = getattr(settings, 'FACEBOOK_SOCIAL_APP_ID', '')
+FACEBOOK_APP_SECRET = getattr(settings, 'FACEBOOK_SOCIAL_APP_SECRET', '')
 FACEBOOK_SOCIAL_REDIRECT_URI = getattr(
     settings, 'FACEBOOK_SOCIAL_REDIRECT_URI',
     'http://localhost:8000/api/auth/social/facebook/callback/'
@@ -201,7 +201,7 @@ def facebook_social_start(request):
         'client_id':     FACEBOOK_APP_ID,
         'redirect_uri':  FACEBOOK_SOCIAL_REDIRECT_URI,
         'response_type': 'code',
-        'scope':         'public_profile',
+        'scope':         'public_profile,email',
         'state':         state,
     }
     url = 'https://www.facebook.com/v18.0/dialog/oauth?' + urllib.parse.urlencode(params)
