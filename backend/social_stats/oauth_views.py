@@ -89,13 +89,18 @@ def facebook_consumer_callback(request):
 
     client_id = state.split(':')[0]
 
-    consumer_redirect = f"https://statox.ai/api/oauth/facebook/consumer/callback/"
+    consumer_redirect   = f"https://statox.ai/api/oauth/facebook/consumer/callback/"
     consumer_app_id     = getattr(settings, 'FACEBOOK_SOCIAL_APP_ID', settings.META_APP_ID)
     consumer_app_secret = getattr(settings, 'FACEBOOK_SOCIAL_APP_SECRET', settings.META_APP_SECRET)
 
-    # Exchange code for consumer token (just to confirm identity — we don't need to store it)
+    logger.info(
+        "FB consumer callback: client_id=%s app_id=%s redirect=%s",
+        client_id, consumer_app_id, consumer_redirect
+    )
+
+    # Exchange code for consumer token
     token_resp = requests.get(
-        f"https://graph.facebook.com/v18.0/oauth/access_token",
+        "https://graph.facebook.com/v18.0/oauth/access_token",
         params={
             'client_id':     consumer_app_id,
             'client_secret': consumer_app_secret,
@@ -105,6 +110,10 @@ def facebook_consumer_callback(request):
     ).json()
 
     if 'error' in token_resp:
+        logger.error(
+            "FB consumer token exchange failed: app_id=%s error=%s",
+            consumer_app_id, token_resp.get('error')
+        )
         return _settings_redirect(client_id, '?error=facebook_consumer_token')
 
     consumer_token = token_resp.get('access_token', '')

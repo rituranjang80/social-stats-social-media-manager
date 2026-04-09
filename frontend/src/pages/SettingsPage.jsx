@@ -54,6 +54,7 @@ export default function SettingsPage({ clientId: propClientId }) {
   const { lookups, loading: lookupsLoading } = useLookups();
   const [searchParams, setSearchParams] = useSearchParams();
   const didRefetch = useRef(false);
+  const [oauthMsg, setOauthMsg] = useState(null); // { type: 'success'|'error', text }
 
   // Business Profile State
   const [profileLoading, setProfileLoading] = useState(true);
@@ -143,6 +144,16 @@ export default function SettingsPage({ clientId: propClientId }) {
       didRefetch.current = true;
       refetch();
       setSearchParams({}, { replace: true });
+      if (connected) {
+        setOauthMsg({ type: 'success', text: `${connected} connected successfully!` });
+        setTimeout(() => setOauthMsg(null), 5000);
+      } else if (error) {
+        const msg = error === 'facebook_denied' ? 'Facebook connection was cancelled.'
+          : error === 'facebook_consumer_token' ? 'Facebook login failed — token exchange error. Check server logs.'
+          : `Connection failed: ${error}`;
+        setOauthMsg({ type: 'error', text: msg });
+        setTimeout(() => setOauthMsg(null), 8000);
+      }
     }
   }, [searchParams, refetch, setSearchParams]);
 
@@ -389,6 +400,18 @@ export default function SettingsPage({ clientId: propClientId }) {
           onChange={setActiveTab}
         />
       </div>
+
+      {/* OAuth result banner */}
+      {oauthMsg && (
+        <div style={{
+          padding: '12px 18px', borderRadius: 8, marginBottom: 16, fontWeight: 600, fontSize: 14,
+          background: oauthMsg.type === 'success' ? '#dcfce7' : '#fee2e2',
+          color:      oauthMsg.type === 'success' ? '#166534' : '#991b1b',
+          border:     `1px solid ${oauthMsg.type === 'success' ? '#86efac' : '#fca5a5'}`,
+        }}>
+          {oauthMsg.type === 'success' ? '✓ ' : '✗ '}{oauthMsg.text}
+        </div>
+      )}
 
       {/* Tab Content */}
       {activeTab === 'accounts' && (
