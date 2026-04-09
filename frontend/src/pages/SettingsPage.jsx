@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useSearchParams, useLocation } from 'react-router-dom';
+import { useSearchParams, useLocation  } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useOAuthStatus, useLookups } from '../hooks/useData';
 import { clientsAPI } from '../services/api';
@@ -138,45 +138,40 @@ export default function SettingsPage({ clientId: propClientId }) {
     }
   }, [clientId]);
 
-  // Handle OAuth result from OAuthCallbackPage (via router state)
+  // Handle OAuth result — wait until clientId is available before refetching
   useEffect(() => {
-    const connected = location.state?.oauthConnected;
-    const error     = location.state?.oauthError;
-    if ((connected || error) && !didRefetch.current) {
-      didRefetch.current = true;
-      refetch();
-      if (connected) {
-        setOauthMsg({ type: 'success', text: `${connected} connected successfully!` });
-        setTimeout(() => setOauthMsg(null), 5000);
-      } else if (error) {
-        const msg = error === 'facebook_denied'          ? 'Facebook connection was cancelled.'
-          : error === 'facebook_consumer_token'          ? 'Facebook login failed — token exchange error.'
-          : error === 'google_denied'                    ? 'Google connection was cancelled.'
-          : error === 'linkedin_denied'                  ? 'LinkedIn connection was cancelled.'
-          : `Connection failed: ${error}`;
-        setOauthMsg({ type: 'error', text: msg });
-        setTimeout(() => setOauthMsg(null), 8000);
-      }
-    }
-  }, [location.state, refetch]);
+    if (!clientId) return; // don't run until we know who we are
+    if (didRefetch.current) return;
 
-  // Also handle legacy query-param redirects (fallback)
-  useEffect(() => {
-    const connected = searchParams.get('connected');
-    const error     = searchParams.get('error');
-    if ((connected || error) && !didRefetch.current) {
-      didRefetch.current = true;
-      refetch();
+    // Check router state (from OAuthCallbackPage) OR legacy query params
+    const connected = location.state?.oauthConnected || searchParams.get('connected');
+    const error     = location.state?.oauthError     || searchParams.get('error');
+
+    if (!connected && !error) return;
+
+    didRefetch.current = true;
+
+    // Clear query params if present
+    if (searchParams.get('connected') || searchParams.get('error')) {
       setSearchParams({}, { replace: true });
-      if (connected) {
-        setOauthMsg({ type: 'success', text: `${connected} connected successfully!` });
-        setTimeout(() => setOauthMsg(null), 5000);
-      } else if (error) {
-        setOauthMsg({ type: 'error', text: `Connection failed: ${error}` });
-        setTimeout(() => setOauthMsg(null), 8000);
-      }
     }
-  }, [searchParams, refetch, setSearchParams]);
+
+    // Refetch status now that clientId is ready
+    refetch();
+
+    if (connected) {
+      setOauthMsg({ type: 'success', text: `${connected.replace(',', ' & ')} connected successfully!` });
+      setTimeout(() => setOauthMsg(null), 5000);
+    } else {
+      const msg = error === 'facebook_denied'         ? 'Facebook connection was cancelled.'
+        : error === 'facebook_consumer_token'         ? 'Facebook login failed — check server logs.'
+        : error === 'google_denied'                   ? 'Google connection was cancelled.'
+        : error === 'linkedin_denied'                 ? 'LinkedIn connection was cancelled.'
+        : `Connection failed: ${error}`;
+      setOauthMsg({ type: 'error', text: msg });
+      setTimeout(() => setOauthMsg(null), 8000);
+    }
+  }, [clientId, location.state, searchParams, refetch, setSearchParams]);
 
   // Form handlers
   const handleInputChange = (field, value) => {

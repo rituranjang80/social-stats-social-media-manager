@@ -4,42 +4,41 @@
  * URL: /oauth/callback?connected=facebook&client_id=3
  *      /oauth/callback?error=facebook_consumer_token&client_id=3
  *
- * We wait for auth to load, then navigate to the correct settings page
- * passing the result via React Router `state` so the SettingsPage
- * can show a banner without relying on query-param timing.
+ * Waits for auth to finish loading, then navigates to the correct settings
+ * page passing the result via React Router state so SettingsPage shows a banner.
  */
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export default function OAuthCallbackPage() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const [msg, setMsg] = useState('Connecting…');
 
   useEffect(() => {
-    if (loading) return; // wait for auth
+    if (loading) return; // wait for JWT to be verified
 
     const params    = new URLSearchParams(window.location.search);
     const connected = params.get('connected');
     const error     = params.get('error');
     const clientId  = params.get('client_id');
 
-    const state = { oauthConnected: connected, oauthError: error };
+    const routerState = { oauthConnected: connected || null, oauthError: error || null };
 
     if (!user) {
-      navigate('/login');
+      // Not logged in — send to login but keep a note so user can retry
+      navigate('/login', { replace: true });
       return;
     }
 
     const isAdmin = user.role === 'superadmin' || user.role === 'staff';
 
     if (isAdmin && clientId) {
-      navigate(`/admin/client/${clientId}/settings`, { state, replace: true });
+      navigate(`/admin/client/${clientId}/settings`, { state: routerState, replace: true });
     } else if (isAdmin) {
       navigate('/admin', { replace: true });
     } else {
-      navigate('/dashboard/settings', { state, replace: true });
+      navigate('/dashboard/settings', { state: routerState, replace: true });
     }
   }, [loading, user, navigate]);
 
@@ -47,7 +46,7 @@ export default function OAuthCallbackPage() {
     <div style={styles.page}>
       <div style={styles.card}>
         <div style={styles.spinner} />
-        <p style={styles.msg}>{msg}</p>
+        <p style={styles.msg}>Finalising connection…</p>
       </div>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
