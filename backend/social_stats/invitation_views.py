@@ -14,40 +14,80 @@ from rest_framework import status
 
 from .models import ClientInvitation, Notification, Client, UserProfile, OnboardingStep
 from .social_auth_views import _make_jwt
+from .auth_views import _email_html
 
 FRONTEND_URL = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
+FROM_EMAIL   = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@statox.ai')
 
 
 def _send_invitation_email(invitation, client_user):
-    """Send invitation email to client."""
+    """Send styled HTML invitation email to client."""
     agency_name = invitation.invited_by.get_full_name() or invitation.invited_by.email
+
     if client_user:
-        link = f"{FRONTEND_URL}/invitation/{invitation.token}"
-        subject = f"{agency_name} wants to manage your Xperso account"
-        body = (
-            f"Hi,\n\n"
-            f"{agency_name} has invited you to let them manage your social media analytics on Xperso.\n\n"
+        link        = f"{FRONTEND_URL}/invitation/{invitation.token}"
+        subject     = f"{agency_name} wants to manage your StatoX account"
+        client_name = client_user.get_full_name() or client_user.email.split('@')[0]
+        greeting    = (
+            f'Hi <strong style="color:#0f172a;">{client_name}</strong>, '
+            f'<strong style="color:#0f172a;">{agency_name}</strong> has invited you to let '
+            f'them manage your social media analytics on StatoX.'
+        )
+        body_html = (
+            f'<div style="background:linear-gradient(135deg,#f0f9ff,#f8faff);border:1px solid rgba(0,215,255,0.18);'
+            f'border-radius:14px;padding:20px 24px;margin:0 0 24px;">'
+            f'<p style="margin:0 0 4px;font-size:11px;font-weight:700;color:#00b8d9;text-transform:uppercase;letter-spacing:0.08em;">Message from {agency_name}</p>'
+            f'<p style="margin:0;font-size:15px;color:#1e293b;line-height:1.7;">{invitation.message or "No message provided."}</p>'
+            f'</div>'
+        )
+        cta_label   = 'Accept Invitation'
+        expiry_note = '&#9203; This invitation expires in <strong>7 days</strong>. If you did not expect this, you can safely ignore this email.'
+        plain = (
+            f"Hi {client_name},\n\n"
+            f"{agency_name} has invited you to let them manage your social media analytics on StatoX.\n\n"
             f"Message: {invitation.message}\n\n"
             f"Accept or reject here: {link}\n\n"
             f"This invitation expires in 7 days.\n"
         )
     else:
-        link = f"{FRONTEND_URL}/signup?invite={invitation.token}"
-        subject = f"You've been invited to Xperso by {agency_name}"
-        body = (
+        link        = f"{FRONTEND_URL}/signup?invite={invitation.token}"
+        subject     = f"You've been invited to StatoX by {agency_name}"
+        greeting    = (
+            f'<strong style="color:#0f172a;">{agency_name}</strong> has invited you to join '
+            f'<strong style="color:#0f172a;">StatoX</strong> — the social media analytics platform.'
+        )
+        body_html = (
+            f'<div style="background:linear-gradient(135deg,#f0f9ff,#f8faff);border:1px solid rgba(0,215,255,0.18);'
+            f'border-radius:14px;padding:20px 24px;margin:0 0 24px;">'
+            f'<p style="margin:0 0 4px;font-size:11px;font-weight:700;color:#00b8d9;text-transform:uppercase;letter-spacing:0.08em;">Message from {agency_name}</p>'
+            f'<p style="margin:0;font-size:15px;color:#1e293b;line-height:1.7;">{invitation.message or "No message provided."}</p>'
+            f'</div>'
+            f'<p style="font-size:14px;color:#64748b;line-height:1.7;margin:0 0 4px;">'
+            f'Click the button below to create your account and connect with {agency_name}.</p>'
+        )
+        cta_label   = 'Create Your Account'
+        expiry_note = '&#9203; This invitation expires in <strong>7 days</strong>. If you did not expect this, you can safely ignore this email.'
+        plain = (
             f"Hi,\n\n"
-            f"{agency_name} has invited you to join Xperso for social media analytics.\n\n"
+            f"{agency_name} has invited you to join StatoX for social media analytics.\n\n"
             f"Message: {invitation.message}\n\n"
             f"Sign up here: {link}\n\n"
             f"This invitation expires in 7 days.\n"
         )
+
+    html = _email_html(
+        title        = 'You have a new invitation',
+        greeting     = greeting,
+        body_html    = body_html,
+        cta_url      = link,
+        cta_label    = cta_label,
+        expiry_note  = expiry_note,
+        frontend_url = FRONTEND_URL,
+    )
+
     try:
-        send_mail(
-            subject, body,
-            getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@statox.ai'),
-            [invitation.client_email],
-            fail_silently=True,
-        )
+        send_mail(subject, plain, FROM_EMAIL, [invitation.client_email],
+                  html_message=html, fail_silently=True)
     except Exception:
         pass
 
