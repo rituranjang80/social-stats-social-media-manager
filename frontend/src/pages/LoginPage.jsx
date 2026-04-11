@@ -24,7 +24,9 @@ export default function LoginPage() {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 980);
   const [accepted, setAccepted] = useState(false);
 
-  const urlError = new URLSearchParams(window.location.search).get('error');
+  const searchParams = new URLSearchParams(window.location.search);
+  const urlError = searchParams.get('error');
+  const nextPath  = searchParams.get('next');
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 980);
@@ -68,7 +70,9 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const user = await login(email, password, accepted);
-      if (user.role === 'superadmin' || user.role === 'staff') {
+      if (nextPath) {
+        navigate(nextPath, { replace: true });
+      } else if (user.role === 'superadmin' || user.role === 'staff') {
         navigate('/admin');
       } else if (user.role === 'client' && !user.client_id) {
         navigate('/pending');
