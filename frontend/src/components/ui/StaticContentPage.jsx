@@ -35,9 +35,11 @@ export default function StaticContentPage({ contentKey, fallbackTitle }) {
     <div style={styles.page}>
       <div style={styles.container}>
         <div style={styles.header}>
-          <div style={styles.logoPlate}>
-            <StatoxLogoHorizontal height={32} />
-          </div>
+          <a href="/" style={styles.logoLink}>
+            <div style={styles.logoPlate}>
+              <StatoxLogoHorizontal height={32} />
+            </div>
+          </a>
         </div>
 
         <div style={styles.card}>
@@ -133,4 +135,5 @@ const styles = {
   },
   footer: { textAlign: 'center', color: '#64748b', fontSize: 12, marginTop: 24 },
   footerLink: { color: '#00d7ff', textDecoration: 'none' },
+  logoLink: { display: 'inline-flex', textDecoration: 'none' },
 };

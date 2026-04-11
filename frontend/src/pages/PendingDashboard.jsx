@@ -100,7 +100,7 @@ export default function PendingDashboard() {
           <div style={s.avatar}>{(user?.name || user?.email || 'U')[0].toUpperCase()}</div>
           <div>
             <h1 style={s.welcomeTitle}>Welcome{user?.name ? `, ${user.name}` : ''}!</h1>
-            <p style={s.welcomeSub}>Choose how you'd like to use Statox.</p>
+            <p style={s.welcomeSub}>Choose how you'd like to use StatoX.</p>
           </div>
         </div>
 

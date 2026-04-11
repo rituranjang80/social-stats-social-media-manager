@@ -935,7 +935,7 @@ export default function ClientOnboardingPage() {
     <div className="app-page app-page--content app-page--lg">
       <PageHeader
         title="Complete Your Profile"
-        subtitle="Set up your business profile to get the most out of Statox"
+        subtitle="Set up your business profile to get the most out of StatoX"
       />
 
       <div style={styles.heroShell}>

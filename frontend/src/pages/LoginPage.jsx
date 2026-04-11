@@ -122,7 +122,7 @@ export default function LoginPage() {
         <div style={styles.brandRail}>
           <div style={styles.brandBadge}>
             <span style={styles.brandBadgeDot} />
-            Statox.ai
+            StatoX.ai
           </div>
           <div style={styles.logoPlate(isMobile)}>
             <StatoxLogoHorizontal height={isMobile ? 28 : 34} />
@@ -175,7 +175,7 @@ export default function LoginPage() {
               <StatoxMark size={38} />
             </div>
             <h2 style={styles.cardTitle}>Welcome Back</h2>
-            <p style={styles.cardSub}>Sign in to continue to Statox</p>
+            <p style={styles.cardSub}>Sign in to continue to StatoX</p>
           </div>
 
           <form onSubmit={handleSubmit} style={styles.form}>

@@ -165,7 +165,7 @@ export default function SignupPage() {
         <div style={styles.brandRail}>
           <div style={styles.brandBadge}>
             <span style={styles.brandBadgeDot} />
-            Statox.ai
+            StatoX.ai
           </div>
           <div style={styles.logoPlate(isMobile)}>
             <StatoxLogoHorizontal height={isMobile ? 28 : 34} />
@@ -254,7 +254,7 @@ export default function SignupPage() {
                   <StatoxMark size={38} />
                 </div>
                 <h2 style={styles.cardTitle}>Create your account</h2>
-                <p style={styles.cardSub}>Sign up to get started with Statox</p>
+                <p style={styles.cardSub}>Sign up to get started with StatoX</p>
               </div>
 
               {/* Invitation banner */}

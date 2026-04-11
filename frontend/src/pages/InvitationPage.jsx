@@ -131,7 +131,7 @@ export default function InvitationPage() {
               )}
 
               <p style={s.sub}>
-                {inv.agency_name} wants to manage your social media analytics on Statox.
+                {inv.agency_name} wants to manage your social media analytics on StatoX.
               </p>
 
               {error && <div style={s.errorBox}>{error}</div>}

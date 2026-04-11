@@ -7,39 +7,39 @@ const PLATFORMS = [
     label: 'Facebook & Instagram',
     badge: 'Meta',
     steps: [
-      <>Go to your <strong>Facebook account</strong></>,
+      <>Go to your <strong>Facebook account</strong> and click the top-right menu</>,
       <><strong>Settings &amp; Privacy</strong> → <strong>Settings</strong></>,
       <>Click <strong>Apps and Websites</strong> in the left menu</>,
-      <>Find <strong>StatoX</strong> in the list → click <strong>Remove</strong></>,
-      <>Confirm removal — this triggers data deletion on our servers</>,
+      <>Find <strong>StatoX</strong> in the list → click <strong>View and edit</strong></>,
+      <>Scroll down and click <strong>Remove</strong> → <strong>Remove</strong> to confirm</>,
+      <>Meta automatically notifies our servers via our registered data deletion callback — we will delete your data within 30 days</>,
     ],
-    note: 'This also revokes access to any connected Instagram accounts linked to the same Facebook Page.',
+    note: 'Removing StatoX also revokes access to any connected Instagram Business accounts linked to the same Facebook Page.',
   },
   {
     key: 'google',
     label: 'Google & YouTube',
     badge: 'Google',
     steps: [
-      <>Go to <strong>myaccount.google.com</strong></>,
-      <>Click <strong>Security</strong> in the left menu</>,
-      <>Scroll to <strong>Third-party apps with account access</strong> → click <strong>Manage third-party access</strong></>,
-      <>Find <strong>StatoX</strong> → click it → click <strong>Remove Access</strong></>,
-      <>Confirm — this revokes access to YouTube and Google My Business data</>,
+      <>Go to <a href="https://myaccount.google.com/permissions" target="_blank" rel="noreferrer" style={{ color: '#007a9a' }}>myaccount.google.com/permissions</a></>,
+      <>Find <strong>StatoX</strong> in the list of third-party apps</>,
+      <>Click <strong>StatoX</strong> → click <strong>Remove Access</strong></>,
+      <>Confirm removal — we will delete your cached analytics data within 30 days</>,
     ],
-    note: 'This removes access to YouTube Data API, YouTube Analytics API, and Business Profile API data.',
+    note: 'This revokes StatoX\'s access to YouTube Data API, YouTube Analytics API, and Google Business Profile API data.',
   },
   {
     key: 'linkedin',
     label: 'LinkedIn',
     badge: 'LinkedIn',
     steps: [
-      <>Go to your <strong>LinkedIn account</strong></>,
-      <>Click <strong>Me</strong> → <strong>Settings &amp; Privacy</strong></>,
-      <>Click <strong>Data Privacy</strong> → <strong>Other applications</strong></>,
-      <>Find <strong>StatoX</strong> → click <strong>Remove</strong></>,
-      <>Confirm removal</>,
+      <>Go to your <strong>LinkedIn account</strong> and click <strong>Me</strong> in the top navigation</>,
+      <>Click <strong>Settings &amp; Privacy</strong></>,
+      <>Click <strong>Data Privacy</strong> in the left menu → <strong>Other applications</strong></>,
+      <>Find <strong>StatoX</strong> in the list → click <strong>Remove</strong></>,
+      <>Confirm removal — we will delete your cached Page analytics data within 30 days</>,
     ],
-    note: 'This revokes access to your LinkedIn Page analytics and post performance data.',
+    note: 'This revokes access to your LinkedIn Page analytics, post performance data, and follower statistics.',
   },
 ];
 
@@ -48,9 +48,11 @@ export default function DataDeletionPage() {
     <div style={styles.page}>
       <div style={styles.container}>
         <div style={styles.header}>
-          <div style={styles.logoPlate}>
-            <StatoxLogoHorizontal height={32} />
-          </div>
+          <a href="/" style={styles.logoLink}>
+            <div style={styles.logoPlate}>
+              <StatoxLogoHorizontal height={32} />
+            </div>
+          </a>
         </div>
 
         <div style={styles.card}>
@@ -60,9 +62,12 @@ export default function DataDeletionPage() {
 
           <p style={styles.intro}>
             StatoX connects to Facebook, Instagram, Google, YouTube, and LinkedIn to display
-            your social media analytics. If you'd like to delete your data, you can revoke
-            access directly from each platform's settings, or contact us and we'll handle it
-            within <strong>30 days</strong>.
+            your social media analytics. You can revoke access and delete your data in three ways:{' '}
+            <strong>(1)</strong> directly from each platform's settings below,{' '}
+            <strong>(2)</strong> from your StatoX account settings (Settings → Delete Account), or{' '}
+            <strong>(3)</strong> by emailing us at{' '}
+            <a href="mailto:privacy@statox.ai" style={{ color: '#007a9a' }}>privacy@statox.ai</a>.
+            All data is permanently deleted within <strong>30 days</strong> of a valid request.
           </p>
 
           {/* Per-platform sections */}
@@ -230,4 +235,5 @@ const styles = {
   inlineLink: { color: '#007a9a', fontWeight: 600, textDecoration: 'none' },
   footer: { textAlign: 'center', color: '#64748b', fontSize: 12, marginTop: 24 },
   footerLink: { color: '#007a9a', textDecoration: 'none' },
+  logoLink: { display: 'inline-flex', textDecoration: 'none' },
 };
