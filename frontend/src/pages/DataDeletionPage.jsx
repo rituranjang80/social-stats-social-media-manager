@@ -66,7 +66,7 @@ export default function DataDeletionPage() {
             <strong>(1)</strong> directly from each platform's settings below,{' '}
             <strong>(2)</strong> from your StatoX account settings (Settings → Delete Account), or{' '}
             <strong>(3)</strong> by emailing us at{' '}
-            <a href="mailto:privacy@statox.ai" style={{ color: '#007a9a' }}>privacy@statox.ai</a>.
+            <a href="mailto:support@statox.ai" style={{ color: '#007a9a' }}>support@statox.ai</a>.
             All data is permanently deleted within <strong>30 days</strong> of a valid request.
           </p>
 
@@ -106,8 +106,8 @@ export default function DataDeletionPage() {
           </p>
           <div style={styles.emailBox}>
             <span style={styles.emailIcon}>✉</span>
-            <a href="mailto:privacy@statox.ai" style={styles.emailLink}>
-              privacy@statox.ai
+            <a href="mailto:support@statox.ai" style={styles.emailLink}>
+              support@statox.ai
             </a>
           </div>
           <p style={styles.p}>Please include in your email:</p>
@@ -146,7 +146,7 @@ export default function DataDeletionPage() {
             <p style={styles.contactTitle}>Questions?</p>
             <p style={styles.contactText}>
               Contact our privacy team at{' '}
-              <a href="mailto:privacy@statox.ai" style={styles.inlineLink}>privacy@statox.ai</a>
+              <a href="mailto:support@statox.ai" style={styles.inlineLink}>support@statox.ai</a>
               {' '}or visit our{' '}
               <a href="/privacy" style={styles.inlineLink}>Privacy Policy</a>.
             </p>

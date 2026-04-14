@@ -68,7 +68,7 @@ def facebook_oauth_start(request, client_id):
     params = {
         'client_id':     settings.META_APP_ID,
         'redirect_uri':  settings.META_REDIRECT_URI,
-        'scope':         'pages_show_list,pages_read_engagement,pages_manage_metadata,instagram_basic,instagram_manage_insights,read_insights',
+        'scope':         'pages_show_list,pages_read_engagement,pages_manage_metadata,instagram_manage_insights,read_insights',
         'response_type': 'code',
         'state':          state,
     }
@@ -98,7 +98,7 @@ def facebook_consumer_callback(request):
 
     # Exchange code for consumer token
     token_resp = requests.get(
-        "https://graph.facebook.com/v18.0/oauth/access_token",
+        "https://graph.facebook.com/v21.0/oauth/access_token",
         params={
             'client_id':     FACEBOOK_CONSUMER_APP_ID,
             'client_secret': _facebook_consumer_secret(),
@@ -120,7 +120,7 @@ def facebook_consumer_callback(request):
 
     # Extend to long-lived token (60 days)
     long_resp = requests.get(
-        'https://graph.facebook.com/v18.0/oauth/access_token',
+        'https://graph.facebook.com/v21.0/oauth/access_token',
         params={
             'grant_type':        'fb_exchange_token',
             'client_id':         FACEBOOK_CONSUMER_APP_ID,
@@ -134,7 +134,7 @@ def facebook_consumer_callback(request):
 
     # Fetch pages this user manages
     pages_resp = requests.get(
-        'https://graph.facebook.com/v18.0/me/accounts',
+        'https://graph.facebook.com/v21.0/me/accounts',
         params={'access_token': long_token, 'fields': 'id,name,access_token'},
         timeout=10
     ).json()
@@ -158,14 +158,14 @@ def facebook_consumer_callback(request):
 
         # Try to get linked Instagram Business Account
         ig_resp = requests.get(
-            f'https://graph.facebook.com/v18.0/{page_id}',
+            f'https://graph.facebook.com/v21.0/{page_id}',
             params={'fields': 'instagram_business_account', 'access_token': page_token},
             timeout=10
         ).json()
         ig_id = ig_resp.get('instagram_business_account', {}).get('id', '')
         if ig_id:
             ig_info = requests.get(
-                f'https://graph.facebook.com/v18.0/{ig_id}',
+                f'https://graph.facebook.com/v21.0/{ig_id}',
                 params={'fields': 'name,username', 'access_token': page_token},
                 timeout=10
             ).json()
@@ -180,7 +180,7 @@ def facebook_consumer_callback(request):
     else:
         # No pages found — save user identity token so UI shows connected
         me_resp = requests.get(
-            'https://graph.facebook.com/v18.0/me',
+            'https://graph.facebook.com/v21.0/me',
             params={'fields': 'name', 'access_token': long_token},
             timeout=10
         ).json()
@@ -611,7 +611,7 @@ def _refresh_google_token(cred):
 def _refresh_facebook_token(cred):
     """Extend a Facebook long-lived token (valid for 60 more days)."""
     try:
-        resp = requests.get('https://graph.facebook.com/v18.0/oauth/access_token', params={
+        resp = requests.get('https://graph.facebook.com/v21.0/oauth/access_token', params={
             'grant_type':        'fb_exchange_token',
             'client_id':         settings.META_APP_ID,
             'client_secret':     settings.META_APP_SECRET,

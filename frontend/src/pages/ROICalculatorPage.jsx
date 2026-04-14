@@ -415,7 +415,7 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
         )}
       />
 
-      <div style={twoCol}>
+      <div className="roi-form-grid" style={twoCol}>
         {/* ── LEFT PANEL ─────────────────────────────────────────── */}
         <div style={leftPanel}>
 
@@ -584,7 +584,7 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
           )}
 
           {result && !calcLoading && (
-            <div style={{ animation: 'slideUp 0.4s ease' }}>
+            <div className="roi-result-grid" style={{ animation: 'slideUp 0.4s ease' }}>
 
               {/* Card 1: Main ROI */}
               <div style={{ ...card, textAlign: 'center', padding: 32, marginBottom: 16, border: `2px solid ${roiColor(roi)}20` }}>
@@ -663,7 +663,7 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
               {/* Card 4: Cost Efficiency */}
               <div style={{ ...card, marginBottom: 16 }}>
                 <h4 style={cardTitle}>Cost Efficiency</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                <div className="roi-chart-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
                   {[
                     { label: 'Cost / Click', value: result.cost_per_click, industry: 1.00,   fmt: v => `${symbol}${(+v).toFixed(2)}`, better: 'lower' },
                     { label: 'Cost / Lead',  value: result.cost_per_lead,  industry: 50.00,  fmt: v => `${symbol}${(+v).toFixed(2)}`, better: 'lower' },

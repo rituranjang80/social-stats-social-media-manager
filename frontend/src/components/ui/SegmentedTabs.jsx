@@ -25,6 +25,7 @@ export default function SegmentedTabs({
 }) {
   return (
     <div
+      className="segmented-tabs"
       style={{
         ...styles.wrap,
         ...(compact ? styles.wrapCompact : {}),

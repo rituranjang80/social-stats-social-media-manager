@@ -305,6 +305,7 @@ class ClientViewSet(viewsets.ModelViewSet):
         client   = self.get_object()
         platform = request.query_params.get('platform')
         limit    = int(request.query_params.get('limit', 20))
+        offset   = int(request.query_params.get('offset', 0))
         since, until = parse_dates(request)
 
         qs = PostMetric.objects.filter(
@@ -315,7 +316,8 @@ class ClientViewSet(viewsets.ModelViewSet):
         if platform and platform != 'all':
             qs = qs.filter(platform=platform)
 
-        posts = list(PostMetricSerializer(qs[:limit], many=True).data)
+        total = qs.count()
+        posts = list(PostMetricSerializer(qs[offset:offset + limit], many=True).data)
 
         # Attach account name from stored credentials
         creds = {
@@ -325,7 +327,11 @@ class ClientViewSet(viewsets.ModelViewSet):
         for post in posts:
             post['account_name'] = creds.get(post['platform'], '')
 
-        return Response(posts)
+        return Response({
+            'results': posts,
+            'total': total,
+            'has_more': (offset + limit) < total,
+        })
 
     @action(detail=True, methods=['post'])
     def trigger_sync(self, request, pk=None):

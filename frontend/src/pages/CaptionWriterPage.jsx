@@ -557,7 +557,7 @@ export default function CaptionWriterPage({ defaultTab = 'caption' }) {
         )}
       />
 
-      <div style={styles.layout}>
+      <div className="ai-form-row" style={styles.layout}>
         {/* ── LEFT: Input form ── */}
         <div style={styles.leftPanel}>
           <div style={styles.formCard}>
@@ -738,7 +738,7 @@ export default function CaptionWriterPage({ defaultTab = 'caption' }) {
         </div>
 
         {/* ── RIGHT: Output ── */}
-        <div style={styles.rightPanel}>
+        <div className="ai-result-grid" style={styles.rightPanel}>
 
           {mode === 'caption' ? (
             <>

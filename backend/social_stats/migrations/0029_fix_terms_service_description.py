@@ -1,11 +1,11 @@
-# Generated manually on 2026-04-10
-# Updates Terms of Service and Privacy Policy to meet Google, Meta, and LinkedIn API compliance.
+# Fix Terms & Privacy: clarify that StatoX reads analytics from social platforms
+# but also has internal content-planning tools (calendar, AI captions, post ideas).
 
 import datetime
 from django.db import migrations
 
 
-def update_site_content(apps, schema_editor):
+def update_content(apps, schema_editor):
     SiteContent = apps.get_model('social_stats', 'SiteContent')
 
     # ── Privacy Policy ────────────────────────────────────────────────────────
@@ -13,8 +13,8 @@ def update_site_content(apps, schema_editor):
         key='privacy-policy',
         defaults={
             'title': 'Privacy Policy',
-            'effective_date': datetime.date(2026, 4, 10),
-            'last_updated': datetime.date(2026, 4, 10),
+            'effective_date': datetime.date(2026, 4, 13),
+            'last_updated': datetime.date(2026, 4, 13),
             'is_public': True,
             'content': {
                 'footer_link_label': 'Terms of Service',
@@ -23,28 +23,31 @@ def update_site_content(apps, schema_editor):
                     {
                         'title': '1. Introduction',
                         'html': (
-                            '<p>StatoX ("we", "our", or "us") operates a social media analytics platform at '
-                            '<strong>statox.ai</strong>. We connect to Facebook, Instagram, Google, YouTube, and LinkedIn '
-                            'to display performance statistics for your social accounts. This Privacy Policy explains what '
-                            'data we collect, how we use it, how we protect it, and the rights available to you.</p>'
-                            '<p>By using StatoX you agree to this Privacy Policy. If you do not agree, please disconnect '
-                            'your accounts and stop using the Service.</p>'
+                            '<p>StatoX ("we", "our", or "us") operates a social media analytics and content-planning '
+                            'platform at <strong>statox.ai</strong>. We connect to Facebook, Instagram, Google, YouTube, '
+                            'and LinkedIn to retrieve and display performance statistics for your social accounts. '
+                            'We also provide internal content-planning tools — including a content calendar, AI caption writer, '
+                            'and AI post ideas generator — that help you plan and organise your social media content.</p>'
+                            '<p>This Privacy Policy explains what data we collect, how we use it, how we protect it, and '
+                            'the rights available to you. By using StatoX you agree to this Privacy Policy. If you do not agree, '
+                            'please disconnect your accounts and stop using the Service.</p>'
                         ),
                     },
                     {
                         'title': '2. Data We Collect',
                         'html': (
-                            '<p>We collect only the data necessary to provide the analytics service:</p>'
+                            '<p>We collect only the data necessary to provide the service:</p>'
                             '<ul>'
                             '<li><strong>Account identifiers</strong> — page IDs, channel IDs, and profile IDs from connected accounts</li>'
                             '<li><strong>Performance metrics</strong> — reach, impressions, likes, comments, shares, follower counts, engagement rates, video views, watch time</li>'
                             '<li><strong>Post data</strong> — post captions, media thumbnails, published timestamps, and per-post metrics retrieved from platform APIs</li>'
                             '<li><strong>Basic profile information</strong> — name and profile picture of connected pages/accounts</li>'
-                            '<li><strong>OAuth tokens</strong> — access tokens and refresh tokens issued by each platform, stored encrypted, used solely to fetch analytics on your behalf</li>'
+                            '<li><strong>OAuth tokens</strong> — access tokens and refresh tokens issued by each platform, stored <strong>encrypted at rest</strong> using AES symmetric encryption (Fernet), used solely to fetch analytics on your behalf</li>'
                             '<li><strong>Account information</strong> — email address, name, and role within StatoX, provided at registration</li>'
+                            '<li><strong>User-created content</strong> — calendar posts, notes, AI-generated captions, and post ideas you create within StatoX for your own planning purposes</li>'
                             '</ul>'
                             '<p>We do <strong>not</strong> collect passwords to third-party platforms, private messages, '
-                            'friend lists, personal photos, or any data beyond what is needed for analytics.</p>'
+                            'friend lists, personal photos, or any data beyond what is needed for analytics and content planning.</p>'
                         ),
                     },
                     {
@@ -54,7 +57,8 @@ def update_site_content(apps, schema_editor):
                             '<ul>'
                             '<li>Displaying analytics dashboards and reports within StatoX</li>'
                             '<li>Syncing performance data on a scheduled basis so your statistics remain current</li>'
-                            '<li>Generating AI-powered insights and recommendations based on your performance trends</li>'
+                            '<li>Generating AI-powered captions, post ideas, and insights based on your performance trends</li>'
+                            '<li>Providing an internal content calendar to help you plan and organise your social media posts</li>'
                             '<li>Producing shareable reports you choose to export or share</li>'
                             '<li>Sending transactional emails (invitations, account notifications) to addresses you provide</li>'
                             '</ul>'
@@ -62,7 +66,6 @@ def update_site_content(apps, schema_editor):
                             '<ul>'
                             '<li>Sell, rent, lease, or share your data with third parties for advertising or marketing</li>'
                             '<li>Use your data to train AI or machine-learning models without your explicit consent</li>'
-                            '<li>Post, publish, delete, or modify content on any of your connected social accounts</li>'
                             '<li>Transfer your data to any data broker or data reseller</li>'
                             '</ul>'
                         ),
@@ -143,6 +146,7 @@ def update_site_content(apps, schema_editor):
                             '<p>We do not sell or rent your personal data. We may share data only in these limited circumstances:</p>'
                             '<ul>'
                             '<li><strong>Service providers</strong> — infrastructure providers (cloud hosting, email delivery) who process data on our behalf under confidentiality agreements</li>'
+                            '<li><strong>AI processing</strong> — when you use AI features (caption writer, post ideas, insights), your prompts and relevant analytics context are sent to our AI provider (Anthropic) to generate responses. No personally identifiable information is sent, and the AI provider does not store or train on your data.</li>'
                             '<li><strong>Legal requirements</strong> — when required by applicable law, court order, or government authority</li>'
                             '<li><strong>Business transfer</strong> — in the event of a merger or acquisition, your data may be transferred as a business asset; we will notify you in advance</li>'
                             '</ul>'
@@ -154,21 +158,34 @@ def update_site_content(apps, schema_editor):
                         'html': (
                             '<ul>'
                             '<li>Analytics data is retained for as long as your StatoX account remains active</li>'
-                            '<li>OAuth tokens are stored encrypted and refreshed automatically; they are deleted immediately upon disconnecting a social account</li>'
-                            '<li>Upon account deletion, all personal data and social analytics data is permanently removed within <strong>30 days</strong></li>'
+                            '<li>OAuth tokens are stored <strong>encrypted at rest</strong> and refreshed automatically; they are deleted immediately upon disconnecting a social account</li>'
+                            '<li>Content calendar posts, AI-generated captions, and post ideas are retained until you delete them or delete your account</li>'
+                            '<li>Upon account deletion, all personal data, social analytics data, and user-created content is permanently removed within <strong>30 days</strong></li>'
                             '<li>Anonymised aggregate statistics (e.g. platform-wide benchmarks) may be retained indefinitely — these cannot be linked back to your identity</li>'
                             '</ul>'
                         ),
                     },
                     {
-                        'title': '9. Data Security',
+                        'title': '9. Data Security & Encryption at Rest',
                         'html': (
-                            '<p>We protect your data using industry-standard security practices:</p>'
+                            '<p>We take the security of your data seriously. All platform data stored in our backend environment '
+                            'is protected with <strong>encryption at rest</strong>. Specific measures include:</p>'
                             '<ul>'
-                            '<li>All data in transit is encrypted via TLS/HTTPS</li>'
-                            '<li>OAuth tokens are encrypted at rest using AES-256</li>'
-                            '<li>Access to production systems is restricted by role and enforced with MFA</li>'
-                            '<li>Regular security reviews and dependency updates</li>'
+                            '<li><strong>Encryption in transit</strong> — all data transmitted between your browser and our servers is '
+                            'encrypted via TLS 1.2+ (HTTPS). API calls to Google, Facebook, and LinkedIn are also made over HTTPS.</li>'
+                            '<li><strong>OAuth token encryption at rest</strong> — all OAuth access tokens and refresh tokens for '
+                            'Google, Facebook, Instagram, YouTube, and LinkedIn are encrypted in our database using '
+                            '<strong>Fernet symmetric encryption (AES-128-CBC with HMAC-SHA256)</strong>. '
+                            'Tokens are encrypted before being written to the database and decrypted only at the moment '
+                            'they are needed to make an authorised API call on your behalf. Encryption keys are derived using '
+                            'PBKDF2-HMAC-SHA256 with 100,000 iterations and stored separately from the database.</li>'
+                            '<li><strong>Database security</strong> — our production PostgreSQL database runs on Amazon Web Services (AWS) '
+                            'with encrypted storage volumes (EBS encryption). Database access is restricted to application-level '
+                            'connections only; no public access is permitted.</li>'
+                            '<li><strong>Access controls</strong> — access to production systems is restricted by role. '
+                            'Application secrets and encryption keys are stored in environment variables, not in source code.</li>'
+                            '<li><strong>Token lifecycle</strong> — when you disconnect a social account or delete your StatoX account, '
+                            'all associated OAuth tokens are immediately purged from the database.</li>'
                             '</ul>'
                             '<p>No system is completely secure. If you believe your account has been compromised, '
                             'contact us immediately at <a href="mailto:support@statox.ai">support@statox.ai</a>.</p>'
@@ -213,7 +230,6 @@ def update_site_content(apps, schema_editor):
                             '<p>For privacy-related questions, data requests, or concerns:</p>'
                             '<p>'
                             '<strong>Email:</strong> <a href="mailto:support@statox.ai">support@statox.ai</a><br />'
-                            '<strong>General Support:</strong> <a href="mailto:support@statox.ai">support@statox.ai</a><br />'
                             '<strong>Website:</strong> <a href="https://statox.ai" target="_blank" rel="noreferrer">statox.ai</a>'
                             '</p>'
                         ),
@@ -228,8 +244,8 @@ def update_site_content(apps, schema_editor):
         key='terms-of-service',
         defaults={
             'title': 'Terms of Service',
-            'effective_date': datetime.date(2026, 4, 10),
-            'last_updated': datetime.date(2026, 4, 10),
+            'effective_date': datetime.date(2026, 4, 13),
+            'last_updated': datetime.date(2026, 4, 13),
             'is_public': True,
             'content': {
                 'footer_link_label': 'Privacy Policy',
@@ -250,13 +266,26 @@ def update_site_content(apps, schema_editor):
                     {
                         'title': '2. Description of the Service',
                         'html': (
-                            '<p>StatoX is a social media analytics platform that connects to your Facebook, '
-                            'Instagram, Google, YouTube, and LinkedIn accounts — with your explicit permission — '
-                            'and displays performance statistics, engagement metrics, post analytics, and related '
-                            'insights in a unified dashboard.</p>'
-                            '<p>StatoX is a <strong>read-only</strong> analytics tool. We do <strong>not</strong> '
-                            'post, publish, schedule, edit, delete, or otherwise modify any content on your '
-                            'connected social media accounts.</p>'
+                            '<p>StatoX is a social media analytics and content-planning platform that connects to your '
+                            'Facebook, Instagram, Google, YouTube, and LinkedIn accounts — with your explicit permission — '
+                            'and provides:</p>'
+                            '<ul>'
+                            '<li><strong>Analytics & Reporting</strong> — unified dashboards showing performance statistics, '
+                            'engagement metrics, and post analytics pulled from each platform\'s API</li>'
+                            '<li><strong>Content Calendar</strong> — an internal planning tool to draft, schedule, and organise '
+                            'your social media posts within StatoX</li>'
+                            '<li><strong>AI-Powered Tools</strong> — caption writer, post ideas generator, and hashtag research '
+                            'to help you create content more efficiently</li>'
+                            '<li><strong>Alerts & Insights</strong> — automated notifications about performance changes and '
+                            'AI-generated insights based on your analytics data</li>'
+                            '<li><strong>ROI Calculator</strong> — tools to measure and report the return on investment of your '
+                            'social media activities</li>'
+                            '</ul>'
+                            '<p><strong>How we interact with your social accounts:</strong> StatoX retrieves analytics data '
+                            'from connected platforms using <strong>read-only API permissions</strong>. We do not request or use '
+                            'write/publish permissions from Facebook, Instagram, Google, YouTube, or LinkedIn. Content you create '
+                            'in the StatoX content calendar (drafts, scheduled posts, captions) is stored within StatoX only and '
+                            'is not automatically published to any social media platform.</p>'
                         ),
                     },
                     {
@@ -276,7 +305,9 @@ def update_site_content(apps, schema_editor):
                         'html': (
                             '<p>When you connect a Facebook, Instagram, Google, YouTube, or LinkedIn account, '
                             'you authorise StatoX to access that account\'s analytics data via the platform\'s '
-                            'official API under your explicit OAuth consent. You can revoke this access at any time:</p>'
+                            'official API under your explicit OAuth consent. StatoX requests <strong>read-only permissions</strong> '
+                            'only — we do not request access to post, publish, edit, or delete content on your behalf.</p>'
+                            '<p>You can revoke this access at any time:</p>'
                             '<ul>'
                             '<li><strong>Facebook/Instagram</strong> — Facebook Settings → Apps and Websites → find StatoX → Remove</li>'
                             '<li><strong>Google/YouTube</strong> — '
@@ -320,9 +351,7 @@ def update_site_content(apps, schema_editor):
                             'with Meta\'s terms and policies.</p>'
                             '<p>StatoX does not sell, license, or otherwise commercialise Facebook or Instagram data, '
                             'and does not use it for purposes beyond the analytics features explicitly provided within the platform.</p>'
-                            '<p>Meta\'s user data is deleted from our systems within 30 days of account disconnection or deletion. '
-                            'A data deletion callback endpoint is registered with Meta at '
-                            '<code>https://statox.ai/api/oauth/facebook/data-deletion/</code>.</p>'
+                            '<p>Meta\'s user data is deleted from our systems within 30 days of account disconnection or deletion.</p>'
                         ),
                     },
                     {
@@ -338,7 +367,25 @@ def update_site_content(apps, schema_editor):
                         ),
                     },
                     {
-                        'title': '8. Acceptable Use',
+                        'title': '8. Data Security & Encryption',
+                        'html': (
+                            '<p>StatoX implements encryption at rest and in transit to protect all platform data stored '
+                            'in our backend environment:</p>'
+                            '<ul>'
+                            '<li><strong>Encryption in transit</strong> — all connections use TLS 1.2+ (HTTPS)</li>'
+                            '<li><strong>OAuth token encryption at rest</strong> — all access tokens and refresh tokens from Google, '
+                            'Facebook, Instagram, YouTube, and LinkedIn are encrypted in our database using '
+                            '<strong>Fernet symmetric encryption (AES-128-CBC + HMAC-SHA256)</strong> before being written to disk. '
+                            'Encryption keys are derived via PBKDF2 and stored separately from the database.</li>'
+                            '<li><strong>Infrastructure encryption</strong> — our production PostgreSQL database runs on AWS with '
+                            'encrypted storage volumes</li>'
+                            '<li><strong>Token lifecycle</strong> — tokens are purged immediately when a user disconnects a social account '
+                            'or deletes their StatoX account</li>'
+                            '</ul>'
+                        ),
+                    },
+                    {
+                        'title': '9. Acceptable Use',
                         'html': (
                             '<p>You agree not to:</p>'
                             '<ul>'
@@ -353,7 +400,7 @@ def update_site_content(apps, schema_editor):
                         ),
                     },
                     {
-                        'title': '9. Data and Privacy',
+                        'title': '10. Data and Privacy',
                         'html': (
                             '<p>Your use of the Service is governed by our <a href="/privacy">Privacy Policy</a>, '
                             'which is incorporated into these Terms by reference. We handle your data in compliance '
@@ -361,7 +408,7 @@ def update_site_content(apps, schema_editor):
                         ),
                     },
                     {
-                        'title': '10. Intellectual Property',
+                        'title': '11. Intellectual Property',
                         'html': (
                             '<p>The StatoX platform — including its design, code, branding, and content — is owned by us '
                             'and protected by intellectual property laws. You may not copy, reproduce, distribute, or create '
@@ -371,7 +418,7 @@ def update_site_content(apps, schema_editor):
                         ),
                     },
                     {
-                        'title': '11. Disclaimers',
+                        'title': '12. Disclaimers',
                         'html': (
                             '<p>The Service is provided "as is" and "as available" without warranties of any kind, '
                             'express or implied. We do not guarantee that:</p>'
@@ -384,7 +431,7 @@ def update_site_content(apps, schema_editor):
                         ),
                     },
                     {
-                        'title': '12. Limitation of Liability',
+                        'title': '13. Limitation of Liability',
                         'html': (
                             '<p>To the maximum extent permitted by applicable law, StatoX and its officers, employees, '
                             'and affiliates shall not be liable for any indirect, incidental, special, consequential, or '
@@ -393,21 +440,13 @@ def update_site_content(apps, schema_editor):
                         ),
                     },
                     {
-                        'title': '13. Termination',
+                        'title': '14. Termination',
                         'html': (
                             '<p>We reserve the right to suspend or terminate accounts that violate these Terms, '
                             'with or without notice.</p>'
                             '<p>You may delete your account at any time from the Settings page. Upon termination, '
                             'your personal data and connected account data will be permanently deleted within '
                             '<strong>30 days</strong>.</p>'
-                        ),
-                    },
-                    {
-                        'title': '14. Governing Law',
-                        'html': (
-                            '<p>These Terms are governed by and construed in accordance with applicable law. '
-                            'Any disputes arising under these Terms shall be subject to the exclusive jurisdiction '
-                            'of the competent courts.</p>'
                         ),
                     },
                     {
@@ -426,17 +465,16 @@ def update_site_content(apps, schema_editor):
     )
 
 
-def revert_site_content(apps, schema_editor):
-    # No-op: reverting legal content updates is non-trivial; handled manually if needed
+def noop(apps, schema_editor):
     pass
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('social_stats', '0025_email_verification_password_reset'),
+        ('social_stats', '0028_update_privacy_terms_encryption'),
     ]
 
     operations = [
-        migrations.RunPython(update_site_content, revert_site_content),
+        migrations.RunPython(update_content, noop),
     ]

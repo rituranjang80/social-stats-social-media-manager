@@ -1,41 +1,53 @@
 import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { useClients } from './hooks/useData';
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 
 import Sidebar           from './components/layout/Sidebar';
 import BottomNav         from './components/layout/BottomNav';
 import MobileHeader      from './components/layout/MobileHeader';
+import logoStatoxBig     from './assets/logo_statox_big.png';
+
+// ── Eagerly loaded (critical path) ──────────────────────────────────────────
 import LoginPage         from './pages/LoginPage';
-import ClientDashboard   from './pages/ClientDashboard';
-import SettingsPage      from './pages/SettingsPage';
-import AdminOverview     from './pages/AdminOverview';
-import AllClientsPage    from './pages/AllClientsPage';
-import SyncLogsPage      from './pages/SyncLogsPage';
-import EditClientPage    from './pages/EditClientPage';
-import PublicReportPage  from './pages/PublicReportPage';
-import ROICalculatorPage from './pages/ROICalculatorPage';
-import CalendarPage      from './pages/CalendarPage';
-import MyPostsPage from './pages/MyPostsPage';
-import AlertsPage from './pages/AlertsPage';
-import ReportsPage from './pages/ReportsPage';
-import AnalyticsPage from './pages/AnalyticsPage';
-import ManagementPage from './pages/ManagementPage';
-import AuthCallbackPage from './pages/AuthCallbackPage';
+import AuthCallbackPage  from './pages/AuthCallbackPage';
 import OAuthCallbackPage from './pages/OAuthCallbackPage';
-import CaptionWriterPage   from './pages/CaptionWriterPage';
-import PostIdeasPage       from './pages/PostIdeasPage';
-import PrivacyPolicyPage   from './pages/PrivacyPolicyPage';
-import TermsOfServicePage  from './pages/TermsOfServicePage';
-import DataDeletionPage    from './pages/DataDeletionPage';
-import PendingDashboard    from './pages/PendingDashboard';
-import InvitationPage      from './pages/InvitationPage';
-import SignupPage          from './pages/SignupPage';
-import VerifyEmailPage     from './pages/VerifyEmailPage';
-import ResetPasswordPage   from './pages/ResetPasswordPage';
-import UserSettingsPage    from './pages/UserSettingsPage';
-import ClientOnboardingPage from './pages/ClientOnboardingPage';
-import logoStatoxBig from './assets/logo_statox_big.png';
+
+// ── Lazy loaded (code-split for performance) ────────────────────────────────
+const ClientDashboard     = lazy(() => import('./pages/ClientDashboard'));
+const SettingsPage        = lazy(() => import('./pages/SettingsPage'));
+const AdminOverview       = lazy(() => import('./pages/AdminOverview'));
+const AllClientsPage      = lazy(() => import('./pages/AllClientsPage'));
+const SyncLogsPage        = lazy(() => import('./pages/SyncLogsPage'));
+const EditClientPage      = lazy(() => import('./pages/EditClientPage'));
+const PublicReportPage    = lazy(() => import('./pages/PublicReportPage'));
+const ROICalculatorPage   = lazy(() => import('./pages/ROICalculatorPage'));
+const CalendarPage        = lazy(() => import('./pages/CalendarPage'));
+const MyPostsPage         = lazy(() => import('./pages/MyPostsPage'));
+const AlertsPage          = lazy(() => import('./pages/AlertsPage'));
+const ReportsPage         = lazy(() => import('./pages/ReportsPage'));
+const AnalyticsPage       = lazy(() => import('./pages/AnalyticsPage'));
+const ManagementPage      = lazy(() => import('./pages/ManagementPage'));
+const CaptionWriterPage   = lazy(() => import('./pages/CaptionWriterPage'));
+const PostIdeasPage       = lazy(() => import('./pages/PostIdeasPage'));
+const PrivacyPolicyPage   = lazy(() => import('./pages/PrivacyPolicyPage'));
+const TermsOfServicePage  = lazy(() => import('./pages/TermsOfServicePage'));
+const DataDeletionPage    = lazy(() => import('./pages/DataDeletionPage'));
+const PendingDashboard    = lazy(() => import('./pages/PendingDashboard'));
+const InvitationPage      = lazy(() => import('./pages/InvitationPage'));
+const SignupPage          = lazy(() => import('./pages/SignupPage'));
+const VerifyEmailPage     = lazy(() => import('./pages/VerifyEmailPage'));
+const ResetPasswordPage   = lazy(() => import('./pages/ResetPasswordPage'));
+const UserSettingsPage    = lazy(() => import('./pages/UserSettingsPage'));
+const ClientOnboardingPage = lazy(() => import('./pages/ClientOnboardingPage'));
+
+function LazyFallback() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 200, padding: 40 }}>
+      <div className="skeleton-card" style={{ width: '100%', maxWidth: 600, height: 120, borderRadius: 16 }} />
+    </div>
+  );
+}
 
 const shellMainStyle = {
   marginLeft: 260,
@@ -76,23 +88,25 @@ function AdminLayout() {
         className="main-content"
         style={shellMainStyle}
       >
-        <Routes>
-          <Route index                     element={<AdminOverview />} />
-          <Route path="client/:clientId/*" element={<AdminClientView />} />
-          <Route path="clients"            element={<AllClientsPage onSelectClient={setSelected} />} />
-          <Route path="synclogs"           element={<SyncLogsPage />} />
-          <Route path="roi"                element={<ROICalculatorPage clientId={null} />} />
-          <Route path="calendar"           element={<CalendarPage clientId={null} />} />
-          <Route path="alerts"             element={<AlertsPage />} />
-          <Route path="reports"            element={<ReportsPage />} />
-          <Route path="analytics"          element={<AnalyticsPage />} />
-          <Route path="management"         element={<ManagementPage />} />
-          <Route path="caption-writer"     element={<CaptionWriterPage />} />
-          <Route path="post-ideas"         element={<PostIdeasPage />} />
-          <Route path="hashtags"           element={<CaptionWriterPage defaultTab="hashtag" />} />
-          <Route path="account-settings"   element={<UserSettingsPage />} />
-          <Route path="onboarding"          element={<Navigate to="/admin" replace />} />
-        </Routes>
+        <Suspense fallback={<LazyFallback />}>
+          <Routes>
+            <Route index                     element={<AdminOverview />} />
+            <Route path="client/:clientId/*" element={<AdminClientView />} />
+            <Route path="clients"            element={<AllClientsPage onSelectClient={setSelected} />} />
+            <Route path="synclogs"           element={<SyncLogsPage />} />
+            <Route path="roi"                element={<ROICalculatorPage clientId={null} />} />
+            <Route path="calendar"           element={<CalendarPage clientId={null} />} />
+            <Route path="alerts"             element={<AlertsPage />} />
+            <Route path="reports"            element={<ReportsPage />} />
+            <Route path="analytics"          element={<AnalyticsPage />} />
+            <Route path="management"         element={<ManagementPage />} />
+            <Route path="caption-writer"     element={<CaptionWriterPage />} />
+            <Route path="post-ideas"         element={<PostIdeasPage />} />
+            <Route path="hashtags"           element={<CaptionWriterPage defaultTab="hashtag" />} />
+            <Route path="account-settings"   element={<UserSettingsPage />} />
+            <Route path="onboarding"          element={<Navigate to="/admin" replace />} />
+          </Routes>
+        </Suspense>
       </main>
       <BottomNav onMenuOpen={() => setMobileOpen(true)} />
     </div>
@@ -129,18 +143,20 @@ function ClientLayout() {
         className="main-content"
         style={shellMainStyle}
       >
-        <Routes>
-          <Route index           element={<ClientDashboard clientId={user?.client_id} />} />
-          <Route path="posts"    element={<MyPostsPage />} />
-          <Route path="settings" element={<SettingsPage clientId={user?.client_id} />} />
-          <Route path="roi"      element={<ROICalculatorPage clientId={user?.client_id} />} />
-          <Route path="calendar"        element={<CalendarPage clientId={user?.client_id} />} />
-          <Route path="caption-writer"  element={<CaptionWriterPage />} />
-          <Route path="post-ideas"      element={<PostIdeasPage />} />
-          <Route path="hashtags"        element={<CaptionWriterPage defaultTab="hashtag" />} />
-          <Route path="account-settings" element={<UserSettingsPage />} />
-          <Route path="onboarding"       element={<ClientOnboardingPage />} />
-        </Routes>
+        <Suspense fallback={<LazyFallback />}>
+          <Routes>
+            <Route index           element={<ClientDashboard clientId={user?.client_id} />} />
+            <Route path="posts"    element={<MyPostsPage />} />
+            <Route path="settings" element={<SettingsPage clientId={user?.client_id} />} />
+            <Route path="roi"      element={<ROICalculatorPage clientId={user?.client_id} />} />
+            <Route path="calendar"        element={<CalendarPage clientId={user?.client_id} />} />
+            <Route path="caption-writer"  element={<CaptionWriterPage />} />
+            <Route path="post-ideas"      element={<PostIdeasPage />} />
+            <Route path="hashtags"        element={<CaptionWriterPage defaultTab="hashtag" />} />
+            <Route path="account-settings" element={<UserSettingsPage />} />
+            <Route path="onboarding"       element={<ClientOnboardingPage />} />
+          </Routes>
+        </Suspense>
       </main>
       <BottomNav onMenuOpen={() => setMobileOpen(true)} />
     </div>
@@ -207,6 +223,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <Suspense fallback={<Loader />}>
         <Routes>
           <Route path="/"       element={<RootRedirect />} />
           <Route path="/login"         element={<LoginPage />} />
@@ -240,6 +257,7 @@ export default function App() {
             </Protected>
           } />
         </Routes>
+        </Suspense>
       </AuthProvider>
     </BrowserRouter>
   );

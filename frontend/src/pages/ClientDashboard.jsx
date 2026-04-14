@@ -138,7 +138,7 @@ export default function ClientDashboard({ clientId: propClientId }) {
       {activeView === 'analytics' && (
         <>
           {/* Control bar */}
-          <div style={S.controlBar} className="db-card">
+          <div style={S.controlBar} className="db-card client-control-bar">
             <div style={S.controlTop}>
               <DateRangePicker range={range} onChange={setRange} />
               <div style={S.quickStats}>
@@ -163,7 +163,7 @@ export default function ClientDashboard({ clientId: propClientId }) {
 
           {/* Engagement rate & saves highlight strip (shown when data exists) */}
           {hasAnalytics && (
-            <div style={S.highlightStrip} className="db-card">
+            <div style={S.highlightStrip} className="db-card client-highlight-strip">
               <HighlightTile
                 icon={<TrendingUp size={16} color="#22c55e" />}
                 label="Engagement Rate"
@@ -191,11 +191,11 @@ export default function ClientDashboard({ clientId: propClientId }) {
             </div>
           )}
 
-          <div style={S.analyticsLayout}>
+          <div style={S.analyticsLayout} className="client-analytics-grid">
             {/* Primary column */}
             <div style={S.primaryColumn}>
               {/* KPI cards */}
-              <div style={S.cards} className="db-card">
+              <div style={S.cards} className="db-card client-kpi-grid">
                 {platform === 'youtube' ? (
                   <>
                     <StatCard label="Video Views"      value={totals.total_video_views}                                                      icon={Play}          color="#ff0000" />
@@ -265,7 +265,7 @@ export default function ClientDashboard({ clientId: propClientId }) {
                   <span style={{ color: '#94a3b8', fontSize: 13 }}>Loading charts…</span>
                 </div>
               ) : hasAnalytics ? (
-                <div id="charts-area" style={S.chartsGrid} className="db-card">
+                <div id="charts-area" style={S.chartsGrid} className="db-card client-charts-grid">
                   <ImpressionsChart    data={timeseries} platform={platform} />
                   <EngagementChart     data={timeseries} platform={platform} />
                   <VideoViewsChart     data={timeseries} platform={platform} />
@@ -289,7 +289,7 @@ export default function ClientDashboard({ clientId: propClientId }) {
               {/* Platform breakdown mini cards */}
               {byPlatform.length > 0 && platform === 'all' && (
                 <div style={S.platformCards} className="db-card">
-                  <div style={S.sectionHead}>
+                  <div style={S.sectionHead} className="client-section-heading">
                     <Activity size={14} color="#64748b" />
                     <span style={S.sectionTitle}>Platforms</span>
                   </div>
@@ -339,7 +339,7 @@ export default function ClientDashboard({ clientId: propClientId }) {
           {/* Recent posts grid */}
           {hasPosts && (
             <div style={S.postsSection} className="db-card">
-              <div style={S.sectionHead2}>
+              <div style={S.sectionHead2} className="client-section-heading">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <BarChart2 size={16} color="#64748b" />
                   <span style={S.sectionTitle2}>Recent Posts</span>
@@ -357,7 +357,7 @@ export default function ClientDashboard({ clientId: propClientId }) {
           {/* Platform breakdown table */}
           {byPlatform.length > 0 && platform === 'all' && (
             <div style={S.tableWrap} className="db-card">
-              <div style={S.sectionHead2}>
+              <div style={S.sectionHead2} className="client-section-heading">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <TrendingUp size={16} color="#64748b" />
                   <span style={S.sectionTitle2}>Platform Breakdown</span>

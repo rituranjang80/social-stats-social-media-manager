@@ -4,6 +4,7 @@ from django.db import transaction
 from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import timedelta
+from .fields import EncryptedTextField
 
 PLATFORM_CHOICES = [
     ('facebook',          'Facebook'),
@@ -198,9 +199,9 @@ class PlatformCredential(models.Model):
     client        = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='credentials')
     platform      = models.CharField(max_length=30, choices=PLATFORM_CHOICES)
 
-    # OAuth tokens
-    access_token  = models.TextField(blank=True)
-    refresh_token = models.TextField(blank=True)
+    # OAuth tokens (AES-encrypted at rest)
+    access_token  = EncryptedTextField(blank=True)
+    refresh_token = EncryptedTextField(blank=True)
     token_type    = models.CharField(max_length=50, blank=True, default='Bearer')
     expires_at    = models.DateTimeField(null=True, blank=True)
     scope         = models.TextField(blank=True)
@@ -316,10 +317,10 @@ class PostMetric(models.Model):
     client        = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='post_metrics')
     platform      = models.CharField(max_length=30, choices=PLATFORM_CHOICES)
     post_id       = models.CharField(max_length=300)
-    post_url      = models.URLField(blank=True)
+    post_url      = models.TextField(blank=True)
     post_type     = models.CharField(max_length=50, blank=True)
     caption       = models.TextField(blank=True)
-    thumbnail_url = models.URLField(blank=True)
+    thumbnail_url = models.TextField(blank=True)
     published_at  = models.DateTimeField(null=True, blank=True)
 
     impressions  = models.BigIntegerField(default=0)

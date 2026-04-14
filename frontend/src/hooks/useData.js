@@ -68,24 +68,53 @@ export function useTimeseries(clientId, range, platform) {
   return { data, loading, refetch: fetch };
 }
 
-export function usePosts(clientId, platform, range) {
-  const [posts, setPosts]     = useState([]);
-  const [loading, setLoading] = useState(false);
+export function usePosts(clientId, platform, range, pageSize = 20) {
+  const [posts, setPosts]         = useState([]);
+  const [total, setTotal]         = useState(0);
+  const [hasMore, setHasMore]     = useState(false);
+  const [loading, setLoading]     = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const fetch = useCallback(async () => {
     if (!clientId) return;
     try {
       setLoading(true);
-      const params = { limit: 20, ...range };
+      const params = { limit: pageSize, offset: 0, ...range };
       if (platform && platform !== 'all') params.platform = platform;
       const res = await clientsAPI.posts(clientId, params);
-      setPosts(res.data.results || res.data);
+      const data = res.data;
+      if (data.results) {
+        setPosts(data.results);
+        setTotal(data.total || 0);
+        setHasMore(data.has_more || false);
+      } else {
+        setPosts(Array.isArray(data) ? data : []);
+        setTotal(Array.isArray(data) ? data.length : 0);
+        setHasMore(false);
+      }
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
-  }, [clientId, platform, range]);
+  }, [clientId, platform, range, pageSize]);
+
+  const loadMore = useCallback(async () => {
+    if (!clientId || !hasMore || loadingMore) return;
+    try {
+      setLoadingMore(true);
+      const params = { limit: pageSize, offset: posts.length, ...range };
+      if (platform && platform !== 'all') params.platform = platform;
+      const res = await clientsAPI.posts(clientId, params);
+      const data = res.data;
+      if (data.results) {
+        setPosts(prev => [...prev, ...data.results]);
+        setTotal(data.total || 0);
+        setHasMore(data.has_more || false);
+      }
+    } catch (e) { console.error(e); }
+    finally { setLoadingMore(false); }
+  }, [clientId, platform, range, pageSize, posts.length, hasMore, loadingMore]);
 
   useEffect(() => { fetch(); }, [fetch]);
-  return { posts, loading };
+  return { posts, total, hasMore, loading, loadingMore, loadMore };
 }
 
 export function useOAuthStatus(clientId) {

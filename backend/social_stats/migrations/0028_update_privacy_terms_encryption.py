@@ -1,11 +1,11 @@
-# Generated manually on 2026-04-10
-# Updates Terms of Service and Privacy Policy to meet Google, Meta, and LinkedIn API compliance.
+# Update Privacy Policy and Terms to include encryption-at-rest details
+# and fix privacy@statox.ai → support@statox.ai in live DB.
 
 import datetime
 from django.db import migrations
 
 
-def update_site_content(apps, schema_editor):
+def update_content(apps, schema_editor):
     SiteContent = apps.get_model('social_stats', 'SiteContent')
 
     # ── Privacy Policy ────────────────────────────────────────────────────────
@@ -13,8 +13,8 @@ def update_site_content(apps, schema_editor):
         key='privacy-policy',
         defaults={
             'title': 'Privacy Policy',
-            'effective_date': datetime.date(2026, 4, 10),
-            'last_updated': datetime.date(2026, 4, 10),
+            'effective_date': datetime.date(2026, 4, 13),
+            'last_updated': datetime.date(2026, 4, 13),
             'is_public': True,
             'content': {
                 'footer_link_label': 'Terms of Service',
@@ -40,7 +40,7 @@ def update_site_content(apps, schema_editor):
                             '<li><strong>Performance metrics</strong> — reach, impressions, likes, comments, shares, follower counts, engagement rates, video views, watch time</li>'
                             '<li><strong>Post data</strong> — post captions, media thumbnails, published timestamps, and per-post metrics retrieved from platform APIs</li>'
                             '<li><strong>Basic profile information</strong> — name and profile picture of connected pages/accounts</li>'
-                            '<li><strong>OAuth tokens</strong> — access tokens and refresh tokens issued by each platform, stored encrypted, used solely to fetch analytics on your behalf</li>'
+                            '<li><strong>OAuth tokens</strong> — access tokens and refresh tokens issued by each platform, stored <strong>encrypted at rest</strong> using AES symmetric encryption (Fernet), used solely to fetch analytics on your behalf</li>'
                             '<li><strong>Account information</strong> — email address, name, and role within StatoX, provided at registration</li>'
                             '</ul>'
                             '<p>We do <strong>not</strong> collect passwords to third-party platforms, private messages, '
@@ -154,21 +154,33 @@ def update_site_content(apps, schema_editor):
                         'html': (
                             '<ul>'
                             '<li>Analytics data is retained for as long as your StatoX account remains active</li>'
-                            '<li>OAuth tokens are stored encrypted and refreshed automatically; they are deleted immediately upon disconnecting a social account</li>'
+                            '<li>OAuth tokens are stored <strong>encrypted at rest</strong> and refreshed automatically; they are deleted immediately upon disconnecting a social account</li>'
                             '<li>Upon account deletion, all personal data and social analytics data is permanently removed within <strong>30 days</strong></li>'
                             '<li>Anonymised aggregate statistics (e.g. platform-wide benchmarks) may be retained indefinitely — these cannot be linked back to your identity</li>'
                             '</ul>'
                         ),
                     },
                     {
-                        'title': '9. Data Security',
+                        'title': '9. Data Security & Encryption at Rest',
                         'html': (
-                            '<p>We protect your data using industry-standard security practices:</p>'
+                            '<p>We take the security of your data seriously. All platform data stored in our backend environment '
+                            'is protected with <strong>encryption at rest</strong>. Specific measures include:</p>'
                             '<ul>'
-                            '<li>All data in transit is encrypted via TLS/HTTPS</li>'
-                            '<li>OAuth tokens are encrypted at rest using AES-256</li>'
-                            '<li>Access to production systems is restricted by role and enforced with MFA</li>'
-                            '<li>Regular security reviews and dependency updates</li>'
+                            '<li><strong>Encryption in transit</strong> — all data transmitted between your browser and our servers is '
+                            'encrypted via TLS 1.2+ (HTTPS). API calls to Google, Facebook, and LinkedIn are also made over HTTPS.</li>'
+                            '<li><strong>OAuth token encryption at rest</strong> — all OAuth access tokens and refresh tokens for '
+                            'Google, Facebook, Instagram, YouTube, and LinkedIn are encrypted in our database using '
+                            '<strong>Fernet symmetric encryption (AES-128-CBC with HMAC-SHA256)</strong>. '
+                            'Tokens are encrypted before being written to the database and decrypted only at the moment '
+                            'they are needed to make an authorised API call on your behalf. Encryption keys are derived using '
+                            'PBKDF2-HMAC-SHA256 with 100,000 iterations and stored separately from the database.</li>'
+                            '<li><strong>Database security</strong> — our production PostgreSQL database runs on Amazon Web Services (AWS) '
+                            'with encrypted storage volumes (EBS encryption). Database access is restricted to application-level '
+                            'connections only; no public access is permitted.</li>'
+                            '<li><strong>Access controls</strong> — access to production systems is restricted by role. '
+                            'Application secrets and encryption keys are stored in environment variables, not in source code.</li>'
+                            '<li><strong>Token lifecycle</strong> — when you disconnect a social account or delete your StatoX account, '
+                            'all associated OAuth tokens are immediately purged from the database.</li>'
                             '</ul>'
                             '<p>No system is completely secure. If you believe your account has been compromised, '
                             'contact us immediately at <a href="mailto:support@statox.ai">support@statox.ai</a>.</p>'
@@ -213,7 +225,6 @@ def update_site_content(apps, schema_editor):
                             '<p>For privacy-related questions, data requests, or concerns:</p>'
                             '<p>'
                             '<strong>Email:</strong> <a href="mailto:support@statox.ai">support@statox.ai</a><br />'
-                            '<strong>General Support:</strong> <a href="mailto:support@statox.ai">support@statox.ai</a><br />'
                             '<strong>Website:</strong> <a href="https://statox.ai" target="_blank" rel="noreferrer">statox.ai</a>'
                             '</p>'
                         ),
@@ -228,8 +239,8 @@ def update_site_content(apps, schema_editor):
         key='terms-of-service',
         defaults={
             'title': 'Terms of Service',
-            'effective_date': datetime.date(2026, 4, 10),
-            'last_updated': datetime.date(2026, 4, 10),
+            'effective_date': datetime.date(2026, 4, 13),
+            'last_updated': datetime.date(2026, 4, 13),
             'is_public': True,
             'content': {
                 'footer_link_label': 'Privacy Policy',
@@ -338,7 +349,25 @@ def update_site_content(apps, schema_editor):
                         ),
                     },
                     {
-                        'title': '8. Acceptable Use',
+                        'title': '8. Data Security & Encryption',
+                        'html': (
+                            '<p>StatoX implements encryption at rest and in transit to protect all platform data stored '
+                            'in our backend environment:</p>'
+                            '<ul>'
+                            '<li><strong>Encryption in transit</strong> — all connections use TLS 1.2+ (HTTPS)</li>'
+                            '<li><strong>OAuth token encryption at rest</strong> — all access tokens and refresh tokens from Google, '
+                            'Facebook, Instagram, YouTube, and LinkedIn are encrypted in our database using '
+                            '<strong>Fernet symmetric encryption (AES-128-CBC + HMAC-SHA256)</strong> before being written to disk. '
+                            'Encryption keys are derived via PBKDF2 and stored separately from the database.</li>'
+                            '<li><strong>Infrastructure encryption</strong> — our production PostgreSQL database runs on AWS with '
+                            'encrypted storage volumes</li>'
+                            '<li><strong>Token lifecycle</strong> — tokens are purged immediately when a user disconnects a social account '
+                            'or deletes their StatoX account</li>'
+                            '</ul>'
+                        ),
+                    },
+                    {
+                        'title': '9. Acceptable Use',
                         'html': (
                             '<p>You agree not to:</p>'
                             '<ul>'
@@ -353,7 +382,7 @@ def update_site_content(apps, schema_editor):
                         ),
                     },
                     {
-                        'title': '9. Data and Privacy',
+                        'title': '10. Data and Privacy',
                         'html': (
                             '<p>Your use of the Service is governed by our <a href="/privacy">Privacy Policy</a>, '
                             'which is incorporated into these Terms by reference. We handle your data in compliance '
@@ -361,7 +390,7 @@ def update_site_content(apps, schema_editor):
                         ),
                     },
                     {
-                        'title': '10. Intellectual Property',
+                        'title': '11. Intellectual Property',
                         'html': (
                             '<p>The StatoX platform — including its design, code, branding, and content — is owned by us '
                             'and protected by intellectual property laws. You may not copy, reproduce, distribute, or create '
@@ -371,7 +400,7 @@ def update_site_content(apps, schema_editor):
                         ),
                     },
                     {
-                        'title': '11. Disclaimers',
+                        'title': '12. Disclaimers',
                         'html': (
                             '<p>The Service is provided "as is" and "as available" without warranties of any kind, '
                             'express or implied. We do not guarantee that:</p>'
@@ -384,7 +413,7 @@ def update_site_content(apps, schema_editor):
                         ),
                     },
                     {
-                        'title': '12. Limitation of Liability',
+                        'title': '13. Limitation of Liability',
                         'html': (
                             '<p>To the maximum extent permitted by applicable law, StatoX and its officers, employees, '
                             'and affiliates shall not be liable for any indirect, incidental, special, consequential, or '
@@ -393,21 +422,13 @@ def update_site_content(apps, schema_editor):
                         ),
                     },
                     {
-                        'title': '13. Termination',
+                        'title': '14. Termination',
                         'html': (
                             '<p>We reserve the right to suspend or terminate accounts that violate these Terms, '
                             'with or without notice.</p>'
                             '<p>You may delete your account at any time from the Settings page. Upon termination, '
                             'your personal data and connected account data will be permanently deleted within '
                             '<strong>30 days</strong>.</p>'
-                        ),
-                    },
-                    {
-                        'title': '14. Governing Law',
-                        'html': (
-                            '<p>These Terms are governed by and construed in accordance with applicable law. '
-                            'Any disputes arising under these Terms shall be subject to the exclusive jurisdiction '
-                            'of the competent courts.</p>'
                         ),
                     },
                     {
@@ -426,17 +447,16 @@ def update_site_content(apps, schema_editor):
     )
 
 
-def revert_site_content(apps, schema_editor):
-    # No-op: reverting legal content updates is non-trivial; handled manually if needed
+def noop(apps, schema_editor):
     pass
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('social_stats', '0025_email_verification_password_reset'),
+        ('social_stats', '0027_encrypt_oauth_tokens'),
     ]
 
     operations = [
-        migrations.RunPython(update_site_content, revert_site_content),
+        migrations.RunPython(update_content, noop),
     ]

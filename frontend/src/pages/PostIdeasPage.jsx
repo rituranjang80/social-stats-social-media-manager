@@ -452,7 +452,7 @@ function SetupForm({ form, setForm, isAdmin, error, businessTypeOptions, monthOp
         <h2 style={styles.formTitle}>Generate Your Content Calendar</h2>
         <p style={styles.formSub}>Fill in your business details to generate a lean, date-based content plan with exactly {form.posts_per_week} post ideas.</p>
 
-        <div style={styles.formGrid}>
+        <div className="ai-form-row" style={styles.formGrid}>
           {/* Business Type */}
           <div style={styles.formField}>
             <label style={styles.label}>Business Type *</label>
@@ -693,7 +693,7 @@ function ResultsView({
         </div>
 
         {/* Ideas grid */}
-        <div style={styles.ideasGrid}>
+        <div className="ai-result-grid" style={styles.ideasGrid}>
           {datedIdeas.map(idea => (
             <IdeaCard
               key={idea.id}

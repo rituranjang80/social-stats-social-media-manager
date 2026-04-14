@@ -43,7 +43,7 @@ export default function ConnectedAccounts({ clientId, status, onRefresh }) {
         Connect your social media accounts to start syncing stats automatically.
       </p>
 
-      <div style={styles.grid}>
+      <div className="oauth-platform-grid" style={styles.grid}>
         {platformOrder.map(key => {
           const p      = PLATFORMS[key];
           const s      = status[key] || {};
@@ -58,7 +58,7 @@ export default function ConnectedAccounts({ clientId, status, onRefresh }) {
             : null;
 
           return (
-            <div key={key} style={{ ...styles.card, borderLeft: `4px solid ${p.color}` }}>
+            <div key={key} className="oauth-platform-card" style={{ ...styles.card, borderLeft: `4px solid ${p.color}` }}>
               <div style={styles.cardTop}>
                 <div style={styles.platformInfo}>
                   <span style={styles.platformIcon}>
@@ -87,6 +87,7 @@ export default function ConnectedAccounts({ clientId, status, onRefresh }) {
                 <div style={styles.groupNote}>{groupNote}</div>
               ) : conn ? (
                 <button
+                  className="oauth-btn-row"
                   onClick={() => handleDisconnect(key)}
                   disabled={loading[key]}
                   style={styles.disconnectBtn}
@@ -95,6 +96,7 @@ export default function ConnectedAccounts({ clientId, status, onRefresh }) {
                 </button>
               ) : (
                 <button
+                  className="oauth-btn-row"
                   onClick={() => handleConnect(key)}
                   style={{ ...styles.connectBtn, background: p.color }}
                 >

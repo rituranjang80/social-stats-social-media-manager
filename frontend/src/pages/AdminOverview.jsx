@@ -103,7 +103,7 @@ function GoalManager() {
   };
 
   return (
-    <div style={styles.tableWrap}>
+    <div className="admin-table-wrap" style={styles.tableWrap}>
       <div style={styles.goalHeader} onClick={() => setOpen(o => !o)}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Target size={16} style={{ color: '#00d7ff' }} />
@@ -114,7 +114,7 @@ function GoalManager() {
 
       {open && (
         <>
-          <form onSubmit={handleCreate} style={styles.goalForm}>
+          <form onSubmit={handleCreate} className="admin-goal-form" style={styles.goalForm}>
             <div style={styles.goalField}>
               <label style={styles.goalLabel}>User <span style={styles.requiredAsterisk}>*</span></label>
               <select value={form.client} onChange={e => handleFieldChange('client', e.target.value)} style={{ ...styles.sel, ...(errors.client ? styles.inputError : {}) }}>
@@ -229,7 +229,7 @@ function AlertsPanel() {
   const { alerts, unreadCount, markRead, markAllRead } = useAlerts();
 
   return (
-    <div style={styles.tableWrap}>
+    <div className="admin-table-wrap" style={styles.tableWrap}>
       <div style={styles.goalHeader} onClick={() => setOpen(o => !o)}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Bell size={16} style={{ color: '#00d7ff' }} />
@@ -336,7 +336,7 @@ function TopPostsPanel() {
   };
 
   return (
-    <div style={styles.tableWrap}>
+    <div className="admin-table-wrap" style={styles.tableWrap}>
       <div style={styles.goalHeader} onClick={() => setOpen(o => !o)}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Trophy size={16} style={{ color: '#d97706' }} />
@@ -465,7 +465,7 @@ function SharedLinksPanel() {
   }
 
   return (
-    <div style={panelWrap}>
+    <div className="admin-panel-wrap" style={panelWrap}>
       <button onClick={() => setOpen(o => !o)} style={panelToggle}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Link2 size={16} style={{ color: '#00d7ff' }} />
@@ -559,7 +559,7 @@ function ROIOverviewPanel() {
   const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
   return (
-    <div style={styles.tableWrap}>
+    <div className="admin-table-wrap" style={styles.tableWrap}>
       <div style={styles.goalHeader} onClick={() => setOpen(o => !o)}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <TrendingUp size={16} style={{ color: '#00d7ff' }} />
@@ -677,7 +677,7 @@ export default function AdminOverview() {
       <div style={styles.heroPanel}>
         <div style={styles.heroGlowA} />
         <div style={styles.heroGlowB} />
-        <div style={styles.heroTopRow}>
+        <div className="admin-hero-top" style={styles.heroTopRow}>
           <div style={styles.heroCopy}>
             <div style={styles.heroEyebrow}>Agency Command Center</div>
             <h1 style={styles.heroTitle}>Make the numbers feel actionable.</h1>
@@ -690,7 +690,7 @@ export default function AdminOverview() {
           </div>
         </div>
 
-        <div style={styles.signalGrid}>
+        <div className="admin-signal-grid" style={styles.signalGrid}>
           <SignalCard
             label="Active Users"
             value={loading ? '...' : fmt(overview?.total_clients || 0)}
@@ -718,7 +718,7 @@ export default function AdminOverview() {
         </div>
       </div>
 
-      <div style={styles.summaryBar}>
+      <div className="admin-summary-bar" style={styles.summaryBar}>
         <div style={styles.summaryItem}>
           <span style={styles.summaryItemLabel}>Date Window</span>
           <strong style={styles.summaryItemValue}>{overview?.period ? `${overview.period.since} to ${overview.period.until}` : 'Current period'}</strong>
@@ -744,7 +744,7 @@ export default function AdminOverview() {
         </div>
       </div>
 
-      <div style={styles.cards}>
+      <div className="admin-stat-cards" style={styles.cards}>
         <StatCard label="Total Users"        value={overview?.total_clients || 0} icon={Users}         color="#00d7ff" />
         <StatCard label="Total Impressions" value={totalImpressions}             icon={Eye}           color="#00d7ff" />
         <StatCard label="Total Clicks"      value={totalClicks}                  icon={MousePointer2} color="#22c55e" />
@@ -758,10 +758,10 @@ export default function AdminOverview() {
         </div>
       </div>
 
-      <div style={styles.dashboardGrid}>
+      <div className="admin-dashboard-grid" style={styles.dashboardGrid}>
         <div style={styles.mainColumn}>
           {overview?.by_platform?.length > 0 && (
-            <div style={styles.tableWrap}>
+            <div className="admin-table-wrap" style={styles.tableWrap}>
               <h3 style={styles.tableTitle}>Platform Performance</h3>
               <table style={styles.table}>
                 <thead>
@@ -803,7 +803,7 @@ export default function AdminOverview() {
 
         <div style={styles.sideColumn}>
           {overview?.recent_syncs?.length > 0 && (
-            <div style={styles.tableWrap}>
+            <div className="admin-table-wrap" style={styles.tableWrap}>
               <h3 style={styles.tableTitle}>Recent Sync Activity</h3>
               <table style={styles.table}>
                 <thead>

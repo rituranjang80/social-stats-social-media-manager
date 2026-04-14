@@ -61,4 +61,24 @@
   .app-page--content {
     padding: 20px 16px 28px;
   }
+
+  .app-surface--panel {
+    border-radius: 14px;
+    padding: 16px;
+  }
+
+  .app-surface--compact {
+    padding: 12px;
+  }
+
+  .app-toolbar {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-page,
+  .app-page--content {
+    padding: 16px 12px 24px;
+  }
 }

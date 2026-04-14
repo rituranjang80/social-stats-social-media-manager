@@ -53,7 +53,7 @@ def sync_facebook(self, client_id, days=30):
         ])
 
         insights = requests.get(
-            f"https://graph.facebook.com/v18.0/{cred.page_id}/insights",
+            f"https://graph.facebook.com/v21.0/{cred.page_id}/insights",
             params={
                 'metric': metrics_to_fetch,
                 'period': 'day',
@@ -65,7 +65,7 @@ def sync_facebook(self, client_id, days=30):
 
         # Fetch reactions breakdown separately
         reactions_resp = requests.get(
-            f"https://graph.facebook.com/v18.0/{cred.page_id}/insights",
+            f"https://graph.facebook.com/v21.0/{cred.page_id}/insights",
             params={
                 'metric': 'page_actions_post_reactions_total',
                 'period': 'day',
@@ -119,7 +119,7 @@ def sync_facebook(self, client_id, days=30):
         # ── Per-post metrics ──────────────────────────────────────────────────
         from .models import PostMetric
         fb_posts = requests.get(
-            f"https://graph.facebook.com/v18.0/{cred.page_id}/posts",
+            f"https://graph.facebook.com/v21.0/{cred.page_id}/posts",
             params={
                 'fields': 'id,message,story,created_time,permalink_url,full_picture',
                 'limit':  25,
@@ -129,29 +129,27 @@ def sync_facebook(self, client_id, days=30):
 
         for post in fb_posts.get('data', []):
             try:
+                # v21+ only supports post_impressions_unique and post_clicks
                 pi = requests.get(
-                    f"https://graph.facebook.com/v18.0/{post['id']}/insights",
+                    f"https://graph.facebook.com/v21.0/{post['id']}/insights",
                     params={
-                        'metric': 'post_impressions_unique,post_engaged_users,post_clicks',
+                        'metric': 'post_impressions_unique,post_clicks',
                         'access_token': cred.access_token,
                     }, timeout=10
                 ).json()
                 pm = {x['name']: x['values'][0]['value'] for x in pi.get('data', []) if x.get('values')}
 
-                # Reactions
-                react_resp = requests.get(
-                    f"https://graph.facebook.com/v18.0/{post['id']}/reactions",
-                    params={'summary': 'true', 'access_token': cred.access_token},
-                    timeout=10
+                # Get likes, comments, shares from the post object directly
+                post_detail = requests.get(
+                    f"https://graph.facebook.com/v21.0/{post['id']}",
+                    params={
+                        'fields': 'shares,reactions.summary(true),comments.summary(true)',
+                        'access_token': cred.access_token,
+                    }, timeout=10
                 ).json()
-                likes = react_resp.get('summary', {}).get('total_count', 0)
-
-                comments_resp = requests.get(
-                    f"https://graph.facebook.com/v18.0/{post['id']}/comments",
-                    params={'summary': 'true', 'access_token': cred.access_token},
-                    timeout=10
-                ).json()
-                comments = comments_resp.get('summary', {}).get('total_count', 0)
+                likes    = post_detail.get('reactions', {}).get('summary', {}).get('total_count', 0)
+                comments = post_detail.get('comments', {}).get('summary', {}).get('total_count', 0)
+                shares   = post_detail.get('shares', {}).get('count', 0)
 
                 caption = (post.get('message') or post.get('story') or '')[:500]
                 PostMetric.objects.update_or_create(
@@ -167,7 +165,7 @@ def sync_facebook(self, client_id, days=30):
                         'likes':         likes,
                         'comments':      comments,
                         'clicks':        pm.get('post_clicks', 0),
-                        'shares':        0,
+                        'shares':        shares,
                     }
                 )
             except Exception:
@@ -196,7 +194,7 @@ def sync_instagram(self, client_id, days=30):
 
         # Group 1 — standard day metrics
         day_insights = requests.get(
-            f"https://graph.facebook.com/v18.0/{cred.instagram_account_id}/insights",
+            f"https://graph.facebook.com/v21.0/{cred.instagram_account_id}/insights",
             params={
                 'metric': 'reach,follower_count',
                 'period': 'day',
@@ -208,7 +206,7 @@ def sync_instagram(self, client_id, days=30):
 
         # Group 2 — total_value metrics (profile_views, website_clicks, etc.)
         total_insights = requests.get(
-            f"https://graph.facebook.com/v18.0/{cred.instagram_account_id}/insights",
+            f"https://graph.facebook.com/v21.0/{cred.instagram_account_id}/insights",
             params={
                 'metric': ','.join([
                     'profile_views', 'website_clicks', 'accounts_engaged',
@@ -267,7 +265,7 @@ def sync_instagram(self, client_id, days=30):
 
         # Per-post metrics
         posts = requests.get(
-            f"https://graph.facebook.com/v18.0/{cred.instagram_account_id}/media",
+            f"https://graph.facebook.com/v21.0/{cred.instagram_account_id}/media",
             params={
                 'fields': 'id,caption,media_type,permalink,timestamp,media_url,thumbnail_url',
                 'limit':  25,
@@ -292,7 +290,7 @@ def sync_instagram(self, client_id, days=30):
                     insight_metrics = 'reach,saved,shares'
 
                 pi = requests.get(
-                    f"https://graph.facebook.com/v18.0/{post['id']}/insights",
+                    f"https://graph.facebook.com/v21.0/{post['id']}/insights",
                     params={
                         'metric': insight_metrics,
                         'access_token': cred.access_token,
@@ -305,7 +303,7 @@ def sync_instagram(self, client_id, days=30):
 
                 # likes and comments come from the media node directly in v18+
                 post_detail = requests.get(
-                    f"https://graph.facebook.com/v18.0/{post['id']}",
+                    f"https://graph.facebook.com/v21.0/{post['id']}",
                     params={
                         'fields': 'like_count,comments_count',
                         'access_token': cred.access_token,

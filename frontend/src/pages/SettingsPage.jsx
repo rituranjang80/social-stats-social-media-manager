@@ -383,7 +383,7 @@ export default function SettingsPage({ clientId: propClientId }) {
         subtitle="Manage your account and business profile."
       />
 
-      <div style={heroStyle}>
+      <div className="oauth-hero" style={heroStyle}>
         <div>
           <span style={heroBadgeStyle}>Business Profile</span>
           <h2 style={heroTitleStyle}>Keep your settings aligned with onboarding</h2>

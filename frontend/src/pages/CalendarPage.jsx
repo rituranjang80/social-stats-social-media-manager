@@ -379,7 +379,7 @@ export default function CalendarPage({ clientId: propClientId }) {
         />
 
         {/* Top bar */}
-        <div style={{
+        <div className="calendar-toolbar" style={{
           display: 'flex',
           alignItems: 'flex-start',
           gap: 12,

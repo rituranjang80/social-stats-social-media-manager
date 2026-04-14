@@ -249,7 +249,7 @@ export default function AnalyticsPage() {
           ? `Viewing ${selectedClientName} — ${range.since} to ${range.until}`
           : `All clients overview — ${range.since} to ${range.until}`}
         actions={(
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+          <div className="analytics-controls" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
             <DateRangePicker range={range} onChange={setRange} />
             <select
               value={selectedClientId}
@@ -283,7 +283,7 @@ export default function AnalyticsPage() {
       />
 
       {/* ── KPI Cards ──────────────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
+      <div className="analytics-kpi-grid" style={{ display: 'flex', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
         {Object.entries(METRIC_META).map(([key, meta]) => (
           <KPICard
             key={key}
@@ -386,7 +386,7 @@ export default function AnalyticsPage() {
       )}
 
       {/* ── Row 2: Two-column ─────────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
+      <div className="analytics-two-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
 
         {/* Platform distribution pie */}
         <SectionCard

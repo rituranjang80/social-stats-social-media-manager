@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ExternalLink, MessageCircle, Heart, Play, CalendarDays } from 'lucide-react';
+import { ExternalLink, MessageCircle, Heart, Play, CalendarDays, Loader2, ChevronDown } from 'lucide-react';
 import PageHeader from '../components/layout/PageHeader';
 import DateRangePicker from '../components/ui/DateRangePicker';
 import PlatformTabs from '../components/ui/PlatformTabs';
@@ -23,7 +23,7 @@ export default function MyPostsPage() {
   const clientId = user?.client_id;
   const [range, setRange] = useDateRange(30);
   const [platform, setPlatform] = useState('all');
-  const { posts, loading } = usePosts(clientId, platform, range);
+  const { posts, total, hasMore, loading, loadingMore, loadMore } = usePosts(clientId, platform, range);
   const { status: oauthStatus } = useOAuthStatus(clientId);
   const { lookups } = useLookups();
 
@@ -51,7 +51,7 @@ export default function MyPostsPage() {
         subtitle="Review recent content performance across your connected accounts."
         actions={<DateRangePicker range={range} onChange={setRange} />}
         meta={[
-          { label: 'Posts', value: posts.length },
+          { label: 'Showing', value: `${posts.length} of ${total}` },
           { label: 'Platforms', value: connectedPlatforms.length || 0 },
           { label: 'View', value: platform === 'all' ? 'All Platforms' : (platformLabelMap[platform] || PLATFORMS[platform]?.label || platform) },
         ]}
@@ -74,7 +74,7 @@ export default function MyPostsPage() {
         <div style={styles.grid}>
           {posts.map((post) => {
             const postPlatformMeta = platformMeta(post.platform);
-            const title = post.caption || post.title || 'Untitled post';
+            const title = post.caption || post.title || `${postPlatformMeta.label} ${post.post_type || 'post'} — ${post.published_at ? new Date(post.published_at).toLocaleDateString() : 'Draft'}`;
             const isVideo = post.video_views > 0 || post.post_type?.includes('video');
             return (
               <article key={post.id} style={styles.card}>
@@ -122,6 +122,19 @@ export default function MyPostsPage() {
               </article>
             );
           })}
+        </div>
+      )}
+
+      {/* Load More */}
+      {hasMore && !loading && (
+        <div style={styles.loadMoreWrap}>
+          <button onClick={loadMore} disabled={loadingMore} style={styles.loadMoreBtn}>
+            {loadingMore ? (
+              <><Loader2 size={15} style={{ animation: 'spin .8s linear infinite' }} /> Loading…</>
+            ) : (
+              <><ChevronDown size={15} /> Load More ({total - posts.length} remaining)</>
+            )}
+          </button>
         </div>
       )}
     </div>
@@ -204,5 +217,25 @@ const styles = {
     textDecoration: 'none',
     fontSize: 13,
     fontWeight: 700,
+  },
+  loadMoreWrap: {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: '24px 0 8px',
+  },
+  loadMoreBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '12px 28px',
+    borderRadius: 12,
+    border: '1.5px solid #e2e8f0',
+    background: '#fff',
+    color: '#374151',
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: 'pointer',
+    boxShadow: '0 1px 4px rgba(15,23,42,.06)',
+    transition: 'all 0.15s ease',
   },
 };

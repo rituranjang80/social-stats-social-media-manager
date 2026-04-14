@@ -118,7 +118,7 @@ export function PlatformCompareChart({ byPlatform }) {
 // ── Wrapper ──────────────────────────────────────────────────────────────────
 function ChartCard({ title, accent = '#6366f1', children }) {
   return (
-    <div style={styles.card}>
+    <div style={styles.card} className="client-chart-card">
       <div style={styles.cardHeader}>
         <span style={{ ...styles.accentBar, background: accent }} />
         <h3 style={styles.title}>{title}</h3>

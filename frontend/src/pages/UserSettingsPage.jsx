@@ -34,9 +34,9 @@ export default function UserSettingsPage() {
     <div style={s.page}>
       <PageHeader title="Account Settings" subtitle="Manage your profile, security and agency connection" />
 
-      <div style={s.body}>
+      <div className="settings-body" style={s.body}>
         {/* Sidebar tabs */}
-        <div style={s.sidebar}>
+        <div className="settings-sidebar" style={s.sidebar}>
           {tabs.map(t => {
             const Icon = t.icon;
             return (
@@ -53,7 +53,7 @@ export default function UserSettingsPage() {
         </div>
 
         {/* Panel */}
-        <div style={s.panel}>
+        <div className="settings-panel" style={s.panel}>
           {tab === 'profile'  && <ProfileTab user={user} logout={logout} navigate={navigate} />}
           {tab === 'security' && <SecurityTab user={user} />}
           {tab === 'agency'   && user?.role === 'client' && (
@@ -134,7 +134,7 @@ function ProfileTab({ user, logout, navigate }) {
 
       <form onSubmit={handleSave}>
         {/* Avatar */}
-        <div style={s.avatarRow}>
+        <div className="settings-avatar-row" style={s.avatarRow}>
           <div style={s.avatarWrap}>
             {preview
               ? <img src={preview} alt="avatar" style={s.avatarImg} />
@@ -159,7 +159,7 @@ function ProfileTab({ user, logout, navigate }) {
           <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarChange} />
         </div>
 
-        <div style={s.fieldGrid}>
+        <div className="settings-field-grid" style={s.fieldGrid}>
           <Field label="First Name" required>
             <input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Jane" style={s.input} />
           </Field>
