@@ -1,12 +1,12 @@
 {
-  "short_name": "StatoX",
-  "name": "StatoX — Social Media Analytics",
-  "description": "Social media analytics and content-planning platform for agencies and clients.",
+  "short_name": "Statox AI",
+  "name": "Statox AI — Marketing OS",
+  "description": "AI-powered marketing platform for agencies and businesses.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "theme_color": "#0f172a",
-  "background_color": "#f0f4f9",
+  "theme_color": "#fafbfc",
+  "background_color": "#fafbfc",
   "scope": "/",
   "icons": [
     {

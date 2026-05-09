@@ -210,7 +210,7 @@ export default function PostFormDrawer({ date, post, isOpen, onClose, onSave, cl
         onClick={onClose}
         style={{
           position: 'fixed', inset: 0,
-          background: 'rgba(0,0,0,0.4)', zIndex: 1000,
+          background: 'var(--overlay-backdrop)', zIndex: 1000,
           opacity: isOpen ? 1 : 0,
           transition: 'opacity 0.25s',
           pointerEvents: isOpen ? 'auto' : 'none',

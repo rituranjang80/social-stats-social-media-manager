@@ -9,56 +9,114 @@ import {
   User, Lock, Building2, Camera, Save, Loader2,
   Eye, EyeOff, CheckCircle, AlertTriangle, X,
   LogOut, Shield, Mail, Trash2,
+  Bell, Palette, Keyboard, Key, Database, Webhook, MoreHorizontal,
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { profileAPI } from '../services/api';
 import PageHeader from '../components/layout/PageHeader';
+import {
+  NotificationsSection,
+  AppearanceSection,
+  KeyboardShortcutsSection,
+  APIKeysSection,
+  DataPrivacySection,
+  WebhooksSection,
+  CrossLinksSection,
+} from './settings/SettingsSections';
+import { MFAManager, ActiveSessionsList } from './settings/SecuritySections';
 
 const CYAN      = '#00d7ff';
 const CYAN_SOFT = 'rgba(0,215,255,0.1)';
 
-const TABS = [
-  { id: 'profile',  label: 'Profile',  icon: User },
-  { id: 'security', label: 'Security', icon: Lock },
-  { id: 'agency',   label: 'Agency',   icon: Building2, clientOnly: true },
+const TAB_GROUPS = [
+  {
+    label: 'Account',
+    items: [
+      { id: 'profile',         label: 'Profile',          icon: User },
+      { id: 'security',        label: 'Account & Security', icon: Lock },
+      { id: 'agency',          label: 'Agency',           icon: Building2, clientOnly: true },
+    ],
+  },
+  {
+    label: 'Workspace',
+    items: [
+      { id: 'notifications',   label: 'Notifications',    icon: Bell },
+      { id: 'appearance',      label: 'Appearance',       icon: Palette },
+      { id: 'shortcuts',       label: 'Keyboard',         icon: Keyboard },
+    ],
+  },
+  {
+    label: 'Developer',
+    items: [
+      { id: 'api',             label: 'API Keys',         icon: Key },
+      { id: 'webhooks',        label: 'Webhooks',         icon: Webhook },
+    ],
+  },
+  {
+    label: 'Privacy',
+    items: [
+      { id: 'data',            label: 'Data & Privacy',   icon: Database },
+      { id: 'more',            label: 'More settings',    icon: MoreHorizontal },
+    ],
+  },
 ];
+
+// Flat list for filtering by clientOnly
+const TABS = TAB_GROUPS.flatMap((g) => g.items);
 
 export default function UserSettingsPage() {
   const { user, refreshAuth, logout } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState('profile');
 
-  const tabs = TABS.filter(t => !t.clientOnly || user?.role === 'client');
-
   return (
     <div style={s.page}>
-      <PageHeader title="Account Settings" subtitle="Manage your profile, security and agency connection" />
+      <PageHeader title="Settings" subtitle="Manage your account, workspace, and integrations" />
 
       <div className="settings-body" style={s.body}>
         {/* Sidebar tabs */}
         <div className="settings-sidebar" style={s.sidebar}>
-          {tabs.map(t => {
-            const Icon = t.icon;
+          {TAB_GROUPS.map((group) => {
+            const visible = group.items.filter((t) => !t.clientOnly || user?.role === 'client');
+            if (visible.length === 0) return null;
             return (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                style={{ ...s.tabBtn, ...(tab === t.id ? s.tabActive : {}) }}
-              >
-                <Icon size={16} />
-                {t.label}
-              </button>
+              <div key={group.label} style={{ marginBottom: 6 }}>
+                <div style={s.sidebarHeading}>{group.label}</div>
+                {visible.map((t) => {
+                  const Icon = t.icon;
+                  const active = tab === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setTab(t.id)}
+                      aria-current={active ? 'page' : undefined}
+                      style={{ ...s.tabBtn, ...(active ? s.tabActive : {}) }}
+                    >
+                      <Icon size={14} strokeWidth={2} />
+                      {t.label}
+                    </button>
+                  );
+                })}
+              </div>
             );
           })}
         </div>
 
         {/* Panel */}
         <div className="settings-panel" style={s.panel}>
-          {tab === 'profile'  && <ProfileTab user={user} logout={logout} navigate={navigate} />}
-          {tab === 'security' && <SecurityTab user={user} />}
-          {tab === 'agency'   && user?.role === 'client' && (
+          {tab === 'profile'       && <ProfileTab user={user} logout={logout} navigate={navigate} />}
+          {tab === 'security'      && <SecurityTab user={user} />}
+          {tab === 'agency' && user?.role === 'client' && (
             <AgencyTab user={user} refreshAuth={refreshAuth} navigate={navigate} />
           )}
+          {tab === 'notifications' && <NotificationsSection />}
+          {tab === 'appearance'    && <AppearanceSection />}
+          {tab === 'shortcuts'     && <KeyboardShortcutsSection />}
+          {tab === 'api'           && <APIKeysSection />}
+          {tab === 'webhooks'      && <WebhooksSection />}
+          {tab === 'data'          && <DataPrivacySection />}
+          {tab === 'more'          && <CrossLinksSection user={user} />}
         </div>
       </div>
     </div>
@@ -150,8 +208,8 @@ function ProfileTab({ user, logout, navigate }) {
             )}
           </div>
           <div>
-            <p style={{ margin: '0 0 4px', fontWeight: 600, fontSize: 14, color: '#0f172a' }}>Profile Photo</p>
-            <p style={{ margin: 0, fontSize: 13, color: '#94a3b8' }}>JPG, PNG or GIF · Max 5MB</p>
+            <p style={{ margin: '0 0 4px', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>Profile Photo</p>
+            <p style={{ margin: 0, fontSize: 13, color: 'var(--text-tertiary)' }}>JPG, PNG or GIF · Max 5MB</p>
             <button type="button" onClick={() => fileRef.current.click()} style={s.uploadBtn}>
               Upload Photo
             </button>
@@ -169,11 +227,11 @@ function ProfileTab({ user, logout, navigate }) {
         </div>
 
         <Field label="Email Address">
-          <div style={{ ...s.input, background: '#f8fafc', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Mail size={14} color="#94a3b8" />
+          <div style={{ ...s.input, background: 'var(--surface-sunken)', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Mail size={14} color="var(--text-tertiary)" />
             {user?.email || '—'}
           </div>
-          <p style={{ margin: '6px 0 0', fontSize: 12, color: '#94a3b8' }}>Email cannot be changed here.</p>
+          <p style={{ margin: '6px 0 0', fontSize: 12, color: 'var(--text-tertiary)' }}>Email cannot be changed here.</p>
         </Field>
 
         {error   && <Alert type="error"   msg={error} />}
@@ -247,7 +305,7 @@ function DeleteAccountSection({ logout, navigate }) {
           <AlertTriangle size={20} color="#dc2626" style={{ flexShrink: 0, marginTop: 2 }} />
           <div style={{ flex: 1 }}>
             <p style={ds.confirmTitle}>Why are you deleting your account?</p>
-            <p style={ds.confirmDesc}>Please select a reason. This helps us improve StatoX.</p>
+            <p style={ds.confirmDesc}>Please select a reason. This helps us improve Statox.</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 18 }}>
               {DELETE_REASONS.map(r => (
                 <label key={r} style={ds.radioRow}>
@@ -259,7 +317,7 @@ function DeleteAccountSection({ logout, navigate }) {
                     onChange={() => setReason(r)}
                     style={{ accentColor: '#dc2626', flexShrink: 0 }}
                   />
-                  <span style={{ fontSize: 13, color: '#334155' }}>{r}</span>
+                  <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{r}</span>
                 </label>
               ))}
             </div>
@@ -295,11 +353,11 @@ function DeleteAccountSection({ logout, navigate }) {
               ].map(item => (
                 <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                   <X size={13} color="#dc2626" style={{ flexShrink: 0 }} />
-                  <span style={{ fontSize: 13, color: '#64748b' }}>{item}</span>
+                  <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{item}</span>
                 </div>
               ))}
             </div>
-            <p style={{ fontSize: 13, color: '#334155', fontWeight: 600, margin: '16px 0 6px' }}>
+            <p style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600, margin: '16px 0 6px' }}>
               Type <strong>DELETE</strong> to confirm:
             </p>
             <input
@@ -346,8 +404,8 @@ const ds = {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     gap: 16, flexWrap: 'wrap',
   },
-  zoneLabel: { margin: '0 0 4px', fontWeight: 600, fontSize: 14, color: '#0f172a' },
-  zoneDesc:  { margin: 0, fontSize: 13, color: '#64748b', maxWidth: 420 },
+  zoneLabel: { margin: '0 0 4px', fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' },
+  zoneDesc:  { margin: 0, fontSize: 13, color: 'var(--text-secondary)', maxWidth: 420 },
   deleteBtn: {
     display: 'inline-flex', alignItems: 'center', gap: 7, flexShrink: 0,
     padding: '9px 18px', borderRadius: 10,
@@ -358,12 +416,12 @@ const ds = {
     display: 'flex', gap: 14, padding: '20px 22px', borderRadius: 16,
     background: '#fffbeb', border: '1px solid #fde68a', marginTop: 16,
   },
-  confirmTitle: { margin: '0 0 4px', fontWeight: 700, fontSize: 14, color: '#0f172a' },
-  confirmDesc:  { margin: '0 0 14px', fontSize: 13, color: '#64748b', lineHeight: 1.5 },
+  confirmTitle: { margin: '0 0 4px', fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' },
+  confirmDesc:  { margin: '0 0 14px', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 },
   radioRow: {
     display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
-    padding: '8px 12px', borderRadius: 10, border: '1px solid #e5e7eb',
-    background: '#fff',
+    padding: '8px 12px', borderRadius: 10, border: '1px solid var(--border-default)',
+    background: 'var(--surface-card)',
   },
   warningList: {
     background: '#fef2f2', borderRadius: 12, padding: '14px 16px',
@@ -376,8 +434,8 @@ const ds = {
   },
   cancelBtn: {
     padding: '9px 20px', borderRadius: 10,
-    border: '1px solid #e5e7eb', background: '#fff',
-    color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+    border: '1px solid var(--border-default)', background: 'var(--surface-card)',
+    color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
   },
   confirmDeleteBtn: {
     display: 'inline-flex', alignItems: 'center', gap: 7,
@@ -432,10 +490,10 @@ function SecurityTab({ user }) {
       <div style={s.infoCard}>
         <Shield size={18} color={CYAN} />
         <div>
-          <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: '#0f172a' }}>
+          <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>
             {isSocial ? 'Social Login Account' : 'Email & Password Account'}
           </p>
-          <p style={{ margin: 0, fontSize: 13, color: '#64748b' }}>
+          <p style={{ margin: 0, fontSize: 13, color: 'var(--text-secondary)' }}>
             {isSocial
               ? 'Your account is linked to Google. Password login is not available.'
               : 'You can change your password below.'
@@ -447,7 +505,7 @@ function SecurityTab({ user }) {
       {isSocial ? (
         <div style={{ ...s.infoCard, background: 'linear-gradient(135deg,#f0f9ff,#f8faff)', border: '1px solid rgba(0,215,255,0.15)', marginTop: 20 }}>
           <CheckCircle size={18} color={CYAN} />
-          <p style={{ margin: 0, fontSize: 14, color: '#64748b' }}>
+          <p style={{ margin: 0, fontSize: 14, color: 'var(--text-secondary)' }}>
             Password management is handled by Google. To change your password, visit your Google account settings.
           </p>
         </div>
@@ -470,6 +528,22 @@ function SecurityTab({ user }) {
             {saving ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Saving...</> : <><Lock size={15} /> Change Password</>}
           </button>
         </form>
+      )}
+
+      {!isSocial && (
+        <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <h4 style={{ margin: 0, fontSize: 14, fontWeight: 700, letterSpacing: '0.04em',
+                       textTransform: 'uppercase', color: 'var(--text-tertiary)' }}>
+            Two-factor authentication
+          </h4>
+          <MFAManager />
+
+          <h4 style={{ margin: '8px 0 0', fontSize: 14, fontWeight: 700, letterSpacing: '0.04em',
+                       textTransform: 'uppercase', color: 'var(--text-tertiary)' }}>
+            Active sessions
+          </h4>
+          <ActiveSessionsList />
+        </div>
       )}
     </div>
   );
@@ -515,14 +589,14 @@ function AgencyTab({ user, refreshAuth, navigate }) {
   return (
     <div style={s.tabContent}>
       <h3 style={s.sectionTitle}>Agency Connection</h3>
-      <p style={s.sectionSub}>Manage your connection to your agency on StatoX.</p>
+      <p style={s.sectionSub}>Manage your connection to your agency on Statox.</p>
 
       {!info?.connected ? (
-        <div style={{ ...s.infoCard, background: 'linear-gradient(135deg,#f8fafc,#f0f9ff)', border: '1px solid rgba(0,215,255,0.15)', marginTop: 8 }}>
-          <Building2 size={18} color="#94a3b8" />
+        <div style={{ ...s.infoCard, background: 'linear-gradient(135deg,var(--surface-sunken),#f0f9ff)', border: '1px solid rgba(0,215,255,0.15)', marginTop: 8 }}>
+          <Building2 size={18} color="var(--text-tertiary)" />
           <div>
-            <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: '#0f172a' }}>No Agency Connected</p>
-            <p style={{ margin: 0, fontSize: 13, color: '#64748b' }}>You are not currently connected to any agency.</p>
+            <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>No Agency Connected</p>
+            <p style={{ margin: 0, fontSize: 13, color: 'var(--text-secondary)' }}>You are not currently connected to any agency.</p>
           </div>
         </div>
       ) : (
@@ -533,10 +607,10 @@ function AgencyTab({ user, refreshAuth, navigate }) {
               <Building2 size={22} color="#7c3aed" />
             </div>
             <div style={{ flex: 1 }}>
-              <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 16, color: '#0f172a' }}>{info.agency_name}</p>
-              <p style={{ margin: '0 0 6px', fontSize: 13, color: '#64748b' }}>{info.agency_email}</p>
+              <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: 16, color: 'var(--text-primary)' }}>{info.agency_name}</p>
+              <p style={{ margin: '0 0 6px', fontSize: 13, color: 'var(--text-secondary)' }}>{info.agency_email}</p>
               {info.agency_since && (
-                <p style={{ margin: 0, fontSize: 12, color: '#94a3b8' }}>
+                <p style={{ margin: 0, fontSize: 12, color: 'var(--text-tertiary)' }}>
                   Connected since {new Date(info.agency_since).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                 </p>
               )}
@@ -549,11 +623,11 @@ function AgencyTab({ user, refreshAuth, navigate }) {
 
           {/* What agency can do */}
           <div style={s.permsList}>
-            <p style={{ margin: '0 0 10px', fontWeight: 600, fontSize: 13, color: '#334155' }}>Your agency can:</p>
+            <p style={{ margin: '0 0 10px', fontWeight: 600, fontSize: 13, color: 'var(--text-secondary)' }}>Your agency can:</p>
             {['View your analytics and reports', 'Manage your connected social accounts', 'Create and schedule posts on your behalf', 'Generate AI insights for your account'].map(p => (
               <div key={p} style={s.permItem}>
                 <CheckCircle size={14} color="#16a34a" style={{ flexShrink: 0 }} />
-                <span style={{ fontSize: 13, color: '#64748b' }}>{p}</span>
+                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{p}</span>
               </div>
             ))}
           </div>
@@ -570,8 +644,8 @@ function AgencyTab({ user, refreshAuth, navigate }) {
             <div style={s.confirmBox}>
               <AlertTriangle size={20} color="#d97706" />
               <div style={{ flex: 1 }}>
-                <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: 14, color: '#0f172a' }}>Confirm Disconnect</p>
-                <p style={{ margin: '0 0 14px', fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>
+                <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>Confirm Disconnect</p>
+                <p style={{ margin: '0 0 14px', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                   Are you sure you want to disconnect from <strong>{info.agency_name}</strong>? They will lose access to your account and be notified by email.
                 </p>
                 <div style={{ display: 'flex', gap: 10 }}>
@@ -655,29 +729,53 @@ const s = {
     '@media(max-width:640px)': { flexDirection: 'column' },
   },
   sidebar: {
-    width: 200, flexShrink: 0,
-    display: 'flex', flexDirection: 'column', gap: 4,
+    width: 220, flexShrink: 0,
+    display: 'flex', flexDirection: 'column', gap: 1,
+    padding: 8,
+    background: 'var(--surface-card)',
+    border: '1px solid var(--border-subtle)',
+    borderRadius: 'var(--radius-lg)',
+    boxShadow: 'var(--shadow-xs)',
+    alignSelf: 'flex-start',
+    position: 'sticky',
+    top: 80,
+  },
+  sidebarHeading: {
+    fontSize: 11,
+    fontWeight: 600,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    color: 'var(--text-tertiary)',
+    padding: '6px 10px 8px',
   },
   tabBtn: {
     display: 'flex', alignItems: 'center', gap: 10,
-    padding: '11px 14px', borderRadius: 12, border: 'none',
-    background: 'none', fontSize: 14, fontWeight: 600,
-    color: '#64748b', cursor: 'pointer', textAlign: 'left',
-    transition: 'all .15s',
+    padding: '8px 10px',
+    minHeight: 'unset', minWidth: 'unset',
+    borderRadius: 'var(--radius-sm)', border: 'none',
+    background: 'none', fontSize: 13, fontWeight: 500,
+    color: 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left',
+    transition: 'var(--transition-fast)',
+    fontFamily: 'inherit',
   },
   tabActive: {
-    background: CYAN_SOFT, color: '#0a7a8f',
-    boxShadow: `inset 3px 0 0 ${CYAN}`,
+    background: 'var(--brand-primary-soft)',
+    color: 'var(--text-primary)',
+    fontWeight: 600,
+    boxShadow: 'inset 2px 0 0 var(--brand-primary)',
   },
   panel: {
-    flex: 1, background: '#fff', borderRadius: 20,
-    border: '1px solid #e8edf2',
-    boxShadow: '0 2px 12px rgba(0,0,0,.05)',
+    flex: 1,
+    minWidth: 0,
+    background: 'var(--surface-card)',
+    borderRadius: 'var(--radius-xl)',
+    border: '1px solid var(--border-subtle)',
+    boxShadow: 'var(--shadow-sm)',
     overflow: 'hidden',
   },
   tabContent: { padding: '32px 36px' },
-  sectionTitle: { margin: '0 0 4px', fontSize: 18, fontWeight: 700, color: '#0f172a' },
-  sectionSub:   { margin: '0 0 28px', fontSize: 14, color: '#64748b' },
+  sectionTitle: { margin: '0 0 4px', fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' },
+  sectionSub:   { margin: '0 0 28px', fontSize: 14, color: 'var(--text-secondary)' },
   avatarRow:    { display: 'flex', alignItems: 'center', gap: 24, marginBottom: 28 },
   avatarWrap:   { position: 'relative', width: 80, height: 80, flexShrink: 0 },
   avatarImg:    { width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', border: '3px solid rgba(0,215,255,0.25)' },
@@ -690,7 +788,7 @@ const s = {
   cameraBtn: {
     position: 'absolute', bottom: 0, right: 0,
     width: 26, height: 26, borderRadius: '50%',
-    background: '#0f172a', border: '2px solid #fff',
+    background: 'var(--text-primary)', border: '2px solid #fff',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     cursor: 'pointer', color: '#fff',
   },
@@ -708,19 +806,19 @@ const s = {
   },
   fieldGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 0 },
   field:     { display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 18 },
-  label:     { fontSize: 13, fontWeight: 600, color: '#334155' },
+  label:     { fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' },
   input: {
     height: 44, padding: '0 14px', borderRadius: 12,
     border: '1px solid rgba(148,163,184,0.3)',
     background: 'rgba(248,250,252,0.96)', fontSize: 14,
-    color: '#0f172a', outline: 'none', fontFamily: 'inherit',
+    color: 'var(--text-primary)', outline: 'none', fontFamily: 'inherit',
     transition: 'border .15s, box-shadow .15s',
     boxSizing: 'border-box', width: '100%',
   },
   pwdWrap:   { position: 'relative' },
   eyeBtn: {
     position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-    background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8',
+    background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)',
     display: 'flex', alignItems: 'center',
   },
   saveBtn: {
@@ -734,8 +832,8 @@ const s = {
   infoCard: {
     display: 'flex', alignItems: 'flex-start', gap: 14,
     padding: '16px 18px', borderRadius: 14,
-    background: 'linear-gradient(135deg,#f8fafc,#f0f9ff)',
-    border: '1px solid #e5e7eb',
+    background: 'linear-gradient(135deg,var(--surface-sunken),#f0f9ff)',
+    border: '1px solid var(--border-default)',
   },
   agencyCard: {
     display: 'flex', alignItems: 'center', gap: 16,
@@ -781,7 +879,7 @@ const s = {
   },
   confirmNo: {
     padding: '10px 20px', borderRadius: 10,
-    border: '1px solid #e5e7eb', background: '#fff',
-    color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+    border: '1px solid var(--border-default)', background: 'var(--surface-card)',
+    color: 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
   },
 };

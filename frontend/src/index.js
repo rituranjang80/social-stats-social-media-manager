@@ -1,7 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import './styles/tokens.css';
 import './styles/common.css';
+import { bootstrapTheme } from './hooks/useTheme';
+
+// Apply persisted theme before React paints, to avoid flash of wrong theme.
+bootstrapTheme();
 
 // ── Google Fonts: Inter ──────────────────────────────────────────────────────
 const fontLink = document.createElement('link');
@@ -31,7 +36,7 @@ style.textContent = `
     --text-secondary: #475569;
     --text-muted:     #94a3b8;
 
-    /* Brand — STATOX (Cyan + Black) */
+    /* Brand — Statox (Cyan + Black) */
     --blue:          #00B8DA;
     --blue-hover:    #009EC0;
     --blue-light:    #E0F9FF;
@@ -378,9 +383,26 @@ style.textContent = `
 
     /* ── UserSettingsPage ────────────────────────────────────────────── */
     .settings-body { flex-direction: column !important; }
-    .settings-sidebar { flex-direction: row !important; overflow-x: auto !important; gap: 4px !important; padding: 10px !important; width: 100% !important; }
-    .settings-sidebar button { white-space: nowrap !important; padding: 8px 14px !important; font-size: 13px !important; }
-    .settings-panel { padding: 16px !important; }
+    .settings-sidebar {
+      flex-direction: row !important;
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      gap: 4px !important;
+      padding: 8px !important;
+      width: 100% !important;
+      position: static !important;
+    }
+    /* Hide group headings on mobile — flatten to a single horizontal strip */
+    .settings-sidebar > div { display: contents !important; }
+    .settings-sidebar > div > div:first-child { display: none !important; }
+    .settings-sidebar button {
+      white-space: nowrap !important;
+      padding: 8px 14px !important;
+      font-size: 13px !important;
+      box-shadow: none !important;
+      flex-shrink: 0 !important;
+    }
+    .settings-panel { padding: 0 !important; border-radius: var(--radius-lg) !important; }
     .settings-field-grid { grid-template-columns: 1fr !important; }
     .settings-avatar-row { flex-direction: column !important; align-items: center !important; gap: 12px !important; }
 
@@ -473,6 +495,43 @@ style.textContent = `
     .mobile-bottom-nav {
       padding-bottom: env(safe-area-inset-bottom) !important;
     }
+  }
+
+  /* ══════════════════════════════════════════════════════════════════════
+     DARK MODE BRIDGE — flips LEGACY variable names so existing components
+     respect data-theme="dark" without rewriting them. New components
+     should reference the tokens.css names directly.
+     ══════════════════════════════════════════════════════════════════════ */
+  [data-theme="dark"] {
+    --bg:            #0a0e14;
+    --surface:       #11161e;
+    --surface-2:     #161c26;
+    --border:        rgba(255,255,255,0.10);
+    --border-light:  rgba(255,255,255,0.06);
+
+    --text-primary:   #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted:     #64748b;
+
+    --blue-light:    rgba(0, 204, 245, 0.12);
+    --blue-glow:     rgba(0, 204, 245, 0.22);
+
+    --shadow-xs: 0 1px 2px rgba(0,0,0,0.45);
+    --shadow-sm: 0 1px 4px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.30);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.50), 0 2px 6px rgba(0,0,0,0.30);
+    --shadow-lg: 0 10px 32px rgba(0,0,0,0.55), 0 4px 12px rgba(0,0,0,0.35);
+    --shadow-xl: 0 20px 60px rgba(0,0,0,0.60), 0 8px 24px rgba(0,0,0,0.40);
+  }
+
+  [data-theme="dark"] body { background: var(--bg); color: var(--text-primary); }
+
+  [data-theme="dark"] ::-webkit-scrollbar-thumb        { background: rgba(255,255,255,0.12); }
+  [data-theme="dark"] ::-webkit-scrollbar-thumb:hover  { background: rgba(255,255,255,0.22); }
+
+  [data-theme="dark"] .skeleton,
+  [data-theme="dark"] .skeleton-card {
+    background: linear-gradient(90deg, #1a212c 25%, #232c39 50%, #1a212c 75%);
+    background-size: 200% 100%;
   }
 `;
 document.head.appendChild(style);

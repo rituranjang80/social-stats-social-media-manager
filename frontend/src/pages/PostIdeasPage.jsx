@@ -56,7 +56,7 @@ const PLATFORM_COLORS = {
 };
 
 const LOADING_STEPS = [
-  'Analysing your business…',
+  'Analyzing your business…',
   'Researching month opportunities…',
   'Crafting post ideas…',
   'Building your calendar…',
@@ -627,7 +627,7 @@ function LoadingScreen({ steps, currentStep }) {
       <div style={styles.loadingCard}>
         <div style={styles.loadingSpinner} />
         <h2 style={styles.loadingTitle}>Building your content calendar…</h2>
-        <p style={styles.loadingSub}>Claude is crafting personalised post ideas for your business</p>
+        <p style={styles.loadingSub}>Statox AI is crafting personalised post ideas for your business</p>
         <div style={styles.loadingSteps}>
           {steps.map((s, i) => (
             <div key={s} style={{
@@ -816,7 +816,7 @@ function IdeaCard({ idea, platformOptions, editingIdea, saving, onToggleApprove,
   const platformColor = PLATFORM_COLORS[idea.platform] || '#00d7ff';
   const platformLabel = platformOptions.find(p => p.value === idea.platform)?.label || idea.platform;
 
-  let cardBorder = '1px solid #e2e8f0';
+  let cardBorder = '1px solid var(--border-default)';
   if (idea.is_added_to_calendar) cardBorder = '2px solid #00d7ff';
   else if (idea.is_approved)     cardBorder = '2px solid #22c55e';
 
@@ -836,7 +836,7 @@ function IdeaCard({ idea, platformOptions, editingIdea, saving, onToggleApprove,
             {platformLabel}
           </span>
         </div>
-        <div style={{ ...styles.typePill, background: '#f0f4f9', color: '#475569' }}>
+        <div style={{ ...styles.typePill, background: 'var(--surface-page)', color: 'var(--text-secondary)' }}>
           {idea.post_type}
         </div>
       </div>
@@ -972,17 +972,17 @@ const styles = {
     margin: 0,
     fontSize: 28,
     fontWeight: 800,
-    color: '#0f172a',
+    color: 'var(--text-primary)',
   },
   subtitle: {
     margin: '6px 0 0',
-    color: '#64748b',
+    color: 'var(--text-secondary)',
     fontSize: 15,
   },
   newBtn: {
     padding: '10px 20px',
     background: '#00d7ff',
-    color: '#0f172a',
+    color: 'var(--text-primary)',
     border: 'none',
     borderRadius: 10,
     fontWeight: 700,
@@ -997,24 +997,24 @@ const styles = {
   },
   clientBannerSelect: {
     padding: '9px 14px',
-    borderRadius: 10,
-    border: '1.5px solid #dbe5f3',
+    borderRadius: 'var(--radius-md)',
+    border: '1px solid var(--border-default)',
     fontSize: 13,
-    background: '#fff',
-    color: '#1e293b',
-    fontWeight: 600,
+    background: 'var(--surface-card)',
+    color: 'var(--text-primary)',
+    fontWeight: 500,
     outline: 'none',
     minWidth: 200,
   },
   clientEmptyState: {
     maxWidth: 520,
     margin: '64px auto',
-    padding: '40px 32px',
+    padding: '48px 32px',
     textAlign: 'center',
-    background: '#fff',
-    borderRadius: 20,
-    border: '1px solid #e2e8f0',
-    boxShadow: '0 4px 24px rgba(15,23,42,.08)',
+    background: 'var(--surface-card)',
+    borderRadius: 'var(--radius-2xl)',
+    border: '1px solid var(--border-subtle)',
+    boxShadow: 'var(--shadow-md)',
   },
   clientEmptyIcon: {
     fontSize: 44,
@@ -1023,12 +1023,13 @@ const styles = {
   clientEmptyTitle: {
     margin: '0 0 8px',
     fontSize: 22,
-    fontWeight: 800,
-    color: '#0f172a',
+    fontWeight: 600,
+    letterSpacing: '-0.015em',
+    color: 'var(--text-primary)',
   },
   clientEmptyText: {
     margin: '0 0 22px',
-    color: '#64748b',
+    color: 'var(--text-secondary)',
     fontSize: 14,
     lineHeight: 1.5,
   },
@@ -1040,21 +1041,21 @@ const styles = {
   },
   formCard: {
     flex: 1,
-    background: '#fff',
+    background: 'var(--surface-card)',
     borderRadius: 20,
     padding: '36px 40px',
     boxShadow: '0 4px 24px rgba(15,23,42,.08)',
-    border: '1px solid #e2e8f0',
+    border: '1px solid var(--border-default)',
   },
   formTitle: {
     margin: '0 0 6px',
     fontSize: 22,
     fontWeight: 800,
-    color: '#0f172a',
+    color: 'var(--text-primary)',
   },
   formSub: {
     margin: '0 0 28px',
-    color: '#64748b',
+    color: 'var(--text-secondary)',
     fontSize: 14,
   },
   formGrid: {
@@ -1071,34 +1072,34 @@ const styles = {
   label: {
     fontSize: 13,
     fontWeight: 600,
-    color: '#374151',
+    color: 'var(--text-secondary)',
   },
   input: {
     padding: '11px 14px',
     borderRadius: 10,
-    border: '1.5px solid #e5e7eb',
+    border: '1.5px solid var(--border-default)',
     fontSize: 14,
     outline: 'none',
-    background: '#fff',
+    background: 'var(--surface-card)',
   },
   select: {
     padding: '11px 14px',
     borderRadius: 10,
-    border: '1.5px solid #e5e7eb',
+    border: '1.5px solid var(--border-default)',
     fontSize: 14,
     outline: 'none',
-    background: '#fff',
+    background: 'var(--surface-card)',
     cursor: 'pointer',
   },
   textarea: {
     padding: '11px 14px',
     borderRadius: 10,
-    border: '1.5px solid #e5e7eb',
+    border: '1.5px solid var(--border-default)',
     fontSize: 14,
     outline: 'none',
     resize: 'vertical',
     fontFamily: 'inherit',
-    background: '#fff',
+    background: 'var(--surface-card)',
   },
   platformGrid: {
     display: 'flex',
@@ -1111,9 +1112,9 @@ const styles = {
     gap: 6,
     padding: '8px 14px',
     borderRadius: 10,
-    border: '1.5px solid #e5e7eb',
-    background: '#fff',
-    color: '#374151',
+    border: '1.5px solid var(--border-default)',
+    background: 'var(--surface-card)',
+    color: 'var(--text-secondary)',
     fontSize: 13,
     fontWeight: 600,
     cursor: 'pointer',
@@ -1133,9 +1134,9 @@ const styles = {
     flex: 1,
     padding: '10px 0',
     borderRadius: 10,
-    border: '1.5px solid #e5e7eb',
-    background: '#fff',
-    color: '#374151',
+    border: '1.5px solid var(--border-default)',
+    background: 'var(--surface-card)',
+    color: 'var(--text-secondary)',
     fontSize: 13,
     fontWeight: 600,
     cursor: 'pointer',
@@ -1158,7 +1159,7 @@ const styles = {
     width: '100%',
     padding: '16px',
     background: '#00d7ff',
-    color: '#0f172a',
+    color: 'var(--text-primary)',
     border: 'none',
     borderRadius: 12,
     fontSize: 16,
@@ -1168,7 +1169,7 @@ const styles = {
   },
   generateNote: {
     textAlign: 'center',
-    color: '#94a3b8',
+    color: 'var(--text-tertiary)',
     fontSize: 12,
     margin: '10px 0 0',
   },
@@ -1176,18 +1177,18 @@ const styles = {
   // History
   historyCard: {
     width: 240,
-    background: '#fff',
+    background: 'var(--surface-card)',
     borderRadius: 16,
     padding: '20px 16px',
     boxShadow: '0 4px 16px rgba(15,23,42,.07)',
-    border: '1px solid #e2e8f0',
+    border: '1px solid var(--border-default)',
     flexShrink: 0,
   },
   historyTitle: {
     margin: '0 0 14px',
     fontSize: 14,
     fontWeight: 700,
-    color: '#0f172a',
+    color: 'var(--text-primary)',
   },
   historyList: {
     display: 'flex',
@@ -1198,8 +1199,8 @@ const styles = {
     width: '100%',
     padding: '10px 12px',
     borderRadius: 10,
-    border: '1.5px solid #e5e7eb',
-    background: '#f0f4f9',
+    border: '1.5px solid var(--border-default)',
+    background: 'var(--surface-page)',
     cursor: 'pointer',
     textAlign: 'left',
   },
@@ -1211,7 +1212,7 @@ const styles = {
   historyMonth: {
     fontSize: 13,
     fontWeight: 700,
-    color: '#0f172a',
+    color: 'var(--text-primary)',
   },
   historyCount: {
     fontSize: 11,
@@ -1220,7 +1221,7 @@ const styles = {
   },
   historyBiz: {
     fontSize: 11,
-    color: '#64748b',
+    color: 'var(--text-secondary)',
     marginTop: 3,
     textTransform: 'capitalize',
   },
@@ -1233,18 +1234,18 @@ const styles = {
     minHeight: 400,
   },
   loadingCard: {
-    background: '#fff',
+    background: 'var(--surface-card)',
     borderRadius: 24,
     padding: '48px 56px',
     textAlign: 'center',
     boxShadow: '0 24px 60px rgba(15,23,42,.12)',
-    border: '1px solid #e2e8f0',
+    border: '1px solid var(--border-default)',
     minWidth: 380,
   },
   loadingSpinner: {
     width: 52,
     height: 52,
-    border: '4px solid #e2e8f0',
+    border: '4px solid var(--border-default)',
     borderTopColor: '#00d7ff',
     borderRadius: '50%',
     margin: '0 auto 24px',
@@ -1254,12 +1255,12 @@ const styles = {
     margin: '0 0 8px',
     fontSize: 20,
     fontWeight: 800,
-    color: '#0f172a',
+    color: 'var(--text-primary)',
   },
   loadingSub: {
     margin: '0 0 28px',
     fontSize: 14,
-    color: '#64748b',
+    color: 'var(--text-secondary)',
   },
   loadingSteps: {
     display: 'flex',
@@ -1273,7 +1274,7 @@ const styles = {
     alignItems: 'center',
     gap: 10,
     fontSize: 14,
-    color: '#94a3b8',
+    color: 'var(--text-tertiary)',
     padding: '8px 12px',
     borderRadius: 8,
   },
@@ -1293,7 +1294,7 @@ const styles = {
   },
   loadingTime: {
     fontSize: 12,
-    color: '#94a3b8',
+    color: 'var(--text-tertiary)',
     margin: 0,
   },
 
@@ -1320,23 +1321,23 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    background: '#fff',
+    background: 'var(--surface-card)',
     borderRadius: 16,
     padding: '20px 24px',
     marginBottom: 16,
     boxShadow: '0 2px 12px rgba(15,23,42,.06)',
-    border: '1px solid #e2e8f0',
+    border: '1px solid var(--border-default)',
   },
   monthTheme: {
     fontSize: 20,
     fontWeight: 800,
-    color: '#0f172a',
+    color: 'var(--text-primary)',
     fontStyle: 'italic',
     marginBottom: 4,
   },
   strategyNote: {
     fontSize: 13,
-    color: '#64748b',
+    color: 'var(--text-secondary)',
     maxWidth: 480,
   },
   headerActions: {
@@ -1347,9 +1348,9 @@ const styles = {
   actionBtnOutline: {
     padding: '8px 14px',
     borderRadius: 10,
-    border: '1.5px solid #e2e8f0',
-    background: '#fff',
-    color: '#374151',
+    border: '1.5px solid var(--border-default)',
+    background: 'var(--surface-card)',
+    color: 'var(--text-secondary)',
     fontSize: 12,
     fontWeight: 700,
     cursor: 'pointer',
@@ -1369,7 +1370,7 @@ const styles = {
     marginBottom: 16,
     padding: '14px 16px',
     borderRadius: 14,
-    background: 'linear-gradient(135deg, #ecfeff, #f8fafc)',
+    background: 'linear-gradient(135deg, #ecfeff, var(--surface-sunken))',
     border: '1px solid #bae6fd',
     color: '#155e75',
     fontSize: 13,
@@ -1382,7 +1383,7 @@ const styles = {
     gap: 16,
   },
   emptyWeek: {
-    color: '#94a3b8',
+    color: 'var(--text-tertiary)',
     fontSize: 14,
     padding: 24,
     textAlign: 'center',
@@ -1390,7 +1391,7 @@ const styles = {
 
   // Idea card
   ideaCard: {
-    background: '#fff',
+    background: 'var(--surface-card)',
     borderRadius: 16,
     padding: '16px 18px',
     display: 'flex',
@@ -1412,18 +1413,18 @@ const styles = {
     minWidth: 44,
     padding: '4px 8px',
     borderRadius: 8,
-    background: '#f0f4f9',
+    background: 'var(--surface-page)',
     flexShrink: 0,
   },
   dayText: {
     fontSize: 11,
     fontWeight: 800,
-    color: '#334155',
+    color: 'var(--text-secondary)',
     textTransform: 'uppercase',
   },
   timeText: {
     fontSize: 10,
-    color: '#64748b',
+    color: 'var(--text-secondary)',
   },
   platformPill: {
     padding: '3px 9px',
@@ -1445,7 +1446,7 @@ const styles = {
     gap: 6,
     padding: '10px 12px',
     borderRadius: 12,
-    background: 'linear-gradient(135deg, #f8fafc, #eef2ff)',
+    background: 'linear-gradient(135deg, var(--surface-sunken), #eef2ff)',
     border: '1px solid #dbeafe',
   },
   dateInput: {
@@ -1453,8 +1454,8 @@ const styles = {
     padding: '10px 12px',
     borderRadius: 10,
     border: '1.5px solid #bfdbfe',
-    background: '#fff',
-    color: '#0f172a',
+    background: 'var(--surface-card)',
+    color: 'var(--text-primary)',
     fontSize: 13,
     fontWeight: 700,
     outline: 'none',
@@ -1462,14 +1463,14 @@ const styles = {
   },
   dateHint: {
     fontSize: 11,
-    color: '#475569',
+    color: 'var(--text-secondary)',
     lineHeight: 1.4,
   },
   topicWrap: { minHeight: 40 },
   topicText: {
     fontSize: 14,
     fontWeight: 700,
-    color: '#0f172a',
+    color: 'var(--text-primary)',
     lineHeight: 1.4,
     cursor: 'text',
   },
@@ -1485,12 +1486,12 @@ const styles = {
   },
   captionText: {
     fontSize: 12,
-    color: '#64748b',
+    color: 'var(--text-secondary)',
     lineHeight: 1.5,
     cursor: 'text',
     padding: '8px 10px',
     borderRadius: 8,
-    background: '#f0f4f9',
+    background: 'var(--surface-page)',
   },
   hashtagRow: {
     display: 'flex',
@@ -1515,9 +1516,9 @@ const styles = {
   cardBtn: {
     padding: '6px 12px',
     borderRadius: 8,
-    border: '1.5px solid #e2e8f0',
-    background: '#fff',
-    color: '#374151',
+    border: '1.5px solid var(--border-default)',
+    background: 'var(--surface-card)',
+    color: 'var(--text-secondary)',
     fontSize: 12,
     fontWeight: 700,
     cursor: 'pointer',
@@ -1535,8 +1536,8 @@ const styles = {
   cardBtnIcon: {
     padding: '6px 8px',
     borderRadius: 8,
-    border: '1.5px solid #e2e8f0',
-    background: '#fff',
+    border: '1.5px solid var(--border-default)',
+    background: 'var(--surface-card)',
     fontSize: 13,
     cursor: 'pointer',
     marginLeft: 'auto',
@@ -1563,17 +1564,17 @@ const styles = {
 
   // Sidebar cards
   sideCard: {
-    background: '#fff',
+    background: 'var(--surface-card)',
     borderRadius: 16,
     padding: '18px 20px',
     boxShadow: '0 2px 12px rgba(15,23,42,.06)',
-    border: '1px solid #e2e8f0',
+    border: '1px solid var(--border-default)',
   },
   sideTitle: {
     margin: '0 0 14px',
     fontSize: 13,
     fontWeight: 800,
-    color: '#0f172a',
+    color: 'var(--text-primary)',
     textTransform: 'uppercase',
     letterSpacing: '.05em',
   },
@@ -1583,12 +1584,12 @@ const styles = {
     alignItems: 'center',
     marginBottom: 6,
   },
-  statLabel: { fontSize: 12, color: '#64748b', fontWeight: 600 },
-  statValue: { fontSize: 13, fontWeight: 800, color: '#0f172a' },
+  statLabel: { fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600 },
+  statValue: { fontSize: 13, fontWeight: 800, color: 'var(--text-primary)' },
   progressBar: {
     height: 6,
     borderRadius: 999,
-    background: '#f0f4f9',
+    background: 'var(--surface-page)',
     overflow: 'hidden',
   },
   progressFill: {
@@ -1603,7 +1604,7 @@ const styles = {
     borderRadius: 10,
     border: 'none',
     background: '#00d7ff',
-    color: '#0f172a',
+    color: 'var(--text-primary)',
     fontSize: 12,
     fontWeight: 700,
     cursor: 'pointer',
@@ -1626,6 +1627,6 @@ const styles = {
     borderRadius: '50%',
     flexShrink: 0,
   },
-  legendName: { flex: 1, color: '#374151', fontWeight: 600 },
-  legendVal:  { color: '#64748b', fontWeight: 700 },
+  legendName: { flex: 1, color: 'var(--text-secondary)', fontWeight: 600 },
+  legendVal:  { color: 'var(--text-secondary)', fontWeight: 700 },
 };

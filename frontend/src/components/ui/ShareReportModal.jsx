@@ -128,7 +128,7 @@ export default function ShareReportModal({ clientId, onClose }) {
         <div style={modalHeader}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <Share2 size={18} style={{ color: '#6366f1' }} />
-            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#0f172a' }}>
+            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>
               Share Report
             </h2>
           </div>
@@ -141,7 +141,7 @@ export default function ShareReportModal({ clientId, onClose }) {
             <h3 style={sectionTitle}><Calendar size={14} /> Date Range</h3>
             <div style={{ display: 'flex', gap: 10 }}>
               <input type="date" value={dateFrom}  onChange={e => setDateFrom(e.target.value)}  style={inputStyle} />
-              <span style={{ alignSelf: 'center', color: '#94a3b8' }}>→</span>
+              <span style={{ alignSelf: 'center', color: 'var(--text-tertiary)' }}>→</span>
               <input type="date" value={dateUntil} onChange={e => setDateUntil(e.target.value)} style={inputStyle} />
             </div>
           </section>
@@ -225,7 +225,7 @@ export default function ShareReportModal({ clientId, onClose }) {
           {/* ── Generated URL + QR ──────────────────────── */}
           {shareUrl && (
             <div style={urlBox}>
-              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 10 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-tertiary)', marginBottom: 10 }}>
                 This link opens the public HTML report page you can share with the client.
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 14 }}>
@@ -256,16 +256,16 @@ export default function ShareReportModal({ clientId, onClose }) {
               {links.map(link => (
                 <div key={link.id} style={linkRow}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#0f172a', marginBottom: 2 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
                       {link.date_from} → {link.date_until}
                       {link.is_password_protected && (
-                        <Lock size={10} style={{ marginLeft: 6, color: '#94a3b8', verticalAlign: 'middle' }} />
+                        <Lock size={10} style={{ marginLeft: 6, color: 'var(--text-tertiary)', verticalAlign: 'middle' }} />
                       )}
                       {link.is_expired && (
                         <span style={{ marginLeft: 6, fontSize: 10, color: '#dc2626', fontWeight: 700 }}>EXPIRED</span>
                       )}
                     </div>
-                    <div style={{ fontSize: 11, color: '#94a3b8', display: 'flex', gap: 10 }}>
+                    <div style={{ fontSize: 11, color: 'var(--text-tertiary)', display: 'flex', gap: 10 }}>
                       <span><Eye size={10} style={{ verticalAlign: 'middle' }} /> {link.view_count} views</span>
                       {link.expires_at && <span>Expires {new Date(link.expires_at).toLocaleDateString()}</span>}
                     </div>
@@ -291,22 +291,22 @@ export default function ShareReportModal({ clientId, onClose }) {
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 const overlay = {
-  position: 'fixed', inset: 0, background: 'rgba(0,0,0,.45)',
+  position: 'fixed', inset: 0, background: 'var(--overlay-backdrop)',
   display: 'flex', alignItems: 'center', justifyContent: 'center',
   zIndex: 1000, padding: 16,
 };
 const modal = {
-  background: '#fff', borderRadius: 16, width: '100%', maxWidth: 520,
+  background: 'var(--surface-card)', borderRadius: 16, width: '100%', maxWidth: 520,
   maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column',
-  boxShadow: '0 20px 60px rgba(0,0,0,.25)',
+  boxShadow: 'var(--shadow-xl)',
 };
 const modalHeader = {
   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-  padding: '18px 20px', borderBottom: '1px solid #f1f5f9',
+  padding: '18px 20px', borderBottom: '1px solid var(--border-subtle)',
 };
 const closeBtn = {
   background: 'none', border: 'none', cursor: 'pointer',
-  color: '#94a3b8', padding: 4, display: 'flex',
+  color: 'var(--text-tertiary)', padding: 4, display: 'flex',
 };
 const body = {
   padding: '18px 20px', overflowY: 'auto', flex: 1,
@@ -314,12 +314,12 @@ const body = {
 const section     = { marginBottom: 18 };
 const sectionTitle = {
   display: 'flex', alignItems: 'center', gap: 6,
-  fontSize: 12, fontWeight: 700, color: '#64748b',
+  fontSize: 12, fontWeight: 700, color: 'var(--text-tertiary)',
   textTransform: 'uppercase', letterSpacing: .5, marginBottom: 8,
 };
 const inputStyle = {
-  padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb',
-  fontSize: 13, color: '#0f172a', outline: 'none', background: '#f8fafc',
+  padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border-default)',
+  fontSize: 13, color: 'var(--text-primary)', outline: 'none', background: 'var(--surface-sunken)',
   width: '100%', boxSizing: 'border-box',
 };
 const platformChip = {
@@ -338,12 +338,12 @@ const createBtn = {
   marginBottom: 16,
 };
 const urlBox = {
-  background: '#f8fafc', borderRadius: 12, padding: 16,
-  border: '1px solid #e5e7eb', marginBottom: 8,
+  background: 'var(--surface-sunken)', borderRadius: 12, padding: 16,
+  border: '1px solid var(--border-default)', marginBottom: 8,
 };
 const copyBtn = {
   display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px',
-  background: '#f1f5f9', border: '1px solid #e5e7eb', borderRadius: 8,
+  background: 'var(--surface-sunken)', border: '1px solid var(--border-default)', borderRadius: 8,
   fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', color: '#374151',
 };
 const openBtn = {
@@ -352,14 +352,14 @@ const openBtn = {
   fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', color: '#fff', textDecoration: 'none',
 };
 const existingSection = {
-  padding: '16px 20px', borderTop: '1px solid #f1f5f9', background: '#fafafa',
+  padding: '16px 20px', borderTop: '1px solid var(--border-subtle)', background: 'var(--surface-page)',
 };
 const linkRow = {
   display: 'flex', alignItems: 'center', gap: 8,
-  background: '#fff', borderRadius: 10, padding: '10px 12px',
-  border: '1px solid #e5e7eb',
+  background: 'var(--surface-card)', borderRadius: 10, padding: '10px 12px',
+  border: '1px solid var(--border-default)',
 };
 const iconBtn = {
   background: 'none', border: 'none', cursor: 'pointer',
-  color: '#94a3b8', padding: 4, display: 'flex', flexShrink: 0, textDecoration: 'none',
+  color: 'var(--text-tertiary)', padding: 4, display: 'flex', flexShrink: 0, textDecoration: 'none',
 };

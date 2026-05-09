@@ -4,12 +4,13 @@ from .models import Client, UserProfile, PlatformCredential, DailyMetric, PostMe
 
 
 class UserSerializer(serializers.ModelSerializer):
-    role       = serializers.CharField(source='profile.role', read_only=True)
-    client_id  = serializers.IntegerField(source='profile.client_id', read_only=True)
+    role         = serializers.CharField(source='profile.role',         read_only=True)
+    client_id    = serializers.IntegerField(source='profile.client_id', read_only=True)
+    account_type = serializers.CharField(source='profile.account_type', read_only=True)
 
     class Meta:
         model  = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 'client_id']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 'client_id', 'account_type']
 
 
 class ClientSerializer(serializers.ModelSerializer):

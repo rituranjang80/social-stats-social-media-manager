@@ -24,7 +24,7 @@ export function StatoxMark({ size = 40, className, style: extraStyle }) {
   return (
     <LogoImage
       src={iconStatox}
-      alt="STATOX icon"
+      alt="Statox icon"
       className={className}
       style={{
         height: size,
@@ -38,7 +38,7 @@ export function StatoxWordmark({ height = 22, className, style: extraStyle }) {
   return (
     <LogoImage
       src={logoStatoxSmall}
-      alt="STATOX"
+      alt="Statox"
       className={className}
       style={{
         height,
@@ -52,7 +52,7 @@ export function StatoxLogoHorizontal({ height = 36, className, style: extraStyle
   return (
     <LogoImage
       src={logoStatox}
-      alt="STATOX"
+      alt="Statox"
       className={className}
       style={{
         height,
@@ -66,7 +66,7 @@ export function StatoxLogoStacked({ height = 100, className, style: extraStyle }
   return (
     <LogoImage
       src={logoStatoxBig}
-      alt="STATOX"
+      alt="Statox"
       className={className}
       style={{
         height,
@@ -80,7 +80,7 @@ export function StatoxMarkInverted({ size = 40, className, style: extraStyle }) 
   return (
     <LogoImage
       src={iconStatox}
-      alt="STATOX icon"
+      alt="Statox icon"
       className={className}
       style={{
         height: size,

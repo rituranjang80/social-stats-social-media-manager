@@ -39,7 +39,6 @@ PLATFORM_RULES = {
     'facebook':  'Facebook: 3-5 hashtags maximum',
     'linkedin':  'LinkedIn: 3-5 professional hashtags',
     'youtube':   'YouTube: 5-10 in description',
-    'tiktok':    'TikTok: 5-8 trending + niche mix',
 }
 
 

@@ -101,27 +101,27 @@ export default function GoalTracker({ clientId, month, year }) {
 
 const styles = {
   wrap: {
-    background: '#fff', borderRadius: 14, padding: 24,
+    background: 'var(--surface-card)', borderRadius: 14, padding: 24,
     boxShadow: '0 1px 6px rgba(0,0,0,.07)', marginBottom: 24,
   },
   header: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18 },
-  title:  { margin: 0, fontSize: 15, fontWeight: 700, color: '#1e293b' },
+  title:  { margin: 0, fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' },
   grid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
     gap: 14,
   },
   card: {
-    background: '#f8fafc', borderRadius: 10, padding: '14px 16px',
-    border: '1px solid #e5e7eb',
+    background: 'var(--surface-sunken)', borderRadius: 10, padding: '14px 16px',
+    border: '1px solid var(--border-default)',
   },
   cardTop: {
     display: 'flex', justifyContent: 'space-between',
     alignItems: 'flex-start', marginBottom: 10,
   },
   meta:          { display: 'flex', flexDirection: 'column', gap: 2 },
-  platformLabel: { fontSize: 12, color: '#64748b', fontWeight: 500 },
-  metricLabel:   { fontSize: 14, fontWeight: 700, color: '#0f172a' },
+  platformLabel: { fontSize: 12, color: 'var(--text-tertiary)', fontWeight: 500 },
+  metricLabel:   { fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' },
   badge: {
     fontSize: 10, fontWeight: 700, padding: '2px 8px',
     borderRadius: 20, whiteSpace: 'nowrap',
@@ -137,7 +137,7 @@ const styles = {
   values: {
     display: 'flex', alignItems: 'baseline', gap: 4, fontSize: 12,
   },
-  current: { fontWeight: 700, fontSize: 15, color: '#0f172a' },
-  pct:     { color: '#64748b', fontSize: 11 },
-  target:  { color: '#94a3b8', fontSize: 11, marginLeft: 'auto' },
+  current: { fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' },
+  pct:     { color: 'var(--text-tertiary)', fontSize: 11 },
+  target:  { color: 'var(--text-tertiary)', fontSize: 11, marginLeft: 'auto' },
 };

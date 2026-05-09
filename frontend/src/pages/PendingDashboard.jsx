@@ -10,7 +10,7 @@ import { Building2, UserCheck, Clock, CheckCircle, XCircle, Bell, LogOut, Chevro
 import { StatoxLogoHorizontal } from '../components/ui/StatoxLogo';
 
 const CYAN  = '#00d7ff';
-const BG    = '#f0f4f9';
+const BG    = 'var(--surface-page)';
 const WHITE = '#ffffff';
 
 export default function PendingDashboard() {
@@ -100,7 +100,7 @@ export default function PendingDashboard() {
           <div style={s.avatar}>{(user?.name || user?.email || 'U')[0].toUpperCase()}</div>
           <div>
             <h1 style={s.welcomeTitle}>Welcome{user?.name ? `, ${user.name}` : ''}!</h1>
-            <p style={s.welcomeSub}>Choose how you'd like to use StatoX.</p>
+            <p style={s.welcomeSub}>Choose how you'd like to use Statox.</p>
           </div>
         </div>
 
@@ -138,10 +138,10 @@ export default function PendingDashboard() {
             </p>
 
             {loadingInvs ? (
-              <div style={s.loadingRow}><Loader2 size={18} style={{ animation: 'spin .8s linear infinite', color: '#94a3b8' }} /></div>
+              <div style={s.loadingRow}><Loader2 size={18} style={{ animation: 'spin .8s linear infinite', color: 'var(--text-tertiary)' }} /></div>
             ) : pendingCount === 0 ? (
               <div style={s.emptyInv}>
-                <Clock size={16} color='#94a3b8' />
+                <Clock size={16} color='var(--text-tertiary)' />
                 <span>No pending invitations yet.</span>
               </div>
             ) : (
@@ -207,7 +207,7 @@ const s = {
   topRight: { display: 'flex', alignItems: 'center', gap: 16 },
   bellBadge: {
     position: 'relative',
-    color: '#64748b',
+    color: 'var(--text-secondary)',
     display: 'flex',
     alignItems: 'center',
   },
@@ -228,11 +228,11 @@ const s = {
     alignItems: 'center',
     gap: 6,
     background: 'none',
-    border: '1px solid #e2e8f0',
+    border: '1px solid var(--border-default)',
     borderRadius: 8,
     padding: '6px 12px',
     fontSize: 13,
-    color: '#64748b',
+    color: 'var(--text-secondary)',
     cursor: 'pointer',
     fontWeight: 500,
   },
@@ -262,8 +262,8 @@ const s = {
     fontWeight: 700,
     flexShrink: 0,
   },
-  welcomeTitle: { margin: 0, fontSize: 26, fontWeight: 700, color: '#0f172a' },
-  welcomeSub:   { margin: '4px 0 0', fontSize: 15, color: '#64748b' },
+  welcomeTitle: { margin: 0, fontSize: 26, fontWeight: 700, color: 'var(--text-primary)' },
+  welcomeSub:   { margin: '4px 0 0', fontSize: 15, color: 'var(--text-secondary)' },
   errorBanner: {
     background: '#fef2f2',
     border: '1px solid #fca5a5',
@@ -301,14 +301,14 @@ const s = {
     width: 52,
     height: 52,
     borderRadius: 12,
-    background: '#f8fafc',
+    background: 'var(--surface-sunken)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     border: '1px solid #e8edf2',
   },
-  cardTitle: { margin: 0, fontSize: 19, fontWeight: 700, color: '#0f172a' },
-  cardDesc:  { margin: 0, fontSize: 14, color: '#64748b', lineHeight: 1.6, flex: 1 },
+  cardTitle: { margin: 0, fontSize: 19, fontWeight: 700, color: 'var(--text-primary)' },
+  cardDesc:  { margin: 0, fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6, flex: 1 },
   primaryBtn: {
     marginTop: 8,
     display: 'flex',
@@ -330,13 +330,13 @@ const s = {
     display: 'flex',
     alignItems: 'center',
     gap: 8,
-    color: '#94a3b8',
+    color: 'var(--text-tertiary)',
     fontSize: 13,
     padding: '8px 0',
   },
   invList: { display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 },
   invItem: {
-    background: '#f8fafc',
+    background: 'var(--surface-sunken)',
     border: '1px solid #e8edf2',
     borderRadius: 10,
     padding: '12px 14px',
@@ -346,9 +346,9 @@ const s = {
     gap: 12,
   },
   invInfo:   { display: 'flex', flexDirection: 'column', gap: 2, flex: 1 },
-  invAgency: { fontSize: 14, fontWeight: 600, color: '#0f172a' },
-  invEmail:  { fontSize: 12, color: '#64748b' },
-  invMsg:    { fontSize: 12, color: '#475569', fontStyle: 'italic', marginTop: 2 },
+  invAgency: { fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' },
+  invEmail:  { fontSize: 12, color: 'var(--text-secondary)' },
+  invMsg:    { fontSize: 12, color: 'var(--text-secondary)', fontStyle: 'italic', marginTop: 2 },
   invActions: { display: 'flex', gap: 8, flexShrink: 0 },
   acceptBtn: {
     display: 'flex',

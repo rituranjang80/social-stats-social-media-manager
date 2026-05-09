@@ -45,10 +45,10 @@ function ScorePill({ label, value, weight, color }) {
   const weighted = Math.round(value * weight);
   return (
     <div style={{ ...pillStyle, borderColor: color + '40', background: color + '0d' }}>
-      <span style={{ fontSize: 10, color: '#64748b', fontWeight: 600, letterSpacing: .3 }}>
+      <span style={{ fontSize: 10, color: 'var(--text-tertiary)', fontWeight: 600, letterSpacing: .3 }}>
         {label}
       </span>
-      <span style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>
+      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
         {fmt(value)}
       </span>
       <span style={{ fontSize: 10, color }}>+{fmt(weighted)}</span>
@@ -73,8 +73,8 @@ function PostCard({ entry, animKey }) {
 
   if (!post) return (
     <div style={emptyCard}>
-      <ImageOff size={28} style={{ color: '#cbd5e1', marginBottom: 8 }} />
-      <p style={{ color: '#94a3b8', fontSize: 13, margin: 0 }}>No post data yet.</p>
+      <ImageOff size={28} style={{ color: 'var(--text-quaternary)', marginBottom: 8 }} />
+      <p style={{ color: 'var(--text-tertiary)', fontSize: 13, margin: 0 }}>No post data yet.</p>
     </div>
   );
 
@@ -142,7 +142,7 @@ function PostCard({ entry, animKey }) {
               </span>
             )}
             {post.post_type && (
-              <span style={{ ...metaTag, background: '#f1f5f9', color: '#475569' }}>
+              <span style={{ ...metaTag, background: 'var(--surface-sunken)', color: 'var(--text-secondary)' }}>
                 {post.post_type}
               </span>
             )}
@@ -220,8 +220,8 @@ export default function BestPostWidget({ clientId, week }) {
 
       {loading ? (
         <div style={skeleton}>
-          <div style={{ height: 180, background: '#f1f5f9', borderRadius: 10, marginBottom: 12 }} />
-          <div style={{ height: 14, background: '#f1f5f9', borderRadius: 6, width: '70%' }} />
+          <div style={{ height: 180, background: 'var(--surface-sunken)', borderRadius: 10, marginBottom: 12 }} />
+          <div style={{ height: 14, background: 'var(--surface-sunken)', borderRadius: 6, width: '70%' }} />
         </div>
       ) : (
         <PostCard entry={active} animKey={animKey.current} />
@@ -232,11 +232,11 @@ export default function BestPostWidget({ clientId, week }) {
 
 // ── Styles ─────────────────────────────────────────────────────────────────────
 const widgetWrap = {
-  background: '#fff',
+  background: 'var(--surface-card)',
   borderRadius: 24,
   padding: 28,
   boxShadow: '0 18px 42px rgba(15,23,42,.08)',
-  border: '1px solid #e5e7eb',
+  border: '1px solid var(--border-default)',
   marginBottom: 24,
 };
 const widgetHeader = {
@@ -247,8 +247,8 @@ const headerIcon = {
   width: 42, height: 42, borderRadius: 14, background: '#fff1c2',
   display: 'flex', alignItems: 'center', justifyContent: 'center',
 };
-const headerTitle = { margin: 0, fontSize: 16, fontWeight: 800, color: '#1e293b', letterSpacing: '-0.02em' };
-const headerSub   = { margin: '3px 0 0', fontSize: 12, color: '#94a3b8' };
+const headerTitle = { margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' };
+const headerSub   = { margin: '3px 0 0', fontSize: 12, color: 'var(--text-tertiary)' };
 
 const tabRow = { marginBottom: 18 };
 
@@ -277,8 +277,8 @@ const emptyCard  = {
 const topRow    = { display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: 12 };
 const headlineBlock = { display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' };
 const trophyWrap = { display: 'flex', alignItems: 'center', gap: 6 };
-const scoreLabel = { fontSize: 12, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.08em', fontWeight: 700 };
-const scoreValue = { fontSize: 36, lineHeight: 1, color: '#1e293b', letterSpacing: '-0.04em' };
+const scoreLabel = { fontSize: 12, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '.08em', fontWeight: 700 };
+const scoreValue = { fontSize: 36, lineHeight: 1, color: 'var(--text-primary)', letterSpacing: '-0.04em' };
 const vsBadge    = {
   display: 'inline-flex', alignItems: 'center', gap: 3,
   fontSize: 12, fontWeight: 700, padding: '6px 12px', borderRadius: 999,

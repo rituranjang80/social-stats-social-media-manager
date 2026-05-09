@@ -107,24 +107,24 @@ const styles = {
 
   dropdown: {
     position: 'absolute', top: 'calc(100% + 8px)', right: 0,
-    width: 360, maxHeight: 480, background: '#fff',
-    borderRadius: 14, boxShadow: '0 8px 30px rgba(0,0,0,.15)',
-    border: '1px solid #e5e7eb', zIndex: 1000,
+    width: 360, maxHeight: 480, background: 'var(--surface-card)',
+    borderRadius: 14, boxShadow: 'var(--shadow-lg)',
+    border: '1px solid var(--border-default)', zIndex: 1000,
     display: 'flex', flexDirection: 'column', overflow: 'hidden',
   },
   dropHead: {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    padding: '14px 16px', borderBottom: '1px solid #f1f5f9',
+    padding: '14px 16px', borderBottom: '1px solid var(--border-subtle)',
   },
-  dropTitle: { fontWeight: 700, fontSize: 14, color: '#0f172a' },
+  dropTitle: { fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' },
   iconBtn: {
     background: 'none', border: 'none', cursor: 'pointer',
-    color: '#64748b', padding: 4, borderRadius: 6,
+    color: 'var(--text-tertiary)', padding: 4, borderRadius: 6,
     display: 'flex', alignItems: 'center',
   },
 
   list:  { overflowY: 'auto', flex: 1 },
-  empty: { padding: 32, textAlign: 'center', color: '#94a3b8', fontSize: 13 },
+  empty: { padding: 32, textAlign: 'center', color: 'var(--text-tertiary)', fontSize: 13 },
 
   item: {
     display: 'flex', alignItems: 'flex-start', gap: 10,
@@ -136,13 +136,13 @@ const styles = {
     display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 2,
   },
   itemBody: { flex: 1, minWidth: 0 },
-  itemMsg:  { fontSize: 13, color: '#1e293b', lineHeight: 1.4, marginBottom: 4 },
+  itemMsg:  { fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.4, marginBottom: 4 },
   itemMeta: { display: 'flex', alignItems: 'center', gap: 6 },
   clientTag: {
     fontSize: 11, background: '#ede9fe', color: '#6d28d9',
     borderRadius: 20, padding: '1px 7px', fontWeight: 600,
   },
-  time: { fontSize: 11, color: '#94a3b8' },
+  time: { fontSize: 11, color: 'var(--text-tertiary)' },
   dot: {
     flexShrink: 0, width: 8, height: 8, borderRadius: '50%',
     background: '#6366f1', marginTop: 6,

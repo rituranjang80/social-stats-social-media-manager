@@ -59,8 +59,19 @@ export function AuthProvider({ children }) {
   // True when a client is logged in but has no client_id yet (self-registered, no agency)
   const isPending = !!(user && user.role === 'client' && !user.client_id);
 
+  // Account-type helpers. account_type is set on UserProfile and surfaced
+  // by /auth/me/. Possible values: 'end_user' | 'agency_member' | 'legacy'
+  // (default for accounts created before the field existed).
+  const accountType = user?.account_type || null;
+  const isEndUser   = accountType === 'end_user';
+  const isAgency    = accountType === 'agency_member';
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, can, refreshUser, refreshAuth, isPending }}>
+    <AuthContext.Provider value={{
+      user, loading, login, logout, can,
+      refreshUser, refreshAuth, isPending,
+      accountType, isEndUser, isAgency,
+    }}>
       {children}
     </AuthContext.Provider>
   );

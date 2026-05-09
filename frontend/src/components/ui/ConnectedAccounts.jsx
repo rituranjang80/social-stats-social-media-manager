@@ -3,24 +3,33 @@ import { oauthAPI } from '../../services/api';
 import { PLATFORMS } from '../../services/platforms';
 import { Lightbulb, Zap } from 'lucide-react';
 import SocialPlatformIcon from './SocialPlatformIcon';
+import FacebookConnectModal from '../FacebookConnectModal';
 
 export default function ConnectedAccounts({ clientId, status, onRefresh }) {
   const [loading, setLoading] = useState({});
+  const [fbConsentOpen, setFbConsentOpen] = useState(false);
 
   const handleConnect = (platform) => {
     if (!clientId) {
       window.alert('Your client workspace is still being prepared. Please refresh the page and try again.');
       return;
     }
+    // Facebook & Instagram share one OAuth flow. Show the consent modal first
+    // so users can review the permissions we'll request before being sent to Facebook.
+    if (platform === 'facebook' || platform === 'instagram') {
+      setFbConsentOpen(true);
+      return;
+    }
     const urlMap = {
-      facebook:           oauthAPI.facebookUrl(clientId),
-      instagram:          oauthAPI.facebookUrl(clientId), // same flow
       youtube:            oauthAPI.googleUrl(clientId, 'youtube'),
       google_my_business: oauthAPI.googleUrl(clientId, 'google_my_business'),
       linkedin:           oauthAPI.linkedinUrl(clientId),
     };
-    // Redirect browser to OAuth start
     window.location.href = urlMap[platform];
+  };
+
+  const handleFbConsentContinue = () => {
+    window.location.href = oauthAPI.facebookUrl(clientId);
   };
 
   const handleDisconnect = async (platform) => {
@@ -34,7 +43,7 @@ export default function ConnectedAccounts({ clientId, status, onRefresh }) {
     }
   };
 
-  const platformOrder = ['facebook','instagram','linkedin','youtube','google_my_business'];
+  const platformOrder = ['facebook','instagram','youtube','google_my_business','linkedin'];
 
   return (
     <div>
@@ -108,10 +117,17 @@ export default function ConnectedAccounts({ clientId, status, onRefresh }) {
         })}
       </div>
 
+      <FacebookConnectModal
+        appName="Statox"
+        open={fbConsentOpen}
+        onClose={() => setFbConsentOpen(false)}
+        onContinue={handleFbConsentContinue}
+      />
+
       {/* Help box */}
       <div style={styles.helpBox}>
         <strong style={styles.helpTitle}><Lightbulb size={14} style={{ verticalAlign: 'middle', marginRight: 4 }} />How it works:</strong>
-        <ul style={{ margin: '8px 0 0', paddingLeft: 20, fontSize: 13, color: '#64748b' }}>
+        <ul style={{ margin: '8px 0 0', paddingLeft: 20, fontSize: 13, color: 'var(--text-tertiary)' }}>
           <li>Click a Connect button → you'll be redirected to log in to that platform</li>
           <li>Approve the permissions requested</li>
           <li>You'll be brought back here — data starts syncing automatically</li>
@@ -123,30 +139,30 @@ export default function ConnectedAccounts({ clientId, status, onRefresh }) {
 }
 
 const styles = {
-  heading: { margin: '0 0 6px', fontSize: 20, fontWeight: 800, color: '#0f172a' },
-  sub:     { margin: '0 0 24px', color: '#64748b', fontSize: 14 },
+  heading: { margin: '0 0 6px', fontSize: 20, fontWeight: 800, color: 'var(--text-primary)' },
+  sub:     { margin: '0 0 24px', color: 'var(--text-tertiary)', fontSize: 14 },
   grid: {
-    display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+    display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
     gap: 12, marginBottom: 24,
   },
   card: {
-    background: '#fff', borderRadius: 16, padding: '16px 18px',
+    background: 'var(--surface-card)', borderRadius: 16, padding: '16px 18px',
     boxShadow: '0 2px 12px rgba(0,0,0,.06)',
-    border: '1px solid #f1f5f9',
+    border: '1px solid var(--border-subtle)',
     overflow: 'hidden',
     position: 'relative',
   },
   cardTop: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 },
   platformInfo: { display: 'flex', alignItems: 'center', gap: 10 },
   platformIcon: { fontSize: 28 },
-  platformName: { fontWeight: 700, fontSize: 15, color: '#0f172a' },
-  accountName:  { fontSize: 12, color: '#64748b', marginTop: 2 },
+  platformName: { fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' },
+  accountName:  { fontSize: 12, color: 'var(--text-tertiary)', marginTop: 2 },
   statusBadge: (active, expired) => ({
     fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
     background: active ? '#dcfce7' : expired ? '#fef3c7' : '#f1f5f9',
     color:      active ? '#16a34a' : expired ? '#d97706' : '#64748b',
   }),
-  expiry:       { fontSize: 12, color: '#94a3b8', marginBottom: 10 },
+  expiry:       { fontSize: 12, color: 'var(--text-tertiary)', marginBottom: 10 },
   groupNote:    { fontSize: 12, color: '#2563eb', fontStyle: 'italic', marginTop: 4 },
   groupNoteInner: { display: 'flex', alignItems: 'center', gap: 4 },
   connectBtn: {

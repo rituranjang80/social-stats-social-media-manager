@@ -144,7 +144,7 @@ export default function OnboardingChecklist({ clientId }) {
           <button onClick={() => setCollapsed(c => !c)} style={iconBtn}>
             {collapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
           </button>
-          <button onClick={() => setDismissed(true)} style={{ ...iconBtn, color: '#94a3b8' }} title="Dismiss">
+          <button onClick={() => setDismissed(true)} style={{ ...iconBtn, color: 'var(--text-tertiary)' }} title="Dismiss">
             <X size={15} />
           </button>
         </div>
@@ -174,7 +174,7 @@ export default function OnboardingChecklist({ clientId }) {
                     style={{ color: '#16a34a', flexShrink: 0, animation: 'checkPop 0.3s ease', marginTop: 1 }}
                   />
                 ) : (
-                  <Circle size={20} style={{ color: '#cbd5e1', flexShrink: 0, marginTop: 1 }} />
+                  <Circle size={20} style={{ color: 'var(--text-quaternary)', flexShrink: 0, marginTop: 1 }} />
                 )}
                 <div>
                   <div style={stepLabel}>
@@ -208,7 +208,7 @@ export default function OnboardingChecklist({ clientId }) {
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 const wrap = {
-  background: '#fff', borderRadius: 14, padding: '18px 20px',
+  background: 'var(--surface-card)', borderRadius: 14, padding: '18px 20px',
   boxShadow: '0 1px 8px rgba(0,0,0,.08)', marginBottom: 24,
   border: '1px solid #e0e7ff',
 };
@@ -217,15 +217,15 @@ const rocketWrap = {
   width: 34, height: 34, borderRadius: 8, background: '#ede9fe',
   display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
 };
-const title    = { margin: 0, fontSize: 14, fontWeight: 700, color: '#1e293b' };
-const subtitle = { margin: '2px 0 0', fontSize: 12, color: '#64748b' };
+const title    = { margin: 0, fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' };
+const subtitle = { margin: '2px 0 0', fontSize: 12, color: 'var(--text-tertiary)' };
 const pctBadge = {
   fontSize: 11, fontWeight: 700, padding: '2px 8px',
   background: '#ede9fe', color: '#6366f1', borderRadius: 20,
 };
 const iconBtn  = {
   background: 'none', border: 'none', cursor: 'pointer',
-  color: '#64748b', display: 'flex', padding: 4,
+  color: 'var(--text-tertiary)', display: 'flex', padding: 4,
 };
 const trackStyle = {
   height: 6, background: '#e5e7eb', borderRadius: 4,
@@ -235,15 +235,15 @@ const fillStyle  = { height: '100%', borderRadius: 4, transition: 'width 0.5s ea
 const stepsList  = { display: 'flex', flexDirection: 'column', gap: 12 };
 const stepRow    = {
   display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
-  gap: 10, padding: '10px 12px', background: '#f8fafc',
-  borderRadius: 10, border: '1px solid #f1f5f9',
+  gap: 10, padding: '10px 12px', background: 'var(--surface-sunken)',
+  borderRadius: 10, border: '1px solid var(--border-subtle)',
   transition: 'opacity 0.3s',
 };
-const stepLabel  = { fontSize: 13, fontWeight: 600, color: '#0f172a', marginBottom: 2 };
-const stepDesc   = { margin: 0, fontSize: 12, color: '#64748b', lineHeight: 1.5 };
+const stepLabel  = { fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 };
+const stepDesc   = { margin: 0, fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.5 };
 const markBtn    = {
   padding: '5px 12px', borderRadius: 8, border: '1px solid #6366f1',
-  background: '#fff', color: '#6366f1', fontSize: 12, fontWeight: 600,
+  background: 'var(--surface-card)', color: '#6366f1', fontSize: 12, fontWeight: 600,
   cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
 };
-const doneAt     = { fontSize: 11, color: '#94a3b8', whiteSpace: 'nowrap', flexShrink: 0, alignSelf: 'center' };
+const doneAt     = { fontSize: 11, color: 'var(--text-tertiary)', whiteSpace: 'nowrap', flexShrink: 0, alignSelf: 'center' };

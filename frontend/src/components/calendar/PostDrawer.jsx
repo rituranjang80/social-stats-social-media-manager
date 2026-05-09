@@ -53,7 +53,7 @@ export default function PostDrawer({ post, isOpen, onClose, onEdit, onDelete, on
         onClick={onClose}
         style={{
           position: 'fixed', inset: 0,
-          background: 'rgba(0,0,0,0.4)',
+          background: 'var(--overlay-backdrop)',
           zIndex: 1000,
           opacity: isOpen ? 1 : 0,
           transition: 'opacity 0.25s',
