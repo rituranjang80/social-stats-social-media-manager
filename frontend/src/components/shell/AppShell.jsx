@@ -184,7 +184,7 @@ export default function AppShell({ children, isAdmin }) {
         basePath={basePath}
       />
 
-      {/* Floating Statox AI assistant — global Cmd/Ctrl+J (Stage 6) */}
+      {/* Floating Social State assistant — global Cmd/Ctrl+J (Stage 6) */}
       <AIFloatingTrigger />
     </div>
   );

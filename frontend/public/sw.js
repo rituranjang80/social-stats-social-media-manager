@@ -1,5 +1,5 @@
-/* StatoX Service Worker — caches app shell for offline + Add to Home Screen */
-const CACHE_NAME = 'statox-v1';
+/* Social State Service Worker — caches app shell for offline + Add to Home Screen */
+const CACHE_NAME = 'socialstate-v1';
 const SHELL_ASSETS = ['/', '/index.html'];
 
 self.addEventListener('install', (event) => {

@@ -1,5 +1,5 @@
 /**
- * HomePage — Statox marketing site front door.
+ * HomePage — Social State marketing site front door.
  *
  * 15-section long-scroll structure (from the marketing-website spec):
  *   1.  Hero (above fold)
@@ -58,7 +58,7 @@ export default function HomePage() {
     <MarketingLayout>
       <Meta
         noSuffix
-        title="Statox — The AI marketing OS for modern agencies"
+        title="Social State — The AI marketing OS for modern agencies"
         description="Manage analytics, content, conversations, and ads for every client — across 5 platforms — in one place. AI-powered, built for modern teams."
       />
       <JsonLd id="organization" data={buildOrganization()} />
@@ -377,9 +377,9 @@ function ThreePillars() {
       <div style={{ maxWidth: 1180, margin: '0 auto' }}>
         <ScrollReveal>
           <SectionHeading
-            eyebrow="What is Statox"
+            eyebrow="What is Social State"
             title="One product, three superpowers"
-            subtitle="Stop juggling 5 different SaaS tools. Statox is the single dashboard that runs your client's marketing end-to-end."
+            subtitle="Stop juggling 5 different SaaS tools. Social State is the single dashboard that runs your client's marketing end-to-end."
           />
         </ScrollReveal>
 
@@ -565,7 +565,7 @@ function UseCaseTabs() {
     <section style={{ padding: 'clamp(64px, 10vh, 120px) 24px', background: 'var(--surface-page)' }}>
       <div style={{ maxWidth: 1080, margin: '0 auto' }}>
         <ScrollReveal>
-          <SectionHeading eyebrow="Made for every kind of marketer" title="Whoever you are, Statox fits" />
+          <SectionHeading eyebrow="Made for every kind of marketer" title="Whoever you are, Social State fits" />
         </ScrollReveal>
 
         <ScrollReveal delay={0.1}>
@@ -739,7 +739,7 @@ function AIEverywhere() {
               fontSize: 11, fontWeight: 700,
               color: '#00CCF5', background: 'rgba(0,204,245,0.10)',
               borderRadius: 'var(--radius-pill)', letterSpacing: '0.06em',
-            }}>POWERED BY STATOX AI</span>
+            }}>POWERED BY SOCIAL STATE AI</span>
             <h2 style={{
               margin: 0, fontSize: 'clamp(28px, 4vw, 40px)',
               fontWeight: 700, letterSpacing: '-0.02em',
@@ -750,7 +750,7 @@ function AIEverywhere() {
               fontSize: 16, lineHeight: 1.6,
               color: 'var(--text-secondary)', maxWidth: 480,
             }}>
-              Statox isn't an "AI feature". It's an AI-native product — Statox AI shows up wherever you're stuck.
+              Social State isn't an "AI feature". It's an AI-native product — Social State shows up wherever you're stuck.
             </p>
             <ul style={{ margin: '24px 0 0', padding: 0, listStyle: 'none' }}>
               {features.map((f) => (
@@ -792,10 +792,10 @@ function AIEverywhere() {
 // Section 8 — COMPARISON
 // ─────────────────────────────────────────────────────────────────────────────
 function ComparisonSection() {
-  const columns = ['Statox', 'Hootsuite', 'Sprout Social', 'Buffer'];
+  const columns = ['Social State', 'Hootsuite', 'Sprout Social', 'Buffer'];
   const rows = [
     { feature: 'Multi-platform analytics',     cells: ['yes',          'yes',     'yes',     'partial'] },
-    { feature: 'Deep AI assistant',            cells: ['Statox AI',    'partial', 'partial', 'no'] },
+    { feature: 'Deep AI assistant',            cells: ['Social State',    'partial', 'partial', 'no'] },
     { feature: 'WhatsApp Business API',        cells: ['yes',          'no',      'no',      'no'] },
     { feature: 'Click-to-WhatsApp bots',       cells: ['yes',          'no',      'no',      'no'] },
     { feature: 'Visual bot builder',           cells: ['yes',          'no',      'no',      'no'] },
@@ -816,7 +816,7 @@ function ComparisonSection() {
         <ScrollReveal>
           <SectionHeading
             eyebrow="Honest comparison"
-            title="How Statox stacks up"
+            title="How Social State stacks up"
             subtitle="We're not for everyone. We're built for agencies + businesses serious about AI + WhatsApp."
           />
         </ScrollReveal>
@@ -841,7 +841,7 @@ function MarketplaceTeaser() {
   const steps = [
     { title: 'Browse verified agencies',  body: 'Search by industry, language, budget, and platform.' },
     { title: 'Match by fit',              body: 'See pricing ranges, specialities, and example workflows up front.' },
-    { title: 'Manage from one inbox',     body: 'Approvals, scheduled posts, and reporting flow through Statox AI.' },
+    { title: 'Manage from one inbox',     body: 'Approvals, scheduled posts, and reporting flow through Social State.' },
   ];
   return (
     <section style={{ padding: 'clamp(64px, 10vh, 120px) 24px', background: 'var(--surface-page)' }}>

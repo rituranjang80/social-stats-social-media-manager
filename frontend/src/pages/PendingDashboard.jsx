@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { soloAPI, invitationAPI } from '../services/api';
 import { Building2, UserCheck, Clock, CheckCircle, XCircle, Bell, LogOut, ChevronRight, Loader2 } from 'lucide-react';
-import { StatoxLogoHorizontal } from '../components/ui/StatoxLogo';
+import { SocialStateLogoHorizontal } from '../components/ui/SocialStateLogo';
 
 const CYAN  = '#00d7ff';
 const BG    = 'var(--surface-page)';
@@ -79,7 +79,7 @@ export default function PendingDashboard() {
     <div style={s.page}>
       {/* Top bar */}
       <header style={s.topBar}>
-        <StatoxLogoHorizontal height={32} />
+        <SocialStateLogoHorizontal height={32} />
         <div style={s.topRight}>
           {pendingCount > 0 && (
             <div style={s.bellBadge}>
@@ -100,7 +100,7 @@ export default function PendingDashboard() {
           <div style={s.avatar}>{(user?.name || user?.email || 'U')[0].toUpperCase()}</div>
           <div>
             <h1 style={s.welcomeTitle}>Welcome{user?.name ? `, ${user.name}` : ''}!</h1>
-            <p style={s.welcomeSub}>Choose how you'd like to use Statox.</p>
+            <p style={s.welcomeSub}>Choose how you'd like to use Social State.</p>
           </div>
         </div>
 

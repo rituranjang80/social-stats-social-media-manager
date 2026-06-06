@@ -104,7 +104,7 @@ export default function SyncLogsPage() {
                           </span>
                         </button>
                       ) : (
-                        <span style={{ color: '#94a3b8', fontSize: 12 }}>—</span>
+                        <span style={{ color: 'var(--text-tertiary)', fontSize: 12 }}>—</span>
                       )}
                     </td>
                   </tr>
@@ -129,7 +129,7 @@ const statusColors = {
   success: { background: '#dcfce7', color: '#16a34a' },
   failed:  { background: '#fee2e2', color: '#dc2626' },
   running: { background: '#e6fbff', color: '#00d7ff' },
-  pending: { background: '#f0f4f9', color: '#64748b' },
+  pending: { background: 'var(--surface-page)', color: 'var(--text-secondary)' },
 };
 
 function badge(status) {
@@ -143,8 +143,8 @@ function badge(status) {
 const styles = {
   filterBar: { display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 16 },
   select: {
-    padding: '8px 12px', borderRadius: 8, border: '1.5px solid #e5e7eb',
-    fontSize: 13, background: '#fff', color: '#374151', cursor: 'pointer', outline: 'none',
+    padding: '8px 12px', borderRadius: 8, border: '1.5px solid var(--border-default)',
+    fontSize: 13, background: 'var(--surface-card)', color: 'var(--text-secondary)', cursor: 'pointer', outline: 'none',
   },
   clearBtn: {
     padding: '8px 14px', borderRadius: 8, border: '1.5px solid #fca5a5',
@@ -153,13 +153,13 @@ const styles = {
   tableWrap: { boxShadow: '0 1px 6px rgba(0,0,0,.07)', overflowX: 'auto' },
   table:     { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
   th: {
-    textAlign: 'left', padding: '10px 12px', background: '#f0f4f9',
-    color: '#64748b', fontWeight: 600, fontSize: 12, borderBottom: '1px solid #e5e7eb',
+    textAlign: 'left', padding: '10px 12px', background: 'var(--surface-page)',
+    color: 'var(--text-secondary)', fontWeight: 600, fontSize: 12, borderBottom: '1px solid var(--border-default)',
     whiteSpace: 'nowrap',
   },
-  tr:        { borderBottom: '1px solid #f1f5f9' },
-  td:        { padding: '12px 12px', color: '#374151', verticalAlign: 'middle' },
-  center:    { textAlign: 'center', color: '#94a3b8', padding: 40 },
+  tr:        { borderBottom: '1px solid var(--surface-sunken)' },
+  td:        { padding: '12px 12px', color: 'var(--text-secondary)', verticalAlign: 'middle' },
+  center:    { textAlign: 'center', color: 'var(--text-tertiary)', padding: 40 },
   errorBtn: {
     padding: '3px 10px', borderRadius: 6, border: '1px solid #fca5a5',
     background: '#fff7f7', color: '#dc2626', cursor: 'pointer', fontSize: 11, fontWeight: 600,

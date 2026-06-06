@@ -12,7 +12,7 @@ import SegmentedTabs from '../components/ui/SegmentedTabs';
 
 function Loader() {
   return (
-    <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>
+    <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-tertiary)', fontSize: 14 }}>
       Loading…
     </div>
   );
@@ -64,17 +64,17 @@ function PermRow({ code, label, description, value, isOverride, onChange }) {
       >
         {value
           ? <ToggleRight size={28} color="#00d7ff" />
-          : <ToggleLeft size={28} color="#94a3b8" />}
+          : <ToggleLeft size={28} color="var(--text-tertiary)" />}
       </button>
     </div>
   );
 }
 
 const permRowStyles = {
-  row: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f1f5f9' },
+  row: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--surface-sunken)' },
   info: { flex: 1, minWidth: 0, paddingRight: 12 },
-  label: { fontSize: 13, fontWeight: 600, color: '#1e293b', marginBottom: 2 },
-  desc: { fontSize: 12, color: '#64748b', marginBottom: 4 },
+  label: { fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 },
+  desc: { fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 },
 };
 
 // ─── Permission panel (shared by staff + client) ─────────────────────────────
@@ -179,7 +179,7 @@ function PermissionsPanel({ entityId, entityType }) {
             style={panelStyles.groupHeader}
           >
             <span style={panelStyles.groupTitle}>{group.page_label}</span>
-            <span style={{ fontSize: 11, color: '#64748b' }}>{group.permissions.length} permissions</span>
+            <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{group.permissions.length} permissions</span>
             {open[group.page] ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
           </button>
           {open[group.page] && (
@@ -204,9 +204,9 @@ function PermissionsPanel({ entityId, entityType }) {
 }
 
 const panelStyles = {
-  group: { marginBottom: 10, border: '1px solid #e2e8f0', borderRadius: 14, overflow: 'hidden' },
-  groupHeader: { width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', background: '#f0f4f9', border: 'none', cursor: 'pointer', textAlign: 'left' },
-  groupTitle: { flex: 1, fontSize: 13, fontWeight: 700, color: '#0f172a' },
+  group: { marginBottom: 10, border: '1px solid var(--border-default)', borderRadius: 14, overflow: 'hidden' },
+  groupHeader: { width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', background: 'var(--surface-page)', border: 'none', cursor: 'pointer', textAlign: 'left' },
+  groupTitle: { flex: 1, fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' },
 };
 
 // ─── Portal Config panel (client only) ──────────────────────────────────────
@@ -254,16 +254,16 @@ function PortalConfigPanel({ clientId }) {
     <div>
       <ErrorMsg msg={error} />
       <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 12 }}>Visible Sections</div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 12 }}>Visible Sections</div>
         {toggles.map(t => (
           <div key={t.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-            <span style={{ fontSize: 14, color: '#1e293b' }}>{t.label}</span>
+            <span style={{ fontSize: 14, color: 'var(--text-primary)' }}>{t.label}</span>
             <button
               type="button"
               onClick={() => setCfg(prev => ({ ...prev, [t.key]: !prev[t.key] }))}
               style={{ background: 'none', border: 'none', cursor: 'pointer' }}
             >
-              {cfg[t.key] ? <ToggleRight size={28} color="#00d7ff" /> : <ToggleLeft size={28} color="#94a3b8" />}
+              {cfg[t.key] ? <ToggleRight size={28} color="#00d7ff" /> : <ToggleLeft size={28} color="var(--text-tertiary)" />}
             </button>
           </div>
         ))}
@@ -285,9 +285,9 @@ function PortalConfigPanel({ clientId }) {
             type="color"
             value={cfg.custom_accent_color || '#00d7ff'}
             onChange={e => setCfg(prev => ({ ...prev, custom_accent_color: e.target.value }))}
-            style={{ width: 40, height: 36, borderRadius: 8, border: '1px solid #e2e8f0', cursor: 'pointer', padding: 2 }}
+            style={{ width: 40, height: 36, borderRadius: 8, border: '1px solid var(--border-default)', cursor: 'pointer', padding: 2 }}
           />
-          <span style={{ fontSize: 13, color: '#64748b' }}>{cfg.custom_accent_color || '#00d7ff'}</span>
+          <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{cfg.custom_accent_color || '#00d7ff'}</span>
         </div>
       </div>
       <div style={{ marginBottom: 20 }}>
@@ -308,9 +308,9 @@ function PortalConfigPanel({ clientId }) {
 }
 
 const fieldStyles = {
-  label: { display: 'block', fontSize: 12, fontWeight: 700, color: '#374151', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' },
-  input: { width: '100%', padding: '9px 12px', border: '1px solid #dbe5f3', borderRadius: 10, fontSize: 13, color: '#1e293b', background: '#fff', outline: 'none', boxSizing: 'border-box' },
-  textarea: { width: '100%', padding: '9px 12px', border: '1px solid #dbe5f3', borderRadius: 10, fontSize: 13, color: '#1e293b', background: '#fff', outline: 'none', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' },
+  label: { display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' },
+  input: { width: '100%', padding: '9px 12px', border: '1px solid var(--border-default)', borderRadius: 10, fontSize: 13, color: 'var(--text-primary)', background: 'var(--surface-card)', outline: 'none', boxSizing: 'border-box' },
+  textarea: { width: '100%', padding: '9px 12px', border: '1px solid var(--border-default)', borderRadius: 10, fontSize: 13, color: 'var(--text-primary)', background: 'var(--surface-card)', outline: 'none', resize: 'vertical', boxSizing: 'border-box', fontFamily: 'inherit' },
   requiredAsterisk: { color: '#ef4444', marginLeft: 2, fontWeight: 800, textTransform: 'none', letterSpacing: 'normal' },
   inputError: { borderColor: '#ef4444', background: '#fef2f2' },
   errorText: { marginTop: 6, fontSize: 12, color: '#dc2626', textTransform: 'none', letterSpacing: 'normal' },
@@ -369,10 +369,10 @@ function StaffClientsPanel({ staffId }) {
     <div>
       <ErrorMsg msg={error} />
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
           Assigned Users ({assigned.length})
         </div>
-        {assigned.length === 0 && <div style={{ fontSize: 13, color: '#94a3b8' }}>No users assigned yet.</div>}
+        {assigned.length === 0 && <div style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>No users assigned yet.</div>}
         {assigned.map(c => (
           <div key={c.id} style={assignStyles.row}>
             <span style={assignStyles.name}>{c.company}</span>
@@ -384,7 +384,7 @@ function StaffClientsPanel({ staffId }) {
       </div>
       {available.length > 0 && (
         <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
             Add User
           </div>
           {available.map(c => (
@@ -402,10 +402,10 @@ function StaffClientsPanel({ staffId }) {
 }
 
 const assignStyles = {
-  row: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderRadius: 10, background: '#f0f4f9', marginBottom: 6 },
-  name: { fontSize: 13, fontWeight: 600, color: '#1e293b' },
-  removeBtn: { display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', border: '1px solid #fca5a5', borderRadius: 8, background: '#fff', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' },
-  addBtn: { display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', border: '1px solid #99eeff', borderRadius: 8, background: '#fff', color: '#00d7ff', fontSize: 12, fontWeight: 600, cursor: 'pointer' },
+  row: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderRadius: 10, background: 'var(--surface-page)', marginBottom: 6 },
+  name: { fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' },
+  removeBtn: { display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', border: '1px solid #fca5a5', borderRadius: 8, background: 'var(--surface-card)', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer' },
+  addBtn: { display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', border: '1px solid #99eeff', borderRadius: 8, background: 'var(--surface-card)', color: '#00d7ff', fontSize: 12, fontWeight: 600, cursor: 'pointer' },
 };
 
 // ─── Create Staff Modal ──────────────────────────────────────────────────────
@@ -491,11 +491,22 @@ function CreateStaffModal({ onClose, onCreated }) {
 }
 
 const modalStyles = {
-  overlay: { position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-  box: { background: '#fff', borderRadius: 20, padding: 32, width: 420, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(15,23,42,0.18)' },
+  overlay: {
+    position: 'fixed', inset: 0,
+    background: 'rgba(10, 14, 20, 0.55)',
+    backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+  },
+  box: {
+    background: 'var(--surface-elevated)',
+    borderRadius: 'var(--radius-xl)',
+    border: '1px solid var(--border-subtle)',
+    padding: 32, width: 420, maxHeight: '90vh', overflowY: 'auto',
+    boxShadow: 'var(--shadow-xl)',
+  },
   header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 },
-  title: { fontSize: 18, fontWeight: 800, color: '#0f172a' },
-  closeBtn: { background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' },
+  title: { fontSize: 18, fontWeight: 600, letterSpacing: '-0.015em', color: 'var(--text-primary)' },
+  closeBtn: { background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' },
 };
 
 // ─── Staff Tab ───────────────────────────────────────────────────────────────
@@ -543,7 +554,7 @@ function StaffTab() {
           </button>
         </div>
         <ErrorMsg msg={error} />
-        {staff.length === 0 && <div style={{ fontSize: 13, color: '#94a3b8', padding: '12px 16px' }}>No staff yet.</div>}
+        {staff.length === 0 && <div style={{ fontSize: 13, color: 'var(--text-tertiary)', padding: '12px 16px' }}>No staff yet.</div>}
         {staff.map(s => {
           const initials = (s.name || s.email || '?').split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
           return (
@@ -557,7 +568,7 @@ function StaffTab() {
                 <div style={splitStyles.itemName}>{s.name || s.email}</div>
                 <div style={splitStyles.itemEmail}>{s.email}</div>
               </div>
-              {!s.is_active && <Chip label="Inactive" color="#64748b" bg="#f1f5f9" />}
+              {!s.is_active && <Chip label="Inactive" color="var(--text-secondary)" bg="var(--surface-sunken)" />}
               <button
                 onClick={e => { e.stopPropagation(); handleDelete(s.id); }}
                 disabled={deleting === s.id}
@@ -573,7 +584,7 @@ function StaffTab() {
       <div style={splitStyles.detail}>
         {!selected ? (
           <div style={splitStyles.emptyDetail}>
-            <UserCog size={36} color="#cbd5e1" />
+            <UserCog size={36} color="var(--text-quaternary)" />
             <p>Select a staff member to manage permissions and user access.</p>
           </div>
         ) : (
@@ -640,7 +651,7 @@ function ClientsTab() {
           <span style={splitStyles.listTitle}>Users ({clients.length})</span>
         </div>
         <ErrorMsg msg={error} />
-        {clients.length === 0 && <div style={{ fontSize: 13, color: '#94a3b8', padding: '12px 16px' }}>No users found.</div>}
+        {clients.length === 0 && <div style={{ fontSize: 13, color: 'var(--text-tertiary)', padding: '12px 16px' }}>No users found.</div>}
         {clients.map(c => (
           <div
             key={c.id}
@@ -654,7 +665,7 @@ function ClientsTab() {
             </div>
             {c.is_active
               ? <Chip label="Active" color="#15803d" bg="#dcfce7" />
-              : <Chip label="Inactive" color="#64748b" bg="#f1f5f9" />}
+              : <Chip label="Inactive" color="var(--text-secondary)" bg="var(--surface-sunken)" />}
           </div>
         ))}
       </div>
@@ -662,7 +673,7 @@ function ClientsTab() {
       <div style={splitStyles.detail}>
         {!selected ? (
           <div style={splitStyles.emptyDetail}>
-            <Users size={36} color="#cbd5e1" />
+            <Users size={36} color="var(--text-quaternary)" />
             <p>Select a user to manage their permissions and portal configuration.</p>
           </div>
         ) : (
@@ -759,7 +770,7 @@ function RoleDefaultsTab() {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-        <span style={{ fontSize: 14, fontWeight: 700, color: '#374151' }}>Role:</span>
+        <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-secondary)' }}>Role:</span>
         <SegmentedTabs
           items={[
             { id: 'staff', label: 'Staff' },
@@ -790,7 +801,7 @@ function RoleDefaultsTab() {
                 style={panelStyles.groupHeader}
               >
                 <span style={panelStyles.groupTitle}>{group.page_label}</span>
-                <span style={{ fontSize: 11, color: '#64748b' }}>{group.permissions.length} permissions</span>
+                <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{group.permissions.length} permissions</span>
                 {open[group.page] ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
               </button>
               {open[group.page] && (
@@ -823,31 +834,31 @@ const btnStyles = {
     display: 'inline-flex', alignItems: 'center', gap: 6,
     padding: '9px 16px', borderRadius: 10, border: 'none',
     background: '#00d7ff',
-    color: '#0f172a', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+    color: 'var(--text-primary)', fontSize: 13, fontWeight: 700, cursor: 'pointer',
   },
   ghost: {
     display: 'inline-flex', alignItems: 'center', gap: 6,
-    padding: '9px 16px', borderRadius: 10, border: '1px solid #dbe5f3',
-    background: '#fff', color: '#475569', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+    padding: '9px 16px', borderRadius: 10, border: '1px solid var(--border-default)',
+    background: 'var(--surface-card)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 700, cursor: 'pointer',
   },
 };
 
 const splitStyles = {
-  container: { display: 'flex', gap: 0, minHeight: 500, border: '1px solid #e2e8f0', borderRadius: 16, overflow: 'hidden' },
-  list: { width: 280, flexShrink: 0, borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', overflowY: 'auto' },
-  listHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid #f1f5f9', flexShrink: 0 },
-  listTitle: { fontSize: 13, fontWeight: 700, color: '#0f172a' },
-  listItem: { display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid #f8fafc', transition: 'background 0.15s' },
+  container: { display: 'flex', gap: 0, minHeight: 500, border: '1px solid var(--border-default)', borderRadius: 16, overflow: 'hidden' },
+  list: { width: 280, flexShrink: 0, borderRight: '1px solid var(--border-default)', display: 'flex', flexDirection: 'column', overflowY: 'auto' },
+  listHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid var(--surface-sunken)', flexShrink: 0 },
+  listTitle: { fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' },
+  listItem: { display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid var(--surface-sunken)', transition: 'background 0.15s' },
   listItemActive: { background: '#e6fbff' },
   itemAvatar: { width: 34, height: 34, borderRadius: 10, background: 'linear-gradient(180deg, #e6fbff 0%, #e6fbff 100%)', color: '#00d7ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, flexShrink: 0 },
-  itemName: { fontSize: 13, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
-  itemEmail: { fontSize: 11, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
-  deleteBtn: { background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: 4, flexShrink: 0 },
+  itemName: { fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+  itemEmail: { fontSize: 11, color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+  deleteBtn: { background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', padding: 4, flexShrink: 0 },
   detail: { flex: 1, padding: 24, overflowY: 'auto' },
-  detailHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid #f1f5f9' },
-  detailName: { fontSize: 16, fontWeight: 800, color: '#0f172a' },
-  detailEmail: { fontSize: 12, color: '#64748b', marginTop: 2 },
-  emptyDetail: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontSize: 13, gap: 12, textAlign: 'center' },
+  detailHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid var(--surface-sunken)' },
+  detailName: { fontSize: 16, fontWeight: 800, color: 'var(--text-primary)' },
+  detailEmail: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 },
+  emptyDetail: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-tertiary)', fontSize: 13, gap: 12, textAlign: 'center' },
 };
 
 // ─── Main ManagementPage ─────────────────────────────────────────────────────
@@ -891,7 +902,7 @@ export default function ManagementPage() {
 
 const pageStyles = {
   header: { marginBottom: 28 },
-  title: { fontSize: 26, fontWeight: 800, color: '#0f172a', margin: 0 },
-  sub: { fontSize: 14, color: '#64748b', marginTop: 4 },
+  title: { fontSize: 26, fontWeight: 800, color: 'var(--text-primary)', margin: 0 },
+  sub: { fontSize: 14, color: 'var(--text-secondary)', marginTop: 4 },
   body: { paddingTop: 8 },
 };

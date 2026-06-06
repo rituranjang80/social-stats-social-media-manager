@@ -294,7 +294,7 @@ function CompetitorDetail({ competitor, onChange }) {
       <Card padding="md">
         <Card.Header
           title="AI insights"
-          subtitle="Statox AI analyzes 30 days of snapshots + sample posts"
+          subtitle="Social State analyzes 30 days of snapshots + sample posts"
           action={<Button icon={Sparkles} loading={loadingInsights} onClick={fetchInsights}>
             Generate
           </Button>}

@@ -163,10 +163,10 @@ export default function SettingsPage({ clientId: propClientId }) {
       setOauthMsg({ type: 'success', text: `${connected.replace(',', ' & ')} connected successfully!` });
       setTimeout(() => setOauthMsg(null), 5000);
     } else {
-      const msg = error === 'facebook_denied'         ? 'Facebook connection was cancelled.'
+      const msg = error === 'facebook_denied'         ? 'Facebook connection was canceled.'
         : error === 'facebook_consumer_token'         ? 'Facebook login failed — check server logs.'
-        : error === 'google_denied'                   ? 'Google connection was cancelled.'
-        : error === 'linkedin_denied'                 ? 'LinkedIn connection was cancelled.'
+        : error === 'google_denied'                   ? 'Google connection was canceled.'
+        : error === 'linkedin_denied'                 ? 'LinkedIn connection was canceled.'
         : `Connection failed: ${error}`;
       setOauthMsg({ type: 'error', text: msg });
       setTimeout(() => setOauthMsg(null), 8000);
@@ -813,7 +813,7 @@ const heroBadgeStyle = {
   display: 'inline-block',
   padding: '6px 10px',
   borderRadius: 999,
-  background: '#ffffff',
+  background: 'var(--surface-card)',
   color: '#0f766e',
   fontSize: 12,
   fontWeight: 800,
@@ -824,12 +824,12 @@ const heroTitleStyle = {
   fontSize: 30,
   lineHeight: 1.1,
   fontWeight: 900,
-  color: '#0f172a',
+  color: 'var(--text-primary)',
 };
 
 const heroTextStyle = {
   margin: 0,
-  color: '#64748b',
+  color: 'var(--text-secondary)',
   fontSize: 14,
   lineHeight: 1.7,
   maxWidth: 700,
@@ -848,7 +848,7 @@ const heroPanelStyle = {
 const heroPanelLabelStyle = {
   fontSize: 12,
   fontWeight: 700,
-  color: '#64748b',
+  color: 'var(--text-secondary)',
   textTransform: 'uppercase',
   letterSpacing: '.08em',
 };
@@ -856,26 +856,26 @@ const heroPanelLabelStyle = {
 const heroPanelValueStyle = {
   fontSize: 30,
   fontWeight: 900,
-  color: '#0f172a',
+  color: 'var(--text-primary)',
 };
 
 const heroPanelTextStyle = {
   fontSize: 13,
-  color: '#475569',
+  color: 'var(--text-secondary)',
   fontWeight: 600,
 };
 
 const loadingStateStyle = {
   textAlign: 'center',
   padding: 48,
-  background: '#ffffff',
+  background: 'var(--surface-card)',
   borderRadius: 22,
-  border: '1px solid #e2e8f0',
+  border: '1px solid var(--border-default)',
 };
 
 const sectionStyle = {
   background: 'linear-gradient(180deg, #ffffff 0%, #fbfdff 100%)',
-  border: '1px solid #e2e8f0',
+  border: '1px solid var(--border-default)',
   borderRadius: 20,
   padding: '20px 16px',
   marginBottom: 12,
@@ -913,7 +913,7 @@ const sectionTitleStyle = {
 const sectionCopyStyle = {
   margin: 0,
   fontSize: 13,
-  color: '#64748b',
+  color: 'var(--text-secondary)',
   lineHeight: 1.6,
 };
 
@@ -931,13 +931,13 @@ const fieldStyle = {
 const labelStyle = {
   fontSize: 13,
   fontWeight: 700,
-  color: '#334155',
+  color: 'var(--text-secondary)',
   marginBottom: 8,
 };
 
 const inputStyle = {
   padding: '12px 14px',
-  border: '1.5px solid #e2e8f0',
+  border: '1.5px solid var(--border-default)',
   borderRadius: 12,
   fontSize: 16,
   outline: 'none',
@@ -967,11 +967,11 @@ const checkboxPillStyle = {
   gap: 8,
   padding: '12px 14px',
   borderRadius: 16,
-  border: '1px solid #e2e8f0',
-  background: '#fff',
+  border: '1px solid var(--border-default)',
+  background: 'var(--surface-card)',
   fontSize: 14,
   cursor: 'pointer',
-  color: '#334155',
+  color: 'var(--text-secondary)',
   fontWeight: 600,
   WebkitTapHighlightColor: 'transparent',
 };
@@ -996,8 +996,8 @@ const assetCardStyle = {
   gap: 14,
   padding: 22,
   borderRadius: 22,
-  background: '#ffffff',
-  border: '1px solid #e2e8f0',
+  background: 'var(--surface-card)',
+  border: '1px solid var(--border-default)',
 };
 
 const assetCardAltStyle = {
@@ -1005,19 +1005,19 @@ const assetCardAltStyle = {
   gap: 14,
   padding: 22,
   borderRadius: 22,
-  background: 'linear-gradient(180deg, #f8fafc 0%, #fbfdff 100%)',
-  border: '1px solid #e2e8f0',
+  background: 'linear-gradient(180deg, var(--surface-sunken) 0%, #fbfdff 100%)',
+  border: '1px solid var(--border-default)',
 };
 
 const assetTitleStyle = {
   fontSize: 18,
   fontWeight: 800,
-  color: '#0f172a',
+  color: 'var(--text-primary)',
 };
 
 const assetTextStyle = {
   fontSize: 13,
-  color: '#64748b',
+  color: 'var(--text-secondary)',
   lineHeight: 1.6,
 };
 
@@ -1056,7 +1056,7 @@ const previewImageStyle = {
   height: 120,
   objectFit: 'cover',
   borderRadius: 14,
-  border: '1px solid #e2e8f0',
+  border: '1px solid var(--border-default)',
 };
 
 const removeBtnStyle = {
@@ -1081,7 +1081,7 @@ const saveBarStyle = {
   alignItems: 'center',
   gap: 12,
   paddingTop: 24,
-  borderTop: '1px solid #e5e7eb',
+  borderTop: '1px solid var(--border-default)',
   flexWrap: 'wrap',
 };
 
@@ -1089,7 +1089,7 @@ const saveBarCopyStyle = {
   display: 'inline-flex',
   alignItems: 'center',
   gap: 8,
-  color: '#64748b',
+  color: 'var(--text-secondary)',
   fontSize: 13,
   fontWeight: 600,
 };

@@ -85,10 +85,10 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: '#f0f4f9',
+    background: 'var(--surface-page)',
   },
   card: {
-    background: '#fff',
+    background: 'var(--surface-card)',
     borderRadius: 20,
     padding: '48px 56px',
     textAlign: 'center',
@@ -98,13 +98,13 @@ const styles = {
   spinner: {
     width: 44,
     height: 44,
-    border: '4px solid #e2e8f0',
+    border: '4px solid var(--border-default)',
     borderTopColor: '#00d7ff',
     borderRadius: '50%',
     margin: '0 auto 20px',
     animation: 'spin 0.8s linear infinite',
   },
-  msg: { fontSize: 15, color: '#64748b', margin: 0 },
+  msg: { fontSize: 15, color: 'var(--text-secondary)', margin: 0 },
   errorIcon: {
     width: 48,
     height: 48,

@@ -33,7 +33,7 @@ if (typeof document !== 'undefined' && !document.getElementById('roi-styles')) {
       appearance: none;
       height: 6px;
       border-radius: 4px;
-      background: linear-gradient(to right, #00d7ff var(--val, 50%), #e2e8f0 var(--val, 50%));
+      background: linear-gradient(to right, #00d7ff var(--val, 50%), var(--border-default) var(--val, 50%));
       outline: none;
       cursor: pointer;
       width: 100%;
@@ -213,7 +213,7 @@ function GoalBar({ label, current, target, progress, fmt }) {
   return (
     <div style={{ marginBottom: 14 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>{label}</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{label}</span>
         <span style={{
           fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
           background: onTrack ? '#D1FAE5' : '#FEE2E2',
@@ -222,7 +222,7 @@ function GoalBar({ label, current, target, progress, fmt }) {
           {onTrack ? 'On Track' : 'Behind'}
         </span>
       </div>
-      <div style={{ height: 8, background: '#E2E8F0', borderRadius: 4, overflow: 'hidden', marginBottom: 4 }}>
+      <div style={{ height: 8, background: 'var(--border-default)', borderRadius: 4, overflow: 'hidden', marginBottom: 4 }}>
         <div style={{
           height: '100%', borderRadius: 4,
           width: `${pct}%`,
@@ -230,7 +230,7 @@ function GoalBar({ label, current, target, progress, fmt }) {
           transition: 'width 0.8s ease',
         }} />
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#94A3B8' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-tertiary)' }}>
         <span>{fmt(current)} achieved</span>
         <span>{pct.toFixed(0)}% of {fmt(target)}</span>
       </div>
@@ -361,12 +361,12 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
         />
         <div style={{ padding: 40, maxWidth: 500, margin: '60px auto', textAlign: 'center' }}>
           <div style={{ fontSize: 48, marginBottom: 20 }}>📈</div>
-          <h2 style={{ margin: '0 0 8px', fontSize: 20, fontWeight: 800, color: '#0F172A' }}>ROI Calculator</h2>
-          <p style={{ color: '#64748B', fontSize: 14, marginBottom: 0 }}>
+          <h2 style={{ margin: '0 0 8px', fontSize: 20, fontWeight: 800, color: 'var(--text-primary)' }}>ROI Calculator</h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 0 }}>
             Select a user from the top-right dropdown to view and calculate their return on investment.
           </p>
           {clients.length === 0 && (
-            <p style={{ color: '#94A3B8', fontSize: 13, marginTop: 12 }}>No users found.</p>
+            <p style={{ color: 'var(--text-tertiary)', fontSize: 13, marginTop: 12 }}>No users found.</p>
           )}
         </div>
       </div>
@@ -375,7 +375,7 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
 
   if (settingsLoading) {
     return (
-      <div style={{ padding: 32, textAlign: 'center', color: '#64748B' }}>
+      <div style={{ padding: 32, textAlign: 'center', color: 'var(--text-secondary)' }}>
         Loading ROI Calculator…
       </div>
     );
@@ -424,8 +424,8 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
             <h3 style={cardTitle}><DollarSign size={16} style={{ color: '#2563EB' }} /> Monthly Investment</h3>
             {hasSavedSettings && (
               <div style={settingsBanner}>
-                <span style={{ color: '#0F172A', fontWeight: 700 }}>Settings saved</span>
-                <span style={{ color: '#64748B' }}>
+                <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>Settings saved</span>
+                <span style={{ color: 'var(--text-secondary)' }}>
                   {fieldsDisabled ? 'Click Edit Settings to change budgets and business numbers.' : 'You are editing the saved ROI settings.'}
                 </span>
               </div>
@@ -468,8 +468,8 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
             </div>
 
             <div style={{ ...totalDisplay, marginTop: 12 }}>
-              <span style={{ fontSize: 13, color: '#64748B' }}>Total Monthly Investment</span>
-              <span style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', fontFamily: 'monospace' }}>
+              <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Total Monthly Investment</span>
+              <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'monospace' }}>
                 {fmtCurrency(totalInvestment, symbol)}
               </span>
             </div>
@@ -567,7 +567,7 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
           {calcLoading && (
             <div style={loadingSkeleton}>
               {[1, 2, 3].map(i => (
-                <div key={i} style={{ height: 100, background: '#f0f4f9', borderRadius: 12, marginBottom: 16 }} />
+                <div key={i} style={{ height: 100, background: 'var(--surface-page)', borderRadius: 12, marginBottom: 16 }} />
               ))}
             </div>
           )}
@@ -576,8 +576,8 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
           {error && !calcLoading && (
             <div style={{ ...card, borderLeft: '4px solid #EF4444', textAlign: 'center', padding: 32 }}>
               <Info size={32} style={{ color: '#EF4444', margin: '0 auto 12px', display: 'block' }} />
-              <p style={{ color: '#374151', fontSize: 14, margin: 0 }}>{error}</p>
-              <p style={{ color: '#94A3B8', fontSize: 12, marginTop: 8 }}>
+              <p style={{ color: 'var(--text-secondary)', fontSize: 14, margin: 0 }}>{error}</p>
+              <p style={{ color: 'var(--text-tertiary)', fontSize: 12, marginTop: 8 }}>
                 Enter your budget and business numbers on the left to see your ROI.
               </p>
             </div>
@@ -588,7 +588,7 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
 
               {/* Card 1: Main ROI */}
               <div style={{ ...card, textAlign: 'center', padding: 32, marginBottom: 16, border: `2px solid ${roiColor(roi)}20` }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
                   Return on Investment
                 </div>
                 <div style={{
@@ -600,9 +600,9 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
                 <div style={{ display: 'inline-block', padding: '4px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700, margin: '12px 0', background: rLabel.bg, color: rLabel.color }}>
                   {rLabel.text}
                 </div>
-                <p style={{ fontSize: 13, color: '#64748B', margin: 0 }}>
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: 0 }}>
                   For every {symbol}1 spent you earn{' '}
-                  <strong style={{ color: '#0F172A' }}>{symbol}{(result.per_dollar_earned || 0).toFixed(2)}</strong> back
+                  <strong style={{ color: 'var(--text-primary)' }}>{symbol}{(result.per_dollar_earned || 0).toFixed(2)}</strong> back
                 </p>
               </div>
 
@@ -611,13 +611,13 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
                 <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
                   <div style={{ flex: 1, textAlign: 'center', padding: 16, background: '#FEF3C7', borderRadius: 12 }}>
                     <div style={{ fontSize: 11, color: '#D97706', fontWeight: 700, textTransform: 'uppercase', marginBottom: 6 }}>💰 Total Invested</div>
-                    <div style={{ fontSize: 26, fontWeight: 800, color: '#0F172A', fontFamily: 'monospace' }}>
+                    <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'monospace' }}>
                       {fmtCurrency(result.total_investment, symbol)}
                     </div>
                   </div>
                   <div style={{ flex: 1, textAlign: 'center', padding: 16, background: '#D1FAE5', borderRadius: 12 }}>
                     <div style={{ fontSize: 11, color: '#059669', fontWeight: 700, textTransform: 'uppercase', marginBottom: 6 }}>📈 Est. Revenue</div>
-                    <div style={{ fontSize: 26, fontWeight: 800, color: '#0F172A', fontFamily: 'monospace' }}>
+                    <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'monospace' }}>
                       {fmtCurrency(animatedRevenue, symbol)}
                     </div>
                   </div>
@@ -625,7 +625,7 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
                 {/* Bar visualization */}
                 {result.total_investment > 0 && (
                   <div>
-                    <div style={{ height: 12, background: '#f0f4f9', borderRadius: 6, overflow: 'hidden', position: 'relative' }}>
+                    <div style={{ height: 12, background: 'var(--surface-page)', borderRadius: 6, overflow: 'hidden', position: 'relative' }}>
                       <div style={{
                         position: 'absolute', left: 0, top: 0, height: '100%',
                         width: `${Math.min((result.total_investment / Math.max(result.estimated_revenue, result.total_investment)) * 100, 100)}%`,
@@ -637,7 +637,7 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
                         background: '#10B981', borderRadius: 6, opacity: 0.6, transition: 'width 0.8s ease',
                       }} />
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontSize: 11, color: '#94A3B8' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontSize: 11, color: 'var(--text-tertiary)' }}>
                       <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#F59E0B', display: 'inline-block' }} /> Investment
                       </span>
@@ -674,13 +674,13 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
                       <div key={m.label} style={{
                         background: isGood ? '#D1FAE5' : (m.value > 0 ? '#FEE2E2' : '#F8FAFC'),
                         borderRadius: 10, padding: '12px 14px', textAlign: 'center',
-                        border: `1px solid ${isGood ? '#A7F3D0' : (m.value > 0 ? '#FECACA' : '#E2E8F0')}`,
+                        border: `1px solid ${isGood ? '#A7F3D0' : (m.value > 0 ? '#FECACA' : 'var(--border-default)')}`,
                       }}>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{m.label}</div>
-                        <div style={{ fontSize: 20, fontWeight: 800, fontFamily: 'monospace', color: isGood ? '#059669' : (m.value > 0 ? '#EF4444' : '#94A3B8') }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{m.label}</div>
+                        <div style={{ fontSize: 20, fontWeight: 800, fontFamily: 'monospace', color: isGood ? '#059669' : (m.value > 0 ? '#EF4444' : 'var(--text-tertiary)') }}>
                           {m.value > 0 ? m.fmt(m.value) : '—'}
                         </div>
-                        <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 4 }}>
+                        <div style={{ fontSize: 10, color: 'var(--text-tertiary)', marginTop: 4 }}>
                           avg {m.fmt(m.industry)}
                         </div>
                       </div>
@@ -705,7 +705,7 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
                       {result.platform_breakdown.map(row => (
                         <PlatformRow key={row.platform} row={row} symbol={symbol} />
                       ))}
-                      <tr style={{ ...trStyle, fontWeight: 700, background: '#f0f4f9' }}>
+                      <tr style={{ ...trStyle, fontWeight: 700, background: 'var(--surface-page)' }}>
                         <td style={tdStyle}><strong>Total</strong></td>
                         <td style={{ ...tdStyle, textAlign: 'right' }}><strong>{fmtCurrency(result.total_investment, symbol)}</strong></td>
                         <td style={{ ...tdStyle, textAlign: 'right' }}><strong>{fmtNum(result.total_clicks)}</strong></td>
@@ -772,7 +772,7 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
 
               {/* No data message */}
               {!result.has_data && (
-                <div style={{ ...card, textAlign: 'center', padding: 24, color: '#94A3B8', marginBottom: 16 }}>
+                <div style={{ ...card, textAlign: 'center', padding: 24, color: 'var(--text-tertiary)', marginBottom: 16 }}>
                   <TrendingDown size={28} style={{ margin: '0 auto 8px', display: 'block' }} />
                   <p style={{ margin: 0, fontSize: 13 }}>No social media data found for {MONTHS[month - 1]} {year}.</p>
                   <p style={{ margin: '6px 0 0', fontSize: 12 }}>The projection above is based on your configured budgets and rates.</p>
@@ -786,8 +786,8 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
           {!result && !calcLoading && !error && (
             <div style={{ ...card, textAlign: 'center', padding: 48 }}>
               <div style={{ fontSize: 48, marginBottom: 16 }}>📊</div>
-              <h3 style={{ color: '#0F172A', marginBottom: 8 }}>Your ROI Will Appear Here</h3>
-              <p style={{ color: '#64748B', fontSize: 14 }}>
+              <h3 style={{ color: 'var(--text-primary)', marginBottom: 8 }}>Your ROI Will Appear Here</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>
                 Enter your monthly budgets and business numbers on the left to calculate your return on investment.
               </p>
             </div>
@@ -800,7 +800,7 @@ export default function ROICalculatorPage({ clientId: propClientId }) {
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 const pageWrap     = { padding: '24px 28px', maxWidth: 1400, margin: '0 auto' };
-const clientSelectStyle = { padding: '8px 14px', borderRadius: 10, border: '1.5px solid #dbe5f3', fontSize: 13, background: '#fff', color: '#1e293b', fontWeight: 600, outline: 'none', minWidth: 200 };
+const clientSelectStyle = { padding: '8px 14px', borderRadius: 10, border: '1.5px solid var(--border-default)', fontSize: 13, background: 'var(--surface-card)', color: 'var(--text-primary)', fontWeight: 600, outline: 'none', minWidth: 200 };
 const twoCol       = { display: 'grid', gridTemplateColumns: '40% 1fr', gap: 24, alignItems: 'flex-start' };
 const leftPanel    = { position: 'sticky', top: 24 };
 const rightPanel   = {};
@@ -812,20 +812,20 @@ const cardTitle    = {
   display: 'flex', alignItems: 'center', gap: 8,
   margin: '0 0 16px', fontSize: 14, fontWeight: 700, color: '#1E293B',
 };
-const inputLabel   = { fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 5 };
-const inputWrap    = { display: 'flex', alignItems: 'center', border: '1.5px solid #E2E8F0', borderRadius: 10, background: '#f0f4f9', overflow: 'hidden' };
+const inputLabel   = { fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 5 };
+const inputWrap    = { display: 'flex', alignItems: 'center', border: '1.5px solid var(--border-default)', borderRadius: 10, background: 'var(--surface-page)', overflow: 'hidden' };
 const disabledInputWrap = { ...inputWrap, background: '#F8FAFC', border: '1.5px solid #E5E7EB' };
-const inputPrefix  = { padding: '8px 12px', fontSize: 14, fontWeight: 600, color: '#64748B', background: '#f0f4f9', borderRight: '1px solid #E2E8F0' };
-const inputField   = { flex: 1, padding: '8px 12px', fontSize: 14, border: 'none', background: 'transparent', outline: 'none', color: '#0F172A' };
-const disabledInputField = { ...inputField, color: '#94A3B8', cursor: 'not-allowed' };
-const helperText   = { margin: '4px 0 0', fontSize: 11, color: '#94A3B8' };
+const inputPrefix  = { padding: '8px 12px', fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', background: 'var(--surface-page)', borderRight: '1px solid var(--border-default)' };
+const inputField   = { flex: 1, padding: '8px 12px', fontSize: 14, border: 'none', background: 'transparent', outline: 'none', color: 'var(--text-primary)' };
+const disabledInputField = { ...inputField, color: 'var(--text-tertiary)', cursor: 'not-allowed' };
+const helperText   = { margin: '4px 0 0', fontSize: 11, color: 'var(--text-tertiary)' };
 const totalDisplay = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#e6fbff', borderRadius: 10 };
-const selectStyle  = { padding: '8px 12px', borderRadius: 8, border: '1.5px solid #E2E8F0', fontSize: 13, background: '#fff', outline: 'none', cursor: 'pointer', color: '#0F172A' };
-const primaryBtn   = { display: 'flex', alignItems: 'center', gap: 6, flex: 1, justifyContent: 'center', padding: '11px 16px', background: '#00d7ff', color: '#0f172a', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer' };
-const secondaryBtn = { display: 'flex', alignItems: 'center', gap: 6, flex: 1, justifyContent: 'center', padding: '11px 16px', background: '#fff', color: '#374151', border: '1.5px solid #E2E8F0', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer' };
-const ghostBtn     = { display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center', padding: '11px 16px', background: '#F8FAFC', color: '#64748B', border: '1.5px solid #E2E8F0', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer' };
+const selectStyle  = { padding: '8px 12px', borderRadius: 8, border: '1.5px solid var(--border-default)', fontSize: 13, background: 'var(--surface-card)', outline: 'none', cursor: 'pointer', color: 'var(--text-primary)' };
+const primaryBtn   = { display: 'flex', alignItems: 'center', gap: 6, flex: 1, justifyContent: 'center', padding: '11px 16px', background: '#00d7ff', color: 'var(--text-primary)', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer' };
+const secondaryBtn = { display: 'flex', alignItems: 'center', gap: 6, flex: 1, justifyContent: 'center', padding: '11px 16px', background: 'var(--surface-card)', color: 'var(--text-secondary)', border: '1.5px solid var(--border-default)', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer' };
+const ghostBtn     = { display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center', padding: '11px 16px', background: '#F8FAFC', color: 'var(--text-secondary)', border: '1.5px solid var(--border-default)', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer' };
 const settingsBanner = { display: 'grid', gap: 4, marginBottom: 16, padding: '12px 14px', borderRadius: 12, background: '#EFF6FF', border: '1px solid #BFDBFE', fontSize: 12 };
 const loadingSkeleton = { padding: 0 };
-const thStyle = { textAlign: 'left', padding: '8px 10px', background: '#f0f4f9', color: '#64748B', fontWeight: 700, fontSize: 11, textTransform: 'uppercase', borderBottom: '1px solid #E2E8F0', whiteSpace: 'nowrap' };
+const thStyle = { textAlign: 'left', padding: '8px 10px', background: 'var(--surface-page)', color: 'var(--text-secondary)', fontWeight: 700, fontSize: 11, textTransform: 'uppercase', borderBottom: '1px solid var(--border-default)', whiteSpace: 'nowrap' };
 const trStyle = { borderBottom: '1px solid #F1F5F9' };
-const tdStyle = { padding: '10px 10px', color: '#374151', fontSize: 12 };
+const tdStyle = { padding: '10px 10px', color: 'var(--text-secondary)', fontSize: 12 };

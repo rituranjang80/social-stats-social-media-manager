@@ -1,139 +1,101 @@
-import { useEffect, useState } from 'react';
-import { StatoxLogoHorizontal } from './StatoxLogo';
+import { useEffect, useMemo, useState } from 'react';
 import { contentAPI } from '../../services/api';
+import LegalPageLayout from '../marketing/LegalPageLayout';
+import Spinner from './Spinner';
+import ErrorState from './ErrorState';
+import { safeHtml } from '../../utils/sanitize';
 
-export default function StaticContentPage({ contentKey, fallbackTitle }) {
+/**
+ * StaticContentPage — fetches a CMS-managed legal/policy doc by `contentKey`
+ * and renders it inside the redesigned LegalPageLayout.
+ *
+ * Backend payload shape (unchanged):
+ *   {
+ *     title, effective_date, last_updated,
+ *     content: {
+ *       sections: [{ title, html }],
+ *       footer_link_label,
+ *       footer_link_url,
+ *     }
+ *   }
+ */
+export default function StaticContentPage({ contentKey, fallbackTitle, eyebrow }) {
   const [doc, setDoc] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
     let ignore = false;
-
-    async function load() {
-      setLoading(true);
-      setError('');
-      try {
-        const res = await contentAPI.getPublic(contentKey);
-        if (!ignore) setDoc(res.data);
-      } catch {
-        if (!ignore) setError('Unable to load this page right now.');
-      } finally {
-        if (!ignore) setLoading(false);
-      }
-    }
-
-    load();
+    setLoading(true);
+    setError('');
+    contentAPI.getPublic(contentKey)
+      .then((res) => { if (!ignore) setDoc(res.data); })
+      .catch(() => { if (!ignore) setError('Unable to load this page right now.'); })
+      .finally(() => { if (!ignore) setLoading(false); });
     return () => { ignore = true; };
-  }, [contentKey]);
+  }, [contentKey, reloadTick]);
 
-  const sections = doc?.content?.sections || [];
-  const footerLabel = doc?.content?.footer_link_label;
-  const footerUrl = doc?.content?.footer_link_url;
+  const sections = useMemo(() => {
+    if (!doc?.content?.sections) return [];
+    return doc.content.sections.map((s, i) => ({
+      id: slugify(s.title) || `section-${i + 1}`,
+      title: s.title,
+      body: <div dangerouslySetInnerHTML={safeHtml(s.html)} />,
+    }));
+  }, [doc]);
+
+  if (loading) {
+    return (
+      <LegalPageLayout
+        eyebrow={eyebrow}
+        title={fallbackTitle}
+        sections={[]}
+      >
+        <div style={{ padding: '40px 0', textAlign: 'center' }}>
+          <Spinner size="md" />
+          <div style={{ marginTop: 12, fontSize: 13, color: 'var(--text-tertiary)' }}>Loading content…</div>
+        </div>
+      </LegalPageLayout>
+    );
+  }
+
+  if (error || !doc) {
+    return (
+      <LegalPageLayout eyebrow={eyebrow} title={fallbackTitle} sections={[]}>
+        <ErrorState
+          title="Couldn't load this page"
+          description={error || 'Please try again in a moment.'}
+          onRetry={() => setReloadTick((t) => t + 1)}
+          compact
+        />
+      </LegalPageLayout>
+    );
+  }
 
   return (
-    <div style={styles.page}>
-      <div style={styles.container}>
-        <div style={styles.header}>
-          <a href="/" style={styles.logoLink}>
-            <div style={styles.logoPlate}>
-              <StatoxLogoHorizontal height={32} />
-            </div>
+    <LegalPageLayout
+      eyebrow={eyebrow}
+      title={doc.title || fallbackTitle}
+      effectiveDate={doc.effective_date}
+      lastUpdated={doc.last_updated}
+      sections={sections}
+    >
+      {doc.content?.footer_link_label && doc.content?.footer_link_url && (
+        <p style={{ marginTop: 28, paddingTop: 20, borderTop: '1px solid var(--border-subtle)', fontSize: 12, color: 'var(--text-tertiary)' }}>
+          © {new Date().getFullYear()} SocialState ·{' '}
+          <a href={doc.content.footer_link_url} style={{ color: 'var(--text-link)' }}>
+            {doc.content.footer_link_label}
           </a>
-        </div>
-
-        <div style={styles.card}>
-          <h2 style={styles.title}>{doc?.title || fallbackTitle}</h2>
-          {!loading && doc && (
-            <p style={styles.meta}>
-              Effective Date: {formatDate(doc.effective_date)} · Last Updated: {formatDate(doc.last_updated)}
-            </p>
-          )}
-
-          {loading ? (
-            <p style={styles.p}>Loading content…</p>
-          ) : error ? (
-            <p style={styles.error}>{error}</p>
-          ) : (
-            sections.map((section) => (
-              <div key={section.title} style={{ marginBottom: 32 }}>
-                <h3 style={sectionStyles.heading}>{section.title}</h3>
-                <div
-                  style={sectionStyles.body}
-                  dangerouslySetInnerHTML={{ __html: section.html || '' }}
-                />
-              </div>
-            ))
-          )}
-        </div>
-
-        {(footerLabel && footerUrl) && (
-          <p style={styles.footer}>
-            © 2026 StatoX · <a href={footerUrl} style={styles.footerLink}>{footerLabel}</a>
-          </p>
-        )}
-      </div>
-    </div>
+        </p>
+      )}
+    </LegalPageLayout>
   );
 }
 
-function formatDate(value) {
-  if (!value) return '—';
-  return new Date(value).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+function slugify(s = '') {
+  return s.toLowerCase().trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
-
-const sectionStyles = {
-  heading: { fontSize: 16, fontWeight: 700, color: '#007a9a', marginBottom: 10, marginTop: 0 },
-  body: { color: '#334155', fontSize: 14, lineHeight: 1.7 },
-};
-
-const styles = {
-  page: {
-    minHeight: '100vh',
-    background: '#f0f4f9',
-    padding: '40px 16px',
-  },
-  container: {
-    maxWidth: 760,
-    margin: '0 auto',
-  },
-  header: {
-    textAlign: 'center',
-    marginBottom: 32,
-  },
-  logoPlate: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '12px 20px',
-    borderRadius: 18,
-    background: '#fff',
-    border: '1px solid #e2e8f0',
-    boxShadow: '0 4px 16px rgba(0,215,255,0.08)',
-  },
-  card: {
-    background: '#fff',
-    borderRadius: 20,
-    padding: '48px 48px',
-    boxShadow: '0 8px 32px rgba(15,23,42,.07)',
-    border: '1px solid #e2e8f0',
-  },
-  title: { fontSize: 26, fontWeight: 800, color: '#0f172a', marginTop: 0, marginBottom: 6 },
-  meta: { fontSize: 12, color: '#94a3b8', marginBottom: 36, marginTop: 0 },
-  p: { margin: '0 0 10px', color: '#334155', fontSize: 14, lineHeight: 1.7 },
-  error: {
-    margin: 0,
-    padding: '12px 14px',
-    borderRadius: 10,
-    background: '#fef2f2',
-    color: '#b91c1c',
-    fontSize: 14,
-  },
-  footer: { textAlign: 'center', color: '#64748b', fontSize: 12, marginTop: 24 },
-  footerLink: { color: '#00d7ff', textDecoration: 'none' },
-  logoLink: { display: 'inline-flex', textDecoration: 'none' },
-};

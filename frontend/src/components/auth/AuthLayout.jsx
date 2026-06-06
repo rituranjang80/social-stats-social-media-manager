@@ -12,7 +12,7 @@ import SkipLink from '../ui/SkipLink';
  *
  *   ┌──────────────────────────────┬─────────────────────────────┐
  *   │  HERO PANEL (mesh gradient)  │  FORM PANEL                 │
- *   │  - Statox logo top-left      │  - Centered card             │
+ *   │  - Social State logo top-left      │  - Centered card             │
  *   │  - Eyebrow + headline        │  - children                 │
  *   │  - Rotating testimonials     │  - Footer link slot         │
  *   │  - Stat strip                │                             │
@@ -369,7 +369,7 @@ export default function AuthLayout({
           >
             <Link to="/privacy" style={legalLinkStyle}>Privacy</Link>
             <Link to="/terms"   style={legalLinkStyle}>Terms</Link>
-            <a href="mailto:support@statox.ai" style={legalLinkStyle}>Support</a>
+            <a href="mailto:support@socialstate.ai" style={legalLinkStyle}>Support</a>
           </div>
         </div>
       </main>

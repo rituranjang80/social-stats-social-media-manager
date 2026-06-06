@@ -174,7 +174,7 @@ export default function AIWriteButton({
               <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-primary)', fontWeight: 600, fontSize: 14 }}>
                   <Sparkles size={14} style={{ color: 'var(--brand-primary-hover)' }} />
-                  Write with Statox AI
+                  Write with Social State
                 </div>
                 <Button variant="ghost" size="sm" iconOnly icon={X} aria-label="Close" onClick={() => setOpen(false)} />
               </header>
@@ -245,7 +245,7 @@ export default function AIWriteButton({
                 style={{ marginTop: 14 }}
                 icon={Sparkles}
               >
-                {loading ? 'Statox AI is writing…' : 'Generate'}
+                {loading ? 'Social State is writing…' : 'Generate'}
               </Button>
               <p style={{ margin: '8px 0 0', fontSize: 11, color: 'var(--text-tertiary)', textAlign: 'center' }}>
                 Cmd+Enter to generate · Esc to close

@@ -126,7 +126,7 @@ export default function AdminOnboardingPage() {
                             {step.is_completed ? (
                               <CheckCircle2 size={18} style={{ color: '#16a34a', flexShrink: 0, marginTop: 2 }} />
                             ) : (
-                              <Circle size={18} style={{ color: '#cbd5e1', flexShrink: 0, marginTop: 2 }} />
+                              <Circle size={18} style={{ color: 'var(--text-quaternary)', flexShrink: 0, marginTop: 2 }} />
                             )}
                             <div>
                               <div style={styles.stepLabel}>{step.label}</div>
@@ -167,19 +167,19 @@ export default function AdminOnboardingPage() {
 
 const styles = {
   emptyState: {
-    background: '#fff',
+    background: 'var(--surface-card)',
     borderRadius: 16,
-    border: '1px solid #e2e8f0',
+    border: '1px solid var(--border-default)',
     padding: 40,
     textAlign: 'center',
-    color: '#94a3b8',
+    color: 'var(--text-tertiary)',
     boxShadow: '0 1px 6px rgba(15,23,42,.05)',
   },
   clientStack: { display: 'flex', flexDirection: 'column', gap: 18 },
   clientCard: {
-    background: '#fff',
+    background: 'var(--surface-card)',
     borderRadius: 18,
-    border: '1px solid #e2e8f0',
+    border: '1px solid var(--border-default)',
     boxShadow: '0 1px 8px rgba(15,23,42,.05)',
     overflow: 'hidden',
   },
@@ -205,9 +205,9 @@ const styles = {
     justifyContent: 'center',
     flexShrink: 0,
   },
-  clientName: { fontSize: 18, fontWeight: 800, color: '#0f172a', textAlign: 'left' },
-  clientMeta: { marginTop: 4, fontSize: 13, color: '#64748b', textAlign: 'left' },
-  clientHeaderRight: { display: 'flex', alignItems: 'center', gap: 10, color: '#64748b' },
+  clientName: { fontSize: 18, fontWeight: 800, color: 'var(--text-primary)', textAlign: 'left' },
+  clientMeta: { marginTop: 4, fontSize: 13, color: 'var(--text-secondary)', textAlign: 'left' },
+  clientHeaderRight: { display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text-secondary)' },
   percentBadge: {
     padding: '4px 10px',
     borderRadius: 999,
@@ -217,7 +217,7 @@ const styles = {
     fontWeight: 800,
   },
   clientProgressWrap: { padding: '0 20px 18px' },
-  progressTrack: { height: 8, borderRadius: 999, background: '#e5e7eb', overflow: 'hidden' },
+  progressTrack: { height: 8, borderRadius: 999, background: 'var(--border-default)', overflow: 'hidden' },
   progressFill: { height: '100%', borderRadius: 999, background: 'linear-gradient(90deg, #00d7ff 0%, #00d7ff 100%)' },
   stepList: {
     borderTop: '1px solid #eef2f7',
@@ -232,12 +232,12 @@ const styles = {
     justifyContent: 'space-between',
     gap: 16,
     padding: '14px 0',
-    borderBottom: '1px solid #f1f5f9',
+    borderBottom: '1px solid var(--surface-sunken)',
   },
   stepMain: { display: 'flex', gap: 12, minWidth: 0, flex: 1 },
-  stepLabel: { fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 4 },
-  stepDescription: { fontSize: 13, lineHeight: 1.55, color: '#64748b' },
-  stepMeta: { marginTop: 6, fontSize: 12, color: '#94a3b8' },
+  stepLabel: { fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 },
+  stepDescription: { fontSize: 13, lineHeight: 1.55, color: 'var(--text-secondary)' },
+  stepMeta: { marginTop: 6, fontSize: 12, color: 'var(--text-tertiary)' },
   stepAction: {
     display: 'inline-flex',
     alignItems: 'center',
@@ -251,5 +251,5 @@ const styles = {
     whiteSpace: 'nowrap',
   },
   stepActionPrimary: { background: '#e6fbff', color: '#007a9a', borderColor: '#99eeff' },
-  stepActionSecondary: { background: '#fff', color: '#475569', borderColor: '#e2e8f0' },
+  stepActionSecondary: { background: 'var(--surface-card)', color: 'var(--text-secondary)', borderColor: 'var(--border-default)' },
 };

@@ -45,8 +45,8 @@ function KPICard({ label, value, prev, icon: Icon, color, loading }) {
   const change = prev != null ? pctChange(value, prev) : null;
   return (
     <div style={{
-      background: '#fff', borderRadius: 14, padding: '20px 22px',
-      border: '1px solid #e2e8f0', flex: 1, minWidth: 160,
+      background: 'var(--surface-card)', borderRadius: 14, padding: '20px 22px',
+      border: '1px solid var(--border-default)', flex: 1, minWidth: 160,
       boxShadow: '0 1px 6px rgba(0,0,0,0.04)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
@@ -57,20 +57,20 @@ function KPICard({ label, value, prev, icon: Icon, color, loading }) {
         }}>
           <Icon size={16} color={color} />
         </div>
-        <span style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
           {label}
         </span>
       </div>
       {loading ? (
-        <div style={{ height: 32, background: '#f0f4f9', borderRadius: 6, animation: 'pulse 1.5s infinite' }} />
+        <div style={{ height: 32, background: 'var(--surface-page)', borderRadius: 6, animation: 'pulse 1.5s infinite' }} />
       ) : (
         <>
-          <div style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>
+          <div style={{ fontSize: 28, fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1 }}>
             {fmt(value || 0)}
           </div>
           {change != null && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6, fontSize: 12, fontWeight: 700,
-              color: change > 0 ? '#059669' : change < 0 ? '#dc2626' : '#64748b' }}>
+              color: change > 0 ? '#059669' : change < 0 ? '#dc2626' : 'var(--text-secondary)' }}>
               {change > 0 ? <TrendingUp size={12} /> : change < 0 ? <TrendingDown size={12} /> : <Minus size={12} />}
               {change > 0 ? '+' : ''}{change.toFixed(1)}% vs prev period
             </div>
@@ -84,14 +84,14 @@ function KPICard({ label, value, prev, icon: Icon, color, loading }) {
 function SectionCard({ title, subtitle, children, style }) {
   return (
     <div style={{
-      background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0',
+      background: 'var(--surface-card)', borderRadius: 16, border: '1px solid var(--border-default)',
       boxShadow: '0 1px 8px rgba(0,0,0,0.04)', padding: '22px 26px',
       ...style,
     }}>
       {(title || subtitle) && (
         <div style={{ marginBottom: 18 }}>
-          {title && <div style={{ fontSize: 15, fontWeight: 800, color: '#0f172a' }}>{title}</div>}
-          {subtitle && <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 3 }}>{subtitle}</div>}
+          {title && <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)' }}>{title}</div>}
+          {subtitle && <div style={{ fontSize: 12, color: 'var(--text-tertiary)', marginTop: 3 }}>{subtitle}</div>}
         </div>
       )}
       {children}
@@ -103,15 +103,15 @@ const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
     <div style={{
-      background: '#fff', border: '1px solid #e2e8f0', borderRadius: 10,
+      background: 'var(--surface-card)', border: '1px solid var(--border-default)', borderRadius: 10,
       padding: '10px 14px', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', fontSize: 12,
     }}>
-      <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>{label}</div>
+      <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{label}</div>
       {payload.map((p, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, color: p.color, marginBottom: 2 }}>
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: p.color }} />
-          <span style={{ color: '#64748b' }}>{p.name}:</span>
-          <span style={{ fontWeight: 700, color: '#0f172a' }}>{fmt(p.value)}</span>
+          <span style={{ color: 'var(--text-secondary)' }}>{p.name}:</span>
+          <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{fmt(p.value)}</span>
         </div>
       ))}
     </div>
@@ -242,7 +242,7 @@ export default function AnalyticsPage() {
   const selectedClientName = clients.find(c => String(c.id) === String(selectedClientId))?.company;
 
   return (
-    <div style={{ padding: '32px 36px', background: '#f0f4f9', minHeight: '100vh' }}>
+    <div style={{ padding: '32px 36px', background: 'var(--surface-page)', minHeight: '100vh' }}>
       <PageHeader
         title="Analytics"
         subtitle={isClientSelected
@@ -313,9 +313,9 @@ export default function AnalyticsPage() {
                 style={{
                   padding: '5px 14px', borderRadius: 20, border: '1.5px solid',
                   cursor: 'pointer', fontSize: 12, fontWeight: 700, transition: 'all 0.15s',
-                  background:  activeMetric === key ? meta.color : '#f8fafc',
-                  borderColor: activeMetric === key ? meta.color : '#e2e8f0',
-                  color:       activeMetric === key ? '#fff' : '#64748b',
+                  background:  activeMetric === key ? meta.color : 'var(--surface-sunken)',
+                  borderColor: activeMetric === key ? meta.color : 'var(--border-default)',
+                  color:       activeMetric === key ? '#fff' : 'var(--text-secondary)',
                 }}
               >
                 {meta.label}
@@ -324,7 +324,7 @@ export default function AnalyticsPage() {
           </div>
 
           {timeseriesLoading ? (
-            <div style={{ height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+            <div style={{ height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-tertiary)' }}>
               Loading chart…
             </div>
           ) : chartData.length === 0 ? (
@@ -338,9 +338,9 @@ export default function AnalyticsPage() {
                     <stop offset="95%" stopColor={METRIC_META[activeMetric].color} stopOpacity={0.01} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8' }} />
-                <YAxis tickFormatter={v => fmt(v)} tick={{ fontSize: 11, fill: '#94a3b8' }} width={52} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--surface-sunken)" />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--text-tertiary)' }} />
+                <YAxis tickFormatter={v => fmt(v)} tick={{ fontSize: 11, fill: 'var(--text-tertiary)' }} width={52} />
                 <Tooltip content={<CustomTooltip />} />
                 <Area
                   type="monotone"
@@ -363,7 +363,7 @@ export default function AnalyticsPage() {
           style={{ marginBottom: 24 }}
         >
           {overviewLoading ? (
-            <div style={{ height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+            <div style={{ height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-tertiary)' }}>
               Loading chart…
             </div>
           ) : platformData.length === 0 ? (
@@ -371,9 +371,9 @@ export default function AnalyticsPage() {
           ) : (
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={platformData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="label" tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                <YAxis tickFormatter={v => fmt(v)} tick={{ fontSize: 11, fill: '#94a3b8' }} width={52} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--surface-sunken)" />
+                <XAxis dataKey="label" tick={{ fontSize: 12, fill: 'var(--text-tertiary)' }} />
+                <YAxis tickFormatter={v => fmt(v)} tick={{ fontSize: 11, fill: 'var(--text-tertiary)' }} width={52} />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Bar dataKey="impressions" name="Impressions" radius={[4,4,0,0]}>
@@ -402,9 +402,9 @@ export default function AnalyticsPage() {
                 style={{
                   padding: '3px 10px', borderRadius: 20, border: '1px solid',
                   cursor: 'pointer', fontSize: 11, fontWeight: 700,
-                  background:  activeMetric === key ? meta.color : '#f8fafc',
-                  borderColor: activeMetric === key ? meta.color : '#e2e8f0',
-                  color:       activeMetric === key ? '#fff' : '#94a3b8',
+                  background:  activeMetric === key ? meta.color : 'var(--surface-sunken)',
+                  borderColor: activeMetric === key ? meta.color : 'var(--border-default)',
+                  color:       activeMetric === key ? '#fff' : 'var(--text-tertiary)',
                 }}
               >
                 {meta.label}
@@ -451,9 +451,9 @@ export default function AnalyticsPage() {
           ) : (
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={platformData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }} barGap={2}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#94a3b8' }} />
-                <YAxis tickFormatter={v => fmt(v)} tick={{ fontSize: 10, fill: '#94a3b8' }} width={48} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--surface-sunken)" />
+                <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'var(--text-tertiary)' }} />
+                <YAxis tickFormatter={v => fmt(v)} tick={{ fontSize: 10, fill: 'var(--text-tertiary)' }} width={48} />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <Bar dataKey="reach"       name="Reach"       fill="#00d7ff" radius={[3,3,0,0]} />
@@ -477,9 +477,9 @@ export default function AnalyticsPage() {
           ) : (
             <ResponsiveContainer width="100%" height={260}>
               <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8' }} />
-                <YAxis tickFormatter={v => fmt(v)} tick={{ fontSize: 11, fill: '#94a3b8' }} width={52} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--surface-sunken)" />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--text-tertiary)' }} />
+                <YAxis tickFormatter={v => fmt(v)} tick={{ fontSize: 11, fill: 'var(--text-tertiary)' }} width={52} />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Line type="monotone" dataKey="impressions"  name="Impressions"  stroke="#00d7ff" strokeWidth={2} dot={false} />
@@ -501,8 +501,8 @@ export default function AnalyticsPage() {
           ) : (
             <ResponsiveContainer width="100%" height={260}>
               <RadarChart cx="50%" cy="50%" outerRadius={90} data={radarData}>
-                <PolarGrid stroke="#e2e8f0" />
-                <PolarAngleAxis dataKey="metric" tick={{ fontSize: 11, fill: '#64748b' }} />
+                <PolarGrid stroke="var(--border-default)" />
+                <PolarAngleAxis dataKey="metric" tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} />
                 <Tooltip formatter={(v) => fmt(v)} />
                 {platformData.map((p, i) => (
                   <Radar
@@ -529,20 +529,20 @@ export default function AnalyticsPage() {
         style={{ marginBottom: 24 }}
       >
         {overviewLoading ? (
-          <div style={{ textAlign: 'center', padding: '32px 0', color: '#94a3b8' }}>Loading…</div>
+          <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-tertiary)' }}>Loading…</div>
         ) : platformData.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '32px 0', color: '#94a3b8' }}>
+          <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-tertiary)' }}>
             No platform data. Sync clients to populate analytics.
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
-                <tr style={{ background: '#f0f4f9' }}>
+                <tr style={{ background: 'var(--surface-page)' }}>
                   {['Platform', 'Impressions', 'Reach', 'Clicks', 'Video Views', 'Followers', 'CTR'].map(h => (
                     <th key={h} style={{
                       padding: '10px 16px', textAlign: 'left', fontWeight: 700,
-                      color: '#64748b', borderBottom: '1px solid #e2e8f0', whiteSpace: 'nowrap',
+                      color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-default)', whiteSpace: 'nowrap',
                     }}>{h}</th>
                   ))}
                 </tr>
@@ -551,7 +551,7 @@ export default function AnalyticsPage() {
                 {platformData.map((p, i) => {
                   const ctr = p.impressions > 0 ? ((p.clicks / p.impressions) * 100).toFixed(2) : '0.00';
                   return (
-                    <tr key={i} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <tr key={i} style={{ borderBottom: '1px solid var(--surface-sunken)' }}>
                       <td style={{ padding: '13px 16px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                           <div style={{
@@ -562,7 +562,7 @@ export default function AnalyticsPage() {
                             <SocialPlatformIcon platform={p.platform} size={16} />
                           </div>
                           <div>
-                            <div style={{ fontWeight: 700, color: '#0f172a' }}>{p.label}</div>
+                            <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{p.label}</div>
                           </div>
                         </div>
                       </td>
@@ -574,7 +574,7 @@ export default function AnalyticsPage() {
                       <td style={{ padding: '13px 16px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <div style={{
-                            height: 6, width: 80, background: '#e2e8f0', borderRadius: 3, overflow: 'hidden',
+                            height: 6, width: 80, background: 'var(--border-default)', borderRadius: 3, overflow: 'hidden',
                           }}>
                             <div style={{
                               height: '100%', borderRadius: 3,
@@ -582,7 +582,7 @@ export default function AnalyticsPage() {
                               background: p.color,
                             }} />
                           </div>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: '#0f172a' }}>{ctr}%</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{ctr}%</span>
                         </div>
                       </td>
                     </tr>
@@ -601,25 +601,25 @@ export default function AnalyticsPage() {
           subtitle="All active users — click a user for detailed analytics"
         >
           {clients.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '32px 0', color: '#94a3b8' }}>
+            <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-tertiary)' }}>
               No clients yet. Add a client to get started.
             </div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
-                  <tr style={{ background: '#f0f4f9' }}>
+                  <tr style={{ background: 'var(--surface-page)' }}>
                     {['Client', 'Status', 'Created', 'Website', ''].map(h => (
                       <th key={h} style={{
                         padding: '10px 16px', textAlign: 'left', fontWeight: 700,
-                        color: '#64748b', borderBottom: '1px solid #e2e8f0',
+                        color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-default)',
                       }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {clients.map((c, i) => (
-                    <tr key={c.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <tr key={c.id} style={{ borderBottom: '1px solid var(--surface-sunken)' }}>
                       <td style={{ padding: '13px 16px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                           <div style={{
@@ -630,8 +630,8 @@ export default function AnalyticsPage() {
                             {(c.company || 'C')[0].toUpperCase()}
                           </div>
                           <div>
-                            <div style={{ fontWeight: 700, color: '#0f172a' }}>{c.company}</div>
-                            <div style={{ fontSize: 11, color: '#94a3b8' }}>{c.email}</div>
+                            <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{c.company}</div>
+                            <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{c.email}</div>
                           </div>
                         </div>
                       </td>
@@ -645,7 +645,7 @@ export default function AnalyticsPage() {
                           {c.is_active ? 'Active' : 'Inactive'}
                         </span>
                       </td>
-                      <td style={{ padding: '13px 16px', color: '#64748b' }}>
+                      <td style={{ padding: '13px 16px', color: 'var(--text-secondary)' }}>
                         {c.created_at ? new Date(c.created_at).toLocaleDateString() : '—'}
                       </td>
                       <td style={{ padding: '13px 16px' }}>
@@ -654,14 +654,14 @@ export default function AnalyticsPage() {
                             style={{ color: '#00d7ff', fontSize: 12, textDecoration: 'none' }}>
                             {c.website.replace(/^https?:\/\//, '')}
                           </a>
-                        ) : <span style={{ color: '#cbd5e1' }}>—</span>}
+                        ) : <span style={{ color: 'var(--text-quaternary)' }}>—</span>}
                       </td>
                       <td style={{ padding: '13px 16px' }}>
                         <button
                           onClick={() => setSelectedClientId(String(c.id))}
                           style={{
                             padding: '5px 14px', borderRadius: 8, border: '1.5px solid #00d7ff',
-                            background: '#fff', color: '#00d7ff', fontSize: 12, fontWeight: 700,
+                            background: 'var(--surface-card)', color: '#00d7ff', fontSize: 12, fontWeight: 700,
                             cursor: 'pointer',
                           }}
                         >
@@ -685,7 +685,7 @@ function EmptyChart({ height = 200, message }) {
     <div style={{
       height, display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
-      color: '#94a3b8', fontSize: 13, gap: 8,
+      color: 'var(--text-tertiary)', fontSize: 13, gap: 8,
     }}>
       <div style={{ fontSize: 32 }}>📊</div>
       <div>{message}</div>
@@ -694,14 +694,14 @@ function EmptyChart({ height = 200, message }) {
 }
 
 const selectStyle = {
-  padding: '8px 12px', borderRadius: 10, border: '1.5px solid #e2e8f0',
-  background: '#fff', fontSize: 13, fontWeight: 600, color: '#0f172a',
+  padding: '8px 12px', borderRadius: 10, border: '1.5px solid var(--border-default)',
+  background: 'var(--surface-card)', fontSize: 13, fontWeight: 600, color: 'var(--text-primary)',
   cursor: 'pointer', outline: 'none',
 };
 
 const btnSecondary = {
   display: 'flex', alignItems: 'center', gap: 6,
-  borderRadius: 10, border: '1.5px solid #e2e8f0',
-  background: '#fff', color: '#334155', fontSize: 13, fontWeight: 700,
+  borderRadius: 10, border: '1.5px solid var(--border-default)',
+  background: 'var(--surface-card)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 700,
   cursor: 'pointer',
 };

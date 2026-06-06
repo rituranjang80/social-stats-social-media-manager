@@ -627,7 +627,7 @@ function LoadingScreen({ steps, currentStep }) {
       <div style={styles.loadingCard}>
         <div style={styles.loadingSpinner} />
         <h2 style={styles.loadingTitle}>Building your content calendar…</h2>
-        <p style={styles.loadingSub}>Statox AI is crafting personalised post ideas for your business</p>
+        <p style={styles.loadingSub}>Social State is crafting personalised post ideas for your business</p>
         <div style={styles.loadingSteps}>
           {steps.map((s, i) => (
             <div key={s} style={{

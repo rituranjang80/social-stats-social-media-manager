@@ -221,7 +221,7 @@ export default function BlogPostPage() {
                   {post.author.role}
                 </div>
                 <p style={{ margin: 0, fontSize: 13, lineHeight: 1.6, color: 'var(--text-secondary)' }}>
-                  Writes about {post.tags?.slice(0, 2).join(' and ').toLowerCase() || post.category.toLowerCase()} on the Statox journal.
+                  Writes about {post.tags?.slice(0, 2).join(' and ').toLowerCase() || post.category.toLowerCase()} on the SocialState journal.
                 </p>
               </div>
             </div>
@@ -323,7 +323,7 @@ export default function BlogPostPage() {
             Free plan, no card. Most teams connect 4–6 platforms before they finish their morning coffee.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
-            <Button as={Link} to="/signup" size="md" iconRight={ArrowRight}>Try Statox free</Button>
+            <Button as={Link} to="/signup" size="md" iconRight={ArrowRight}>Try Social State free</Button>
             <Button as={Link} to="/blog" variant="ghost" size="md" icon={ArrowLeft}>All posts</Button>
           </div>
         </div>

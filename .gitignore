@@ -80,3 +80,12 @@ PENTEST_RFP.md
 RISK_REGISTER.md
 SECURITY_BASELINE.md
 UI_FIXES_AUDIT.md
+
+# Draft legal templates that contain {{ placeholder }} markers awaiting
+# counsel review. The actual user-facing legal copy lives in the React
+# pages under frontend/src/pages/ (PrivacyPolicyPage, TermsOfServicePage,
+# DPDPPage, GDPRPage, etc.).
+PRIVACY_POLICY.md
+TERMS_OF_SERVICE.md
+SECURITY_WHITEPAPER.md
+SUB_PROCESSORS.md

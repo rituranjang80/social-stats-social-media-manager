@@ -407,7 +407,7 @@ function CreateModal({ onClose, onCreated }) {
               borderRadius: 'var(--radius-sm)',
               display: 'flex', alignItems: 'center', gap: 6,
             }}>
-              <Sparkles size={12} /> Statox AI drafts the flow. You can edit every step in the visual editor.
+              <Sparkles size={12} /> Social State drafts the flow. You can edit every step in the visual editor.
             </p>
             {aiWarning && (
               <p style={{

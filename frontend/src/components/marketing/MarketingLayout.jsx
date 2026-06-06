@@ -50,7 +50,7 @@ const PRODUCT_MENU = [
   { label: 'Inbox',         to: '/product/inbox',             icon: Inbox,        desc: 'Every conversation, one place' },
   { label: 'WhatsApp',      to: '/product/whatsapp',          icon: MessageCircle,desc: 'Campaigns + two-way chat' },
   { label: 'Bot Builder',   to: '/product/bot-builder',       icon: Bot,          desc: 'Visual CTWA flow editor' },
-  { label: 'AI Studio',     to: '/product/ai',                icon: Sparkles,     desc: 'Statox AI in every corner' },
+  { label: 'AI Studio',     to: '/product/ai',                icon: Sparkles,     desc: 'Social State in every corner' },
   { label: 'AI Assistant',  to: '/product/ai-assistant',      icon: MessagesSquare, desc: 'Cmd+J — talk to your data' },
   { label: 'Reports',       to: '/product/reports',           icon: FileText,     desc: 'Reports that write themselves' },
   { label: 'Automations',   to: '/product/automations',       icon: Zap,          desc: 'IF this, do that' },
@@ -177,7 +177,7 @@ function MarketingNav() {
           gap: 24,
         }}
       >
-        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }} aria-label="Statox home">
+        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }} aria-label="Social State home">
           <Logo variant="horizontal" height={isMobile ? 26 : 30} />
         </Link>
 
@@ -699,10 +699,10 @@ function MarketingFooter() {
               The AI marketing OS for modern agencies. Analytics, content, conversations, and ads — for every client, in one place.
             </p>
             <div style={{ display: 'flex', gap: 6 }}>
-              <SocialIconLink href="https://github.com/statox"            label="GitHub"   icon={Github} />
-              <SocialIconLink href="https://linkedin.com/company/statox"  label="LinkedIn" icon={Linkedin} />
-              <SocialIconLink href="https://twitter.com/statox"           label="Twitter"  icon={Twitter} />
-              <SocialIconLink href="https://youtube.com/@statox"          label="YouTube"  icon={Youtube} />
+              <SocialIconLink href="https://github.com/socialstate"            label="GitHub"   icon={Github} />
+              <SocialIconLink href="https://linkedin.com/company/socialstate"  label="LinkedIn" icon={Linkedin} />
+              <SocialIconLink href="https://twitter.com/socialstate"           label="Twitter"  icon={Twitter} />
+              <SocialIconLink href="https://youtube.com/@socialstate"          label="YouTube"  icon={Youtube} />
             </div>
             {/* Geographic framing intentionally omitted from the global footer.
                 Office and contact information lives on /contact and /dpdp. */}
@@ -747,7 +747,7 @@ function MarketingFooter() {
           gap: 16, flexWrap: 'wrap',
           fontSize: 12, color: 'var(--text-tertiary)',
         }}>
-          <span>© {year} Statox. All rights reserved.</span>
+          <span>© {year} SocialState. All rights reserved.</span>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
             <Link to="/status" style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -764,7 +764,7 @@ function MarketingFooter() {
               display: 'inline-flex', alignItems: 'center', gap: 4,
               color: 'var(--text-tertiary)',
             }}>
-              <Sparkles size={11} /> Built with Statox AI
+              <Sparkles size={11} /> Built with Social State
             </span>
           </div>
         </div>

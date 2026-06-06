@@ -60,7 +60,7 @@ export default function ContactPage() {
     <MarketingLayout>
       <Meta
         title="Contact"
-        description="Sales, support, partnerships, press — get in touch with the Statox team. We typically reply within one business day."
+        description="Sales, support, partnerships, press — get in touch with the Social State team. We typically reply within one business day."
       />
       {/* Hero */}
       <section style={{ padding: '128px 32px 56px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
@@ -133,7 +133,7 @@ export default function ContactPage() {
                 </h2>
                 <p style={{ margin: '8px auto 20px', maxWidth: 380, fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
                   We usually reply within one business day. If it's urgent, email us at{' '}
-                  <a href="mailto:hello@statox.ai" style={{ color: 'var(--text-link)', fontWeight: 500 }}>hello@statox.ai</a>.
+                  <a href="mailto:hello@socialstate.ai" style={{ color: 'var(--text-link)', fontWeight: 500 }}>hello@socialstate.ai</a>.
                 </p>
                 <Button as={Link} to="/" variant="secondary" size="md">Back to home</Button>
               </div>
@@ -216,29 +216,29 @@ export default function ContactPage() {
             <ContactInfoCard
               icon={Mail}
               title="Email"
-              body="hello@statox.ai"
+              body="hello@socialstate.ai"
               detail="General inquiries, partnerships, press."
-              link="mailto:hello@statox.ai"
+              link="mailto:hello@socialstate.ai"
             />
             <ContactInfoCard
               icon={MessageSquare}
               title="Sales"
-              body="sales@statox.ai"
+              body="sales@socialstate.ai"
               detail="Demos, pricing, and enterprise contracts."
-              link="mailto:sales@statox.ai"
+              link="mailto:sales@socialstate.ai"
             />
             <ContactInfoCard
               icon={Phone}
               title="Phone"
               body="Email-first support"
               detail="Phone callbacks scheduled via support."
-              link="mailto:support@statox.ai"
+              link="mailto:support@socialstate.ai"
             />
             <ContactInfoCard
               icon={MapPin}
               title="Office"
               body="Bengaluru, India"
-              detail="Postal address shared on request via support@statox.ai."
+              detail="Postal address shared on request via support@socialstate.ai."
             />
           </div>
         </div>

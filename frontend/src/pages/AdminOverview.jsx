@@ -205,7 +205,7 @@ function GoalManager() {
             </table>
           )}
           {goals.length === 0 && (
-            <p style={{ color: '#94a3b8', fontSize: 13, margin: '8px 0 0' }}>
+            <p style={{ color: 'var(--text-tertiary)', fontSize: 13, margin: '8px 0 0' }}>
               No goals set for this period{form.client ? '' : ' — select a user to filter'}.
             </p>
           )}
@@ -254,7 +254,7 @@ function AlertsPanel() {
       {open && (
         <div>
           {alerts.length === 0 ? (
-            <p style={{ color: '#94a3b8', fontSize: 13, margin: '12px 0 0' }}>No alerts yet.</p>
+            <p style={{ color: 'var(--text-tertiary)', fontSize: 13, margin: '12px 0 0' }}>No alerts yet.</p>
           ) : (
             <div style={{ marginTop: 12 }}>
               {alerts.slice(0, 30).map(alert => {
@@ -270,14 +270,14 @@ function AlertsPanel() {
                       <Icon size={14} style={{ color: cfg.color }} />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, color: '#1e293b', marginBottom: 3 }}>
+                      <div style={{ fontSize: 13, color: 'var(--text-primary)', marginBottom: 3 }}>
                         {alert.message}
                       </div>
                       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                         {alert.client_name && (
                           <span style={alertClientTag}>{alert.client_name}</span>
                         )}
-                        <span style={{ fontSize: 11, color: '#94a3b8' }}>
+                        <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
                           {formatTimeAgo(alert.created_at, { includeSeconds: false })}
                         </span>
                       </div>
@@ -302,7 +302,7 @@ const alertBadgeStyle = {
 };
 const alertItemStyle = {
   display: 'flex', alignItems: 'flex-start', gap: 10,
-  padding: '10px 4px', borderBottom: '1px solid #f8fafc', cursor: 'pointer',
+  padding: '10px 4px', borderBottom: '1px solid var(--surface-sunken)', cursor: 'pointer',
 };
 const alertIconWrap = {
   flexShrink: 0, width: 28, height: 28, borderRadius: 8,
@@ -355,9 +355,9 @@ function TopPostsPanel() {
 
       {open && (
         loading ? (
-          <p style={{ color: '#94a3b8', fontSize: 13, marginTop: 12 }}>Loading…</p>
+          <p style={{ color: 'var(--text-tertiary)', fontSize: 13, marginTop: 12 }}>Loading…</p>
         ) : posts.length === 0 ? (
-          <p style={{ color: '#94a3b8', fontSize: 13, marginTop: 12 }}>
+          <p style={{ color: 'var(--text-tertiary)', fontSize: 13, marginTop: 12 }}>
             No top posts yet — posts are scored every Monday at 8am, or click "Re-score now".
           </p>
         ) : (
@@ -393,11 +393,11 @@ function TopPostsPanel() {
                         {hasThumbnail ? (
                           <img src={post.thumbnail_url} alt="" style={{ width: 36, height: 36, objectFit: 'cover', borderRadius: 6, flexShrink: 0 }} />
                         ) : (
-                          <div style={{ width: 36, height: 36, borderRadius: 6, background: p.bg || '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 6, background: p.bg || 'var(--surface-sunken)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             {isVideo ? <Play size={14} style={{ color: p.color }} /> : <SocialPlatformIcon platform={entry.platform} size={14} />}
                           </div>
                         )}
-                        <span style={{ fontSize: 12, color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <span style={{ fontSize: 12, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {caption}{caption.length >= 55 ? '…' : ''}
                         </span>
                       </div>
@@ -499,13 +499,13 @@ function SharedLinksPanel() {
                     <td style={styles.td}>
                       {link.expires_at
                         ? new Date(link.expires_at).toLocaleDateString()
-                        : <span style={{ color: '#94a3b8' }}>Never</span>}
+                        : <span style={{ color: 'var(--text-tertiary)' }}>Never</span>}
                       {link.is_expired && <span style={{ color: '#dc2626', fontWeight: 700, marginLeft: 6 }}>EXPIRED</span>}
                     </td>
                     <td style={styles.td}>
                       {link.is_password_protected
                         ? <Lock size={13} style={{ color: '#00d7ff' }} />
-                        : <span style={{ color: '#94a3b8' }}>—</span>}
+                        : <span style={{ color: 'var(--text-tertiary)' }}>—</span>}
                     </td>
                     <td style={{ ...styles.td, display: 'flex', gap: 8 }}>
                       <button onClick={() => copyUrl(link.share_url, link.id)} style={iconActionBtn} title="Copy link">
@@ -570,9 +570,9 @@ function ROIOverviewPanel() {
 
       {open && (
         loading ? (
-          <p style={{ color: '#94a3b8', fontSize: 13, marginTop: 12 }}>Loading…</p>
+          <p style={{ color: 'var(--text-tertiary)', fontSize: 13, marginTop: 12 }}>Loading…</p>
         ) : reports.length === 0 ? (
-          <p style={{ color: '#94a3b8', fontSize: 13, marginTop: 12 }}>
+          <p style={{ color: 'var(--text-tertiary)', fontSize: 13, marginTop: 12 }}>
             No ROI reports saved for this month yet.
           </p>
         ) : (
@@ -615,7 +615,7 @@ function ROIOverviewPanel() {
                         <button
                           onClick={() => navigate(`/admin/client/${r.client_id}/roi`)}
                           style={{
-                            background: 'none', border: '1px solid #e2e8f0', borderRadius: 6,
+                            background: 'none', border: '1px solid var(--border-default)', borderRadius: 6,
                             padding: '4px 10px', cursor: 'pointer', fontSize: 12, color: '#00d7ff',
                             display: 'flex', alignItems: 'center', gap: 4,
                           }}
@@ -844,7 +844,7 @@ const statusColors = {
   success: { background: '#dcfce7', color: '#16a34a' },
   failed:  { background: '#fee2e2', color: '#dc2626' },
   running: { background: '#e6fbff', color: '#00d7ff' },
-  pending: { background: '#f0f4f9', color: '#64748b' },
+  pending: { background: 'var(--surface-page)', color: 'var(--text-secondary)' },
 };
 
 function statusBadge(status) {
@@ -863,19 +863,19 @@ const styles = {
     background: `
       radial-gradient(circle at top left, rgba(0,215,255,0.12), transparent 28%),
       radial-gradient(circle at top right, rgba(34,197,94,0.08), transparent 20%),
-      linear-gradient(180deg, #f7fbff 0%, #f0f4f9 45%, #eef3f8 100%)
+      linear-gradient(180deg, #f7fbff 0%, var(--surface-page) 45%, #eef3f8 100%)
     `,
     minHeight: '100vh',
   },
   heroPanel: {
     position: 'relative',
     overflow: 'hidden',
-    background: 'linear-gradient(135deg, #f8fdff 0%, #effbff 48%, #eefcf6 100%)',
-    borderRadius: 28,
+    background: 'var(--surface-card)',
+    borderRadius: 'var(--radius-2xl)',
     padding: '28px 28px 24px',
     marginBottom: 20,
-    border: '1px solid #dbeafe',
-    boxShadow: '0 24px 54px rgba(15,23,42,.08)',
+    border: '1px solid var(--border-subtle)',
+    boxShadow: 'var(--shadow-lg)',
   },
   heroGlowA: {
     position: 'absolute',
@@ -884,7 +884,7 @@ const styles = {
     width: 260,
     height: 260,
     borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(0,215,255,.18) 0%, rgba(0,215,255,0) 70%)',
+    background: 'radial-gradient(circle, var(--brand-primary-glow) 0%, transparent 70%)',
     pointerEvents: 'none',
   },
   heroGlowB: {
@@ -894,7 +894,7 @@ const styles = {
     width: 240,
     height: 240,
     borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(52,211,153,.14) 0%, rgba(52,211,153,0) 70%)',
+    background: 'radial-gradient(circle, rgba(16,185,129,.14) 0%, transparent 70%)',
     pointerEvents: 'none',
   },
   heroTopRow: {
@@ -915,28 +915,28 @@ const styles = {
     display: 'inline-flex',
     alignItems: 'center',
     gap: 8,
-    padding: '6px 12px',
+    padding: '4px 12px',
     borderRadius: 999,
-    background: '#ffffff',
-    border: '1px solid #dbeafe',
-    color: '#0f766e',
+    background: 'var(--brand-primary-soft)',
+    border: '1px solid var(--brand-primary-glow)',
+    color: 'var(--brand-primary-hover)',
     fontSize: 11,
-    fontWeight: 800,
-    letterSpacing: '.12em',
+    fontWeight: 600,
+    letterSpacing: '.10em',
     textTransform: 'uppercase',
     marginBottom: 14,
   },
   heroTitle: {
     margin: 0,
     fontSize: 36,
-    lineHeight: 1,
-    fontWeight: 900,
-    color: '#0f172a',
-    letterSpacing: '-0.05em',
+    lineHeight: 1.05,
+    fontWeight: 600,
+    color: 'var(--text-primary)',
+    letterSpacing: '-0.025em',
   },
   heroSubtitle: {
     margin: '12px 0 0',
-    color: '#64748b',
+    color: 'var(--text-secondary)',
     fontSize: 15,
     lineHeight: 1.8,
     maxWidth: 640,
@@ -956,10 +956,11 @@ const styles = {
     gap: 14,
   },
   signalCard: {
-    background: 'rgba(255,255,255,.82)',
-    backdropFilter: 'blur(10px)',
-    border: '1px solid #dbeafe',
-    borderRadius: 20,
+    background: 'var(--surface-glass)',
+    backdropFilter: 'blur(14px) saturate(180%)',
+    WebkitBackdropFilter: 'blur(14px) saturate(180%)',
+    border: '1px solid var(--border-subtle)',
+    borderRadius: 'var(--radius-lg)',
     padding: '18px 18px 16px',
     minHeight: 120,
   },
@@ -968,7 +969,7 @@ const styles = {
     fontWeight: 800,
     letterSpacing: '.08em',
     textTransform: 'uppercase',
-    color: '#64748b',
+    color: 'var(--text-secondary)',
     marginBottom: 10,
   },
   signalValue: {
@@ -982,7 +983,7 @@ const styles = {
   signalDetail: {
     fontSize: 12,
     lineHeight: 1.6,
-    color: '#475569',
+    color: 'var(--text-secondary)',
   },
   summaryBar: {
     display: 'grid',
@@ -1003,14 +1004,14 @@ const styles = {
     marginBottom: 6,
     fontSize: 11,
     fontWeight: 800,
-    color: '#94a3b8',
+    color: 'var(--text-tertiary)',
     letterSpacing: '.08em',
     textTransform: 'uppercase',
   },
   summaryItemValue: {
     fontSize: 15,
     lineHeight: 1.4,
-    color: '#0f172a',
+    color: 'var(--text-primary)',
   },
   sectionHeading: {
     display: 'flex',
@@ -1031,7 +1032,7 @@ const styles = {
     margin: 0,
     fontSize: 22,
     fontWeight: 800,
-    color: '#0f172a',
+    color: 'var(--text-primary)',
     letterSpacing: '-0.03em',
   },
   cards: {
@@ -1060,27 +1061,27 @@ const styles = {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
     cursor: 'pointer', marginBottom: 0,
   },
-  tableTitle: { margin: 0, fontSize: 16, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' },
+  tableTitle: { margin: 0, fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' },
   goalForm: {
     display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center',
     marginTop: 16, marginBottom: 12,
   },
   goalField: { flex: '1 1 180px', minWidth: 0 },
-  goalLabel: { display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 600, color: '#374151' },
+  goalLabel: { display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' },
   requiredAsterisk: { color: '#ef4444', marginLeft: 2, fontWeight: 800 },
   goalError: { marginTop: 6, fontSize: 12, color: '#dc2626' },
   sel: {
-    padding: '8px 10px', borderRadius: 8, border: '1.5px solid #e5e7eb',
-    fontSize: 13, background: '#fff', cursor: 'pointer', outline: 'none',
+    padding: '8px 10px', borderRadius: 8, border: '1.5px solid var(--border-default)',
+    fontSize: 13, background: 'var(--surface-card)', cursor: 'pointer', outline: 'none',
   },
   inp: {
-    padding: '8px 10px', borderRadius: 8, border: '1.5px solid #e5e7eb',
+    padding: '8px 10px', borderRadius: 8, border: '1.5px solid var(--border-default)',
     fontSize: 13, outline: 'none', width: 130,
   },
   inputError: { borderColor: '#ef4444', background: '#fef2f2' },
   addGoalBtn: {
     padding: '8px 16px', borderRadius: 8, border: 'none',
-    background: '#00d7ff', color: '#0f172a', cursor: 'pointer',
+    background: '#00d7ff', color: 'var(--text-primary)', cursor: 'pointer',
     fontWeight: 700, fontSize: 13,
   },
   delBtn: {
@@ -1089,8 +1090,8 @@ const styles = {
   },
   markAllBtn: {
     display: 'flex', alignItems: 'center', gap: 4,
-    background: 'none', border: '1px solid #e5e7eb', borderRadius: 8,
-    cursor: 'pointer', color: '#64748b', fontSize: 12, padding: '4px 10px',
+    background: 'none', border: '1px solid var(--border-default)', borderRadius: 8,
+    cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 12, padding: '4px 10px',
   },
   table:      { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
   th: {
@@ -1099,7 +1100,7 @@ const styles = {
     whiteSpace: 'nowrap',
   },
   tr: { borderBottom: '1px solid #eef2f7' },
-  td: { padding: '13px 12px', color: '#334155' },
+  td: { padding: '13px 12px', color: 'var(--text-secondary)' },
   inlineSuccess: { fontSize: 13, marginBottom: 12, padding: '10px 14px', borderRadius: 8, background: '#dcfce7', color: '#16a34a' },
   inlineError: { fontSize: 13, marginBottom: 12, padding: '10px 14px', borderRadius: 8, background: '#fee2e2', color: '#dc2626' },
 };
@@ -1108,12 +1109,12 @@ const panelWrap   = { background: 'linear-gradient(180deg, rgba(255,255,255,.98)
 const panelToggle = {
   width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
   padding: '18px 22px', background: 'none', border: 'none', cursor: 'pointer',
-  fontSize: 14, fontWeight: 800, color: '#0f172a',
+  fontSize: 14, fontWeight: 800, color: 'var(--text-primary)',
 };
 const panelBody   = { padding: '0 22px 22px', overflowX: 'auto' };
 const countBadge  = { fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20 };
-const emptyMsg    = { color: '#94a3b8', fontSize: 13, textAlign: 'center', padding: '16px 0', margin: 0 };
+const emptyMsg    = { color: 'var(--text-tertiary)', fontSize: 13, textAlign: 'center', padding: '16px 0', margin: 0 };
 const iconActionBtn = {
   background: 'none', border: 'none', cursor: 'pointer',
-  color: '#64748b', padding: 4, display: 'inline-flex', alignItems: 'center',
+  color: 'var(--text-secondary)', padding: 4, display: 'inline-flex', alignItems: 'center',
 };

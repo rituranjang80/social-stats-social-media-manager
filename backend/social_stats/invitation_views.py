@@ -17,7 +17,7 @@ from .social_auth_views import _make_jwt
 from .auth_views import _email_html
 
 FRONTEND_URL = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
-FROM_EMAIL   = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@statox.ai')
+FROM_EMAIL   = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@socialstate.ai')
 
 
 def _send_invitation_email(invitation, client_user):
@@ -26,12 +26,12 @@ def _send_invitation_email(invitation, client_user):
 
     if client_user:
         link        = f"{FRONTEND_URL}/invitation/{invitation.token}"
-        subject     = f"{agency_name} wants to manage your StatoX account"
+        subject     = f"{agency_name} wants to manage your Social State account"
         client_name = client_user.get_full_name() or client_user.email.split('@')[0]
         greeting    = (
             f'Hi <strong style="color:#0f172a;">{client_name}</strong>, '
             f'<strong style="color:#0f172a;">{agency_name}</strong> has invited you to let '
-            f'them manage your social media analytics on StatoX.'
+            f'them manage your social media analytics on Social State.'
         )
         body_html = (
             f'<div style="background:linear-gradient(135deg,#f0f9ff,#f8faff);border:1px solid rgba(0,215,255,0.18);'
@@ -44,17 +44,17 @@ def _send_invitation_email(invitation, client_user):
         expiry_note = '&#9203; This invitation expires in <strong>7 days</strong>. If you did not expect this, you can safely ignore this email.'
         plain = (
             f"Hi {client_name},\n\n"
-            f"{agency_name} has invited you to let them manage your social media analytics on StatoX.\n\n"
+            f"{agency_name} has invited you to let them manage your social media analytics on Social State.\n\n"
             f"Message: {invitation.message}\n\n"
             f"Accept or reject here: {link}\n\n"
             f"This invitation expires in 7 days.\n"
         )
     else:
         link        = f"{FRONTEND_URL}/signup?invite={invitation.token}"
-        subject     = f"You've been invited to StatoX by {agency_name}"
+        subject     = f"You've been invited to Social State by {agency_name}"
         greeting    = (
             f'<strong style="color:#0f172a;">{agency_name}</strong> has invited you to join '
-            f'<strong style="color:#0f172a;">StatoX</strong> — the social media analytics platform.'
+            f'<strong style="color:#0f172a;">Social State</strong> — the social media analytics platform.'
         )
         body_html = (
             f'<div style="background:linear-gradient(135deg,#f0f9ff,#f8faff);border:1px solid rgba(0,215,255,0.18);'
@@ -69,7 +69,7 @@ def _send_invitation_email(invitation, client_user):
         expiry_note = '&#9203; This invitation expires in <strong>7 days</strong>. If you did not expect this, you can safely ignore this email.'
         plain = (
             f"Hi,\n\n"
-            f"{agency_name} has invited you to join StatoX for social media analytics.\n\n"
+            f"{agency_name} has invited you to join Social State for social media analytics.\n\n"
             f"Message: {invitation.message}\n\n"
             f"Sign up here: {link}\n\n"
             f"This invitation expires in 7 days.\n"
@@ -148,8 +148,10 @@ def send_invitation(request):
     # Notify existing user
     if client_user:
         agency_name = request.user.get_full_name() or request.user.email
-        Notification.objects.create(
-            user=client_user,
+        from .notification_dispatcher import dispatch as _dispatch
+        _dispatch(
+            client_user,
+            event_type='invitation_received',
             notif_type='invitation_received',
             title=f"{agency_name} wants to manage your account",
             body=message,
@@ -240,9 +242,10 @@ def respond_invitation(request, token):
             data__token=str(inv.token),
         ).update(is_read=True)
 
-        # Notify agency (in-app)
-        Notification.objects.create(
-            user=inv.invited_by,
+        from .notification_dispatcher import dispatch as _dispatch
+        _dispatch(
+            inv.invited_by,
+            event_type='invitation_accepted',
             notif_type='invitation_accepted',
             title=f"{request.user.get_full_name() or request.user.email} accepted your invitation",
             data={
@@ -270,8 +273,10 @@ def respond_invitation(request, token):
         inv.status = 'rejected'
         inv.save()
 
-        Notification.objects.create(
-            user=inv.invited_by,
+        from .notification_dispatcher import dispatch as _dispatch
+        _dispatch(
+            inv.invited_by,
+            event_type='invitation_rejected',
             notif_type='invitation_rejected',
             title=f"{request.user.get_full_name() or request.user.email} rejected your invitation",
             data={'client_email': inv.client_email},
@@ -346,8 +351,10 @@ def cancel_invitation(request, pk):
 
     if inv.client_user:
         agency_name = request.user.get_full_name() or request.user.email
-        Notification.objects.create(
-            user=inv.client_user,
+        from .notification_dispatcher import dispatch as _dispatch
+        _dispatch(
+            inv.client_user,
+            event_type='invitation_cancelled',
             notif_type='invitation_cancelled',
             title=f"{agency_name} cancelled their invitation",
             data={'agency_email': request.user.email},

@@ -9,7 +9,7 @@ import { Toaster } from 'react-hot-toast';
 import { lazy, Suspense } from 'react';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 
-import logoStatoxBig from './assets/logo_statox_big.png';
+import { SocialStateLogoStacked } from './components/ui/SocialStateLogo';
 
 // ── New shell ───────────────────────────────────────────────────────────────
 import AppShell from './components/shell/AppShell';
@@ -287,7 +287,7 @@ function AgencyLayout() {
 
 function Loader() {
   return (
-    <div className="statox-loader" style={{
+    <div className="socialstate-loader" style={{
       height: '100vh',
       display: 'flex',
       flexDirection: 'column',
@@ -297,23 +297,11 @@ function Loader() {
       color: 'var(--text-secondary)',
       gap: 20,
     }}>
-      <img
-        src={logoStatoxBig}
-        alt="Statox"
-        className="statox-loader__logo"
-        style={{
-          height: 90,
-          width: 'auto',
-          objectFit: 'contain',
-          animation: 'pulse-dot 1.8s ease-in-out infinite',
-        }}
-        onError={e => {
-          e.target.style.display = 'none';
-          e.target.nextSibling.style.display = 'block';
-        }}
-      />
-      <div style={{ display: 'none', color: 'var(--brand-primary)', fontSize: 28, fontWeight: 900, letterSpacing: '0.1em' }}>
-        Statox
+      <div
+        className="socialstate-loader__logo"
+        style={{ animation: 'pulse-dot 1.8s ease-in-out infinite' }}
+      >
+        <SocialStateLogoStacked height={120} />
       </div>
       <div style={{
         fontSize: 12,

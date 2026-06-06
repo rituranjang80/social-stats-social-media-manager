@@ -1,5 +1,5 @@
 /**
- * AIAuditPage — client-visible "What did Statox AI do for me?" feed.
+ * AIAuditPage — client-visible "What did Social State do for me?" feed.
  *
  * Shows every AI request scoped to the current client, recent first.
  * Includes a quota meter at the top (today's usage vs daily cap) and a
@@ -58,7 +58,7 @@ export default function AIAuditPage({ clientId: propClientId = null }) {
   return (
     <div className="app-page app-page--lg">
       <PageHeader
-        title="What did Statox AI do for me?"
+        title="What did Social State do for me?"
         subtitle="Every AI request on this client account — for transparency + compliance."
         actions={(
           <Button variant="ghost" size="sm" icon={RefreshCw} onClick={load}>Refresh</Button>
@@ -145,7 +145,7 @@ export default function AIAuditPage({ clientId: propClientId = null }) {
             <EmptyState
               icon={Sparkles}
               title="No AI activity yet"
-              description="As you use Statox AI features, every request shows up here."
+              description="As you use Social State features, every request shows up here."
             />
           ) : (
             <div style={{ overflowX: 'auto' }}>
@@ -212,7 +212,7 @@ export default function AIAuditPage({ clientId: propClientId = null }) {
       }}>
         <Sparkles size={12} style={{ color: 'var(--brand-primary-hover)', verticalAlign: -1 }} />
         {' '}
-        Statox AI powers every request below. We log each call for compliance and
+        SocialState powers every request below. We log each call for compliance and
         do not train on your data. AI-generated content is marked with a
         <strong> ✨ AI-assisted</strong> badge in the UI. Sensitive verticals (medical,
         legal, financial) include a regulatory disclaimer. Vendor-level disclosure is

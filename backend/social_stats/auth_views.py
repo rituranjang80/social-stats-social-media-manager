@@ -10,16 +10,19 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
 
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from .models import UserProfile, EmailVerificationToken, PasswordResetToken
 from .social_auth_views import _make_jwt
+from .security.throttles import (
+    SignupBurstThrottle, SignupDailyThrottle, PasswordResetThrottle,
+)
 
 
 FRONTEND_URL = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
-FROM_EMAIL   = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@statox.ai')
+FROM_EMAIL   = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@socialstate.ai')
 
 EMAIL_RE = re.compile(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
 
@@ -28,6 +31,7 @@ EMAIL_RE = re.compile(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([SignupBurstThrottle, SignupDailyThrottle])
 def signup(request):
     """
     POST { full_name, email, password, terms_accepted }
@@ -53,6 +57,13 @@ def signup(request):
 
     if errors:
         return Response({'errors': errors}, status=400)
+
+    from .security.turnstile import is_enabled as _turnstile_on, verify_turnstile_token
+    if _turnstile_on():
+        token = (data.get('captcha_token') or data.get('turnstile_token') or '').strip()
+        ip = request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip() or request.META.get('REMOTE_ADDR')
+        if not verify_turnstile_token(token, remote_ip=ip):
+            return Response({'errors': {'captcha': 'Captcha verification failed. Please try again.'}}, status=400)
 
     # Validate password strength
     temp_user = User(username=email, email=email)
@@ -118,24 +129,26 @@ def verify_email(request):
     profile.email_verified = True
     profile.save(update_fields=['email_verified'])
 
-    # Notify any agencies that invited this client: "Your client joined Statox"
+    # Notify any agencies that invited this client: "Your client joined Social State"
     try:
-        from .models import ClientInvitation, Notification
+        from .models import ClientInvitation
         pending_invs = ClientInvitation.objects.filter(
             client_email__iexact=user.email,
             status='pending',
         ).select_related('invited_by')
         for inv in pending_invs:
             _send_client_joined_email(inv.invited_by, user)
-            Notification.objects.create(
-                user       = inv.invited_by,
-                notif_type = 'client_joined',
-                title      = f"{user.get_full_name() or user.email} joined Statox",
-                body       = (
-                    f"Your client {user.get_full_name() or user.email} has joined Statox. "
+            from .notification_dispatcher import dispatch as _dispatch
+            _dispatch(
+                inv.invited_by,
+                event_type='client_joined',
+                title=f"{user.get_full_name() or user.email} joined Social State",
+                body=(
+                    f"Your client {user.get_full_name() or user.email} has joined Social State. "
                     f"You can now send them a dashboard access request."
                 ),
-                data       = {'client_email': user.email, 'event': 'client_joined'},
+                data={'client_email': user.email, 'event': 'client_joined'},
+                channels=['in_app'],
             )
     except Exception:
         pass
@@ -172,8 +185,16 @@ def resend_verification(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([PasswordResetThrottle])
 def password_reset_request(request):
-    """POST { email } — send password reset link."""
+    """POST { email, captcha_token? } — send password reset link."""
+    from .security.turnstile import is_enabled as _turnstile_on, verify_turnstile_token
+    if _turnstile_on():
+        token = (request.data.get('captcha_token') or request.data.get('turnstile_token') or '').strip()
+        ip = request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip() or request.META.get('REMOTE_ADDR')
+        if not verify_turnstile_token(token, remote_ip=ip):
+            return Response({'errors': {'captcha': 'Captcha verification failed.'}}, status=400)
+
     email = (request.data.get('email') or '').strip().lower()
     if not email:
         return Response({'error': 'Email is required.'}, status=400)
@@ -188,6 +209,9 @@ def password_reset_request(request):
     token_obj = PasswordResetToken.objects.create(user=user)
     _send_reset_email(user, token_obj.token)
 
+    from .security import audit
+    audit.record(event_type='password_reset_requested', actor_user=user, request=request,
+                 target_object_type='User', target_object_id=user.id)
     return Response({'detail': 'A password reset link has been sent to your email.'})
 
 
@@ -223,6 +247,9 @@ def password_reset_confirm(request):
     token_obj.is_used = True
     token_obj.save(update_fields=['is_used'])
 
+    from .security import audit
+    audit.record(event_type='password_reset_completed', actor_user=user, request=request,
+                 target_object_type='User', target_object_id=user.id)
     return Response({'detail': 'Password has been reset successfully. You can now sign in.'})
 
 
@@ -253,10 +280,10 @@ def _email_html(title, greeting, body_html, cta_url, cta_label, expiry_note, fro
         <!-- Header -->
         <tr>
           <td style="padding:32px 40px 24px;text-align:center;background:#ffffff;">
-            <img src="{frontend_url}/favicon.png" alt="Statox" width="52" height="52"
+            <img src="{frontend_url}/favicon.png" alt="Social State" width="52" height="52"
                  style="border-radius:14px;display:inline-block;
                         box-shadow:0 4px 16px rgba(0,215,255,0.25);margin-bottom:14px;" /><br>
-            <span style="font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-0.04em;">Statox</span>
+            <span style="font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-0.04em;">Social State</span>
             <span style="font-size:22px;font-weight:800;color:#00b8d9;letter-spacing:-0.04em;">.ai</span>
           </td>
         </tr>
@@ -308,7 +335,7 @@ def _email_html(title, greeting, body_html, cta_url, cta_label, expiry_note, fro
           <td style="background:linear-gradient(135deg,#f8fafc,#f0f9ff);padding:20px 40px;
                      text-align:center;border-top:1px solid rgba(0,215,255,0.1);">
             <p style="margin:0;font-size:12px;color:#94a3b8;">
-              &copy; 2026 <strong style="color:#64748b;">Statox.ai</strong> &mdash; Automation Intelligence Platform
+              &copy; 2026 <strong style="color:#64748b;">Social State.ai</strong> &mdash; Automation Intelligence Platform
             </p>
           </td>
         </tr>
@@ -326,13 +353,13 @@ def _send_client_joined_email(agency_user, client_user):
     client_name  = client_user.get_full_name() or client_user.email
     client_email = client_user.email
 
-    subject = f"{client_name} joined Statox — send a dashboard access request"
+    subject = f"{client_name} joined SocialState — send a dashboard access request"
     html = _email_html(
-        title        = 'Your client joined Statox! 🎉',
+        title        = 'Your client joined Social State! 🎉',
         greeting     = (
             f'Hi <strong style="color:#0f172a;">{agency_name}</strong>, '
             f'great news! <strong style="color:#0f172a;">{client_name}</strong> '
-            f'({client_email}) has just verified their email and joined Statox.'
+            f'({client_email}) has just verified their email and joined Social State.'
         ),
         body_html    = (
             f'<div style="background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1px solid rgba(22,163,74,0.2);'
@@ -351,7 +378,7 @@ def _send_client_joined_email(agency_user, client_user):
     )
     plain = (
         f"Hi {agency_name},\n\n"
-        f"{client_name} ({client_email}) has joined Statox!\n\n"
+        f"{client_name} ({client_email}) has joined Social State!\n\n"
         f"You can now send them a dashboard access request from your Clients page:\n"
         f"{FRONTEND_URL}/admin/clients\n"
     )
@@ -365,17 +392,17 @@ def _send_verification_email(user, token):
     verify_url = f"{FRONTEND_URL}/verify-email?token={token}"
     name       = user.first_name or user.email.split('@')[0]
 
-    subject = 'Verify your Statox account'
+    subject = 'Verify your Social State account'
     html = _email_html(
         title      = 'Verify your email',
-        greeting   = f'Hi <strong style="color:#0f172a;">{name}</strong>, thanks for signing up! Click the button below to verify your email address and activate your Statox account.',
+        greeting   = f'Hi <strong style="color:#0f172a;">{name}</strong>, thanks for signing up! Click the button below to verify your email address and activate your Social State account.',
         body_html  = '',
         cta_url    = verify_url,
         cta_label  = 'Verify Email Address',
-        expiry_note= '&#128274; This link expires in <strong>24 hours</strong>. If you didn\'t create a Statox account, you can safely ignore this email.',
+        expiry_note= '&#128274; This link expires in <strong>24 hours</strong>. If you didn\'t create a Social State account, you can safely ignore this email.',
         frontend_url = FRONTEND_URL,
     )
-    plain = f"Hi {name},\n\nVerify your Statox account:\n{verify_url}\n\nThis link expires in 24 hours."
+    plain = f"Hi {name},\n\nVerify your Social State account:\n{verify_url}\n\nThis link expires in 24 hours."
 
     try:
         send_mail(subject, plain, FROM_EMAIL, [user.email], html_message=html, fail_silently=False)
@@ -387,17 +414,17 @@ def _send_reset_email(user, token):
     reset_url = f"{FRONTEND_URL}/reset-password?token={token}"
     name      = user.first_name or user.email.split('@')[0]
 
-    subject = 'Reset your Statox password'
+    subject = 'Reset your Social State password'
     html = _email_html(
         title      = 'Reset your password',
-        greeting   = f'Hi <strong style="color:#0f172a;">{name}</strong>, we received a request to reset your Statox password. Click the button below to set a new one.',
+        greeting   = f'Hi <strong style="color:#0f172a;">{name}</strong>, we received a request to reset your Social State password. Click the button below to set a new one.',
         body_html  = '',
         cta_url    = reset_url,
         cta_label  = 'Reset Password',
         expiry_note= '&#9203; This link expires in <strong>2 hours</strong>. If you didn\'t request a password reset, you can safely ignore this email.',
         frontend_url = FRONTEND_URL,
     )
-    plain = f"Hi {name},\n\nReset your Statox password:\n{reset_url}\n\nThis link expires in 2 hours."
+    plain = f"Hi {name},\n\nReset your Social State password:\n{reset_url}\n\nThis link expires in 2 hours."
 
     try:
         send_mail(subject, plain, FROM_EMAIL, [user.email], html_message=html, fail_silently=False)

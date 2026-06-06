@@ -57,7 +57,7 @@ function SharedLinksPanel({ clientFilter }) {
       )}
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: '#0f172a' }}>
+        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: 'var(--text-primary)' }}>
           <Link2 size={16} style={{ verticalAlign: 'middle', marginRight: 8, color: '#00d7ff' }} />
           Shared Report Links
         </h2>
@@ -67,15 +67,15 @@ function SharedLinksPanel({ clientFilter }) {
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px 0', color: '#94a3b8' }}>Loading links…</div>
+        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-tertiary)' }}>Loading links…</div>
       ) : links.length === 0 ? (
         <div style={{
-          textAlign: 'center', padding: '48px 0', background: '#f0f4f9',
-          borderRadius: 12, border: '1px dashed #cbd5e1',
+          textAlign: 'center', padding: '48px 0', background: 'var(--surface-page)',
+          borderRadius: 12, border: '1px dashed var(--text-quaternary)',
         }}>
           <div style={{ fontSize: 36, marginBottom: 10 }}>🔗</div>
-          <div style={{ fontWeight: 700, color: '#0f172a', fontSize: 15 }}>No shared links yet</div>
-          <div style={{ color: '#64748b', fontSize: 13, marginTop: 4 }}>
+          <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: 15 }}>No shared links yet</div>
+          <div style={{ color: 'var(--text-secondary)', fontSize: 13, marginTop: 4 }}>
             Open a client and click "Share Report" to generate a public link.
           </div>
         </div>
@@ -86,17 +86,17 @@ function SharedLinksPanel({ clientFilter }) {
             return (
               <div key={link.id} style={{
                 display: 'flex', alignItems: 'center', gap: 14,
-                background: '#fff', border: '1.5px solid #e2e8f0',
+                background: 'var(--surface-card)', border: '1.5px solid var(--border-default)',
                 borderRadius: 12, padding: '14px 18px',
               }}>
                 {/* Left */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <span style={{ fontWeight: 700, fontSize: 14, color: '#0f172a' }}>
+                    <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>
                       {link.client_name || `User #${link.client}`}
                     </span>
                     {link.is_password_protected && (
-                      <Lock size={11} style={{ color: '#94a3b8' }} />
+                      <Lock size={11} style={{ color: 'var(--text-tertiary)' }} />
                     )}
                     {link.is_expired && (
                       <span style={{
@@ -105,7 +105,7 @@ function SharedLinksPanel({ clientFilter }) {
                       }}>EXPIRED</span>
                     )}
                   </div>
-                  <div style={{ fontSize: 12, color: '#64748b', display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', gap: 14, flexWrap: 'wrap' }}>
                     <span>📅 {link.date_from} → {link.date_until}</span>
                     <span>
                       {(link.platforms || []).map(p => getPlatformLabel(p, { short: true })).join(', ')}
@@ -114,7 +114,7 @@ function SharedLinksPanel({ clientFilter }) {
                     <span><Eye size={10} style={{ verticalAlign: 'middle' }} /> {link.view_count} views</span>
                     <span>Created {formatTimeAgo(link.created_at)}</span>
                     {link.expires_at && (
-                      <span style={{ color: link.is_expired ? '#dc2626' : '#64748b' }}>
+                      <span style={{ color: link.is_expired ? '#dc2626' : 'var(--text-secondary)' }}>
                         Expires {new Date(link.expires_at).toLocaleDateString()}
                       </span>
                     )}
@@ -125,7 +125,7 @@ function SharedLinksPanel({ clientFilter }) {
                 <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
                   <button
                     onClick={() => copy(url, link.id)}
-                    style={{ ...iconBtn, color: copied === link.id ? '#059669' : '#64748b' }}
+                    style={{ ...iconBtn, color: copied === link.id ? '#059669' : 'var(--text-secondary)' }}
                     title="Copy link"
                   >
                     {copied === link.id ? <Check size={14} /> : <Copy size={14} />}
@@ -185,7 +185,7 @@ function ROIReportsPanel() {
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: '#0f172a' }}>
+        <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: 'var(--text-primary)' }}>
           <TrendingUp size={16} style={{ verticalAlign: 'middle', marginRight: 8, color: '#00d7ff' }} />
           ROI Reports
         </h2>
@@ -208,15 +208,15 @@ function ROIReportsPanel() {
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px 0', color: '#94a3b8' }}>Loading ROI reports…</div>
+        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-tertiary)' }}>Loading ROI reports…</div>
       ) : filtered.length === 0 ? (
         <div style={{
-          textAlign: 'center', padding: '48px 0', background: '#f0f4f9',
-          borderRadius: 12, border: '1px dashed #cbd5e1',
+          textAlign: 'center', padding: '48px 0', background: 'var(--surface-page)',
+          borderRadius: 12, border: '1px dashed var(--text-quaternary)',
         }}>
           <div style={{ fontSize: 36, marginBottom: 10 }}>📊</div>
-          <div style={{ fontWeight: 700, color: '#0f172a', fontSize: 15 }}>No ROI reports for this period</div>
-          <div style={{ color: '#64748b', fontSize: 13, marginTop: 4 }}>
+          <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: 15 }}>No ROI reports for this period</div>
+          <div style={{ color: 'var(--text-secondary)', fontSize: 13, marginTop: 4 }}>
             Reports are generated automatically on the 2nd of each month.
           </div>
         </div>
@@ -224,9 +224,9 @@ function ROIReportsPanel() {
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
-              <tr style={{ background: '#f0f4f9' }}>
+              <tr style={{ background: 'var(--surface-page)' }}>
                 {['User', 'Month', 'ROI %', 'Investment', 'Revenue', 'Leads', 'Status', ''].map(h => (
-                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 700, color: '#64748b', borderBottom: '1px solid #e2e8f0', whiteSpace: 'nowrap' }}>{h}</th>
+                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 700, color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-default)', whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -236,9 +236,9 @@ function ROIReportsPanel() {
                 const badge = roiLabel(pct);
                 const sym   = r.currency_symbol || '$';
                 return (
-                  <tr key={r.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <tr key={r.id} style={{ borderBottom: '1px solid var(--surface-sunken)' }}>
                     <td style={{ padding: '12px 14px', fontWeight: 600 }}>{r.client_name}</td>
-                    <td style={{ padding: '12px 14px', color: '#64748b' }}>
+                    <td style={{ padding: '12px 14px', color: 'var(--text-secondary)' }}>
                       {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][r.month - 1]} {r.year}
                     </td>
                     <td style={{ padding: '12px 14px', fontWeight: 800, color: roiColor(pct) }}>
@@ -335,20 +335,20 @@ export default function ReportsPage() {
 
 const btnSecondary = {
   display: 'flex', alignItems: 'center', gap: 6,
-  padding: '7px 14px', borderRadius: 9, border: '1.5px solid #e2e8f0',
-  background: '#fff', color: '#334155', fontSize: 12, fontWeight: 700,
+  padding: '7px 14px', borderRadius: 9, border: '1.5px solid var(--border-default)',
+  background: 'var(--surface-card)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 700,
   cursor: 'pointer',
 };
 
 const iconBtn = {
   display: 'flex', alignItems: 'center', justifyContent: 'center',
-  width: 32, height: 32, borderRadius: 8, border: '1px solid #e2e8f0',
-  background: '#f0f4f9', cursor: 'pointer', transition: 'all 0.15s',
+  width: 32, height: 32, borderRadius: 8, border: '1px solid var(--border-default)',
+  background: 'var(--surface-page)', cursor: 'pointer', transition: 'all 0.15s',
   textDecoration: 'none',
 };
 
 const selectStyle = {
-  padding: '8px 12px', borderRadius: 10, border: '1.5px solid #e2e8f0',
-  background: '#fff', fontSize: 13, fontWeight: 600, color: '#0f172a',
+  padding: '8px 12px', borderRadius: 10, border: '1.5px solid var(--border-default)',
+  background: 'var(--surface-card)', fontSize: 13, fontWeight: 600, color: 'var(--text-primary)',
   cursor: 'pointer', outline: 'none',
 };

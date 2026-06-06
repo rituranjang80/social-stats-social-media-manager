@@ -24,14 +24,14 @@
  *
  *   2. Self-contained (uses Facebook JS SDK directly):
  *        <FacebookConnectModal
- *          appName="Statox"
+ *          appName="Social State"
  *          onConnect={(token, user) => { ... }}
  *        />
  *      Renders its own trigger, calls window.FB.login() on Continue.
  * ===========================================================================*/
 
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { StatoxMark } from './ui/StatoxLogo';
+import { SocialStateMark } from './ui/SocialStateLogo';
 
 const FB_APP_ID = 'YOUR_FACEBOOK_APP_ID';
 const FB_API_VERSION = 'v21.0';
@@ -328,7 +328,7 @@ export default function FacebookConnectModal({
                 <CloseGlyph />
               </button>
               <div style={styles.appLogoWrap}>
-                <StatoxMark size={48} />
+                <SocialStateMark size={48} />
               </div>
               <h2 id="fb-connect-title" style={styles.title}>
                 Connect Your Facebook &amp; Instagram

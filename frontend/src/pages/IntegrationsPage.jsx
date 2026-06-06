@@ -124,8 +124,8 @@ export default function IntegrationsPage() {
     <MarketingLayout>
       <Meta
         noSuffix
-        title="Integrations — Statox"
-        description="40+ native integrations across social, messaging, analytics, CRM, commerce, AI and more. Plug Statox into your existing stack in minutes."
+        title="Integrations — Social State"
+        description="40+ native integrations across social, messaging, analytics, CRM, commerce, AI and more. Plug Social State into your existing stack in minutes."
       />
 
       {/* ╭──────────────╮
@@ -160,7 +160,7 @@ export default function IntegrationsPage() {
             color: '#fff',
             lineHeight: 1.05,
           }}>
-            Plug Statox into the<br />
+            Plug Social State into the<br />
             <span style={{ background: 'linear-gradient(135deg, #00CCF5, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               tools you already use
             </span>

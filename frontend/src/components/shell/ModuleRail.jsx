@@ -6,7 +6,7 @@ import {
   Briefcase, Receipt, Store,
 } from 'lucide-react';
 
-import { StatoxMark } from '../ui/StatoxLogo';
+import { SocialStateMark } from '../ui/SocialStateLogo';
 import AccountTypeBadge from '../ui/AccountTypeBadge';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -46,7 +46,7 @@ export default function ModuleRail({ currentModule, basePath, modules, notifCoun
       <button
         type="button"
         onClick={() => navigate(`${basePath}/${currentModule || 'analytics'}`)}
-        aria-label="Statox home"
+        aria-label="Social State home"
         style={{
           width: 36, height: 36,
           borderRadius: 'var(--radius-md)',
@@ -58,7 +58,7 @@ export default function ModuleRail({ currentModule, basePath, modules, notifCoun
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}
       >
-        <StatoxMark size={22} />
+        <SocialStateMark size={22} />
       </button>
 
       <Divider />

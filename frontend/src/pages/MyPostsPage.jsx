@@ -11,7 +11,7 @@ import { PLATFORMS, fmt } from '../services/platforms';
 function EmptyState() {
   return (
     <div style={styles.emptyState}>
-      <CalendarDays size={28} style={{ color: '#94a3b8' }} />
+      <CalendarDays size={28} style={{ color: 'var(--text-tertiary)' }} />
       <h3 style={styles.emptyTitle}>No posts found</h3>
       <p style={styles.emptyText}>Posts will appear here once your connected accounts have synced content.</p>
     </div>
@@ -34,8 +34,8 @@ export default function MyPostsPage() {
 
   const platformMeta = (key) => ({
     label: platformLabelMap[key] || PLATFORMS[key]?.label || key,
-    color: PLATFORMS[key]?.color || '#64748b',
-    bg: PLATFORMS[key]?.bg || '#f8fafc',
+    color: PLATFORMS[key]?.color || 'var(--text-secondary)',
+    bg: PLATFORMS[key]?.bg || 'var(--surface-sunken)',
   });
 
   const connectedPlatforms = useMemo(() => (
@@ -145,25 +145,25 @@ const styles = {
   filterBar: {
     marginBottom: 20,
   },
-  loading: { textAlign: 'center', color: '#94a3b8', padding: 60 },
+  loading: { textAlign: 'center', color: 'var(--text-tertiary)', padding: 60 },
   emptyState: {
-    background: '#fff',
-    border: '1px solid #e2e8f0',
+    background: 'var(--surface-card)',
+    border: '1px solid var(--border-default)',
     borderRadius: 16,
     padding: 48,
     textAlign: 'center',
     boxShadow: '0 1px 6px rgba(15,23,42,.05)',
   },
-  emptyTitle: { margin: '12px 0 8px', fontSize: 18, fontWeight: 800, color: '#0f172a' },
-  emptyText: { margin: 0, color: '#64748b', fontSize: 14 },
+  emptyTitle: { margin: '12px 0 8px', fontSize: 18, fontWeight: 800, color: 'var(--text-primary)' },
+  emptyText: { margin: 0, color: 'var(--text-secondary)', fontSize: 14 },
   grid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
     gap: 18,
   },
   card: {
-    background: '#fff',
-    border: '1px solid #e2e8f0',
+    background: 'var(--surface-card)',
+    border: '1px solid var(--border-default)',
     borderRadius: 18,
     overflow: 'hidden',
     boxShadow: '0 1px 8px rgba(15,23,42,.05)',
@@ -185,13 +185,13 @@ const styles = {
     borderRadius: 999,
     padding: '6px 10px',
   },
-  dateText: { fontSize: 12, color: '#94a3b8', whiteSpace: 'nowrap' },
+  dateText: { fontSize: 12, color: 'var(--text-tertiary)', whiteSpace: 'nowrap' },
   cardTitle: {
     margin: '0 0 14px',
     fontSize: 15,
     lineHeight: 1.5,
     fontWeight: 700,
-    color: '#0f172a',
+    color: 'var(--text-primary)',
     display: '-webkit-box',
     WebkitLineClamp: 3,
     WebkitBoxOrient: 'vertical',
@@ -204,8 +204,8 @@ const styles = {
     gap: 5,
     padding: '6px 9px',
     borderRadius: 10,
-    background: '#f0f4f9',
-    color: '#475569',
+    background: 'var(--surface-page)',
+    color: 'var(--text-secondary)',
     fontSize: 12,
     fontWeight: 600,
   },
@@ -229,9 +229,9 @@ const styles = {
     gap: 8,
     padding: '12px 28px',
     borderRadius: 12,
-    border: '1.5px solid #e2e8f0',
-    background: '#fff',
-    color: '#374151',
+    border: '1.5px solid var(--border-default)',
+    background: 'var(--surface-card)',
+    color: 'var(--text-secondary)',
     fontSize: 14,
     fontWeight: 700,
     cursor: 'pointer',

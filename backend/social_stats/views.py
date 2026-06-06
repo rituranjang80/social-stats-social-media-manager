@@ -66,6 +66,8 @@ class CustomTokenSerializer(TokenObtainPairSerializer):
 class LoginView(TokenObtainPairView):
     serializer_class = CustomTokenSerializer
     permission_classes = [AllowAny]
+    from .security.throttles import LoginIPThrottle  # noqa: E402
+    throttle_classes = [LoginIPThrottle]
 
     def post(self, request, *args, **kwargs):
         terms_accepted = request.data.get('terms_accepted', False)
@@ -90,6 +92,38 @@ class LoginView(TokenObtainPairView):
         except User.DoesNotExist:
             pass
 
+        password_for_mfa = request.data.get('password', '')
+        user_has_mfa = False
+        if username:
+            try:
+                _u = User.objects.get(username=username)
+                user_has_mfa = bool(getattr(_u, 'mfa', None) and _u.mfa.is_enabled)
+            except User.DoesNotExist:
+                pass
+
+        if user_has_mfa and password_for_mfa:
+            from django.contrib.auth import authenticate
+            mfa_user = authenticate(request, username=username, password=password_for_mfa)
+            if mfa_user:
+                from .security.mfa import issue_mfa_token
+                from .security.sessions import _client_ip
+                ip = _client_ip(request)
+                token = issue_mfa_token(user_id=mfa_user.id, ip=ip)
+                return Response(
+                    {
+                        'mfa_required': True,
+                        'mfa_token':    token,
+                        'expires_in':   300,
+                        'detail':       'mfa_required',
+                    },
+                    status=status.HTTP_200_OK,
+                )
+            # password was wrong — fall through to super().post() so simplejwt
+            # produces the canonical "no active account" 401. The
+            # authenticate() call already recorded the failure with axes, and
+            # super().post() will also try; axes is keyed by (username, ip)
+            # within the cooloff window so the second hit is just a tick.
+
         response = super().post(request, *args, **kwargs)
         if response.status_code == 200:
             username = request.data.get('username', '')
@@ -102,7 +136,60 @@ class LoginView(TokenObtainPairView):
                     profile.save(update_fields=['terms_accepted', 'terms_accepted_at'])
             except Exception:
                 pass
+
+            try:
+                self._record_login_session(request, response)
+            except Exception:
+                # Never let session bookkeeping break a successful login
+                import logging
+                logging.getLogger(__name__).exception('login session recording failed')
         return response
+
+    def _record_login_session(self, request, response):
+        """Persist a UserSession row for the just-issued refresh token + send
+        a 'new login detected' email if the (IP, browser+os) combo is new."""
+        from datetime import datetime, timezone as dt_tz
+        from rest_framework_simplejwt.tokens import RefreshToken
+
+        refresh_str = (response.data or {}).get('refresh')
+        if not refresh_str:
+            return
+        try:
+            rt = RefreshToken(refresh_str)
+        except Exception:
+            return
+        jti     = rt.get('jti', '')
+        exp_ts  = rt.get('exp')
+        if not jti or not exp_ts:
+            return
+        expires_at = datetime.fromtimestamp(exp_ts, tz=dt_tz.utc)
+
+        username = (request.data.get('username') or '').strip().lower()
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return
+
+        from .security.sessions import record_session
+        from .security.login_monitor import is_suspicious, notify_new_login
+        from .security import audit
+
+        # Run suspicious-login detection BEFORE recording the new session,
+        # otherwise the new row would self-match and mask any new-context.
+        suspicious, ctx = is_suspicious(user=user, request=request)
+
+        record_session(user=user, refresh_jti=jti,
+                       expires_at=expires_at, request=request)
+
+        audit.record(
+            event_type='suspicious_login' if suspicious else 'login_success',
+            actor_user=user, request=request,
+            target_object_type='User', target_object_id=user.id,
+            metadata={'jti': jti[:12], **{k: v for k, v in ctx.items() if k != 'ip'}},
+        )
+
+        if suspicious:
+            notify_new_login(user=user, context=ctx)
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -143,6 +230,7 @@ def _silent_token_refresh(client_id):
 # ── Me endpoint ───────────────────────────────────────────────────────────────
 @api_view(['GET'])
 def me(request):
+    from django.conf import settings as dj_settings
     user = request.user
     data = UserSerializer(user).data
     try:
@@ -152,9 +240,20 @@ def me(request):
         data = UserSerializer(user).data
         data['permissions'] = PermissionChecker.get_user_permissions(profile)
         data['onboarding_complete'] = profile.client.onboarding_complete if profile.client else False
+        # Feature flags surfaced to the client app.
+        data['feature_flags'] = {
+            'oauth_apps_approved': bool(getattr(dj_settings, 'OAUTH_APPS_APPROVED', False)),
+        }
         # Silently refresh any expired platform tokens on every page load
         if profile.client_id:
             _silent_token_refresh(profile.client_id)
+        # Marketplace (Stage 8): surface the primary agency slug so the
+        # agency-side marketplace profile editor can resolve its target.
+        try:
+            if profile.primary_agency_id:
+                data['primary_agency_slug'] = profile.primary_agency.slug
+        except Exception:
+            pass
         if profile.role == 'client' and profile.client:
             try:
                 cfg = profile.client.page_config

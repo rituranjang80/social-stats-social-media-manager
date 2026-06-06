@@ -32,7 +32,7 @@ FACEBOOK_CONSUMER_APP_ID = getattr(
 )
 FACEBOOK_CONSUMER_REDIRECT = getattr(
     settings, 'FACEBOOK_CONSUMER_REDIRECT_URI',
-    'https://statox.ai/api/oauth/facebook/consumer/callback/',
+    'https://socialstate.ai/api/oauth/facebook/consumer/callback/',
 )
 
 def _facebook_consumer_secret():

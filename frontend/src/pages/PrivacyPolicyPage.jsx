@@ -7,7 +7,7 @@ export default function PrivacyPolicyPage() {
       title="Privacy Policy"
       effectiveDate="2026-01-01"
       lastUpdated="2026-04-15"
-      intro="Statox is built by people who hate dark patterns. This page explains, in plain English, what data we collect, why we need it, and how we keep it safe."
+      intro="Social State is built by people who hate dark patterns. This page explains, in plain English, what data we collect, why we need it, and how we keep it safe."
       sections={[
         {
           id: 'who',
@@ -15,13 +15,13 @@ export default function PrivacyPolicyPage() {
           body: (
             <>
               <p>
-                Statox is operated by Statox Technologies, an early-stage product team
+                Social State is operated by Social State Technologies, an early-stage product team
                 building marketing tooling. For corporate / registration details, write to
-                <a href="mailto:privacy@statox.ai"> privacy@statox.ai</a>.
+                <a href="mailto:privacy@socialstate.ai"> privacy@socialstate.ai</a>.
               </p>
               <p>
-                This policy applies to <strong>statox.ai</strong>, the Statox web app, our mobile apps, and any
-                related services. For business customers (agencies, brands, creators), Statox is the
+                This policy applies to <strong>socialstate.ai</strong>, the Social State web app, our mobile apps, and any
+                related services. For business customers (agencies, brands, creators), Social State is the
                 <strong> data processor</strong> for content and audience data they upload — they remain the data
                 controller for that data.
               </p>
@@ -69,7 +69,7 @@ export default function PrivacyPolicyPage() {
           body: (
             <>
               <p>
-                Statox uses Anthropic's Claude API to power the AI Assistant, Composer drafts, brand-voice training,
+                Social State uses Anthropic's Claude API to power the AI Assistant, Composer drafts, brand-voice training,
                 and analytics summaries. When you use these features:
               </p>
               <ul>
@@ -172,9 +172,9 @@ export default function PrivacyPolicyPage() {
           title: '10. Children',
           body: (
             <p>
-              Statox is a B2B product not intended for children under 18. We do not knowingly collect data from
+              SocialState is a B2B product not intended for children under 18. We do not knowingly collect data from
               minors. If you believe a child has created an account, email{' '}
-              <a href="mailto:privacy@statox.ai">privacy@statox.ai</a> and we'll delete it.
+              <a href="mailto:privacy@socialstate.ai">privacy@socialstate.ai</a> and we'll delete it.
             </p>
           ),
         },
@@ -206,10 +206,10 @@ export default function PrivacyPolicyPage() {
             <>
               <p>
                 Questions? Reach our DPO (Data Protection Officer) at{' '}
-                <a href="mailto:privacy@statox.ai">privacy@statox.ai</a> or our postal address:
+                <a href="mailto:privacy@socialstate.ai">privacy@socialstate.ai</a> or our postal address:
               </p>
               <p>
-                <strong>Statox Technologies Pvt. Ltd.</strong><br />
+                <strong>Social State Technologies Pvt. Ltd.</strong><br />
                 Attn: Data Protection Officer<br />
                 Bengaluru, Karnataka, India
               </p>

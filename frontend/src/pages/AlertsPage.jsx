@@ -126,17 +126,17 @@ export default function AlertsPage() {
 
       {/* Alert list */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '60px 0', color: '#94a3b8', fontSize: 15 }}>
+        <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-tertiary)', fontSize: 15 }}>
           Loading alerts…
         </div>
       ) : filtered.length === 0 ? (
         <div style={{
-          textAlign: 'center', padding: '60px 0', background: '#fff',
-          borderRadius: 16, border: '1px solid #e2e8f0',
+          textAlign: 'center', padding: '60px 0', background: 'var(--surface-card)',
+          borderRadius: 16, border: '1px solid var(--border-default)',
         }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>🎉</div>
-          <div style={{ fontWeight: 700, color: '#0f172a', fontSize: 16 }}>No alerts here</div>
-          <div style={{ color: '#64748b', fontSize: 13, marginTop: 6 }}>
+          <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: 16 }}>No alerts here</div>
+          <div style={{ color: 'var(--text-secondary)', fontSize: 13, marginTop: 6 }}>
             {filterRead === 'unread' ? 'All alerts have been read.' : 'Nothing to show.'}
           </div>
         </div>
@@ -152,8 +152,8 @@ export default function AlertsPage() {
                 style={{
                   display: 'flex', alignItems: 'flex-start', gap: 16,
                   background: alert.is_read ? '#fff' : meta.bg,
-                  border: `1.5px solid ${alert.is_read ? '#e2e8f0' : meta.color}22`,
-                  borderLeft: `4px solid ${alert.is_read ? '#e2e8f0' : meta.color}`,
+                  border: `1.5px solid ${alert.is_read ? 'var(--border-default)' : meta.color}22`,
+                  borderLeft: `4px solid ${alert.is_read ? 'var(--border-default)' : meta.color}`,
                   borderRadius: 12, padding: '16px 20px',
                   transition: 'all 0.2s',
                   opacity: alert.is_read ? 0.72 : 1,
@@ -176,7 +176,7 @@ export default function AlertsPage() {
                       {meta.label}
                     </span>
                     {alert.platform && (
-                      <span style={{ fontSize: 12, color: '#64748b', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                      <span style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
                         <SocialPlatformIcon platform={alert.platform} size={13} />
                         {alert.platform}
                       </span>
@@ -189,11 +189,11 @@ export default function AlertsPage() {
                     )}
                   </div>
 
-                  <div style={{ fontSize: 14, color: '#0f172a', fontWeight: alert.is_read ? 400 : 600, marginBottom: 6 }}>
+                  <div style={{ fontSize: 14, color: 'var(--text-primary)', fontWeight: alert.is_read ? 400 : 600, marginBottom: 6 }}>
                     {alert.message}
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 12, color: '#94a3b8' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 12, color: 'var(--text-tertiary)' }}>
                     <span>🏢 {alert.client_name}</span>
                     <span>🕐 {formatTimeAgo(alert.created_at)}</span>
                   </div>
@@ -205,9 +205,9 @@ export default function AlertsPage() {
                     onClick={() => handleMarkRead(alert.id)}
                     title="Mark as read"
                     style={{
-                      flexShrink: 0, background: 'none', border: '1.5px solid #e2e8f0',
+                      flexShrink: 0, background: 'none', border: '1.5px solid var(--border-default)',
                       borderRadius: 8, padding: '5px 12px', cursor: 'pointer',
-                      fontSize: 12, fontWeight: 600, color: '#64748b',
+                      fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)',
                       display: 'flex', alignItems: 'center', gap: 5,
                     }}
                   >
@@ -226,14 +226,14 @@ export default function AlertsPage() {
 
 const btnSecondary = {
   display: 'flex', alignItems: 'center', gap: 7,
-  padding: '8px 16px', borderRadius: 10, border: '1.5px solid #e2e8f0',
-  background: '#fff', color: '#334155', fontSize: 13, fontWeight: 700,
+  padding: '8px 16px', borderRadius: 10, border: '1.5px solid var(--border-default)',
+  background: 'var(--surface-card)', color: 'var(--text-secondary)', fontSize: 13, fontWeight: 700,
   cursor: 'pointer',
 };
 
 const btnPrimary = {
   display: 'flex', alignItems: 'center', gap: 7,
   padding: '8px 16px', borderRadius: 10, border: 'none',
-  background: '#00d7ff', color: '#0f172a', fontSize: 13, fontWeight: 700,
+  background: '#00d7ff', color: 'var(--text-primary)', fontSize: 13, fontWeight: 700,
   cursor: 'pointer',
 };

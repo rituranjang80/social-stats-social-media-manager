@@ -54,8 +54,8 @@ export default function OAuthCallbackPage() {
 }
 
 const styles = {
-  page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f4f9' },
-  card: { background: '#fff', borderRadius: 20, padding: '48px 56px', textAlign: 'center', boxShadow: '0 25px 60px rgba(0,0,0,.15)', minWidth: 280 },
-  spinner: { width: 44, height: 44, border: '4px solid #e2e8f0', borderTopColor: '#00d7ff', borderRadius: '50%', margin: '0 auto 20px', animation: 'spin 0.8s linear infinite' },
-  msg: { fontSize: 15, color: '#64748b', margin: 0 },
+  page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface-page)' },
+  card: { background: 'var(--surface-card)', borderRadius: 20, padding: '48px 56px', textAlign: 'center', boxShadow: '0 25px 60px rgba(0,0,0,.15)', minWidth: 280 },
+  spinner: { width: 44, height: 44, border: '4px solid var(--border-default)', borderTopColor: '#00d7ff', borderRadius: '50%', margin: '0 auto 20px', animation: 'spin 0.8s linear infinite' },
+  msg: { fontSize: 15, color: 'var(--text-secondary)', margin: 0 },
 };

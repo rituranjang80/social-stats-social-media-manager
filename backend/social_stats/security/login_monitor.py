@@ -62,14 +62,14 @@ def notify_new_login(*, user, context: dict) -> None:
         return
     try:
         from django.core.mail import send_mail
-        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@statox.ai')
-        frontend = getattr(settings, 'FRONTEND_URL', 'https://app.statox.ai')
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@socialstate.ai')
+        frontend = getattr(settings, 'FRONTEND_URL', 'https://app.socialstate.ai')
 
         when = timezone.now().strftime('%Y-%m-%d %H:%M UTC')
-        subject = '[Statox] New login to your account'
+        subject = '[Social State] New login to your account'
         body = (
             f'Hi {user.first_name or user.username},\n\n'
-            f'We detected a new sign-in to your Statox account at {when}.\n\n'
+            f'We detected a new sign-in to your Social State account at {when}.\n\n'
             f'  IP address : {context.get("ip") or "unknown"}\n'
             f'  Browser    : {context.get("browser") or "unknown"} on {context.get("os") or "unknown"}\n'
             f'  Device     : {context.get("device") or "unknown"}\n\n'
@@ -77,8 +77,8 @@ def notify_new_login(*, user, context: dict) -> None:
             f'If you don\'t recognise this sign-in:\n'
             f'  1. Change your password immediately: {frontend}/u/settings/security\n'
             f'  2. Review and revoke active sessions on the same page\n'
-            f'  3. Contact support@statox.ai\n\n'
-            f'— Statox Security'
+            f'  3. Contact support@socialstate.ai\n\n'
+            f'— Social State Security'
         )
         send_mail(subject, body, from_email, [user.email], fail_silently=True)
     except Exception:

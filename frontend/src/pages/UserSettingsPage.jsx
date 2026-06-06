@@ -305,7 +305,7 @@ function DeleteAccountSection({ logout, navigate }) {
           <AlertTriangle size={20} color="#dc2626" style={{ flexShrink: 0, marginTop: 2 }} />
           <div style={{ flex: 1 }}>
             <p style={ds.confirmTitle}>Why are you deleting your account?</p>
-            <p style={ds.confirmDesc}>Please select a reason. This helps us improve Statox.</p>
+            <p style={ds.confirmDesc}>Please select a reason. This helps us improve Social State.</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 18 }}>
               {DELETE_REASONS.map(r => (
                 <label key={r} style={ds.radioRow}>
@@ -589,7 +589,7 @@ function AgencyTab({ user, refreshAuth, navigate }) {
   return (
     <div style={s.tabContent}>
       <h3 style={s.sectionTitle}>Agency Connection</h3>
-      <p style={s.sectionSub}>Manage your connection to your agency on Statox.</p>
+      <p style={s.sectionSub}>Manage your connection to your agency on Social State.</p>
 
       {!info?.connected ? (
         <div style={{ ...s.infoCard, background: 'linear-gradient(135deg,var(--surface-sunken),#f0f9ff)', border: '1px solid rgba(0,215,255,0.15)', marginTop: 8 }}>

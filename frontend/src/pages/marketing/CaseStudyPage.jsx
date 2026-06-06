@@ -52,7 +52,7 @@ export default function CaseStudyPage() {
     <MarketingLayout>
       <Meta
         noSuffix
-        title={`${company} — Statox Customer Story`}
+        title={`${company} — Social State Customer Story`}
         description={tagline}
       />
       <JsonLd

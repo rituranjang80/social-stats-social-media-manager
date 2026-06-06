@@ -46,7 +46,7 @@ function fmt(n) {
 const STATUS_BADGE = {
   published: { bg: '#D1FAE5', color: '#059669' },
   scheduled: { bg: '#e6fbff', color: '#007a9a' },
-  draft:     { bg: '#F1F5F9', color: '#64748B' },
+  draft:     { bg: '#F1F5F9', color: 'var(--text-secondary)' },
   failed:    { bg: '#FEE2E2', color: '#EF4444' },
 };
 
@@ -60,9 +60,9 @@ function ListView({ postsByDate, onPostClick, onEditPost, onDeletePost, onResche
 
   if (entries.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94A3B8' }}>
+      <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-tertiary)' }}>
         <div style={{ fontSize: 48, marginBottom: 12 }}>📅</div>
-        <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8, color: '#0f172a' }}>
+        <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8, color: 'var(--text-primary)' }}>
           No posts this month
         </div>
         <div style={{ fontSize: 13 }}>Schedule your first post using the "+" button above.</div>
@@ -77,18 +77,18 @@ function ListView({ postsByDate, onPostClick, onEditPost, onDeletePost, onResche
           {/* Sticky date header */}
           <div style={{
             position: 'sticky', top: 0, zIndex: 10,
-            background: '#f0f4f9', padding: '8px 0',
-            borderBottom: '2px solid #E2E8F0', marginBottom: 8,
+            background: 'var(--surface-page)', padding: '8px 0',
+            borderBottom: '2px solid var(--border-default)', marginBottom: 8,
           }}>
-            <span style={{ fontWeight: 700, fontSize: 14, color: '#0f172a' }}>
+            <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>
               {format(parseISO(dateStr), 'EEEE, MMMM d')}
             </span>
-            <span style={{ marginLeft: 8, fontSize: 12, color: '#94A3B8' }}>
+            <span style={{ marginLeft: 8, fontSize: 12, color: 'var(--text-tertiary)' }}>
               {posts.length} post{posts.length !== 1 ? 's' : ''}
             </span>
           </div>
           {posts.map(post => {
-            const p     = PLATFORMS[post.platform] || { color: '#64748B', label: post.platform };
+            const p     = PLATFORMS[post.platform] || { color: 'var(--text-secondary)', label: post.platform };
             const badge = STATUS_BADGE[post.status] || STATUS_BADGE.draft;
             const timeStr = (post.scheduled_at || post.published_at)
               ? format(parseISO(post.scheduled_at || post.published_at), 'h:mm a')
@@ -96,8 +96,8 @@ function ListView({ postsByDate, onPostClick, onEditPost, onDeletePost, onResche
             return (
               <div key={post.id} style={{
                 display: 'flex', alignItems: 'flex-start', gap: 12,
-                background: '#fff', borderRadius: 10,
-                border: '1px solid #E2E8F0',
+                background: 'var(--surface-card)', borderRadius: 10,
+                border: '1px solid var(--border-default)',
                 borderLeft: `4px solid ${p.color}`,
                 padding: '12px 16px', marginBottom: 8,
               }}>
@@ -114,7 +114,7 @@ function ListView({ postsByDate, onPostClick, onEditPost, onDeletePost, onResche
                 {/* Content */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 700, fontSize: 13, color: '#0f172a' }}>
+                    <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--text-primary)' }}>
                       {post.title || '(no title)'}
                     </span>
                     <span style={{
@@ -125,7 +125,7 @@ function ListView({ postsByDate, onPostClick, onEditPost, onDeletePost, onResche
                     </span>
                   </div>
                   <div style={{
-                    fontSize: 12, color: '#64748B', lineHeight: 1.4,
+                    fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4,
                     overflow: 'hidden', display: '-webkit-box',
                     WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
                     marginBottom: 4,
@@ -138,7 +138,7 @@ function ListView({ postsByDate, onPostClick, onEditPost, onDeletePost, onResche
                     </div>
                   )}
                   {post.status === 'published' && (post.impressions > 0 || post.likes > 0) && (
-                    <div style={{ display: 'flex', gap: 12, fontSize: 11, color: '#64748B', marginTop: 4 }}>
+                    <div style={{ display: 'flex', gap: 12, fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>
                       {post.impressions > 0 && <span>👁 {fmt(post.impressions)}</span>}
                       {post.likes       > 0 && <span>❤️ {fmt(post.likes)}</span>}
                       {post.comments    > 0 && <span>💬 {fmt(post.comments)}</span>}
@@ -148,7 +148,7 @@ function ListView({ postsByDate, onPostClick, onEditPost, onDeletePost, onResche
 
                 {/* Right: time + actions */}
                 <div style={{ flexShrink: 0, textAlign: 'right' }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8 }}>
                     {timeStr}
                   </div>
                   <div style={{ display: 'flex', gap: 6 }}>
@@ -177,8 +177,8 @@ function ListView({ postsByDate, onPostClick, onEditPost, onDeletePost, onResche
 
 const listBtnStyle = {
   padding: '4px 10px', borderRadius: 6,
-  background: '#f0f4f9', border: '1px solid #E2E8F0',
-  cursor: 'pointer', fontSize: 11, color: '#475569',
+  background: 'var(--surface-page)', border: '1px solid var(--border-default)',
+  cursor: 'pointer', fontSize: 11, color: 'var(--text-secondary)',
 };
 
 // ── Main CalendarPage ─────────────────────────────────────────────────────────
@@ -307,7 +307,7 @@ export default function CalendarPage({ clientId: propClientId }) {
     return (
       <div style={{
         padding: '28px 32px 40px',
-        background: '#f0f4f9',
+        background: 'var(--surface-page)',
         minHeight: '100vh',
         width: '100%',
         maxWidth: '100%',
@@ -335,8 +335,8 @@ export default function CalendarPage({ clientId: propClientId }) {
           />
           <div style={{ padding: 40, maxWidth: 500, margin: '60px auto', textAlign: 'center' }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>📅</div>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>Content Calendar</h2>
-            <p style={{ color: '#64748B', fontSize: 14, marginBottom: 0 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 8 }}>Content Calendar</h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 0 }}>
               Select a user from the top-right dropdown to view their content calendar.
             </p>
           </div>
@@ -348,7 +348,7 @@ export default function CalendarPage({ clientId: propClientId }) {
   return (
     <div style={{
       padding: '28px 32px 40px',
-      background: '#f0f4f9',
+      background: 'var(--surface-page)',
       minHeight: '100vh',
       width: '100%',
       maxWidth: '100%',
@@ -400,7 +400,7 @@ export default function CalendarPage({ clientId: propClientId }) {
           <div style={{
             fontWeight: 800,
             fontSize: 18,
-            color: '#0f172a',
+            color: 'var(--text-primary)',
             minWidth: isEmbedded ? 140 : 160,
             textAlign: 'center',
           }}>
@@ -408,9 +408,9 @@ export default function CalendarPage({ clientId: propClientId }) {
           </div>
           <button onClick={nextMonth} style={navBtnStyle}><ChevronRight size={16} /></button>
           <button onClick={goToday} style={{
-            padding: '6px 12px', borderRadius: 8, background: '#f0f4f9',
-            border: '1px solid #E2E8F0', cursor: 'pointer', fontSize: 12,
-            fontWeight: 600, color: '#475569',
+            padding: '6px 12px', borderRadius: 8, background: 'var(--surface-page)',
+            border: '1px solid var(--border-default)', cursor: 'pointer', fontSize: 12,
+            fontWeight: 600, color: 'var(--text-secondary)',
           }}>Today</button>
         </div>
 
@@ -432,10 +432,10 @@ export default function CalendarPage({ clientId: propClientId }) {
                 padding: '5px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600,
                 cursor: 'pointer', transition: 'all 0.15s',
                 background: platform === p.key ? '#00d7ff' : '#fff',
-                color:      platform === p.key ? '#fff' : '#64748B',
+                color:      platform === p.key ? '#fff' : 'var(--text-secondary)',
                 border:     platform === p.key
                   ? '1px solid #00d7ff'
-                  : '1px solid #E2E8F0',
+                  : '1px solid var(--border-default)',
               }}
             >
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
@@ -462,7 +462,7 @@ export default function CalendarPage({ clientId: propClientId }) {
               style={{
                 display: 'flex', alignItems: 'center', gap: 6,
                 padding: '8px 16px', borderRadius: 8,
-                background: '#00d7ff', color: '#0f172a',
+                background: '#00d7ff', color: 'var(--text-primary)',
                 border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 700,
                 whiteSpace: 'nowrap',
               }}
@@ -471,7 +471,7 @@ export default function CalendarPage({ clientId: propClientId }) {
             </button>
           )}
           <div style={{
-            display: 'flex', border: '1px solid #E2E8F0',
+            display: 'flex', border: '1px solid var(--border-default)',
             borderRadius: 8, overflow: 'hidden',
             flexWrap: 'wrap',
             maxWidth: '100%',
@@ -487,7 +487,7 @@ export default function CalendarPage({ clientId: propClientId }) {
                   display: 'flex', alignItems: 'center', gap: 5,
                   padding: '7px 14px', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
                   background: view === v.key ? '#00d7ff' : '#fff',
-                  color:      view === v.key ? '#fff'   : '#64748B',
+                  color:      view === v.key ? '#fff'   : 'var(--text-secondary)',
                   transition: 'all 0.15s',
                   whiteSpace: 'nowrap',
                 }}
@@ -501,7 +501,7 @@ export default function CalendarPage({ clientId: propClientId }) {
 
         {/* Loading state */}
         {postsLoading && (
-          <div style={{ textAlign: 'center', padding: 40, color: '#94A3B8', fontSize: 14 }}>
+          <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-tertiary)', fontSize: 14 }}>
             Loading calendar…
           </div>
         )}
@@ -526,10 +526,10 @@ export default function CalendarPage({ clientId: propClientId }) {
           {/* Upcoming strip */}
           {upcoming.length > 0 && (
             <div style={{
-              background: '#fff', borderRadius: 12, border: '1px solid #E2E8F0',
+              background: 'var(--surface-card)', borderRadius: 12, border: '1px solid var(--border-default)',
               padding: '16px 20px', marginBottom: 20,
             }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>
                 📅 Coming up this week
               </div>
               <UpcomingPosts posts={upcoming} />
@@ -583,18 +583,18 @@ export default function CalendarPage({ clientId: propClientId }) {
 
 const navBtnStyle = {
   width: 32, height: 32, borderRadius: '50%',
-  background: '#fff', border: '1px solid #E2E8F0',
+  background: 'var(--surface-card)', border: '1px solid var(--border-default)',
   cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-  color: '#374151', transition: 'background 0.15s',
+  color: 'var(--text-secondary)', transition: 'background 0.15s',
 };
 
 const adminClientSelectStyle = {
   padding: '8px 14px',
   borderRadius: 10,
-  border: '1.5px solid #dbe5f3',
+  border: '1.5px solid var(--border-default)',
   fontSize: 13,
-  color: '#1e293b',
-  background: '#fff',
+  color: 'var(--text-primary)',
+  background: 'var(--surface-card)',
   outline: 'none',
   minWidth: 200,
   fontWeight: 600,

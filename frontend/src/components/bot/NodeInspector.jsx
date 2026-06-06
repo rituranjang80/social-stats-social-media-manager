@@ -930,7 +930,7 @@ function PersonaWizard({ onClose, onApply }) {
                 margin: 0, fontSize: 11, color: 'var(--text-tertiary)',
                 lineHeight: 1.5,
               }}>
-                Statox AI drafts a system prompt suited to your business. You can edit it before applying.
+                Social State drafts a system prompt suited to your business. You can edit it before applying.
               </p>
             </>
           ) : (

@@ -90,7 +90,7 @@ const FALLBACK_SERVICES = [
   { id: 'google',   name: 'Google integration (YouTube + GMB)' },
   { id: 'linkedin', name: 'LinkedIn integration' },
   { id: 'pinbot',   name: 'WhatsApp (Pinbot.ai)' },
-  { id: 'ai',       name: 'Statox AI' },
+  { id: 'ai',       name: 'Social State' },
   { id: 'razorpay', name: 'Billing (Razorpay)' },
 ];
 
@@ -145,7 +145,7 @@ export default function StatusPage() {
     <MarketingLayout>
       <Meta
         title="System Status"
-        description="Live uptime, scheduled maintenance, and recent incidents for the Statox platform."
+        description="Live uptime, scheduled maintenance, and recent incidents for the Social State platform."
       />
 
       {/* Hero / overall status */}
@@ -193,7 +193,7 @@ export default function StatusPage() {
             fontWeight: 600,
             color: 'var(--text-primary)',
           }}>
-            Statox System Status
+            Social State System Status
           </h1>
           <p style={{ margin: 0, fontSize: 13, color: 'var(--text-tertiary)' }}>
             {lastChecked

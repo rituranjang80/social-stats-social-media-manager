@@ -17,3 +17,22 @@ psycopg2-binary==2.9.9
 Pillow==10.2.0
 weasyprint==60.2
 anthropic>=0.18.0
+cryptography==42.0.5
+tenacity==8.2.3
+phonenumbers==8.13.30
+boto3==1.34.51
+moviepy==1.0.3
+python-dateutil==2.9.0
+croniter==2.0.5
+channels==4.1.0
+channels-redis==4.2.0
+daphne==4.1.2
+
+# ── Stage 2 security build-out (auth hardening) ──────────────────────────────
+argon2-cffi==23.1.0          # password hashing (replaces PBKDF2 default)
+django-axes==6.4.0           # brute-force lockout
+user-agents==2.2.0           # parse User-Agent for session display
+
+# ── Stage 3 security build-out (MFA) ─────────────────────────────────────────
+pyotp==2.9.0                 # RFC-6238 TOTP
+qrcode[pil]==8.2             # QR code generation for authenticator apps

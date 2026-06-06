@@ -145,6 +145,22 @@ class CalendarPostViewSet(viewsets.ModelViewSet):
                 {'error': 'Published posts cannot be deleted.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        from .marketplace_permissions import (
+            check_action, deny_response, approval_pending_response,
+        )
+        verdict, ctx = check_action(
+            request, post.client, 'delete_posts',
+            action_type='delete_post',
+            payload={'post_id': post.id, 'platforms': list(getattr(post, 'platforms', []) or [])},
+            target_object_type='CalendarPost',
+            target_object_id=post.id,
+            preview=(post.content or '')[:300] if hasattr(post, 'content') else '',
+        )
+        if verdict == 'denied':
+            return deny_response(ctx['reason'])
+        if verdict == 'approval_required':
+            return approval_pending_response(ctx['approval'])
+
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

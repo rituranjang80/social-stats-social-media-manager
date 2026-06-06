@@ -1,5 +1,5 @@
 /**
- * PricingPage — Statox marketing pricing.
+ * PricingPage — Social State marketing pricing.
  *
  * Sections:
  *   1. Hero with monthly/annual toggle
@@ -32,7 +32,7 @@ export default function PricingPage() {
   return (
     <MarketingLayout>
       <Meta
-        title="Pricing — Statox"
+        title="Pricing — Social State"
         description="Simple, transparent pricing. Free forever for end users. Plans for agencies of every size. Annual billing saves 20%."
         noSuffix
       />
@@ -352,15 +352,15 @@ function RoiCalculator() {
   const [hoursPer, setHoursPer]     = useState(8);
   const [hourlyRate, setHourlyRate] = useState(800);
 
-  // Statox saves ~55% of admin time per client (conservative customer survey avg)
+  // Social State saves ~55% of admin time per client (conservative customer survey avg)
   const result = useMemo(() => {
     const totalHoursWeek = clients * hoursPer;
     const totalHoursYear = totalHoursWeek * 52;
     const savedHoursYear = Math.round(totalHoursYear * 0.55);
     const savedRupees    = savedHoursYear * hourlyRate;
-    const statoxCost     = 7999 * 12;
-    const netSavings     = Math.max(0, savedRupees - statoxCost);
-    const multiplier     = (savedRupees / statoxCost) || 0;
+    const socialStateCost     = 7999 * 12;
+    const netSavings     = Math.max(0, savedRupees - socialStateCost);
+    const multiplier     = (savedRupees / socialStateCost) || 0;
     return { savedHoursYear, savedRupees, netSavings, multiplier };
   }, [clients, hoursPer, hourlyRate]);
 
@@ -389,7 +389,7 @@ function RoiCalculator() {
               margin: 0, fontSize: 'clamp(24px, 3.4vw, 36px)',
               fontWeight: 700, color: 'var(--text-primary)',
               letterSpacing: '-0.02em', lineHeight: 1.18,
-            }}>How much will Statox save you?</h2>
+            }}>How much will Social State save you?</h2>
             <p style={{
               margin: '12px 0 0', fontSize: 15, lineHeight: 1.6,
               color: 'var(--text-secondary)',
@@ -581,7 +581,7 @@ function FAQSection() {
     { q: 'Can I switch between monthly and annual?',
       a: 'Yes — switch any time. Annual saves 20%. If you switch from annual back to monthly mid-cycle, the unused portion is credited to your next invoice.' },
     { q: 'What counts as an "AI generation"?',
-      a: 'Anything that uses Statox AI on your behalf — composer drafts, inbox-reply suggestions, AI insights, the bot builder\'s "Generate with AI" button, persona builder, lead scoring. Cached responses don\'t count.' },
+      a: 'Anything that uses Social State on your behalf — composer drafts, inbox-reply suggestions, AI insights, the bot builder\'s "Generate with AI" button, persona builder, lead scoring. Cached responses don\'t count.' },
     { q: 'Do agencies pay per client workspace?',
       a: 'No — agency plans bundle 5/25/100 client workspaces. Add more in 5-client packs at ₹1,499/mo or upgrade to Scale.' },
     { q: 'What if a client invites my agency? Who pays?',
@@ -593,7 +593,7 @@ function FAQSection() {
     { q: 'Can I cancel anytime?',
       a: 'Yes — one-click cancellation from Settings → Billing. Annual plans get a pro-rata refund within 7 days of payment if you\'ve made minimal use of the platform.' },
     { q: 'Do you offer non-profit / education discounts?',
-      a: 'Registered non-profits and educational institutions get 50% off any paid plan. Email sales@statox.ai with your registration document to apply.' },
+      a: 'Registered non-profits and educational institutions get 50% off any paid plan. Email sales@socialstate.ai with your registration document to apply.' },
     { q: 'Is there a custom enterprise option?',
       a: 'Yes — Enterprise gets unlimited clients, SSO (SAML / OIDC), 99.99% SLA, dedicated CSM, healthcare DPA, custom integrations, and onboarding. Talk to sales for pricing.' },
   ];

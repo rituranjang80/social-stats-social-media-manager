@@ -1,6 +1,6 @@
-# Statox AI — Marketing OS
+# Social State — Marketing OS
 
-Statox AI is the marketing operating system for modern teams. One product unifies
+Social State is the marketing operating system for modern teams. One product unifies
 analytics, content composing, conversation inbox, ads, AI assistant, and bot
 builder across the five platforms that matter most: **Facebook**, **Instagram**,
 **YouTube**, **LinkedIn**, and **Google Business**. WhatsApp Business is a
@@ -145,7 +145,7 @@ preview pages) still works.
 ## Project layout
 
 ```
-xperso/
+social-state/
 ├── backend/                     Django + DRF
 │   ├── dashboard/               Project config (settings, urls, celery)
 │   └── social_stats/            Main app
@@ -203,7 +203,7 @@ starting points — adapt to your environment.
 
 ## Contributing
 
-Statox AI is an open codebase. PRs welcome, especially:
+Social State is an open codebase. PRs welcome, especially:
 
 - New platform integrations (any of the major social or messaging APIs)
 - Translations for marketing pages
@@ -223,5 +223,5 @@ has Jest tests (`CI=true npm test`). Both should stay green.
 
 ## Security
 
-For responsible disclosure, email `security@statox.ai`. Please don't open
+For responsible disclosure, email `security@socialstate.ai`. Please don't open
 public issues for security reports.

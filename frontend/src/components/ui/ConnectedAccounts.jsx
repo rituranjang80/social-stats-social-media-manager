@@ -118,7 +118,7 @@ export default function ConnectedAccounts({ clientId, status, onRefresh }) {
       </div>
 
       <FacebookConnectModal
-        appName="Statox"
+        appName="Social State"
         open={fbConsentOpen}
         onClose={() => setFbConsentOpen(false)}
         onContinue={handleFbConsentContinue}

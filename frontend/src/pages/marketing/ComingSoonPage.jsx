@@ -23,7 +23,7 @@ const TITLES = {
   '/product/inbox':               { kind: 'product', title: 'Unified Inbox', blurb: 'Every conversation in one place.' },
   '/product/whatsapp':            { kind: 'product', title: 'WhatsApp Business', blurb: 'Campaigns + two-way chat at scale.' },
   '/product/bot-builder':         { kind: 'product', title: 'CTWA Bot Builder', blurb: 'Visual flow editor for ad funnels.' },
-  '/product/ai':                  { kind: 'product', title: 'AI Studio',     blurb: 'Statox AI in every corner.' },
+  '/product/ai':                  { kind: 'product', title: 'AI Studio',     blurb: 'Social State in every corner.' },
   '/product/ai-assistant':        { kind: 'product', title: 'AI Assistant',  blurb: 'Cmd+J — talk to your marketing data.' },
   '/product/reports':             { kind: 'product', title: 'Reports',       blurb: 'Reports that write themselves.' },
   '/product/automations':         { kind: 'product', title: 'Automations',   blurb: 'IF this happens, do that.' },

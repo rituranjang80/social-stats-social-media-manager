@@ -135,7 +135,7 @@ function Panel({ tab, setTab, onClose }) {
               <Sparkles size={14} />
             </span>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 600 }}>Statox AI</div>
+              <div style={{ fontSize: 14, fontWeight: 600 }}>Social State</div>
               <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
                 Cmd/Ctrl + J
               </div>

@@ -754,7 +754,7 @@ export default function CaptionWriterPage({ defaultTab = 'caption' }) {
                 <div>
                   <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 20, textAlign: 'center' }}>
                     <Loader2 size={14} style={{ animation: 'spin .8s linear infinite', verticalAlign: 'middle', marginRight: 6 }} />
-                    Statox AI is writing your captions…
+                    Social State is writing your captions…
                   </p>
                   {[1, 2, 3].map(i => (
                     <div key={i} style={{ border: '1px solid var(--border-default)', borderRadius: 16, padding: 18, marginBottom: 16 }}>
@@ -838,7 +838,7 @@ export default function CaptionWriterPage({ defaultTab = 'caption' }) {
                 <div>
                   <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 20, textAlign: 'center' }}>
                     <Loader2 size={14} style={{ animation: 'spin .8s linear infinite', verticalAlign: 'middle', marginRight: 6 }} />
-                    Statox AI is researching hashtags…
+                    Social State is researching hashtags…
                   </p>
                   {[1, 2, 3, 4].map(i => (
                     <div key={i} style={{ border: '1px solid var(--border-default)', borderRadius: 14, padding: 16, marginBottom: 12 }}>

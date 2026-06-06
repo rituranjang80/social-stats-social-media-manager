@@ -83,7 +83,7 @@ _THIRD_PARTY = [
     ('google',   'Google integration (YouTube + GMB)'),
     ('linkedin', 'LinkedIn integration'),
     ('pinbot',   'WhatsApp (Pinbot.ai)'),
-    ('ai',       'Statox AI'),
+    ('ai',       'Social State'),
     ('razorpay', 'Billing (Razorpay)'),
 ]
 

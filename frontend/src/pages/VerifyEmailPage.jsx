@@ -1,23 +1,24 @@
 /**
  * VerifyEmailPage — /verify-email?token=UUID
- * Called when user clicks the link in their verification email.
  * Verifies token → stores JWT → redirects to /pending.
  */
 import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { CheckCircle, XCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+import AuthLayout from '../components/auth/AuthLayout';
+import Button from '../components/ui/Button';
+import Spinner from '../components/ui/Spinner';
 import { authAPI } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
-import { StatoxLogoHorizontal } from '../components/ui/StatoxLogo';
-
-const CYAN = '#00d7ff';
 
 export default function VerifyEmailPage() {
-  const navigate     = useNavigate();
+  const navigate = useNavigate();
   const { refreshAuth } = useAuth();
-  const token        = new URLSearchParams(window.location.search).get('token');
+  const token = new URLSearchParams(window.location.search).get('token');
 
-  const [status, setStatus] = useState('loading'); // 'loading' | 'success' | 'error'
+  const [status, setStatus] = useState('loading');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -26,95 +27,111 @@ export default function VerifyEmailPage() {
       setMessage('No verification token found in the URL.');
       return;
     }
-
-    authAPI.verifyEmail(token)
-      .then(async res => {
+    authAPI
+      .verifyEmail(token)
+      .then(async (res) => {
         const { access, refresh } = res.data;
         await refreshAuth(access, refresh);
         setStatus('success');
         setTimeout(() => navigate('/pending', { replace: true }), 2000);
       })
-      .catch(err => {
+      .catch((err) => {
         setStatus('error');
-        setMessage(
-          err?.response?.data?.error ||
-          'This verification link is invalid or has expired.'
-        );
+        setMessage(err?.response?.data?.error || 'This verification link is invalid or has expired.');
       });
-  }, []); // run once on mount — token comes from URL, won't change
+  }, []);
 
   return (
-    <div style={s.page}>
-      <header style={s.topBar}>
-        <StatoxLogoHorizontal height={30} />
-      </header>
+    <AuthLayout
+      heroTitle={
+        status === 'success' ? 'You\'re verified.' :
+        status === 'error'   ? 'Couldn\'t verify your email.' :
+                               'Just a moment…'
+      }
+      heroSub={
+        status === 'success' ? 'Welcome to Social State. Let\'s get your workspace set up.' :
+        status === 'error'   ? 'Verification links expire after 24 hours. Resend a fresh one if needed.' :
+                               'We\'re activating your Social State account.'
+      }
+    >
+      <div style={cardStyle}>
+        {status === 'loading' && (
+          <>
+            <div aria-hidden style={iconBubbleStyle}>
+              <Spinner size="md" />
+            </div>
+            <h1 style={titleStyle}>Verifying your email…</h1>
+            <p style={subStyle}>This usually takes just a second.</p>
+          </>
+        )}
 
-      <div style={s.center}>
-        <div style={s.card}>
-          {status === 'loading' && (
-            <>
-              <Loader2 size={40} style={{ animation: 'spin .8s linear infinite', color: CYAN, marginBottom: 20 }} />
-              <h2 style={s.title}>Verifying your email...</h2>
-              <p style={s.sub}>Please wait a moment.</p>
-            </>
-          )}
+        {status === 'success' && (
+          <motion.div
+            initial={{ scale: 0.96, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div aria-hidden style={{ ...iconBubbleStyle, background: 'var(--success-bg)', color: 'var(--success)' }}>
+              <CheckCircle size={28} strokeWidth={1.8} />
+            </div>
+            <h1 style={titleStyle}>Email verified!</h1>
+            <p style={subStyle}>Your account is active. Redirecting to your dashboard…</p>
+          </motion.div>
+        )}
 
-          {status === 'success' && (
-            <>
-              <div style={s.iconWrap}>
-                <CheckCircle size={40} color={CYAN} />
-              </div>
-              <h2 style={s.title}>Email verified!</h2>
-              <p style={s.sub}>Your account is now active. Redirecting you to your dashboard...</p>
-            </>
-          )}
+        {status === 'error' && (
+          <>
+            <div aria-hidden style={{ ...iconBubbleStyle, background: 'var(--danger-bg)', color: 'var(--danger)' }}>
+              <XCircle size={28} strokeWidth={1.8} />
+            </div>
+            <h1 style={titleStyle}>Verification failed</h1>
+            <p style={subStyle}>{message}</p>
 
-          {status === 'error' && (
-            <>
-              <div style={{ ...s.iconWrap, background: 'rgba(239,68,68,0.08)', border: '2px solid rgba(239,68,68,0.2)' }}>
-                <XCircle size={40} color="#dc2626" />
-              </div>
-              <h2 style={s.title}>Verification failed</h2>
-              <p style={s.sub}>{message}</p>
-              <Link to="/signup" style={s.btn}>
-                Back to Sign Up
-              </Link>
-              <p style={{ marginTop: 12, fontSize: 13, color: '#94a3b8' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 20 }}>
+              <Button as={Link} to="/signup" size="md" fullWidth>
+                Back to sign up
+              </Button>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
                 Already verified?{' '}
-                <Link to="/login" style={{ color: CYAN, fontWeight: 600, textDecoration: 'none' }}>Sign in</Link>
-              </p>
-            </>
-          )}
-        </div>
+                <Link to="/login" style={{ color: 'var(--text-link)', fontWeight: 600, textDecoration: 'none' }}>
+                  Sign in
+                </Link>
+              </div>
+            </div>
+          </>
+        )}
       </div>
-
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-    </div>
+    </AuthLayout>
   );
 }
 
-const s = {
-  page: { minHeight: '100vh', background: '#f0f4f9', display: 'flex', flexDirection: 'column' },
-  topBar: {
-    background: '#fff', borderBottom: '1px solid #e8edf2',
-    padding: '14px 32px', boxShadow: '0 1px 4px rgba(0,0,0,.06)',
-  },
-  center: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' },
-  card: {
-    background: '#fff', borderRadius: 24, padding: '52px 48px', maxWidth: 420, width: '100%',
-    boxShadow: '0 8px 32px rgba(0,0,0,.08)', border: '1px solid #e8edf2',
-    display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 0,
-  },
-  iconWrap: {
-    width: 80, height: 80, borderRadius: '50%',
-    background: 'rgba(0,215,255,0.08)', border: '2px solid rgba(0,215,255,0.25)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24,
-  },
-  title: { margin: '0 0 10px', fontSize: 26, fontWeight: 700, color: '#0f172a' },
-  sub:   { margin: '0 0 28px', fontSize: 15, color: '#64748b', lineHeight: 1.6 },
-  btn: {
-    display: 'inline-block', background: CYAN, color: '#021418', fontWeight: 700,
-    fontSize: 14, padding: '12px 28px', borderRadius: 12, textDecoration: 'none',
-    marginBottom: 4,
-  },
+const cardStyle = {
+  background: 'var(--surface-card)',
+  border: '1px solid var(--border-subtle)',
+  borderRadius: 'var(--radius-xl)',
+  padding: 32,
+  boxShadow: 'var(--shadow-md)',
+  textAlign: 'center',
+};
+
+const iconBubbleStyle = {
+  width: 56, height: 56,
+  margin: '0 auto 16px',
+  display: 'flex', alignItems: 'center', justifyContent: 'center',
+  background: 'var(--brand-primary-soft)',
+  borderRadius: '50%',
+  color: 'var(--brand-primary-hover)',
+};
+
+const titleStyle = {
+  margin: 0,
+  fontSize: 22, fontWeight: 600,
+  letterSpacing: '-0.02em',
+  color: 'var(--text-primary)',
+};
+
+const subStyle = {
+  margin: '8px 0 0',
+  fontSize: 14, lineHeight: 1.6,
+  color: 'var(--text-secondary)',
 };

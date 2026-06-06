@@ -36,7 +36,7 @@ style.textContent = `
     --text-secondary: #475569;
     --text-muted:     #94a3b8;
 
-    /* Brand — Statox (Cyan + Black) */
+    /* Brand — Social State (Cyan + Black) */
     --blue:          #00B8DA;
     --blue-hover:    #009EC0;
     --blue-light:    #E0F9FF;

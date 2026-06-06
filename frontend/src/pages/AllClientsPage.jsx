@@ -13,8 +13,8 @@ const STATUS_COLOR = {
   pending:   { text: '#d97706', bg: '#fef3c7', label: 'Pending' },
   accepted:  { text: '#16a34a', bg: '#dcfce7', label: 'Accepted' },
   rejected:  { text: '#dc2626', bg: '#fee2e2', label: 'Rejected' },
-  expired:   { text: '#94a3b8', bg: '#f1f5f9', label: 'Expired' },
-  cancelled: { text: '#94a3b8', bg: '#f1f5f9', label: 'Cancelled' },
+  expired:   { text: 'var(--text-tertiary)', bg: 'var(--surface-sunken)', label: 'Expired' },
+  cancelled: { text: 'var(--text-tertiary)', bg: 'var(--surface-sunken)', label: 'Canceled' },
 };
 
 export default function AllClientsPage({ onSelectClient }) {
@@ -193,12 +193,12 @@ export default function AllClientsPage({ onSelectClient }) {
 
         {loadingInvList ? (
           <div style={S.centered}>
-            <Loader2 size={20} style={{ animation: 'spin .8s linear infinite', color: '#94a3b8' }} />
+            <Loader2 size={20} style={{ animation: 'spin .8s linear infinite', color: 'var(--text-tertiary)' }} />
           </div>
         ) : invitations.length === 0 ? (
           <div style={S.emptyState}>
-            <Mail size={28} style={{ color: '#cbd5e1', marginBottom: 8 }} />
-            <p style={{ margin: 0, color: '#94a3b8', fontSize: 13 }}>No invitations sent yet. Use the form above to invite your first client.</p>
+            <Mail size={28} style={{ color: 'var(--text-quaternary)', marginBottom: 8 }} />
+            <p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: 13 }}>No invitations sent yet. Use the form above to invite your first client.</p>
           </div>
         ) : (
           <div style={S.tableWrap}>
@@ -222,11 +222,11 @@ export default function AllClientsPage({ onSelectClient }) {
                           {st.label}
                         </span>
                       </td>
-                      <td style={{ ...S.td, color: '#94a3b8', fontSize: 12 }}>
+                      <td style={{ ...S.td, color: 'var(--text-tertiary)', fontSize: 12 }}>
                         {inv.invited_at ? new Date(inv.invited_at).toLocaleDateString() : '—'}
                       </td>
-                      <td style={{ ...S.td, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#64748b' }}>
-                        {inv.message || <span style={{ color: '#cbd5e1' }}>—</span>}
+                      <td style={{ ...S.td, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-secondary)' }}>
+                        {inv.message || <span style={{ color: 'var(--text-quaternary)' }}>—</span>}
                       </td>
                       <td style={S.td}>
                         {displayStatus === 'pending' ? (
@@ -241,7 +241,7 @@ export default function AllClientsPage({ onSelectClient }) {
                             Cancel
                           </button>
                         ) : (
-                          <span style={{ color: '#cbd5e1', fontSize: 12 }}>—</span>
+                          <span style={{ color: 'var(--text-quaternary)', fontSize: 12 }}>—</span>
                         )}
                       </td>
                     </tr>
@@ -282,8 +282,8 @@ export default function AllClientsPage({ onSelectClient }) {
 
         {filtered.length === 0 ? (
           <div style={S.emptyState}>
-            <Users size={28} style={{ color: '#cbd5e1', marginBottom: 8 }} />
-            <p style={{ margin: 0, color: '#94a3b8', fontSize: 13 }}>
+            <Users size={28} style={{ color: 'var(--text-quaternary)', marginBottom: 8 }} />
+            <p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: 13 }}>
               {clients.length === 0
                 ? "No clients connected yet. Invite a client above — once they accept your access request they'll appear here."
                 : 'No clients match your search.'}
@@ -309,11 +309,11 @@ export default function AllClientsPage({ onSelectClient }) {
                       </div>
                     </td>
                     <td style={S.td}>{c.name}</td>
-                    <td style={{ ...S.td, color: '#64748b' }}>{c.email}</td>
+                    <td style={{ ...S.td, color: 'var(--text-secondary)' }}>{c.email}</td>
                     <td style={S.td}>
                       {c.website
                         ? <a href={c.website} target="_blank" rel="noreferrer" style={S.link}>{c.website}</a>
-                        : <span style={{ color: '#cbd5e1' }}>—</span>}
+                        : <span style={{ color: 'var(--text-quaternary)' }}>—</span>}
                     </td>
                     <td style={S.td}>
                       <div style={{ display: 'flex', gap: 8 }}>
@@ -360,7 +360,7 @@ export default function AllClientsPage({ onSelectClient }) {
           <div style={S.steps}>
             {[
               { icon: <Send size={16} />, color: '#7c3aed', label: '1. Send Invitation', desc: 'Enter the client\'s email above and send an invitation.' },
-              { icon: <Mail size={16} />, color: '#0369a1', label: '2. Client Signs Up', desc: 'The client receives an email, signs up on StatoX, and verifies their account.' },
+              { icon: <Mail size={16} />, color: '#0369a1', label: '2. Client Signs Up', desc: 'The client receives an email, signs up on Social State, and verifies their account.' },
               { icon: <Building2 size={16} />, color: '#d97706', label: '3. You Get Notified', desc: 'You\'ll receive an email when the client joins. Then send a dashboard access request.' },
               { icon: <CheckCircle size={16} />, color: '#16a34a', label: '4. Client Accepts', desc: 'Once they accept the access request, they appear in your clients list.' },
             ].map(s => (
@@ -384,11 +384,11 @@ const S = {
   statsRow:   { display: 'flex', gap: 14, marginBottom: 24, flexWrap: 'wrap' },
   statCard:   {
     display: 'flex', alignItems: 'center', gap: 12,
-    background: '#fff', border: '1px solid #e8edf2', borderRadius: 12,
+    background: 'var(--surface-card)', border: '1px solid #e8edf2', borderRadius: 12,
     padding: '14px 20px', flex: '1 1 160px',
   },
-  statNum:    { fontSize: 22, fontWeight: 800, color: '#0f172a', lineHeight: 1.1 },
-  statLabel:  { fontSize: 11, color: '#94a3b8', fontWeight: 600, marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.05em' },
+  statNum:    { fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.1 },
+  statLabel:  { fontSize: 11, color: 'var(--text-tertiary)', fontWeight: 600, marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.05em' },
 
   // Invite panel
   invitePanel: {
@@ -404,12 +404,12 @@ const S = {
   invitePanelTitle: { margin: '0 0 4px', fontSize: 15, fontWeight: 700, color: '#4c1d95' },
   invitePanelSub:   { margin: 0, fontSize: 13, color: '#7c3aed', lineHeight: 1.5 },
   inviteForm:       { display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'flex-start' },
-  label:            { display: 'block', marginBottom: 6, fontSize: 12, fontWeight: 600, color: '#374151' },
+  label:            { display: 'block', marginBottom: 6, fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' },
   req:              { color: '#ef4444', marginLeft: 2 },
   input: {
     width: '100%', padding: '10px 14px', borderRadius: 8,
     border: '1.5px solid #ddd6fe', fontSize: 13, outline: 'none',
-    boxSizing: 'border-box', background: '#fff',
+    boxSizing: 'border-box', background: 'var(--surface-card)',
   },
   sendBtn: {
     display: 'flex', alignItems: 'center', gap: 7,
@@ -435,15 +435,15 @@ const S = {
   },
 
   // Section
-  section:       { background: '#fff', borderRadius: 16, border: '1px solid #e8edf2', marginBottom: 24, overflow: 'hidden' },
+  section:       { background: 'var(--surface-card)', borderRadius: 16, border: '1px solid #e8edf2', marginBottom: 24, overflow: 'hidden' },
   sectionHeader: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '16px 20px', borderBottom: '1px solid #f1f5f9',
+    padding: '16px 20px', borderBottom: '1px solid var(--surface-sunken)',
   },
-  sectionTitle:  { margin: 0, fontSize: 14, fontWeight: 700, color: '#0f172a' },
+  sectionTitle:  { margin: 0, fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' },
   refreshBtn: {
     display: 'flex', alignItems: 'center', padding: '5px 8px', borderRadius: 7,
-    border: '1px solid #e5e7eb', background: '#f8fafc', cursor: 'pointer', color: '#64748b',
+    border: '1px solid var(--border-default)', background: 'var(--surface-sunken)', cursor: 'pointer', color: 'var(--text-secondary)',
   },
   centered:   { display: 'flex', justifyContent: 'center', padding: 32 },
   emptyState: {
@@ -453,10 +453,10 @@ const S = {
 
   // Search
   searchWrapper: { position: 'relative', display: 'flex', alignItems: 'center' },
-  searchIcon:    { position: 'absolute', left: 9, color: '#94a3b8', pointerEvents: 'none' },
+  searchIcon:    { position: 'absolute', left: 9, color: 'var(--text-tertiary)', pointerEvents: 'none' },
   searchInput:   {
     padding: '7px 12px 7px 30px', borderRadius: 8,
-    border: '1.5px solid #e5e7eb', fontSize: 12, outline: 'none',
+    border: '1.5px solid var(--border-default)', fontSize: 12, outline: 'none',
     width: 200, boxSizing: 'border-box',
   },
 
@@ -464,12 +464,12 @@ const S = {
   tableWrap:  { overflowX: 'auto' },
   table:      { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
   th: {
-    textAlign: 'left', padding: '10px 16px', background: '#f8fafc',
-    color: '#64748b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase',
-    letterSpacing: '0.05em', borderBottom: '1px solid #f1f5f9', whiteSpace: 'nowrap',
+    textAlign: 'left', padding: '10px 16px', background: 'var(--surface-sunken)',
+    color: 'var(--text-secondary)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase',
+    letterSpacing: '0.05em', borderBottom: '1px solid var(--surface-sunken)', whiteSpace: 'nowrap',
   },
-  tr:   { borderBottom: '1px solid #f8fafc' },
-  td:   { padding: '12px 16px', color: '#374151', verticalAlign: 'middle' },
+  tr:   { borderBottom: '1px solid var(--surface-sunken)' },
+  td:   { padding: '12px 16px', color: 'var(--text-secondary)', verticalAlign: 'middle' },
   badge: {
     display: 'inline-block', padding: '3px 10px', borderRadius: 20,
     fontSize: 11, fontWeight: 700,
@@ -483,20 +483,20 @@ const S = {
   avatar: {
     width: 30, height: 30, borderRadius: 8, flexShrink: 0,
     background: 'linear-gradient(135deg,#00d7ff22,#7c3aed22)',
-    color: '#0f172a', fontWeight: 800, fontSize: 13,
+    color: 'var(--text-primary)', fontWeight: 800, fontSize: 13,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    border: '1.5px solid #e5e7eb',
+    border: '1.5px solid var(--border-default)',
   },
   dashBtn: {
     padding: '6px 14px', borderRadius: 8, border: '1.5px solid #00d7ff',
     background: 'transparent', color: '#0099bb', cursor: 'pointer', fontWeight: 600, fontSize: 12,
   },
   settingsBtn: {
-    padding: '6px 12px', borderRadius: 8, border: '1.5px solid #e5e7eb',
-    background: 'transparent', color: '#64748b', cursor: 'pointer', fontWeight: 600, fontSize: 12,
+    padding: '6px 12px', borderRadius: 8, border: '1.5px solid var(--border-default)',
+    background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 600, fontSize: 12,
   },
   syncBtn: {
-    padding: '6px 8px', borderRadius: 8, border: '1.5px solid #e5e7eb',
+    padding: '6px 8px', borderRadius: 8, border: '1.5px solid var(--border-default)',
     background: 'transparent', color: '#7c3aed', cursor: 'pointer', display: 'flex', alignItems: 'center',
   },
   syncAllBtn: {
@@ -508,16 +508,16 @@ const S = {
 
   // How it works
   howItWorks: {
-    background: 'linear-gradient(135deg,#f0f9ff,#f0f4f9)',
-    border: '1px solid #e2e8f0', borderRadius: 16, padding: '28px 32px', marginBottom: 24,
+    background: 'linear-gradient(135deg,#f0f9ff,var(--surface-page))',
+    border: '1px solid var(--border-default)', borderRadius: 16, padding: '28px 32px', marginBottom: 24,
   },
-  howTitle: { margin: '0 0 20px', fontSize: 14, fontWeight: 700, color: '#0f172a' },
+  howTitle: { margin: '0 0 20px', fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' },
   steps:    { display: 'flex', gap: 20, flexWrap: 'wrap' },
   step:     { flex: '1 1 180px', display: 'flex', flexDirection: 'column', gap: 8 },
   stepIcon: {
     width: 36, height: 36, borderRadius: 10,
     display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
-  stepLabel: { fontSize: 13, fontWeight: 700, color: '#0f172a' },
-  stepDesc:  { fontSize: 12, color: '#64748b', lineHeight: 1.5 },
+  stepLabel: { fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' },
+  stepDesc:  { fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 },
 };

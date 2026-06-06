@@ -1,4 +1,4 @@
-/* Statox Design System — shared constants for inline styles */
+/* Social State Design System — shared constants for inline styles */
 
 export const colors = {
   primary: '#00B8DA',

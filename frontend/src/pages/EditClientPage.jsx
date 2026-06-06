@@ -154,23 +154,23 @@ export default function EditClientPage({ clientId, onSelectClient }) {
 
 const styles = {
   page:     { padding: '28px 32px', maxWidth: 700, margin: '0 auto' },
-  loading:  { padding: 60, textAlign: 'center', color: '#94a3b8' },
+  loading:  { padding: 60, textAlign: 'center', color: 'var(--text-tertiary)' },
   backBtn: {
-    padding: '8px 16px', borderRadius: 8, border: '1.5px solid #e5e7eb',
-    background: '#fff', color: '#374151', cursor: 'pointer', fontWeight: 600, fontSize: 13,
+    padding: '8px 16px', borderRadius: 8, border: '1.5px solid var(--border-default)',
+    background: 'var(--surface-card)', color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 600, fontSize: 13,
   },
   backBtnInner: { display: 'flex', alignItems: 'center', gap: 6 },
   card: {
-    background: '#fff', borderRadius: 14, padding: 32,
+    background: 'var(--surface-card)', borderRadius: 14, padding: 32,
     boxShadow: '0 1px 6px rgba(0,0,0,.07)',
   },
   form:    { display: 'flex', flexDirection: 'column', gap: 20 },
   row:     { display: 'flex', flexDirection: 'column', gap: 6 },
-  label:   { fontSize: 13, fontWeight: 600, color: '#374151' },
+  label:   { fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' },
   requiredAsterisk: { color: '#ef4444', marginLeft: 2, fontWeight: 800 },
   input: {
-    padding: '10px 14px', borderRadius: 8, border: '1.5px solid #e5e7eb',
-    fontSize: 14, outline: 'none', color: '#0f172a',
+    padding: '10px 14px', borderRadius: 8, border: '1.5px solid var(--border-default)',
+    fontSize: 14, outline: 'none', color: 'var(--text-primary)',
   },
   inputError: { borderColor: '#ef4444', background: '#fef2f2' },
   errorText: { marginTop: 6, fontSize: 12, color: '#dc2626' },
@@ -178,11 +178,11 @@ const styles = {
   error:   { padding: '10px 14px', borderRadius: 8, background: '#fee2e2', color: '#dc2626', fontSize: 13 },
   actions: { display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 4 },
   cancelBtn: {
-    padding: '10px 20px', borderRadius: 8, border: '1.5px solid #e5e7eb',
-    background: '#fff', color: '#374151', cursor: 'pointer', fontWeight: 600, fontSize: 13,
+    padding: '10px 20px', borderRadius: 8, border: '1.5px solid var(--border-default)',
+    background: 'var(--surface-card)', color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 600, fontSize: 13,
   },
   saveBtn: {
     padding: '10px 24px', borderRadius: 8, border: 'none',
-    background: '#00d7ff', color: '#0f172a', cursor: 'pointer', fontWeight: 700, fontSize: 13,
+    background: '#00d7ff', color: 'var(--text-primary)', cursor: 'pointer', fontWeight: 700, fontSize: 13,
   },
 };
