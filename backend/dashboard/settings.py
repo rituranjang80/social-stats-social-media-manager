@@ -173,6 +173,13 @@ def _env_bool(name: str, default: bool) -> bool:
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT     = _env_bool('SECURE_SSL_REDIRECT',     not DEBUG)
+
+# Running the test suite (e.g. CI with DEBUG=False): never force an HTTPS
+# redirect — the Django test client speaks http:// and a 301→https turns every
+# API response into an HttpResponsePermanentRedirect (no `.data`), failing tests.
+import sys as _sys
+if 'test' in _sys.argv:
+    SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE   = _env_bool('SESSION_COOKIE_SECURE',   not DEBUG)
 CSRF_COOKIE_SECURE      = _env_bool('CSRF_COOKIE_SECURE',      not DEBUG)
 SESSION_COOKIE_HTTPONLY = True
