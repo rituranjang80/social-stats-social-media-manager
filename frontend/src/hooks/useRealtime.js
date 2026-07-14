@@ -38,10 +38,16 @@ const RECONNECT_MAX_MS = 30_000;
 function wsBaseURL() {
   // Point at REACT_APP_WS_URL when set; otherwise derive from REACT_APP_API_URL
   // by swapping http/s → ws/s. Falls back to localhost in dev.
+  // Relative API URLs (e.g. "/api") use the current page host so changing
+  // ports or moving the deploy folder does not break WebSockets.
   const explicit = process.env.REACT_APP_WS_URL;
   if (explicit) return explicit.replace(/\/$/, '');
 
   const api = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+  if (typeof window !== 'undefined' && (api.startsWith('/') || !/^[a-z]+:\/\//i.test(api))) {
+    const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    return `${proto}//${window.location.host}`;
+  }
   // api looks like http(s)://host[:port]/api → strip /api, swap proto
   try {
     const u = new URL(api);

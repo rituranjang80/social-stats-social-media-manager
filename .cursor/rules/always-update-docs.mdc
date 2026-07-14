@@ -1,0 +1,26 @@
+---
+description: Always update markdown docs (CHANGELOG and relevant docs/) when shipping code changes
+alwaysApply: true
+---
+
+# Always update the markdown docs
+
+For every user-facing, API, schema, config, or behavior change in this repo, **update the matching `.md` files in the same turn** — do not leave docs for a follow-up.
+
+## Required
+
+1. **`CHANGELOG.md`** — add/update an `[Unreleased]` entry (Added / Changed / Fixed / Removed) that states *why* and the user-visible impact.
+2. **Topic docs under `docs/`** when that area is affected, especially:
+   - `docs/USER_GUIDE.md` — UI flows, modules, walkthroughs
+   - `docs/CONFIGURATION.md` — env vars / settings
+   - `docs/GETTING_STARTED.md` / `docs/GOING_LIVE.md` — setup or deploy steps
+   - `docs/COMPARISON.md` / `docs/index.md` — feature positioning
+   - `docs/CONNECT_ACCOUNTS.md` / `docs/CONNECT_WHATSAPP.md` / `docs/FAQ_TROUBLESHOOTING.md` — when those topics change
+3. **`CONTRIBUTING.md`** — only if contributor process or conventions change
+
+## Rules
+
+- Keep claims truthful to what the code does.
+- Prefer concise bullets over long essays.
+- Schema/API changes must mention migration names or endpoints when relevant.
+- Do not create unsolicited new markdown files unless the user asks or an existing doc clearly needs a new dedicated guide.

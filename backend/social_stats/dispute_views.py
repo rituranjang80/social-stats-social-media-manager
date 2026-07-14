@@ -21,11 +21,13 @@ from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiExample
 
 from .activity_logger import log_activity
 from .marketplace_permissions import _is_owner, _is_superadmin
 from .models import AgencyClientRelation, Dispute, Notification
 from .notification_dispatcher import dispatch as dispatch_notification
+from .openapi_request_bodies import ResolveDisputeRequestSerializer
 
 
 def _serialize(d: Dispute) -> dict:
@@ -132,6 +134,31 @@ def get_dispute(request, dispute_id):
     return Response(_serialize(d))
 
 
+@extend_schema(
+    tags=['Management'],
+    summary='Resolve a dispute (superadmin)',
+    request=ResolveDisputeRequestSerializer,
+    examples=[
+        OpenApiExample(
+            'Dismiss dispute',
+            value={
+                'status': 'resolved',
+                'action': 'dismissed',
+                'resolution': 'Both parties agreed — no further action',
+            },
+            request_only=True,
+        ),
+        OpenApiExample(
+            'Pause relation',
+            value={
+                'status': 'resolved',
+                'action': 'paused',
+                'resolution': 'Paused pending documentation',
+            },
+            request_only=True,
+        ),
+    ],
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def resolve_dispute(request, dispute_id):

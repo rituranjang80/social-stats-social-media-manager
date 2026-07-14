@@ -190,6 +190,9 @@ def publish_to_platform(self, unified_post_id: int, platform: str):
         'completed_at', 'error_code', 'error_message', 'raw_response',
     ])
 
+    # Optional first comment (FB / IG when publishers support it)
+    _maybe_post_first_comment(publisher, credential, log, post)
+
     # Mark referenced media as used
     MediaAsset.objects.filter(used_in_posts=post, is_used=False).update(is_used=True)
 
@@ -197,6 +200,21 @@ def publish_to_platform(self, unified_post_id: int, platform: str):
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+def _maybe_post_first_comment(publisher, credential, log, post):
+    """Post UnifiedPost.first_comment after a successful publish when supported."""
+    text = (getattr(post, 'first_comment', None) or '').strip()
+    if not text or not log.platform_post_id:
+        return
+    try:
+        publisher.post_comment_on_post(credential, log.platform_post_id, text)
+    except Exception as e:
+        # Non-fatal: the main post already succeeded.
+        logger.warning(
+            'first_comment failed post=%s platform=%s: %s',
+            post.id, log.platform, e,
+        )
+
+
 def _dispatch_publish(publisher, credential, content, media_urls, media_type, *, post):
     """Pick the right publisher method based on media_type."""
     media_type = (media_type or 'text').lower()

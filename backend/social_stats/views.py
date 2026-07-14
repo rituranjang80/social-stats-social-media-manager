@@ -17,6 +17,7 @@ from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample
 
 from django.db.models import F
 from django.utils import timezone
@@ -29,6 +30,9 @@ from .serializers import (
     OnboardingStepSerializer, SiteContentSerializer, LookupCollectionSerializer,
     GMBBusinessInfoSerializer, GMBReviewSerializer,
 )
+from .openapi import LOGIN_EXAMPLES, PARAM_DAYS, PARAM_PLATFORM
+from .openapi_serializers import LoginRequestSerializer, LoginSuccessSerializer
+from .openapi_request_bodies import CreateClientUserRequestSerializer
 
 
 # ── Custom JWT: include role + client_id in token ─────────────────────────────
@@ -71,6 +75,21 @@ class CustomTokenSerializer(TokenObtainPairSerializer):
             token['permissions'] = {}
         return token
 
+@extend_schema_view(
+    post=extend_schema(
+        tags=['Auth'],
+        summary='Login (JWT)',
+        description=(
+            'Obtain access + refresh JWT. Prefer **Authorize → passwordAuth** '
+            '(username/password) for Swagger. Or pick a sample here and Execute, '
+            'then paste `access` into jwtAuth.'
+        ),
+        request=LoginRequestSerializer,
+        responses={200: LoginSuccessSerializer},
+        examples=LOGIN_EXAMPLES,
+        auth=[],
+    ),
+)
 class LoginView(TokenObtainPairView):
     serializer_class = CustomTokenSerializer
     permission_classes = [AllowAny]
@@ -236,6 +255,7 @@ def _silent_token_refresh(client_id):
 
 
 # ── Me endpoint ───────────────────────────────────────────────────────────────
+@extend_schema(tags=['Auth'], summary='Current user profile', responses={200: UserSerializer})
 @api_view(['GET'])
 def me(request):
     from django.conf import settings as dj_settings
@@ -691,6 +711,23 @@ class AlertViewSet(viewsets.ModelViewSet):
 
 
 # ── Admin: create client + user account ───────────────────────────────────────
+@extend_schema(
+    tags=['Management'],
+    summary='Create client + user (superadmin)',
+    request=CreateClientUserRequestSerializer,
+    examples=[
+        OpenApiExample(
+            'New client',
+            value={
+                'company': 'Acme Retail',
+                'name': 'Riya Sharma',
+                'email': 'riya@acme.example',
+                'password': 'ChangeMe123!',
+            },
+            request_only=True,
+        ),
+    ],
+)
 @api_view(['POST'])
 def create_client_user(request):
     """Superadmin creates a new client + login account in one step."""
@@ -1043,6 +1080,11 @@ def public_report_verify(request, token):
 
 
 # ── Overview (superadmin / agency-scoped) ────────────────────────────────────
+@extend_schema(
+    tags=['Clients'],
+    summary='Agency overview dashboard',
+    parameters=[PARAM_PLATFORM, PARAM_DAYS],
+)
 class OverviewView(APIView):
     def get(self, request):
         from django.db.models import Q
@@ -1090,6 +1132,12 @@ class OverviewView(APIView):
         })
 
 
+@extend_schema(
+    tags=['Clients'],
+    summary='Queue sync for all agency clients',
+    description='No request body — queues Facebook/Instagram/YouTube/LinkedIn/GMB syncs.',
+    request=None,
+)
 @api_view(['POST'])
 def sync_all_clients(request):
     """Queue sync for this agency's active clients. Superadmin / staff only."""

@@ -6,24 +6,38 @@ and env var names below are taken **directly from the code**
 [`urls.py`](../backend/social_stats/urls.py),
 [`manual_setup_guides.py`](../backend/social_stats/manual_setup_guides.py)).
 
+## Env-driven connect catalog (SS parity)
+
+Configure app credentials in **`C:\app\SocialMediaStart\.env`** (outside the
+source tree). The Settings UI (`/dashboard/settings`) and composer connect rail
+read `GET /api/oauth/status/<client_id>/` → `{ platforms, catalog }`:
+
+| API field | Meaning |
+|---|---|
+| `is_configured` | Non-empty `PLATFORM_*` / Meta / Google / LinkedIn keys in `.env` |
+| `connectable` | Configured **and** a Quick Connect handler exists |
+| `status` | User link state (`active` / `not_connected` / `expired`) |
+
+- Empty credentials → card shows **Not Configured** (not a hardcoded Coming soon list).
+- Visibility: `CONNECT_PLATFORMS=facebook,instagram,...`
+- Kill-switch: `PLATFORM_TIKTOK_ENABLED=false`
+
+See [CONFIGURATION.md](CONFIGURATION.md) for the full variable list.
+
 ## Two ways to connect
 
 Social Stats has two connection paths, controlled by the `OAUTH_APPS_APPROVED`
 flag (see [CONFIGURATION.md](CONFIGURATION.md)):
 
-1. **Quick Connect (OAuth)** — one-click "Connect" buttons. The app holds a
-   single set of developer credentials (your `*_APP_ID` / `*_CLIENT_ID`), and
-   users authorize via the platform's consent screen. Enabled only when
-   `OAUTH_APPS_APPROVED=True`.
-2. **Manual Setup wizard** — when `OAUTH_APPS_APPROVED=False` (the default), the
-   Quick Connect buttons show "Coming Soon" and users are routed to a guided
-   wizard where they paste their **own** tokens/IDs. This is the path that works
-   before your OAuth apps clear platform review.
+1. **Quick Connect (OAuth)** — one-click **Connect** when `is_configured` +
+   handler exist. The app holds developer credentials (`PLATFORM_*` / Meta /
+   Google / LinkedIn). Prefer `OAUTH_APPS_APPROVED=True` once apps are approved.
+2. **Manual Setup wizard** — paste user-owned tokens/IDs when Quick Connect is
+   unavailable or apps are still under review (`OAUTH_APPS_APPROVED=False`).
 
-Either way, **credentials are stored per-tenant (per Client) in the database,
+Either way, **user tokens are stored per-tenant (per Client) in the database,
 encrypted at rest** (`PlatformCredential` / `ManualCredentialExtras` via
-`EncryptedTextField`). Nothing is hardcoded; with an empty `.env` a fresh user
-connects their own accounts.
+`EncryptedTextField`). App-level keys stay in SocialMediaStart `.env`.
 
 ![Settings → Connected Accounts](images/connect-accounts.png)
 

@@ -61,7 +61,7 @@ export default function ClientOnboardingPage() {
   const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
   const clientId = user?.client_id;
-  const { status: oauthStatus } = useOAuthStatus(clientId);
+  const { status: oauthStatus, catalog: oauthCatalog, refetch: refetchOauth } = useOAuthStatus(clientId);
   const { lookups } = useLookups();
 
   const businessCategoryOptions = (lookups.business_categories || BUSINESS_CATEGORIES.map((label) => ({
@@ -868,7 +868,9 @@ export default function ClientOnboardingPage() {
               </div>
               <div style={styles.connectHeroCard}>
                 <div style={styles.connectMiniStat}>
-                  <div style={styles.connectMiniValue}>{Object.values(oauthStatus || {}).filter(Boolean).length}</div>
+                  <div style={styles.connectMiniValue}>
+                    {Object.values(oauthStatus || {}).filter((s) => s && (s.status === 'active' || s.status === 'expired')).length}
+                  </div>
                   <div style={styles.connectMiniLabel}>Accounts ready</div>
                 </div>
                 <div style={styles.connectMiniNote}>You can still finish setup now and connect more later from Settings.</div>
@@ -879,7 +881,8 @@ export default function ClientOnboardingPage() {
               <ConnectedAccounts
                 clientId={clientId}
                 status={oauthStatus}
-                onRefresh={() => {}}
+                catalog={oauthCatalog}
+                onRefresh={refetchOauth}
               />
 
               {getFieldError('social_connection') && (

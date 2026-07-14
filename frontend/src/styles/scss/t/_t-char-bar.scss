@@ -1,0 +1,33 @@
+@use '../variables' as *;
+
+.t-char-bar {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border-subtle);
+  overflow: hidden;
+  margin-top: 8px;
+
+  &__fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 150ms ease, background 150ms ease;
+    background: var(--brand-primary);
+
+    &--warn { background: var(--warning); }
+    &--over { background: var(--danger); }
+  }
+
+  &__meta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+
+    &-item--over {
+      color: var(--danger);
+      font-weight: 600;
+    }
+  }
+}

@@ -1817,6 +1817,11 @@ class UnifiedPost(models.Model):
     created_by        = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_unified_posts')
     title             = models.CharField(max_length=200, blank=True, help_text='Optional internal label')
     content           = models.TextField(blank=True)
+    # First comment posted immediately after the main publish (FB/IG/LI).
+    first_comment     = models.TextField(blank=True, help_text='Optional first comment after publish')
+    # Internal workspace labels (team-only, not caption hashtags).
+    tags              = models.JSONField(default=list, blank=True, help_text='Internal tags ["launch","client-x"]')
+    internal_notes    = models.TextField(blank=True, help_text='Team-only notes, not published')
     media_urls        = models.JSONField(default=list, blank=True, help_text='Ordered list of media URLs')
     media_assets      = models.ManyToManyField(MediaAsset, blank=True, related_name='used_in_posts')
     media_type        = models.CharField(max_length=20, choices=UNIFIED_MEDIA_TYPE_CHOICES, default='text')

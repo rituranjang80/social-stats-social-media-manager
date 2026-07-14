@@ -1,0 +1,45 @@
+@use 'variables' as *;
+
+@mixin focus-ring($color: var(--brand-primary)) {
+  outline: none;
+  border-color: $color;
+  box-shadow: 0 0 0 3px var(--brand-primary-glow);
+}
+
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin panel-scroll {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 2px;
+  }
+}
+
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@mixin respond-down($bp) {
+  @media (max-width: $bp) { @content; }
+}
+
+@mixin respond-up($bp) {
+  @media (min-width: $bp) { @content; }
+}

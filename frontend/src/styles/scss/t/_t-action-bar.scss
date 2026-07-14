@@ -1,0 +1,26 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+.t-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  background: var(--surface-card);
+  border-top: 1px solid var(--border-subtle);
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+
+  @include respond-up($composer-bp-sm) {
+    padding: 16px 20px;
+  }
+
+  &__spacer { flex: 1; min-width: 8px; }
+
+  &__hint {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+}

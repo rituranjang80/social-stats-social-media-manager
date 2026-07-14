@@ -45,6 +45,12 @@ const SOCIAL_PLATFORMS = [
   { value: 'linkedin', label: 'LinkedIn' },
   { value: 'youtube', label: 'YouTube' },
   { value: 'google_my_business', label: 'Google My Business' },
+  { value: 'tiktok', label: 'TikTok' },
+  { value: 'pinterest', label: 'Pinterest' },
+  { value: 'threads', label: 'Threads' },
+  { value: 'bluesky', label: 'Bluesky' },
+  { value: 'mastodon', label: 'Mastodon' },
+  { value: 'twitter', label: 'X (Twitter)' },
 ];
 
 const GENDERS = [
@@ -58,7 +64,7 @@ const GENDERS = [
 export default function SettingsPage({ clientId: propClientId }) {
   const { user }   = useAuth();
   const clientId   = propClientId || user?.client_id;
-  const { status, refetch } = useOAuthStatus(clientId);
+  const { status, catalog, refetch } = useOAuthStatus(clientId);
   const { lookups, loading: lookupsLoading } = useLookups();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
@@ -442,6 +448,7 @@ export default function SettingsPage({ clientId: propClientId }) {
         <ConnectedAccounts
           clientId={clientId}
           status={status}
+          catalog={catalog}
           onRefresh={refetch}
         />
       )}

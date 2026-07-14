@@ -17,6 +17,8 @@ python manage.py demo_setup        # seeds demo accounts + 90 days of analytics
 python manage.py runserver
 ```
 
+Swagger UI (Try it out): http://localhost:8000/api/docs/ — see [docs/API_SWAGGER.md](docs/API_SWAGGER.md).
+
 In a second shell:
 
 ```bash
@@ -68,7 +70,16 @@ to find something scoped for a first contribution.
   hooks, TanStack Query for data fetching, Zustand for local state). Use the
   existing `ui/` primitives rather than introducing new component libraries.
 - Keep claims in docs and marketing copy truthful to what the code actually does.
-
+- **Always update the docs with the change.** For every user-facing or API
+  change, update the matching markdown in the same PR/commit:
+  - `[CHANGELOG.md](./CHANGELOG.md)` — under `[Unreleased]` (Added / Changed /
+    Fixed)
+  - `[docs/USER_GUIDE.md](./docs/USER_GUIDE.md)` — if the UI/flow users see changed
+  - `[docs/CONFIGURATION.md](./docs/CONFIGURATION.md)` — if env/config changed
+  - `[docs/COMPARISON.md](./docs/COMPARISON.md)` / `[docs/index.md](./docs/index.md)` —
+    if feature categories or positioning changed
+  - Other `docs/*.md` files when the topic they cover is affected
+  Do not leave documentation for a follow-up.
 ## Add a screenshot
 
 The README references `docs/screenshot.png`. If you capture a clean screenshot or

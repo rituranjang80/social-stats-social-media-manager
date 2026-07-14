@@ -1,0 +1,23 @@
+// Composer / T-Type design tokens — bridge to global CSS variables (tokens.css)
+// Prefer CSS custom properties so dark/light themes stay in sync.
+
+$t-radius-sm: var(--radius-sm);
+$t-radius-md: var(--radius-md);
+$t-radius-lg: var(--radius-lg);
+$t-radius-pill: var(--radius-pill);
+
+$t-transition: var(--transition-fast, 150ms ease);
+
+$composer-preview-width: 320px;
+$composer-preview-max-mobile: 380px;
+$composer-rail-width: 280px;
+$composer-bp-xl: 1180px;
+$composer-bp-lg: 1024px;
+$composer-bp-sm: 640px;
+
+$platform-facebook: #1877F2;
+$platform-instagram: #E1306C;
+$platform-youtube: #FF0000;
+$platform-linkedin: #0A66C2;
+$platform-gmb: #34A853;
+

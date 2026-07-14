@@ -19,6 +19,18 @@ alternative to tools like Hootsuite, Buffer, and Sprout Social. See
 
 ## Setup & runtime
 
+### `/admin/clients` or `/admin/management` shows “Page not found”
+Those URLs belong to the **React admin shell**, not Django. If the Docker
+gateway still proxies `/admin/` to Django, you’ll see a Django 404.
+
+- Use the React paths after restarting/rebuilding the gateway:
+  - Workspaces: `/admin/clients`
+  - Team RBAC: `/admin/management`
+  - Composer: `/admin/analytics/composer`
+- Django’s low-level admin is at **`/django-admin/`**.
+- You must be signed in as **superadmin or staff** (`admin@demo.local` / `demo`
+  after `demo_setup`). Client/end-user accounts are redirected away from `/admin`.
+
 ### "OAuth redirect URI mismatch" when connecting an account
 The redirect URI registered in the platform's developer app must match the app's
 `*_REDIRECT_URI` **exactly** (scheme, host, port, path, trailing slash). The code
@@ -30,10 +42,28 @@ uses:
 In production these must be your HTTPS domain. Update both the platform app
 **and** the env var. See [CONNECT_ACCOUNTS.md](CONNECT_ACCOUNTS.md).
 
-### Quick Connect buttons say "Coming Soon"
-That's expected when `OAUTH_APPS_APPROVED=False` (the default). Use the **Manual
-Setup wizard**, or set `OAUTH_APPS_APPROVED=True` after your OAuth apps are
-approved. See [GOING_LIVE.md](GOING_LIVE.md).
+### Where is the API Swagger?
+**http://localhost:8000/api/docs/** (ReDoc: `/api/redoc/`). Click
+**Authorize → passwordAuth**, enter `admin@demo.local` / `demo`. Or use
+**Auth → POST /api/auth/login/** / `/api/auth/token/`. Details: [API_SWAGGER.md](API_SWAGGER.md).
+
+### Swagger page is blank
+Hard-refresh after restarting the backend. CSP must allow
+`https://cdn.jsdelivr.net` and `'unsafe-inline'` on `/api/docs/`. If you still
+see a blank page, check the browser console for blocked scripts.
+
+### Connect Accounts shows "Not Configured"
+On **Settings → Connect Accounts**, a platform shows **Connect** only when its
+`PLATFORM_*` (or Meta/Google/LinkedIn) credentials are set in
+**`C:\app\SocialMediaStart\.env`**. Empty credentials → **Not Configured**
+(SS-style `is_configured`). Control the list with
+`CONNECT_PLATFORMS=facebook,instagram,...`. Restart backend after `.env` edits.
+See [CONFIGURATION.md](CONFIGURATION.md).
+
+### Quick Connect gated by `OAUTH_APPS_APPROVED`
+When `OAUTH_APPS_APPROVED=False`, some flows still prefer the Manual Setup
+wizard. Set `OAUTH_APPS_APPROVED=True` after Meta/Google approve your OAuth apps.
+See [GOING_LIVE.md](GOING_LIVE.md).
 
 ### WhatsApp webhook not verifying (403)
 - The GET handshake returns `403` unless `hub.verify_token` equals

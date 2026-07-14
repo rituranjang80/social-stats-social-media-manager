@@ -29,12 +29,15 @@ These are present in this codebase (see the linked docs):
 
 - Multi-platform **analytics dashboards** — Facebook, Instagram, YouTube,
   LinkedIn, Google Business
-- **Post composer + scheduling + content calendar** with agency approval flows
+- **Post composer + scheduling + content calendar** with agency approval flows,
+  Connect Channels status, first comment, internal tags/notes, and a
+  Multi-workspace & Teams (Organization → Workspace → Members) compose layout
 - **Unified inbox** (DMs, comments, Google reviews) with AI reply suggestions
 - **Click-to-WhatsApp bot builder** (visual flow editor with AI nodes)
 - **Agency marketplace** (two-sided directory)
 - **AI assistant** + brand-voice training, insights, forecasts (Anthropic Claude)
-- Multi-tenant **agency / end-user** account model with per-client workspaces
+- Multi-tenant **agency / end-user** account model with per-client workspaces,
+  granular staff RBAC, invitations, and a client collaborator role
 
 ## When Social Stats is a good fit
 

@@ -38,6 +38,9 @@ from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiExample
+
+from .openapi_request_bodies import FlagActivityRequestSerializer
 
 from .activity_logger import log_activity
 from .activity_reverters import revert_activity as _do_revert
@@ -146,6 +149,18 @@ def list_activity(request):
     })
 
 
+@extend_schema(
+    tags=['Relations'],
+    summary='Flag activity as suspicious',
+    request=FlagActivityRequestSerializer,
+    examples=[
+        OpenApiExample(
+            'Flag with reason',
+            value={'reason': 'Looks suspicious — unexpected disconnect'},
+            request_only=True,
+        ),
+    ],
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def flag_activity(request, activity_id):
@@ -172,6 +187,12 @@ def flag_activity(request, activity_id):
 # ─────────────────────────────────────────────────────────────────────────────
 # Revert ()
 # ─────────────────────────────────────────────────────────────────────────────
+@extend_schema(
+    tags=['Relations'],
+    summary='Revert a reversible activity',
+    description='No request body — provide ``activity_id`` in the path only.',
+    request=None,
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def revert_activity(request, activity_id):

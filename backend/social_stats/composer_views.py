@@ -300,6 +300,20 @@ class UnifiedPostViewSet(TenantScopedMixin, viewsets.ModelViewSet):
             }
         return Response({'previews': previews})
 
+    @action(detail=False, methods=['get'], url_path='tag_suggestions')
+    def tag_suggestions(self, request):
+        """Return distinct internal tags used on posts in this workspace."""
+        qs = self.get_queryset().exclude(tags=[]).order_by('-updated_at')
+        seen = set()
+        for tags in qs.values_list('tags', flat=True)[:400]:
+            if not isinstance(tags, list):
+                continue
+            for t in tags:
+                name = str(t).strip()
+                if name:
+                    seen.add(name[:48])
+        return Response({'tags': sorted(seen, key=str.lower)})
+
 
 # ── Media library ─────────────────────────────────────────────────────────────
 class MediaAssetViewSet(TenantScopedMixin, viewsets.ModelViewSet):

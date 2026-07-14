@@ -140,6 +140,12 @@ class FacebookPublisher(BasePublisher):
         return PublishResult(success=True, platform_post_id=body.get('id', ''),
                              raw_response=body)
 
+    def post_comment_on_post(self, credential, platform_post_id: str, text: str, **kwargs) -> PublishResult:
+        client = GraphClient(credential.access_token)
+        body = client.post(f'/{platform_post_id}/comments', data={'message': text})
+        return PublishResult(success=True, platform_post_id=body.get('id', ''),
+                             raw_response=body)
+
     def reply_to_dm(self, credential, conversation_id: str, text: str, *,
                     media: Optional[list] = None, **kwargs) -> PublishResult:
         """Page Inbox messaging API. `recipient` is the PSID, not conversation_id."""

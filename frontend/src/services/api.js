@@ -651,6 +651,7 @@ export const composerAPI = {
     approve:     (id)       => api.post(`/composer/posts/${id}/approve/`),
     addToQueue:  (id, queue_id) => api.post(`/composer/posts/${id}/add_to_queue/`, { queue_id }),
     preview:     (id)       => api.get(`/composer/posts/${id}/preview/`),
+    tagSuggestions: ()      => api.get('/composer/posts/tag_suggestions/'),
   },
   media: {
     list:        (params)   => api.get('/composer/media/', { params }),

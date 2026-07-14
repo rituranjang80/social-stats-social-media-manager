@@ -86,6 +86,31 @@ Get these from [linkedin.com/developers](https://www.linkedin.com/developers).
 | `LINKEDIN_CLIENT_SECRET` | For Quick Connect | placeholder | LinkedIn app client secret. |
 | `LINKEDIN_REDIRECT_URI` | For Quick Connect | `http://localhost:8000/api/oauth/linkedin/callback/` | Must match the redirect URI in the LinkedIn app exactly. |
 
+## Connect Accounts catalog (Settings → Connect)
+
+When deploying via **SocialMediaStart**, put these in `C:\app\SocialMediaStart\.env`
+(not inside the source tree). Restart backend after changes:
+`docker compose --env-file .env up -d`.
+
+`is_configured` on `/dashboard/settings` matches the SS connect page: a platform
+shows **Connect** when its app credentials are non-empty in `.env`; otherwise it
+shows **Not Configured** (not a hardcoded “Coming soon” list).
+
+| Variable | Required | Default | What it does |
+|---|---|---|---|
+| `CONNECT_PLATFORMS` | No | full catalog list | Comma-separated platform ids shown on Connect Accounts. Example: `facebook,instagram,youtube,linkedin,google_my_business`. |
+| `PLATFORM_<ID>_ENABLED` | No | unset (enabled) | Kill-switch, e.g. `PLATFORM_TIKTOK_ENABLED=false` hides TikTok. |
+| `PLATFORM_FACEBOOK_APP_ID` / `SECRET` | For Meta | empty | Also accepted as `META_APP_ID` / `META_APP_SECRET`. Configures Facebook, Instagram, Threads. |
+| `PLATFORM_INSTAGRAM_APP_ID` / `SECRET` | Optional | empty | Instagram Login card. |
+| `PLATFORM_GOOGLE_CLIENT_ID` / `SECRET` | For Google | empty | YouTube + Google Business. |
+| `PLATFORM_LINKEDIN_*_CLIENT_ID` / `SECRET` | For LinkedIn | empty | LinkedIn / personal / company cards. |
+| `PLATFORM_TIKTOK_CLIENT_KEY` / `SECRET` | Optional | empty | TikTok card → Connect when set (Quick Connect handler may still be limited). |
+| `PLATFORM_PINTEREST_APP_ID` / `SECRET` | Optional | empty | Pinterest. |
+| `PLATFORM_TWITTER_CLIENT_ID` / `SECRET` | Optional | empty | X (Twitter). |
+
+API: `GET /api/oauth/status/<client_id>/` returns `{ platforms, catalog }` where each
+catalog row includes `is_configured`, `connectable`, and user link `status`.
+
 ## Email
 
 | Variable | Required | Default | What it does |
@@ -120,7 +145,7 @@ See [CONNECT_WHATSAPP.md](CONNECT_WHATSAPP.md) for the full setup.
 
 | Variable | Required | Default | What it does |
 |---|---|---|---|
-| `OAUTH_APPS_APPROVED` | No | `False` | `False` → Quick Connect (one-click OAuth) buttons are disabled and labelled "Coming Soon"; users are routed to the **Manual Setup wizard**. `True` → Quick Connect is enabled. Flip to `True` only after Meta/Google have approved your OAuth apps in production. |
+| `OAUTH_APPS_APPROVED` | No | `False` | Prefer `True` once Meta/Google/LinkedIn approve your apps. `False` keeps Manual Setup as the fallback path. Per-platform **Connect** vs **Not Configured** is driven by `PLATFORM_*` credentials (see Connect Accounts catalog above), not this flag alone. |
 
 ---
 

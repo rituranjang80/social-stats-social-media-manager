@@ -9,7 +9,16 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularSwaggerView,
+    SpectacularRedocView,
+)
 
+from . import openapi as _openapi  # noqa: F401 — register OpenAPI auth extensions
+from .openapi_serializers import TokenRefreshRequestSerializer
+from .swagger_auth import swagger_password_token
 from .views import (
     LoginView, me, ClientViewSet, CredentialViewSet,
     SyncLogViewSet, GoalViewSet, AlertViewSet, AIInsightViewSet, WeeklyTopPostViewSet,
@@ -260,12 +269,45 @@ router.register(r'bot-conversations', BotConversationViewSet, basename='bot-conv
 router.register(r'ctwa-campaigns',    CTWACampaignViewSet,    basename='ctwa-campaign')
 router.register(r'leads',             LeadViewSet,            basename='lead')
 
+@extend_schema_view(
+    post=extend_schema(
+        tags=['Auth'],
+        summary='Refresh JWT access token',
+        request=TokenRefreshRequestSerializer,
+        auth=[],
+        examples=[
+            OpenApiExample(
+                'Refresh',
+                value={'refresh': '<paste_refresh_token_here>'},
+                request_only=True,
+            ),
+        ],
+    ),
+)
+class DocumentedTokenRefreshView(TokenRefreshView):
+    pass
+
+
 urlpatterns = [
+    # Interactive OpenAPI (Swagger UI + ReDoc) — see docs/API_SWAGGER.md
+    path('schema/', SpectacularAPIView.as_view(), name='schema'),
+    path(
+        'docs/',
+        SpectacularSwaggerView.as_view(url_name='schema'),
+        name='swagger-ui',
+    ),
+    path(
+        'redoc/',
+        SpectacularRedocView.as_view(url_name='schema'),
+        name='redoc',
+    ),
+
     # Auth
-    path('auth/login/',                   LoginView.as_view(),           name='login'),
-    path('auth/refresh/',                 TokenRefreshView.as_view(),    name='token_refresh'),
-    path('auth/me/',                      me,                            name='me'),
-    path('auth/signup/',                  signup,                        name='signup'),
+    path('auth/login/',                   LoginView.as_view(),                 name='login'),
+    path('auth/token/',                   swagger_password_token,              name='swagger_token'),
+    path('auth/refresh/',                 DocumentedTokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/me/',                      me,                                  name='me'),
+    path('auth/signup/',                  signup,                              name='signup'),
 
     # End-user (B2C)
     path('end-user/signup/',     end_user_signup,         name='end_user_signup'),

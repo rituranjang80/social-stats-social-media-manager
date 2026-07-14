@@ -6,120 +6,163 @@
  *  Copyright (c) 2026 Chandrabhan Shekhawat / Gigai Kripa Services.
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
-import { useState } from 'react';
-import { oauthAPI } from '../../services/api';
-import { PLATFORMS } from '../../services/platforms';
+import { useMemo, useState } from 'react';
 import { Lightbulb, Zap } from 'lucide-react';
-import SocialPlatformIcon from './SocialPlatformIcon';
+import { oauthAPI } from '../../services/api';
+import { isPlatformConnected } from '../../constants/socialPlatforms';
+import { TSocialConnectCard, TPlatformCheck } from '../t';
 import FacebookConnectModal from '../FacebookConnectModal';
+import '../../styles/scss/settings-connect.scss';
 
-export default function ConnectedAccounts({ clientId, status, onRefresh }) {
+function startConnectUrl(clientId, card) {
+  if (!clientId || !card?.connectable) return null;
+  if (card.oauth_provider === 'facebook') return oauthAPI.facebookUrl(clientId);
+  if (card.oauth_provider === 'google') {
+    return oauthAPI.googleUrl(clientId, card.google_platform || 'all');
+  }
+  if (card.oauth_provider === 'linkedin') return oauthAPI.linkedinUrl(clientId);
+  return null;
+}
+
+export default function ConnectedAccounts({
+  clientId,
+  status = {},
+  catalog = [],
+  onRefresh,
+}) {
   const [loading, setLoading] = useState({});
   const [fbConsentOpen, setFbConsentOpen] = useState(false);
+  const [pendingFbCard, setPendingFbCard] = useState(null);
 
-  const handleConnect = (platform) => {
+  const cards = useMemo(() => {
+    if (Array.isArray(catalog) && catalog.length) return catalog;
+    // Fallback: build from flat status map
+    return Object.keys(status).map((id) => {
+      const s = status[id] || {};
+      return {
+        id,
+        label: id,
+        subtitle: '',
+        variant: 'glass-light',
+        is_configured: !!s.is_configured || !!s.connectable || !!s.oauth_enabled,
+        connectable: !!(s.connectable || s.oauth_enabled),
+        oauth_provider: s.oauth_provider,
+        google_platform: s.google_platform,
+        credential_key: s.credential_key || id,
+        status: s.status || 'not_connected',
+        account_name: s.account_name || '',
+        expires_at: s.expires_at,
+      };
+    });
+  }, [catalog, status]);
+
+  const counts = useMemo(() => {
+    let connected = 0;
+    let configured = 0;
+    cards.forEach((c) => {
+      if (c.is_configured) configured += 1;
+      if (isPlatformConnected({ status: c.status })) connected += 1;
+    });
+    return { connected, configured, total: cards.length };
+  }, [cards]);
+
+  const handleConnect = (card) => {
     if (!clientId) {
       window.alert('Your client workspace is still being prepared. Please refresh the page and try again.');
       return;
     }
-    // Facebook & Instagram share one OAuth flow. Show the consent modal first
-    // so users can review the permissions we'll request before being sent to Facebook.
-    if (platform === 'facebook' || platform === 'instagram') {
+    if (!card.is_configured) return;
+    if (!card.connectable) {
+      window.alert(
+        `${card.label} app credentials are set, but Quick Connect for this channel is not wired yet. `
+        + 'Add keys in SocialMediaStart/.env or use Manual Setup where available.',
+      );
+      return;
+    }
+    if (card.oauth_provider === 'facebook') {
+      setPendingFbCard(card);
       setFbConsentOpen(true);
       return;
     }
-    const urlMap = {
-      youtube:            oauthAPI.googleUrl(clientId, 'youtube'),
-      google_my_business: oauthAPI.googleUrl(clientId, 'google_my_business'),
-      linkedin:           oauthAPI.linkedinUrl(clientId),
-    };
-    window.location.href = urlMap[platform];
+    const url = startConnectUrl(clientId, card);
+    if (url) window.location.href = url;
   };
 
   const handleFbConsentContinue = () => {
-    window.location.href = oauthAPI.facebookUrl(clientId);
+    if (clientId) window.location.href = oauthAPI.facebookUrl(clientId);
   };
 
-  const handleDisconnect = async (platform) => {
-    if (!window.confirm(`Disconnect ${PLATFORMS[platform]?.label}? Sync will stop.`)) return;
-    setLoading(l => ({ ...l, [platform]: true }));
+  const handleDisconnect = async (card) => {
+    const key = card.credential_key || card.id;
+    if (!window.confirm(`Disconnect ${card.label}? Sync will stop.`)) return;
+    setLoading((l) => ({ ...l, [card.id]: true }));
     try {
-      await oauthAPI.disconnect(clientId, platform);
+      await oauthAPI.disconnect(clientId, key);
       onRefresh?.();
     } finally {
-      setLoading(l => ({ ...l, [platform]: false }));
+      setLoading((l) => ({ ...l, [card.id]: false }));
     }
   };
 
-  const platformOrder = ['facebook','instagram','youtube','google_my_business','linkedin'];
-
   return (
-    <div>
-      <h2 style={styles.heading}>Connected Accounts</h2>
-      <p style={styles.sub}>
-        Connect your social media accounts to start syncing stats automatically.
-      </p>
+    <section className="connect-accounts" aria-labelledby="connect-accounts-title">
+      <header className="connect-accounts__header">
+        <h2 id="connect-accounts-title" className="connect-accounts__title">
+          Connect a Platform
+        </h2>
+        <p className="connect-accounts__sub">
+          Platforms with app credentials in SocialMediaStart <code>.env</code> show
+          Connect. Empty credentials show Not Configured (SS-style). Connection state
+          uses a checkmark when your account is linked.
+        </p>
+        <div className="connect-accounts__summary" aria-live="polite">
+          <span className="connect-accounts__stat">
+            <TPlatformCheck checked size={16} />
+            {counts.connected} connected
+          </span>
+          <span className="connect-accounts__stat">
+            <TPlatformCheck checked={false} size={16} />
+            {counts.total - counts.connected} unchecked
+          </span>
+          <span className="connect-accounts__stat">
+            {counts.configured} configured in .env
+          </span>
+        </div>
+      </header>
 
-      <div className="oauth-platform-grid" style={styles.grid}>
-        {platformOrder.map(key => {
-          const p      = PLATFORMS[key];
-          const s      = status[key] || {};
-          const active = s.status === 'active';
-          const expired= s.status === 'expired';
-          const conn   = active || expired;
-
-          // Instagram is always connected via Facebook; only show note (no separate button)
-          const fbConnected  = (status['facebook'] || {}).status === 'active';
-          const groupNote = key === 'instagram' && fbConnected && conn
-            ? <span style={styles.groupNoteInner}><Zap size={13} style={{ flexShrink: 0 }} /> Connected via Facebook</span>
+      <div className="connect-accounts__grid" role="list">
+        {cards.map((card) => {
+          const connected = isPlatformConnected({ status: card.status });
+          const expired = card.status === 'expired';
+          const fbActive = (status.facebook || {}).status === 'active'
+            || cards.some((c) => c.id === 'facebook' && c.status === 'active');
+          const groupNote = card.id === 'instagram' && fbActive && connected
+            ? (
+              <span className="connect-accounts__via">
+                <Zap size={13} aria-hidden="true" />
+                Connected via Facebook
+              </span>
+            )
             : null;
 
           return (
-            <div key={key} className="oauth-platform-card" style={styles.card}>
-              <div style={styles.cardTop}>
-                <div style={styles.platformInfo}>
-                  <span style={styles.platformIcon}>
-                    <SocialPlatformIcon platform={key} size={28} />
-                  </span>
-                  <div>
-                    <div style={styles.platformName}>{p.label}</div>
-                    {s.account_name && (
-                      <div style={styles.accountName}>@{s.account_name}</div>
-                    )}
-                  </div>
-                </div>
-
-                <div style={styles.statusBadge(active, expired)}>
-                  {active ? '● Active' : expired ? '⚠ Expired' : '○ Not connected'}
-                </div>
-              </div>
-
-              {s.expires_at && (
-                <div style={styles.expiry}>
-                  Token expires: {new Date(s.expires_at).toLocaleDateString()}
-                </div>
-              )}
-
-              {groupNote ? (
-                <div style={styles.groupNote}>{groupNote}</div>
-              ) : conn ? (
-                <button
-                  className="oauth-btn-row"
-                  onClick={() => handleDisconnect(key)}
-                  disabled={loading[key]}
-                  style={styles.disconnectBtn}
-                >
-                  {loading[key] ? 'Disconnecting…' : 'Disconnect'}
-                </button>
-              ) : (
-                <button
-                  className="oauth-btn-row"
-                  onClick={() => handleConnect(key)}
-                  style={{ ...styles.connectBtn, background: p.color }}
-                >
-                  Connect {p.label} →
-                </button>
-              )}
+            <div key={card.id} role="listitem">
+              <TSocialConnectCard
+                platformId={card.icon || card.id}
+                label={card.label}
+                subtitle={card.subtitle}
+                variant={card.variant || 'glass-light'}
+                connected={connected}
+                expired={expired}
+                accountName={card.account_name || ''}
+                oauthEnabled={!!card.connectable}
+                isConfigured={!!card.is_configured}
+                expiresAt={card.expires_at}
+                groupNote={groupNote}
+                loading={!!loading[card.id]}
+                onConnect={() => handleConnect(card)}
+                onDisconnect={() => handleDisconnect(card)}
+              />
             </div>
           );
         })}
@@ -128,65 +171,28 @@ export default function ConnectedAccounts({ clientId, status, onRefresh }) {
       <FacebookConnectModal
         appName="Social Stats"
         open={fbConsentOpen}
-        onClose={() => setFbConsentOpen(false)}
+        onClose={() => { setFbConsentOpen(false); setPendingFbCard(null); }}
         onContinue={handleFbConsentContinue}
       />
 
-      {/* Help box */}
-      <div style={styles.helpBox}>
-        <strong style={styles.helpTitle}><Lightbulb size={14} style={{ verticalAlign: 'middle', marginRight: 4 }} />How it works:</strong>
-        <ul style={{ margin: '8px 0 0', paddingLeft: 20, fontSize: 13, color: 'var(--text-tertiary)' }}>
-          <li>Click a Connect button → you'll be redirected to log in to that platform</li>
-          <li>Approve the permissions requested</li>
-          <li>You'll be brought back here — data starts syncing automatically</li>
-          <li>Facebook & Instagram share one login. YouTube & Google My Business share one login.</li>
+      <aside className="connect-accounts__help">
+        <p className="connect-accounts__help-title">
+          <Lightbulb size={14} aria-hidden="true" />
+          How configuration works
+        </p>
+        <ul className="connect-accounts__help-list">
+          <li>
+            Set <code>PLATFORM_*</code> keys in <strong>C:\app\SocialMediaStart\.env</strong>, then
+            restart Docker. Configured platforms show a Connect button.
+          </li>
+          <li>
+            Control the list with <code>CONNECT_PLATFORMS=facebook,instagram,...</code> and
+            optional <code>PLATFORM_&lt;ID&gt;_ENABLED=false</code>.
+          </li>
+          <li>Checkmark = your workspace account is linked; empty circle = not linked.</li>
+          <li>Facebook &amp; Instagram share Meta login. YouTube &amp; Google Business share Google.</li>
         </ul>
-      </div>
-    </div>
+      </aside>
+    </section>
   );
 }
-
-const styles = {
-  heading: { margin: '0 0 6px', fontSize: 20, fontWeight: 800, color: 'var(--text-primary)' },
-  sub:     { margin: '0 0 24px', color: 'var(--text-tertiary)', fontSize: 14 },
-  grid: {
-    display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-    gap: 12, marginBottom: 24,
-  },
-  card: {
-    background: 'var(--surface-card)', borderRadius: 16, padding: '16px 18px',
-    boxShadow: '0 2px 12px rgba(0,0,0,.06)',
-    border: '1px solid var(--border-subtle)',
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  cardTop: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 },
-  platformInfo: { display: 'flex', alignItems: 'center', gap: 10 },
-  platformIcon: { fontSize: 28 },
-  platformName: { fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' },
-  accountName:  { fontSize: 12, color: 'var(--text-tertiary)', marginTop: 2 },
-  statusBadge: (active, expired) => ({
-    fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
-    background: active ? '#dcfce7' : expired ? '#fef3c7' : '#f1f5f9',
-    color:      active ? '#16a34a' : expired ? '#d97706' : '#64748b',
-  }),
-  expiry:       { fontSize: 12, color: 'var(--text-tertiary)', marginBottom: 10 },
-  groupNote:    { fontSize: 12, color: '#2563eb', fontStyle: 'italic', marginTop: 4 },
-  groupNoteInner: { display: 'flex', alignItems: 'center', gap: 4 },
-  connectBtn: {
-    width: '100%', padding: '12px', borderRadius: 12, border: 'none',
-    color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: 14,
-    letterSpacing: '0.01em', transition: 'opacity 0.15s ease',
-    WebkitTapHighlightColor: 'transparent',
-  },
-  disconnectBtn: {
-    width: '100%', padding: '11px', borderRadius: 12, border: '1.5px solid #fee2e2',
-    background: '#fff5f5', color: '#dc2626', cursor: 'pointer', fontWeight: 600, fontSize: 14,
-    WebkitTapHighlightColor: 'transparent',
-  },
-  helpBox: {
-    background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 16,
-    padding: '16px 18px', fontSize: 13, color: '#1e40af',
-  },
-  helpTitle: { display: 'flex', alignItems: 'center' },
-};

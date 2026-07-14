@@ -44,9 +44,11 @@ from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiExample
 
 from .models import Agency, AgencyMembership
 from .notification_dispatcher import dispatch as dispatch_notification
+from .openapi_request_bodies import VerificationDecisionRequestSerializer
 
 
 def _is_superadmin(user) -> bool:
@@ -197,12 +199,36 @@ def _decide(request, agency_id, *, approve: bool):
     return Response(_serialize_agency_verification(agency))
 
 
+@extend_schema(
+    tags=['Management'],
+    summary='Approve agency verification',
+    request=VerificationDecisionRequestSerializer,
+    examples=[
+        OpenApiExample(
+            'Approve with note',
+            value={'note': 'Documents verified — GST and business registration OK'},
+            request_only=True,
+        ),
+    ],
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def approve_verification(request, agency_id):
     return _decide(request, agency_id, approve=True)
 
 
+@extend_schema(
+    tags=['Management'],
+    summary='Reject agency verification',
+    request=VerificationDecisionRequestSerializer,
+    examples=[
+        OpenApiExample(
+            'Request more docs',
+            value={'note': 'Please re-submit a clearer GST certificate'},
+            request_only=True,
+        ),
+    ],
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def reject_verification(request, agency_id):

@@ -183,6 +183,10 @@ class LinkedInPublisher(BasePublisher):
         resp = self._post(f'/rest/socialActions/{parent}/comments', credential, json=body)
         return PublishResult(success=True, platform_post_id=resp.get('id', ''), raw_response=resp)
 
+    def post_comment_on_post(self, credential, platform_post_id: str, text: str, **kwargs) -> PublishResult:
+        # Top-level comment uses the same socialActions comments endpoint as reply.
+        return self.reply_to_comment(credential, platform_post_id, text, **kwargs)
+
     # ── Internals ────────────────────────────────────────────────────────
     def _author_urn(self, credential) -> str:
         org_id = str(credential.organization_id or '').strip()

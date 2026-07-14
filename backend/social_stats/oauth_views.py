@@ -24,7 +24,9 @@ from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiResponse
 
+from .openapi import PARAM_GOOGLE_PLATFORM, PARAM_OAUTH_PLATFORM_PATH
 from .models import PlatformCredential, Client
 from django.contrib.auth.models import User
 from .marketplace_permissions import (
@@ -70,6 +72,7 @@ def _settings_redirect(client_id, query=''):
 # FACEBOOK + INSTAGRAM
 # ══════════════════════════════════════════════════════════════════════
 
+@extend_schema(tags=['OAuth'], summary='Start Facebook / Instagram OAuth (redirect)')
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def facebook_oauth_start(request, client_id):
@@ -398,6 +401,11 @@ GOOGLE_SCOPES = ' '.join([
     'openid', 'email', 'profile',
 ])
 
+@extend_schema(
+    tags=['OAuth'],
+    summary='Start Google OAuth (YouTube / GMB)',
+    parameters=[PARAM_GOOGLE_PLATFORM],
+)
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def google_oauth_start(request, client_id):
@@ -566,6 +574,7 @@ def google_oauth_callback(request):
 # LINKEDIN
 # ══════════════════════════════════════════════════════════════════════
 
+@extend_schema(tags=['OAuth'], summary='Start LinkedIn OAuth (redirect)')
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def linkedin_oauth_start(request, client_id):
@@ -686,38 +695,88 @@ def _refresh_facebook_token(cred):
         logger.warning(f"Facebook token refresh failed for cred {cred.id}: {e}")
 
 
+@extend_schema(
+    tags=['OAuth'],
+    summary='Connect catalog + link status',
+    description=(
+        'Returns `{ platforms, catalog }` with `is_configured` / `connectable` '
+        'from SocialMediaStart `.env`. Use client_id path param from JWT `client_id` '
+        'or GET /api/auth/me/.'
+    ),
+    responses={200: OpenApiResponse(description='platforms map + catalog cards')},
+)
 @api_view(['GET'])
 def oauth_status(request, client_id):
-    """Return connection status for all platforms. Auto-refreshes expired Google tokens."""
+    """Return connection status + env-driven connect catalog for Settings UI.
+
+    Each catalog entry includes ``is_configured`` (app credentials in .env) and
+    ``connectable`` (Quick Connect handler available), matching SS connect page
+    semantics — not hardcoded "Coming soon" flags.
+    """
+    from .platform_catalog import build_connect_catalog, OAUTH_LIVE_KEYS
+
     credentials = PlatformCredential.objects.filter(client_id=client_id)
-    result = {}
-    for platform, label in [
-        ('facebook', 'Facebook'),
-        ('instagram', 'Instagram'),
-        ('youtube', 'YouTube'),
-        ('linkedin', 'LinkedIn'),
-        ('google_my_business', 'Google My Business'),
-    ]:
+    status_by_platform = {}
+
+    # Live PlatformCredential keys used by this product today
+    for platform in OAUTH_LIVE_KEYS:
         cred = credentials.filter(platform=platform).first()
         if cred and cred.access_token:
-            # Auto-refresh expired Google tokens silently
             if cred.is_expired and cred.refresh_token:
                 if platform in ('youtube', 'google_my_business'):
                     _refresh_google_token(cred)
                 elif platform in ('facebook', 'instagram'):
                     _refresh_facebook_token(cred)
-            result[platform] = {
+            status_by_platform[platform] = {
                 'status':       cred.status,
                 'connected_at': cred.connected_at.isoformat(),
                 'expires_at':   cred.expires_at.isoformat() if cred.expires_at else None,
                 'account_name': cred.page_name or cred.channel_name or cred.organization_name or '',
             }
         else:
-            result[platform] = {'status': 'not_connected'}
+            status_by_platform[platform] = {'status': 'not_connected'}
 
-    return Response(result)
+    catalog = build_connect_catalog(status_by_platform=status_by_platform)
+
+    # Backward-compatible flat map (legacy clients expect platform → status)
+    flat = {}
+    for card in catalog:
+        key = card['credential_key'] or card['id']
+        flat[card['id']] = {
+            'status': card['status'],
+            'account_name': card.get('account_name') or '',
+            'expires_at': card.get('expires_at'),
+            'connected_at': card.get('connected_at'),
+            'is_configured': card['is_configured'],
+            'connectable': card['connectable'],
+            'oauth_enabled': card['connectable'],
+            'oauth_provider': card.get('oauth_provider'),
+            'google_platform': card.get('google_platform'),
+            'credential_key': key,
+        }
+        # Also expose under credential key for older UI
+        if key not in flat:
+            flat[key] = {
+                'status': status_by_platform.get(key, {}).get('status', 'not_connected'),
+                'account_name': status_by_platform.get(key, {}).get('account_name', ''),
+                'expires_at': status_by_platform.get(key, {}).get('expires_at'),
+                'connected_at': status_by_platform.get(key, {}).get('connected_at'),
+                'is_configured': card['is_configured'],
+                'connectable': card['connectable'],
+                'oauth_enabled': card['connectable'],
+            }
+
+    return Response({
+        'platforms': flat,
+        'catalog': catalog,
+    })
 
 
+@extend_schema(
+    tags=['OAuth'],
+    summary='Disconnect a platform',
+    parameters=[PARAM_OAUTH_PLATFORM_PATH],
+)
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def oauth_disconnect(request, client_id, platform):

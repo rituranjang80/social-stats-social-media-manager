@@ -150,6 +150,10 @@ class BasePublisher:
     def reply_to_comment(self, credential, comment_id: str, text: str, **kwargs) -> PublishResult:
         return self._unsupported('reply_to_comment')
 
+    def post_comment_on_post(self, credential, platform_post_id: str, text: str, **kwargs) -> PublishResult:
+        """Post a top-level comment on a published post (first-comment flow)."""
+        return self._unsupported('post_comment_on_post')
+
     def reply_to_dm(self, credential, conversation_id: str, text: str, *, media: Optional[list] = None, **kwargs) -> PublishResult:
         return self._unsupported('reply_to_dm')
 

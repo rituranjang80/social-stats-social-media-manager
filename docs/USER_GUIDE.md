@@ -33,6 +33,46 @@ and a **content calendar**. Agency posts can route through **approval flows**
 before they publish. Drafting and scheduling work without connected accounts;
 actually publishing needs them.
 
+**Route:** `/dashboard/analytics/composer` (clients) or
+`/admin/analytics/composer` (admin shell). Calendar deep-links support
+`?scheduled_date=&scheduled_time=` to prefill the schedule.
+
+**Manage Multi-workspace & Teams** (sign in as superadmin / staff first):
+
+| Concept | URL |
+|---|---|
+| Workspaces + invitations | http://localhost:8000/admin/clients |
+| Members, RBAC, custom roles | http://localhost:8000/admin/management |
+| Per-workspace settings | http://localhost:8000/admin/client/`{clientId}`/settings |
+| Composer (org → workspace chrome) | http://localhost:8000/admin/analytics/composer |
+| Django DB admin (operators only) | http://localhost:8000/django-admin/ |
+
+> Note: `/admin/*` is the **React** app shell. Low-level Django admin lives at
+> `/django-admin/` so the two no longer conflict behind the Docker gateway.
+
+The composer chrome follows a **Multi-workspace & Teams** layout:
+
+| Concept (product language) | In this codebase |
+|---|---|
+| Organization | Agency (`primary_agency`) or platform org for superadmin |
+| Workspace | `Client` (company / brand) |
+| Members / roles | Staff RBAC (`/admin/management`), client collaborator role, invitations |
+
+**Compose features (in addition to caption + media + schedule):**
+- **Connect channels** — brand icons with check / unchecked state. Whether a
+  channel is **Connect** vs **Not Configured** is driven by
+  `PLATFORM_*` credentials and `CONNECT_PLATFORMS` in SocialMediaStart `.env`
+  (not hardcoded). Linked accounts show a checkmark. Manage from
+  **Settings → Connect Accounts** (`/dashboard/settings`).
+- **First comment** — optional comment auto-posted after publish on Facebook,
+  Instagram, and LinkedIn.
+- **Tags** — internal team-only labels (not caption hashtags); suggestions from
+  prior posts.
+- **Internal notes** — team-only; never published.
+- **Live preview** — per-platform preview drawer (mobile) / side panel (desktop).
+- **Tenant bar + left rail** — org → workspace → members breadcrumb, workspace
+  switcher when you can see multiple Clients, and links to RBAC / invitations.
+
 ![Composer + scheduler](images/composer.png)
 
 ### Unified inbox
@@ -66,8 +106,9 @@ Anthropic Claude — set `ANTHROPIC_API_KEY` to enable it (see
 
 1. Sign in as **agency** (`agency@demo.local`) → land on `/dashboard`; explore the
    cross-client analytics.
-2. Open the **composer**, draft a post, try an AI caption, and schedule it on the
-   calendar.
+2. Open the **composer** (`/dashboard/analytics/composer`), check the workspace
+   rail (org → workspace → channels), draft a post, add tags / a first comment,
+   try an AI caption, and schedule it on the calendar.
 3. Open the **inbox** and try an AI reply suggestion.
 4. Sign in as **end user** (`enduser@demo.local`) → see the single-workspace view
    and the agency relationship.

@@ -82,7 +82,8 @@ class UnifiedPostSerializer(serializers.ModelSerializer):
         model = UnifiedPost
         fields = [
             'id', 'client',
-            'title', 'content', 'media_urls', 'media_type',
+            'title', 'content', 'first_comment', 'tags', 'internal_notes',
+            'media_urls', 'media_type',
             'target_platforms', 'platform_overrides',
             'scheduled_at', 'published_at',
             'status', 'is_recurring', 'recurrence_rule',
@@ -103,6 +104,21 @@ class UnifiedPostSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('target_platforms must be a list')
         return [str(p).lower() for p in value if p]
 
+    def validate_tags(self, value):
+        if value in (None, ''):
+            return []
+        if isinstance(value, str):
+            parts = [t.strip() for t in value.split(',') if t.strip()]
+        elif isinstance(value, list):
+            parts = [str(t).strip() for t in value if str(t).strip()]
+        else:
+            raise serializers.ValidationError('tags must be a list of strings')
+        # Cap length / count for safe internal use
+        cleaned = []
+        for t in parts[:25]:
+            cleaned.append(t[:48])
+        return cleaned
+
     def validate(self, attrs):
         media_type = attrs.get('media_type', 'text')
         media_urls = attrs.get('media_urls') or []
@@ -121,7 +137,7 @@ class UnifiedPostListSerializer(serializers.ModelSerializer):
         model = UnifiedPost
         fields = [
             'id', 'client', 'title',
-            'content', 'media_type', 'target_platforms', 'platform_count',
+            'content', 'tags', 'media_type', 'target_platforms', 'platform_count',
             'status', 'scheduled_at', 'published_at',
             'created_by', 'created_at',
         ]

@@ -31,6 +31,7 @@ from rest_framework.decorators import api_view, permission_classes, throttle_cla
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
+from drf_spectacular.utils import extend_schema
 
 logger = logging.getLogger(__name__)
 
@@ -103,6 +104,7 @@ def _check_third_party(slug: str) -> dict:
     return {'status': 'operational'}
 
 
+@extend_schema(tags=['Public'], summary='Service health (no auth)', auth=[])
 @api_view(['GET'])
 @permission_classes([AllowAny])
 @throttle_classes([StatusThrottle])

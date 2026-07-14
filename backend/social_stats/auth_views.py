@@ -21,12 +21,14 @@ from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiExample
 
 from .models import UserProfile, EmailVerificationToken, PasswordResetToken
 from .social_auth_views import _make_jwt
 from .security.throttles import (
     SignupBurstThrottle, SignupDailyThrottle, PasswordResetThrottle,
 )
+from .openapi_serializers import SignupRequestSerializer
 
 
 FRONTEND_URL = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
@@ -37,6 +39,24 @@ EMAIL_RE = re.compile(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
 
 # ── Signup ────────────────────────────────────────────────────────────────────
 
+@extend_schema(
+    tags=['Auth'],
+    summary='Sign up (email / password)',
+    request=SignupRequestSerializer,
+    auth=[],
+    examples=[
+        OpenApiExample(
+            'New client',
+            value={
+                'full_name': 'Jane Demo',
+                'email': 'jane.demo@example.com',
+                'password': 'ChangeMe123!',
+                'terms_accepted': True,
+            },
+            request_only=True,
+        ),
+    ],
+)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @throttle_classes([SignupBurstThrottle, SignupDailyThrottle])

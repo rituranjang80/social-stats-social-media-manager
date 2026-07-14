@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'drf_spectacular',
     'corsheaders',
     'django_celery_beat',
     'axes',
@@ -264,6 +265,101 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 50,
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+# Interactive Swagger / ReDoc — see docs/API_SWAGGER.md
+# Define SPECTACULAR_SETTINGS before importing social_stats.openapi (that import
+# loads drf_spectacular and would cache empty settings if this ran first).
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Social Stats API',
+    'DESCRIPTION': (
+        'Interactive OpenAPI for Social Stats.\n\n'
+        '**Quick login:** click **Authorize** → **passwordAuth** → username '
+        '`admin@demo.local` / password `demo` → Authorize.\n\n'
+        'Or use **Auth → POST /api/auth/login/** (JSON) / **POST /api/auth/token/** '
+        '(OAuth2 password).\n\n'
+        'Guide: docs/API_SWAGGER.md'
+    ),
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_PATH_PREFIX': r'/api',
+    'TAGS': [
+        {'name': 'Auth', 'description': 'Login, signup, JWT refresh, MFA, sessions'},
+        {'name': 'Clients', 'description': 'Workspaces (clients), credentials, sync'},
+        {'name': 'OAuth', 'description': 'Connect social platforms'},
+        {'name': 'Composer', 'description': 'Unified posts, media, queues'},
+        {'name': 'Calendar', 'description': 'Content calendar'},
+        {'name': 'Inbox', 'description': 'Unified inbox'},
+        {'name': 'AI', 'description': 'Captions, compose, assistant'},
+        {'name': 'WhatsApp', 'description': 'WhatsApp & bot flows'},
+        {'name': 'Management', 'description': 'Staff & RBAC'},
+        {'name': 'Relations', 'description': 'Agency relations & approvals'},
+        {'name': 'Marketplace', 'description': 'Agency marketplace'},
+        {'name': 'Privacy', 'description': 'Exports, delete, consents'},
+        {'name': 'ROI', 'description': 'ROI calculator'},
+        {'name': 'Public', 'description': 'Health, lookups, public reports'},
+        {'name': 'Other', 'description': 'Remaining routes'},
+    ],
+    'PREPROCESSING_HOOKS': [
+        'social_stats.openapi.preprocessing_filter_spec',
+    ],
+    'POSTPROCESSING_HOOKS': [
+        'drf_spectacular.hooks.postprocess_schema_enums',
+        'social_stats.openapi.tag_by_url_prefix',
+        'social_stats.openapi.inject_try_it_out_examples',
+        'social_stats.openapi.ensure_editable_inputs',
+    ],
+    'ENUM_NAME_OVERRIDES': {
+        'PlatformEnum': 'social_stats.models.PLATFORM_CHOICES',
+        'RoleEnum': 'social_stats.models.ROLE_CHOICES',
+    },
+    'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
+        'persistAuthorization': True,
+        'displayOperationId': False,
+        'defaultModelsExpandDepth': 1,
+        'defaultModelExpandDepth': 2,
+        'filter': True,
+        'tryItOutEnabled': True,
+        'displayRequestDuration': True,
+        'docExpansion': 'list',
+        'tagsSorter': 'alpha',
+        'operationsSorter': 'alpha',
+        # Prefer password grant fields in Authorize dialog
+        'oauth2RedirectUrl': None,
+    },
+    'SERVE_PERMISSIONS': ['rest_framework.permissions.AllowAny'],
+    'SERVE_AUTHENTICATION': [],
+    # passwordAuth first → Swagger Authorize shows username/password.
+    'SECURITY': [{'passwordAuth': []}, {'jwtAuth': []}, {'ApiKeyBearer': []}],
+    'APPEND_COMPONENTS': {
+        'securitySchemes': {
+            'passwordAuth': {
+                'type': 'oauth2',
+                'description': (
+                    'Login with username + password. '
+                    'Demo: admin@demo.local / demo (leave client_id / client_secret empty).'
+                ),
+                'flows': {
+                    'password': {
+                        'tokenUrl': '/api/auth/token/',
+                        'scopes': {},
+                    },
+                },
+            },
+            'jwtAuth': {
+                'type': 'http',
+                'scheme': 'bearer',
+                'bearerFormat': 'JWT',
+                'description': (
+                    'Paste a JWT access token from POST /api/auth/login/ '
+                    '(or skip this if you used passwordAuth).'
+                ),
+            },
+        },
+    },
 }
 
 # ── Celery ────────────────────────────────────────────
@@ -274,9 +370,10 @@ CELERY_TASK_SERIALIZER   = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE          = 'UTC'
 CELERY_BEAT_SCHEDULER    = 'django_celery_beat.schedulers:DatabaseScheduler'
-# In development, run tasks synchronously (no Redis/worker needed)
-CELERY_TASK_ALWAYS_EAGER = DEBUG
-CELERY_TASK_EAGER_PROPAGATES = DEBUG
+# In development, run tasks synchronously (no Redis/worker needed).
+# Override with CELERY_TASK_ALWAYS_EAGER=false when Redis/workers run in Docker.
+CELERY_TASK_ALWAYS_EAGER = _env_bool('CELERY_TASK_ALWAYS_EAGER', DEBUG)
+CELERY_TASK_EAGER_PROPAGATES = _env_bool('CELERY_TASK_EAGER_PROPAGATES', CELERY_TASK_ALWAYS_EAGER)
 
 from celery.schedules import crontab
 CELERY_BEAT_SCHEDULE = {
@@ -342,31 +439,166 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
-# ── Meta OAuth (Facebook + Instagram) ────────────────
-META_APP_ID        = os.environ.get('META_APP_ID', '')
-META_APP_SECRET    = os.environ.get('META_APP_SECRET', '')
-META_REDIRECT_URI  = os.environ.get('META_REDIRECT_URI', 'http://localhost:8000/api/oauth/facebook/callback/')
-META_API_VERSION   = 'v18.0'
+def _env_first(*names: str, default: str = '') -> str:
+    """Return the first non-empty env var among names (supports PLATFORM_* aliases)."""
+    for name in names:
+        val = os.environ.get(name, '').strip()
+        if val:
+            return val
+    return default
 
-# ── Google OAuth (YouTube + GMB) ─────────────────────
-GOOGLE_CLIENT_ID      = os.environ.get('GOOGLE_CLIENT_ID', '')
-GOOGLE_CLIENT_SECRET  = os.environ.get('GOOGLE_CLIENT_SECRET', '')
-GOOGLE_REDIRECT_URI   = os.environ.get('GOOGLE_REDIRECT_URI', 'http://localhost:8000/api/oauth/google/callback/')
 
-# ── Microsoft OAuth (social login) ───────────────────
-MICROSOFT_CLIENT_ID           = os.environ.get('MICROSOFT_CLIENT_ID', '')
-MICROSOFT_CLIENT_SECRET       = os.environ.get('MICROSOFT_CLIENT_SECRET', '')
-MICROSOFT_SOCIAL_REDIRECT_URI = os.environ.get('MICROSOFT_SOCIAL_REDIRECT_URI', 'http://localhost:8000/api/auth/social/microsoft/callback/')
-GOOGLE_SOCIAL_REDIRECT_URI    = os.environ.get('GOOGLE_SOCIAL_REDIRECT_URI',    'http://localhost:8000/api/auth/social/google/callback/')
-FACEBOOK_SOCIAL_REDIRECT_URI  = os.environ.get('FACEBOOK_SOCIAL_REDIRECT_URI',  'http://localhost:8000/api/auth/social/facebook/callback/')
-# Separate Consumer app credentials for Facebook social login (login/signup buttons)
-FACEBOOK_SOCIAL_APP_ID     = os.environ.get('FACEBOOK_SOCIAL_APP_ID',     os.environ.get('META_APP_ID', ''))
-FACEBOOK_SOCIAL_APP_SECRET = os.environ.get('FACEBOOK_SOCIAL_APP_SECRET', os.environ.get('META_APP_SECRET', ''))
+# ── Meta OAuth (Facebook + Instagram connect accounts) ────────────────
+META_APP_ID = _env_first('META_APP_ID', 'PLATFORM_FACEBOOK_APP_ID', 'PLATFORM_INSTAGRAM_APP_ID')
+META_APP_SECRET = _env_first(
+    'META_APP_SECRET', 'PLATFORM_FACEBOOK_APP_SECRET', 'PLATFORM_INSTAGRAM_APP_SECRET'
+)
+META_REDIRECT_URI = os.environ.get(
+    'META_REDIRECT_URI', 'http://localhost:8000/api/oauth/facebook/callback/'
+)
+META_API_VERSION = 'v18.0'
+# Optional dedicated Instagram app (documented; connect flow uses META_* today)
+INSTAGRAM_APP_ID = _env_first('INSTAGRAM_APP_ID', 'PLATFORM_INSTAGRAM_APP_ID')
+INSTAGRAM_APP_SECRET = _env_first('INSTAGRAM_APP_SECRET', 'PLATFORM_INSTAGRAM_APP_SECRET')
 
-# ── LinkedIn OAuth ────────────────────────────────────
-LINKEDIN_CLIENT_ID     = os.environ.get('LINKEDIN_CLIENT_ID', '')
-LINKEDIN_CLIENT_SECRET = os.environ.get('LINKEDIN_CLIENT_SECRET', '')
-LINKEDIN_REDIRECT_URI  = os.environ.get('LINKEDIN_REDIRECT_URI', 'http://localhost:8000/api/oauth/linkedin/callback/')
+# ── Google OAuth — platform connect (YouTube + Google Business) ───────
+GOOGLE_CLIENT_ID = _env_first('GOOGLE_CLIENT_ID', 'PLATFORM_GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = _env_first('GOOGLE_CLIENT_SECRET', 'PLATFORM_GOOGLE_CLIENT_SECRET')
+GOOGLE_REDIRECT_URI = os.environ.get(
+    'GOOGLE_REDIRECT_URI', 'http://localhost:8000/api/oauth/google/callback/'
+)
+
+# ── Google / Facebook / Microsoft — social LOGIN (Sign in with …) ─────
+# Prefer dedicated GOOGLE_AUTH_* so login and platform-connect stay separate.
+GOOGLE_AUTH_CLIENT_ID = _env_first('GOOGLE_AUTH_CLIENT_ID', 'GOOGLE_CLIENT_ID', 'PLATFORM_GOOGLE_CLIENT_ID')
+GOOGLE_AUTH_CLIENT_SECRET = _env_first(
+    'GOOGLE_AUTH_CLIENT_SECRET', 'GOOGLE_CLIENT_SECRET', 'PLATFORM_GOOGLE_CLIENT_SECRET'
+)
+GOOGLE_SOCIAL_REDIRECT_URI = os.environ.get(
+    'GOOGLE_SOCIAL_REDIRECT_URI', 'http://localhost:8000/api/auth/social/google/callback/'
+)
+FACEBOOK_SOCIAL_REDIRECT_URI = os.environ.get(
+    'FACEBOOK_SOCIAL_REDIRECT_URI', 'http://localhost:8000/api/auth/social/facebook/callback/'
+)
+FACEBOOK_SOCIAL_APP_ID = _env_first(
+    'FACEBOOK_SOCIAL_APP_ID', 'PLATFORM_FACEBOOK_APP_ID', 'META_APP_ID'
+)
+FACEBOOK_SOCIAL_APP_SECRET = _env_first(
+    'FACEBOOK_SOCIAL_APP_SECRET', 'PLATFORM_FACEBOOK_APP_SECRET', 'META_APP_SECRET'
+)
+MICROSOFT_CLIENT_ID = os.environ.get('MICROSOFT_CLIENT_ID', '')
+MICROSOFT_CLIENT_SECRET = os.environ.get('MICROSOFT_CLIENT_SECRET', '')
+MICROSOFT_SOCIAL_REDIRECT_URI = os.environ.get(
+    'MICROSOFT_SOCIAL_REDIRECT_URI', 'http://localhost:8000/api/auth/social/microsoft/callback/'
+)
+
+# ── LinkedIn OAuth (platform connect) ─────────────────────────────────
+LINKEDIN_CLIENT_ID = _env_first(
+    'LINKEDIN_CLIENT_ID',
+    'PLATFORM_LINKEDIN_PERSONAL_CLIENT_ID',
+    'PLATFORM_LINKEDIN_COMPANY_CLIENT_ID',
+)
+LINKEDIN_CLIENT_SECRET = _env_first(
+    'LINKEDIN_CLIENT_SECRET',
+    'PLATFORM_LINKEDIN_PERSONAL_CLIENT_SECRET',
+    'PLATFORM_LINKEDIN_COMPANY_CLIENT_SECRET',
+)
+LINKEDIN_REDIRECT_URI = os.environ.get(
+    'LINKEDIN_REDIRECT_URI', 'http://localhost:8000/api/oauth/linkedin/callback/'
+)
+
+# ── Platform connect catalog (SS-style, env-driven) ───────────────────
+# Which platforms appear on /dashboard/settings Connect Accounts.
+# Comma-separated ids. Empty = all known platforms.
+CONNECT_PLATFORMS = os.environ.get(
+    'CONNECT_PLATFORMS',
+    'facebook,instagram,instagram_login,linkedin,linkedin_personal,linkedin_company,'
+    'tiktok,youtube,pinterest,threads,bluesky,google_my_business,mastodon,twitter',
+)
+
+_META_CREDENTIALS = {
+    'app_id': META_APP_ID,
+    'app_secret': META_APP_SECRET,
+}
+_GOOGLE_CREDENTIALS = {
+    'client_id': GOOGLE_CLIENT_ID,
+    'client_secret': GOOGLE_CLIENT_SECRET,
+}
+_INSTAGRAM_LOGIN_CREDENTIALS = {
+    'app_id': INSTAGRAM_APP_ID,
+    'app_secret': INSTAGRAM_APP_SECRET,
+}
+_LINKEDIN_PERSONAL_CREDENTIALS = {
+    'client_id': _env_first('PLATFORM_LINKEDIN_PERSONAL_CLIENT_ID', 'LINKEDIN_CLIENT_ID'),
+    'client_secret': _env_first(
+        'PLATFORM_LINKEDIN_PERSONAL_CLIENT_SECRET', 'LINKEDIN_CLIENT_SECRET'
+    ),
+}
+_LINKEDIN_COMPANY_CREDENTIALS = {
+    'client_id': _env_first(
+        'PLATFORM_LINKEDIN_COMPANY_CLIENT_ID',
+        'PLATFORM_LINKEDIN_PERSONAL_CLIENT_ID',
+        'LINKEDIN_CLIENT_ID',
+    ),
+    'client_secret': _env_first(
+        'PLATFORM_LINKEDIN_COMPANY_CLIENT_SECRET',
+        'PLATFORM_LINKEDIN_PERSONAL_CLIENT_SECRET',
+        'LINKEDIN_CLIENT_SECRET',
+    ),
+}
+
+# App-level credentials — drives is_configured on the connect UI (outside source .env).
+PLATFORM_CREDENTIALS_FROM_ENV = {
+    'facebook': _META_CREDENTIALS,
+    'instagram': _META_CREDENTIALS,
+    'threads': _META_CREDENTIALS,
+    'instagram_login': _INSTAGRAM_LOGIN_CREDENTIALS,
+    'linkedin': {
+        'client_id': LINKEDIN_CLIENT_ID,
+        'client_secret': LINKEDIN_CLIENT_SECRET,
+    },
+    'linkedin_personal': _LINKEDIN_PERSONAL_CREDENTIALS,
+    'linkedin_company': _LINKEDIN_COMPANY_CREDENTIALS,
+    'tiktok': {
+        'client_key': os.environ.get('PLATFORM_TIKTOK_CLIENT_KEY', ''),
+        'client_secret': os.environ.get('PLATFORM_TIKTOK_CLIENT_SECRET', ''),
+    },
+    'youtube': _GOOGLE_CREDENTIALS,
+    'google_business': _GOOGLE_CREDENTIALS,
+    'google_my_business': _GOOGLE_CREDENTIALS,
+    'pinterest': {
+        'app_id': os.environ.get('PLATFORM_PINTEREST_APP_ID', ''),
+        'app_secret': os.environ.get('PLATFORM_PINTEREST_APP_SECRET', ''),
+    },
+    # Bluesky / Mastodon: user supplies credentials at connect time (SS parity).
+    'bluesky': {},
+    'mastodon': {},
+    'twitter': {
+        'client_id': os.environ.get('PLATFORM_TWITTER_CLIENT_ID', ''),
+        'client_secret': os.environ.get('PLATFORM_TWITTER_CLIENT_SECRET', ''),
+    },
+}
+
+# Optional per-platform kill switch: PLATFORM_FACEBOOK_ENABLED=false
+def _platform_enabled_map() -> dict:
+    out = {}
+    for key in PLATFORM_CREDENTIALS_FROM_ENV:
+        env_key = f'PLATFORM_{key.upper()}_ENABLED'
+        # also allow GOOGLE_MY_BUSINESS style
+        alt = f'PLATFORM_{key.upper().replace("-", "_")}_ENABLED'
+        raw = os.environ.get(env_key) or os.environ.get(alt)
+        if raw is None or raw == '':
+            continue
+        out[key] = raw.strip().lower() in ('1', 'true', 'yes', 'on')
+    return out
+
+
+PLATFORM_ENABLED = _platform_enabled_map()
+
+# Trusted origins for CSRF (comma-separated). Use your public UI origin(s).
+CSRF_TRUSTED_ORIGINS = [
+    o.strip() for o in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()
+]
 
 # ── Email (Zoho) ──────────────────────────────────────
 EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'

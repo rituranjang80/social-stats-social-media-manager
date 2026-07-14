@@ -27,13 +27,21 @@ import toast from '../../components/ui/toast';
 export default function MyConnectionsPage() {
   const [workspace, setWorkspace] = useState(null);
   const [status,    setStatus]    = useState({});
+  const [catalog,   setCatalog]   = useState([]);
   const [loading,   setLoading]   = useState(true);
 
   const refreshStatus = useCallback(async (clientId) => {
     if (!clientId) return;
     try {
       const r = await oauthAPI.status(clientId);
-      setStatus(r.data || {});
+      const data = r.data || {};
+      if (data.catalog || data.platforms) {
+        setStatus(data.platforms || {});
+        setCatalog(Array.isArray(data.catalog) ? data.catalog : []);
+      } else {
+        setStatus(data);
+        setCatalog([]);
+      }
     } catch {
       toast.error('Failed to load connection status');
     }
@@ -96,6 +104,7 @@ export default function MyConnectionsPage() {
         <ConnectedAccounts
           clientId={workspace.id}
           status={status}
+          catalog={catalog}
           onRefresh={() => refreshStatus(workspace.id)}
         />
       )}

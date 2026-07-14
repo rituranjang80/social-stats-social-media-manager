@@ -59,6 +59,9 @@ python manage.py runserver
 
 The backend now serves the API at `http://localhost:8000`.
 
+Interactive API docs (Swagger — Try it out + enum dropdowns):
+**http://localhost:8000/api/docs/** — see [API_SWAGGER.md](API_SWAGGER.md).
+
 ### Demo login credentials
 
 `demo_setup` creates three accounts (all with password `demo`):

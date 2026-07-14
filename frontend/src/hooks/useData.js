@@ -127,6 +127,7 @@ export function usePosts(clientId, platform, range, pageSize = 20) {
 
 export function useOAuthStatus(clientId) {
   const [status, setStatus]   = useState({});
+  const [catalog, setCatalog] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const fetch = useCallback(async () => {
@@ -134,13 +135,21 @@ export function useOAuthStatus(clientId) {
     try {
       setLoading(true);
       const res = await oauthAPI.status(clientId);
-      setStatus(res.data);
+      const data = res.data || {};
+      // New shape: { platforms, catalog }. Legacy: flat map.
+      if (data.catalog || data.platforms) {
+        setStatus(data.platforms || {});
+        setCatalog(Array.isArray(data.catalog) ? data.catalog : []);
+      } else {
+        setStatus(data);
+        setCatalog([]);
+      }
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }, [clientId]);
 
   useEffect(() => { fetch(); }, [fetch]);
-  return { status, loading, refetch: fetch };
+  return { status, catalog, loading, refetch: fetch };
 }
 
 export function useOverview(range) {

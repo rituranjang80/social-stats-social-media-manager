@@ -1,0 +1,85 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+.t-dropzone {
+  width: 96px;
+  height: 96px;
+  border: 1.5px dashed var(--border-strong);
+  border-radius: $t-radius-md;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  background: var(--surface-card);
+  color: var(--text-tertiary);
+  transition: border-color $t-transition, background $t-transition;
+
+  &:hover,
+  &--active {
+    border-color: var(--brand-primary);
+    background: var(--brand-primary-soft);
+    color: var(--text-primary);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  &__label {
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+}
+
+.t-media-thumb {
+  width: 96px;
+  height: 96px;
+  border-radius: $t-radius-md;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  background: var(--surface-sunken);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__file {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+  }
+
+  &__remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: rgba(10, 14, 20, 0.7);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: unset;
+    min-width: unset;
+    padding: 0;
+
+    &:hover { background: var(--danger); }
+  }
+}

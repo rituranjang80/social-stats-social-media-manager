@@ -37,7 +37,19 @@ from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiExample
 
+from .openapi_serializers import ComposePostRequestSerializer
+from .openapi_request_bodies import (
+    BestTimeRequestSerializer,
+    ContentCalendarRequestSerializer,
+    ImageCaptionRequestSerializer,
+    RewriteRequestSerializer,
+    SuggestHashtagsRequestSerializer,
+    SuggestReplyRequestSerializer,
+    TrainBrandVoiceRequestSerializer,
+    TranslateRequestSerializer,
+)
 from .ai_helpers import (
     HAIKU, SONNET, get_claude, parse_json_response,
     unified_voice_prompt,
@@ -98,6 +110,23 @@ def _ai_unavailable():
 # ══════════════════════════════════════════════════════════════════════
 # 1. compose-post
 # ══════════════════════════════════════════════════════════════════════
+@extend_schema(
+    tags=['AI'],
+    summary='Compose post variants',
+    request=ComposePostRequestSerializer,
+    examples=[
+        OpenApiExample(
+            'Weekend sale',
+            value={
+                'topic': 'Weekend sale announcement',
+                'platforms': ['facebook', 'instagram'],
+                'tone': 'friendly',
+                'length': 'medium',
+            },
+            request_only=True,
+        ),
+    ],
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def compose_post(request):
@@ -163,6 +192,22 @@ def compose_post(request):
 # ══════════════════════════════════════════════════════════════════════
 # 2. suggest-hashtags
 # ══════════════════════════════════════════════════════════════════════
+@extend_schema(
+    tags=['AI'],
+    summary='Suggest hashtags',
+    request=SuggestHashtagsRequestSerializer,
+    examples=[
+        OpenApiExample(
+            'Instagram draft',
+            value={
+                'content': 'Weekend sale starts Friday — 30% off all sneakers',
+                'platform': 'instagram',
+                'count': 12,
+            },
+            request_only=True,
+        ),
+    ],
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def suggest_hashtags(request):
@@ -231,6 +276,7 @@ def suggest_hashtags(request):
 # ══════════════════════════════════════════════════════════════════════
 # 3. best-time-to-post  (heuristic from historical PostMetric)
 # ══════════════════════════════════════════════════════════════════════
+@extend_schema(tags=['AI'], summary='Best time to post', request=BestTimeRequestSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def best_time_to_post(request):
@@ -305,6 +351,7 @@ def _slot_label(dow: int, hour: int, *, score=None, samples=None):
 # ══════════════════════════════════════════════════════════════════════
 # 4. suggest-reply
 # ══════════════════════════════════════════════════════════════════════
+@extend_schema(tags=['AI'], summary='Suggest inbox reply', request=SuggestReplyRequestSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def suggest_reply(request):
@@ -380,6 +427,18 @@ def suggest_reply(request):
 # ══════════════════════════════════════════════════════════════════════
 # 5. rewrite
 # ══════════════════════════════════════════════════════════════════════
+@extend_schema(
+    tags=['AI'],
+    summary='Rewrite text',
+    request=RewriteRequestSerializer,
+    examples=[
+        OpenApiExample(
+            'Make shorter',
+            value={'text': 'We are excited to announce our big weekend sale…', 'instruction': 'shorter'},
+            request_only=True,
+        ),
+    ],
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def rewrite(request):
@@ -432,6 +491,7 @@ def rewrite(request):
 # ══════════════════════════════════════════════════════════════════════
 # 6. translate
 # ══════════════════════════════════════════════════════════════════════
+@extend_schema(tags=['AI'], summary='Translate text', request=TranslateRequestSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def translate(request):
@@ -483,6 +543,7 @@ def translate(request):
 # ══════════════════════════════════════════════════════════════════════
 # 7. generate-image-caption (Claude vision)
 # ══════════════════════════════════════════════════════════════════════
+@extend_schema(tags=['AI'], summary='Caption an image URL', request=ImageCaptionRequestSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def generate_image_caption(request):
@@ -541,6 +602,7 @@ def generate_image_caption(request):
 # ══════════════════════════════════════════════════════════════════════
 # 8. content-calendar
 # ══════════════════════════════════════════════════════════════════════
+@extend_schema(tags=['AI'], summary='Generate content calendar', request=ContentCalendarRequestSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def content_calendar(request):
@@ -601,6 +663,7 @@ def content_calendar(request):
 # ══════════════════════════════════════════════════════════════════════
 # 9. brand-voice training + retrieval
 # ══════════════════════════════════════════════════════════════════════
+@extend_schema(tags=['AI'], summary='Train brand voice', request=TrainBrandVoiceRequestSerializer)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def train_brand_voice(request):

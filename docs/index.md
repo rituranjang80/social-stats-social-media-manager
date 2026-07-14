@@ -14,7 +14,9 @@ Buffer, and Sprout Social, built on **Django + React**.
 ## What it does
 
 - **Social media scheduler & content calendar** — one composer with per-platform
-  formatting, brand-voice AI captions, scheduling, and agency approval flows.
+  formatting, brand-voice AI captions, scheduling, agency approval flows,
+  Connect Channels, first comment, internal tags, and a Multi-workspace & Teams
+  (Organization → Workspace → Members) layout.
 - **Social media analytics dashboard** — daily-metric ingestion across Facebook,
   Instagram, YouTube, LinkedIn, and Google Business, with a time-series API and
   per-client dashboards.
@@ -25,6 +27,8 @@ Buffer, and Sprout Social, built on **Django + React**.
 - **Agency marketplace** — a two-sided directory connecting businesses with
   agencies.
 - **AI social media assistant** — powered by Anthropic Claude.
+- **Multi-tenant access** — agency / end-user model, per-client workspaces,
+  staff RBAC, invitations, and client collaborator role.
 
 ## Self-hosting
 
@@ -41,6 +45,7 @@ python manage.py runserver
 ## Guides
 
 - [Getting Started](GETTING_STARTED.md)
+- [API Swagger (Try it out)](API_SWAGGER.md) — http://localhost:8000/api/docs/
 - [Configuration](CONFIGURATION.md)
 - [Connect Social Accounts](CONNECT_ACCOUNTS.md)
 - [Connect WhatsApp](CONNECT_WHATSAPP.md)

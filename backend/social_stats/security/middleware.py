@@ -67,7 +67,7 @@ _DEFAULT_CSP_DIRECTIVES = {
 }
 
 
-def _build_csp() -> str:
+def _build_csp(*, upgrade_insecure: bool | None = None, docs: bool = False) -> str:
     """Compose the CSP header from `settings.CONTENT_SECURITY_POLICY` (a dict
     overriding `_DEFAULT_CSP_DIRECTIVES`) plus optional bonuses."""
     overrides = getattr(settings, 'CONTENT_SECURITY_POLICY', None) or {}
@@ -77,15 +77,41 @@ def _build_csp() -> str:
     for k, v in overrides.items():
         merged[k] = list(v) if isinstance(v, (list, tuple)) else [str(v)]
 
+    # Swagger / ReDoc need CDN assets + an inline boot script (drf-spectacular).
+    if docs:
+        cdn = 'https://cdn.jsdelivr.net'
+        for key in ('script-src', 'style-src', 'img-src', 'font-src', 'connect-src'):
+            merged.setdefault(key, [])
+            if cdn not in merged[key]:
+                merged[key].append(cdn)
+        if "'unsafe-inline'" not in merged['script-src']:
+            merged['script-src'].append("'unsafe-inline'")
+        if "'unsafe-inline'" not in merged['style-src']:
+            merged['style-src'].append("'unsafe-inline'")
+
     parts: list[str] = []
     for directive, sources in merged.items():
         parts.append(f'{directive} {" ".join(sources)}')
 
-    # `upgrade-insecure-requests` is a flag, not a source list
-    if getattr(settings, 'CSP_UPGRADE_INSECURE_REQUESTS', not settings.DEBUG):
+    # `upgrade-insecure-requests` breaks http://localhost (schema fetch → https).
+    if upgrade_insecure is None:
+        upgrade_insecure = bool(
+            getattr(settings, 'CSP_UPGRADE_INSECURE_REQUESTS', not settings.DEBUG)
+        )
+    if upgrade_insecure:
         parts.append('upgrade-insecure-requests')
 
     return '; '.join(parts)
+
+
+_DOCS_PATH_PREFIXES = ('/api/docs', '/api/redoc')
+
+
+def _request_is_https(request) -> bool:
+    if request.is_secure():
+        return True
+    proto = (request.META.get('HTTP_X_FORWARDED_PROTO') or '').split(',')[0].strip().lower()
+    return proto == 'https'
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -106,7 +132,9 @@ class SecurityHeadersMiddleware:
 
     def __init__(self, get_response):
         self.get_response = get_response
-        self._csp = _build_csp()
+        self._csp_https = _build_csp(upgrade_insecure=True)
+        self._csp_http = _build_csp(upgrade_insecure=False)
+        self._csp_docs = _build_csp(upgrade_insecure=False, docs=True)
 
     def __call__(self, request):
         response = self.get_response(request)
@@ -122,9 +150,15 @@ class SecurityHeadersMiddleware:
             settings, 'SECURE_CROSS_ORIGIN_OPENER_POLICY', 'same-origin',
         ))
         response.setdefault('X-Permitted-Cross-Domain-Policies', 'none')
-        # CSP — set unconditionally so dev mismatches surface early
-        if 'Content-Security-Policy' not in response:
-            response['Content-Security-Policy'] = self._csp
+
+        path = request.path or ''
+        if path.startswith(_DOCS_PATH_PREFIXES):
+            # Always override — default CSP blanks Swagger (blocks CDN + inline JS).
+            response['Content-Security-Policy'] = self._csp_docs
+        elif 'Content-Security-Policy' not in response:
+            response['Content-Security-Policy'] = (
+                self._csp_https if _request_is_https(request) else self._csp_http
+            )
         return response
 
 

@@ -24,8 +24,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import UserProfile, ensure_client_profile
 
 
-GOOGLE_CLIENT_ID      = settings.GOOGLE_CLIENT_ID
-GOOGLE_CLIENT_SECRET  = settings.GOOGLE_CLIENT_SECRET
+# Prefer dedicated login credentials (GOOGLE_AUTH_*) over platform-connect Google OAuth.
+GOOGLE_CLIENT_ID = getattr(settings, 'GOOGLE_AUTH_CLIENT_ID', '') or settings.GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET = getattr(settings, 'GOOGLE_AUTH_CLIENT_SECRET', '') or settings.GOOGLE_CLIENT_SECRET
 GOOGLE_SOCIAL_REDIRECT_URI = getattr(
     settings, 'GOOGLE_SOCIAL_REDIRECT_URI',
     'http://localhost:8000/api/auth/social/google/callback/'
