@@ -62,6 +62,22 @@ The backend now serves the API at `http://localhost:8000`.
 Interactive API docs (Swagger — Try it out + enum dropdowns):
 **http://localhost:8000/api/docs/** — see [API_SWAGGER.md](API_SWAGGER.md).
 
+### Brightbean static HTML prototypes
+
+Drop HTML (+ relative asset folders) under `frontend/public/Brightbean/`, then:
+
+```bash
+cd C:\app\SocialMediaStart
+docker compose --env-file .env up -d --build gateway
+```
+
+Open e.g. **http://localhost:8000/Brightbean/NewPost.html**. New files like
+`a.html` / `b.html` appear at `/Brightbean/a.html` after the same rebuild.
+
+If you previously opened that URL and saw the React **Not Found** page, clear
+the service worker once (DevTools → Application → Service Workers → Unregister)
+then hard-refresh — an older SW could serve the SPA shell for `/Brightbean/*`.
+
 ### Demo login credentials
 
 `demo_setup` creates three accounts (all with password `demo`):

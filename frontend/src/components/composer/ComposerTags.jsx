@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Tag, X, ChevronDown, Plus } from 'lucide-react';
 import { composerAPI } from '../../services/api';
 
-export default function ComposerTags({ value = [], onChange }) {
+export default function ComposerTags({ value = [], onChange, clientId = null }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [allTags, setAllTags] = useState([]);
@@ -16,14 +16,15 @@ export default function ComposerTags({ value = [], onChange }) {
     let cancelled = false;
     (async () => {
       try {
-        const res = await composerAPI.posts.tagSuggestions();
+        const params = clientId ? { client_id: clientId } : undefined;
+        const res = await composerAPI.posts.tagSuggestions(params);
         if (!cancelled) setAllTags(res.data?.tags || []);
       } catch {
         /* suggestions are optional */
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [clientId]);
 
   useEffect(() => {
     function onDoc(e) {

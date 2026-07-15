@@ -8,7 +8,7 @@ Requirements:
 
 Frontend:
 - React.js with fully generic, reusable, plug-and-play T-Type components.
-- SCSS/SASS only (no inline CSS), using variables, mixins, functions, nesting, and modular architecture.
+- SCSS/SASS only (no inline CSS), using variables, mixins, functions, nesting, and modular ,loop,conditional, generic rusubable,architecture.
 - Components must be reusable across different modules and projects.
 - Clean folder structure, lazy loading, accessibility (WCAG), dark/light theme support, and optimized performance.
 

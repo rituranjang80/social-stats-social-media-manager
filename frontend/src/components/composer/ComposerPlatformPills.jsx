@@ -1,5 +1,4 @@
-import { X, Video } from 'lucide-react';
-import { TPill } from '../t';
+import { Check, X, Video } from 'lucide-react';
 import SocialPlatformIcon from '../ui/SocialPlatformIcon';
 import { PLATFORMS } from './constants';
 
@@ -9,19 +8,24 @@ export function ComposerPlatformPills({ platforms = PLATFORMS, selected, onToggl
       {platforms.map((p) => {
         const on = selected.includes(p.id);
         return (
-          <TPill
+          <button
             key={p.id}
-            selected={on}
-            showCheck
-            color={p.color}
+            type="button"
+            className={`composer-acct-pill ${on ? 'is-selected' : ''}`}
+            aria-pressed={on}
             onClick={() => onToggle(p.id)}
-            className={`t-pill--${p.id}`}
           >
-            <span className="t-pill__brand-icon" aria-hidden="true">
-              <SocialPlatformIcon platform={p.id} size={16} />
+            <span className="composer-acct-pill__check" aria-hidden="true">
+              {on ? <Check size={10} strokeWidth={3} /> : null}
             </span>
-            {p.label}
-          </TPill>
+            <span
+              className={`composer-acct-pill__icon composer-acct-pill__icon--${p.id}`}
+              aria-hidden="true"
+            >
+              <SocialPlatformIcon platform={p.id} size={14} />
+            </span>
+            <span className="composer-acct-pill__label">{p.label}</span>
+          </button>
         );
       })}
     </div>

@@ -9,7 +9,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { BarChart3, MessageCircle, Target, Menu, X } from 'lucide-react';
+import { BarChart3, MessageCircle, Target, Menu, X, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRealtime } from '../../hooks/useRealtime';
 
@@ -21,8 +21,14 @@ import MobileNav from './MobileNav';
 import AIFloatingTrigger from '../ai/AIFloatingTrigger';
 import SkipLink from '../ui/SkipLink';
 import ThemeToggle from '../ui/ThemeToggle';
+import WorkspaceSwitcher from '../workspace/WorkspaceSwitcher';
 import useBreakpoint from '../../hooks/useBreakpoint';
 import { useAuth } from '../../hooks/useAuth';
+import useWorkspace from '../../hooks/useWorkspace';
+import { useCurrentClientId } from '../../stores/appStore';
+
+import '../../styles/scss/topbar.scss';
+import '../../styles/scss/workspace-switcher.scss';
 
 /**
  * Root layout shell. Replaces the inline layout logic in App.js.
@@ -37,6 +43,9 @@ export default function AppShell({ children, isAdmin }) {
   const { user, can } = useAuth();
   const { isMobile } = useBreakpoint();
   const reducedMotion = useReducedMotion();
+  const workspaceId = useCurrentClientId();
+  // Hydrate workspace list once for the shell (TopBar / MobileTopBar read the store)
+  useWorkspace({ user, autoHydrate: true });
 
   const basePath = isAdmin ? '/admin' : '/dashboard';
   const currentModule = useMemo(() => deriveModule(location.pathname, basePath), [location.pathname, basePath]);
@@ -127,7 +136,6 @@ export default function AppShell({ children, isAdmin }) {
         <FeatureSidebar
           module={currentModule}
           basePath={basePath}
-          isAdmin={isAdmin}
         />
       )}
 
@@ -173,7 +181,7 @@ export default function AppShell({ children, isAdmin }) {
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
-            key={location.pathname}
+            key={`${workspaceId || 'none'}:${location.pathname}`}
             initial={reducedMotion ? false : { opacity: 0, y: 8 }}
             animate={reducedMotion ? {} : { opacity: 1, y: 0 }}
             exit={reducedMotion ? {} : { opacity: 0, y: -4 }}
@@ -200,57 +208,48 @@ export default function AppShell({ children, isAdmin }) {
 
 function MobileTopBar({ basePath, onMenuOpen, onOpenPalette }) {
   const { user } = useAuth();
+  const {
+    workspace,
+    workspaces,
+    loading,
+    switchWorkspace,
+  } = useWorkspace({ user, autoHydrate: false });
   const initial = ((user?.name || user?.email || 'U').trim()[0] || 'U').toUpperCase();
   const hue = hashHue(user?.email || user?.name || '');
 
   return (
-    <header
-      className="ds-mobile-topbar"
-      style={{
-        position: 'fixed',
-        top: 0, left: 0, right: 0,
-        height: 'var(--topbar-height)',
-        zIndex: 150,
-        background: 'var(--surface-card)',
-        borderBottom: '1px solid var(--border-subtle)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        padding: '0 12px',
-        paddingTop: 'env(safe-area-inset-top)',
-      }}
-    >
-      <button type="button" onClick={onMenuOpen} aria-label="Open menu" style={iconBtn}>
-        <Menu size={18} strokeWidth={2} />
+    <header className="ds-mobile-topbar" role="banner">
+      <button type="button" className="ds-mobile-topbar__btn" onClick={onMenuOpen} aria-label="Open menu">
+        <Menu size={18} strokeWidth={2} aria-hidden="true" />
       </button>
+
+      <div className="ds-mobile-topbar__workspace">
+        <WorkspaceSwitcher
+          workspace={workspace}
+          workspaces={workspaces}
+          loading={loading}
+          onSwitch={switchWorkspace}
+          compact
+          align="center"
+        />
+      </div>
+
       <button
         type="button"
+        className="ds-mobile-topbar__btn"
         onClick={onOpenPalette}
         aria-label="Search"
-        style={{
-          flex: 1, minWidth: 0,
-          height: 36,
-          display: 'flex', alignItems: 'center', gap: 8,
-          padding: '0 12px',
-          background: 'var(--surface-sunken)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: 'var(--radius-md)',
-          color: 'var(--text-tertiary)',
-          fontSize: 13,
-          minHeight: 'unset',
-        }}
       >
-        Search anything…
+        <Search size={18} strokeWidth={2} aria-hidden="true" />
       </button>
+
       <ThemeToggle size="sm" />
-      <div style={{
-        width: 32, height: 32,
-        borderRadius: 999,
-        background: `linear-gradient(135deg, hsl(${hue},65%,55%), hsl(${(hue+50)%360},65%,45%))`,
-        color: '#fff', fontWeight: 700, fontSize: 12,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        flexShrink: 0,
-      }}>
+
+      <div
+        className="ds-mobile-topbar__avatar"
+        style={{ '--ds-avatar-hue': hue }}
+        aria-hidden="true"
+      >
         {initial}
       </div>
     </header>

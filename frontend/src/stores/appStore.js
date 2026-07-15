@@ -29,6 +29,8 @@ const initial = {
   // ── Active workspace ────────────────────────────────────────────────
   currentClientId: null,
   currentClient:   null,   // {id, name, company, ...} — denormalised for the switcher
+  workspaces:      [],     // available Clients for the switcher
+  workspacesLoading: false,
 
   // ── Badge counts (mirror /api/dashboard/counts/ shape) ──────────────
   badgeCounts: {
@@ -53,6 +55,12 @@ export const useAppStore = create(
         currentClient:   client ?? null,
       }),
       clearCurrentClient: () => set({ currentClientId: null, currentClient: null }),
+      setWorkspaces: (workspaces) => set({
+        workspaces: Array.isArray(workspaces) ? workspaces : [],
+      }),
+      setWorkspacesLoading: (loading) => set({
+        workspacesLoading: !!loading,
+      }),
 
       // ── Badges ────────────────────────────────────────────────────
       setBadgeCounts: (counts) => set({

@@ -8,6 +8,7 @@
  * ========================================================================== */
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authAPI } from '../services/api';
+import { useAppStore } from '../stores/appStore';
 
 const AuthContext = createContext(null);
 
@@ -37,6 +38,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
+    useAppStore.getState().reset();
     localStorage.clear();
     setUser(null);
   };

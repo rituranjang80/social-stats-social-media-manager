@@ -82,36 +82,40 @@ class TenantScopedMixin:
             ).values_list('client_id', flat=True)
         )
 
+    def _requested_client_id(self) -> Optional[int]:
+        """Read optional workspace id from query, body, or gateway headers."""
+        raw = (
+            self.request.query_params.get('client_id')
+            or self.request.query_params.get('workspace_id')
+            or self.request.data.get('client')
+            or self.request.data.get('client_id')
+            or self.request.META.get('HTTP_X_CLIENT_ID')
+            or self.request.META.get('HTTP_X_WORKSPACE_ID')
+        )
+        try:
+            return int(raw) if raw not in (None, '') else None
+        except (TypeError, ValueError):
+            return None
+
     def resolved_client_id(self) -> Optional[int]:
         """Returns the client_id the current user is *allowed* to operate on."""
         profile = self._profile()
         if not profile:
             return None
         if profile.role == 'superadmin':
-            cid = self.request.query_params.get('client_id') or self.request.data.get('client')
-            try:
-                return int(cid) if cid else None
-            except (TypeError, ValueError):
-                return None
+            return self._requested_client_id()
         if profile.role == 'staff':
-            cid = self.request.query_params.get('client_id') or self.request.data.get('client')
-            try:
-                cid = int(cid) if cid else None
-            except (TypeError, ValueError):
-                return None
+            cid = self._requested_client_id()
             if cid and profile.assigned_clients.filter(id=cid).exists():
                 return cid
             return None
         agency_ids = self._agency_client_ids(profile)
         if agency_ids:
-            cid = self.request.query_params.get('client_id') or self.request.data.get('client')
-            try:
-                cid = int(cid) if cid else None
-            except (TypeError, ValueError):
-                cid = None
+            cid = self._requested_client_id()
             if cid and cid in agency_ids:
                 return cid
             return None
+        # End-user: locked to their profile workspace (body client ignored)
         return profile.client_id
 
     # ── DRF hooks ────────────────────────────────────────────────────────

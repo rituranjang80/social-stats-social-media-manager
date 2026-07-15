@@ -1,0 +1,205 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.ws-switcher {
+  position: relative;
+  max-width: 280px;
+  width: 100%;
+  flex: 0 1 280px;
+  min-width: 0;
+
+  &--compact {
+    max-width: 220px;
+    flex-basis: 200px;
+  }
+
+  &--align-left {
+    margin-right: auto;
+  }
+
+  &--empty {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px dashed var(--border-default);
+    color: var(--text-tertiary);
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--surface-sunken);
+  }
+
+  &__btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-sunken);
+    cursor: pointer;
+    text-align: left;
+    color: var(--text-primary);
+    transition: border-color $t-transition, background $t-transition, box-shadow $t-transition;
+
+    &:disabled {
+      cursor: default;
+      opacity: 1;
+    }
+
+    &:hover:not(:disabled),
+    .ws-switcher.is-open & {
+      border-color: var(--border-default);
+      background: var(--surface-hover);
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+  }
+
+  &__avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    background: var(--surface-card);
+    border: 1px solid var(--border-subtle);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-secondary);
+    overflow: hidden;
+    flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__label {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+    line-height: 1.2;
+  }
+
+  &__name {
+    font-size: 13px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-primary);
+    line-height: 1.25;
+  }
+
+  &__chevron {
+    color: var(--text-tertiary);
+    transition: transform $t-transition;
+    flex-shrink: 0;
+  }
+
+  &.is-open &__chevron {
+    transform: rotate(180deg);
+  }
+
+  &__menu {
+    position: absolute;
+    z-index: 120;
+    left: 50%;
+    top: calc(100% + 8px);
+    transform: translateX(-50%);
+    width: max(100%, 260px);
+    max-width: min(320px, calc(100vw - 24px));
+    padding: 6px;
+    border-radius: 12px;
+    border: 1px solid var(--border-default);
+    background: var(--surface-elevated, var(--surface-card));
+    box-shadow: var(--shadow-lg, 0 12px 28px rgba(10, 14, 20, 0.12));
+    max-height: min(320px, calc(100vh - 96px));
+    overflow-y: auto;
+  }
+
+  &--align-left &__menu {
+    left: 0;
+    transform: none;
+  }
+
+  &__option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+
+    &:hover,
+    &.is-active {
+      background: var(--surface-sunken);
+    }
+  }
+
+  &__option-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--brand-primary-soft, rgba(0, 204, 245, 0.12));
+    color: var(--brand-primary-hover, var(--brand-primary));
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+}
+
+.ds-topbar__workspace {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 320px;
+  margin: 0 auto;
+  padding: 0 8px;
+}
+
+.ds-mobile-topbar__workspace {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0 4px;
+}

@@ -7,16 +7,66 @@
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
 import axios from 'axios';
+import { useAppStore } from '../stores/appStore';
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8000/api',
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Attach JWT token to every request
+/** Auth / bootstrap paths that must not receive a workspace scope. */
+const WORKSPACE_SKIP_PATH_RE = /\/(auth|token|schema|docs|redoc)(\/|$)/i;
+/** Client catalogue used by the switcher — must return all accessible rows. */
+const WORKSPACE_SKIP_EXACT_RE = /^\/?clients\/?$/i;
+
+function shouldAttachWorkspace(config) {
+  if (config?.skipWorkspace) return false;
+  const url = String(config?.url || '').split('?')[0];
+  if (WORKSPACE_SKIP_PATH_RE.test(url)) return false;
+  if (WORKSPACE_SKIP_EXACT_RE.test(url.replace(/^\/api/, ''))) return false;
+  return true;
+}
+
+function getActiveWorkspaceId() {
+  try {
+    return useAppStore.getState().currentClientId || null;
+  } catch {
+    return null;
+  }
+}
+
+// Attach JWT + active workspace (client_id) to every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('access_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
+
+  if (!shouldAttachWorkspace(config)) return config;
+
+  const workspaceId = getActiveWorkspaceId();
+  if (!workspaceId) return config;
+
+  config.headers = config.headers || {};
+  config.headers['X-Client-Id'] = String(workspaceId);
+  config.headers['X-Workspace-Id'] = String(workspaceId);
+
+  config.params = { ...(config.params || {}) };
+  if (config.params.client_id == null && config.params.workspace_id == null) {
+    config.params.client_id = workspaceId;
+  }
+
+  const method = String(config.method || 'get').toLowerCase();
+  if (['post', 'put', 'patch'].includes(method) && config.data != null) {
+    if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+      if (!config.data.has('client') && !config.data.has('client_id')) {
+        config.data.append('client', String(workspaceId));
+      }
+    } else if (typeof config.data === 'object' && !Array.isArray(config.data)) {
+      if (config.data.client == null && config.data.client_id == null) {
+        config.data = { ...config.data, client: workspaceId };
+      }
+    }
+  }
+
   return config;
 });
 
@@ -289,7 +339,7 @@ export const reviewAPI = {
 
 // ── Clients ───────────────────────────────────────────
 export const clientsAPI = {
-  list:        ()           => api.get('/clients/'),
+  list:        (opts)       => api.get('/clients/', opts),
   get:         (id)         => api.get(`/clients/${id}/`),
   create:      (data)       => api.post('/clients/', data),
   update:      (id, data)   => api.patch(
@@ -640,28 +690,42 @@ export const automationsAPI = {
 export const composerAPI = {
   posts: {
     list:        (params)   => api.get('/composer/posts/', { params }),
-    get:         (id)       => api.get(`/composer/posts/${id}/`),
+    get:         (id, params) => api.get(`/composer/posts/${id}/`, { params }),
     create:      (data)     => api.post('/composer/posts/', data),
     update:      (id, data) => api.patch(`/composer/posts/${id}/`, data),
     delete:      (id)       => api.delete(`/composer/posts/${id}/`),
-    publishNow:  (id)       => api.post(`/composer/posts/${id}/publish_now/`),
-    schedule:    (id, scheduled_at) => api.post(`/composer/posts/${id}/schedule/`, { scheduled_at }),
+    publishNow:  (id, params) => api.post(`/composer/posts/${id}/publish_now/`, {}, { params }),
+    schedule:    (id, scheduled_at, params) => api.post(`/composer/posts/${id}/schedule/`, { scheduled_at }, { params }),
     cancel:      (id)       => api.post(`/composer/posts/${id}/cancel/`),
-    duplicate:   (id)       => api.post(`/composer/posts/${id}/duplicate/`),
+    duplicate:   (id, params) => api.post(`/composer/posts/${id}/duplicate/`, {}, { params }),
     approve:     (id)       => api.post(`/composer/posts/${id}/approve/`),
     addToQueue:  (id, queue_id) => api.post(`/composer/posts/${id}/add_to_queue/`, { queue_id }),
     preview:     (id)       => api.get(`/composer/posts/${id}/preview/`),
-    tagSuggestions: ()      => api.get('/composer/posts/tag_suggestions/'),
+    tagSuggestions: (params) => api.get('/composer/posts/tag_suggestions/', { params }),
   },
   media: {
     list:        (params)   => api.get('/composer/media/', { params }),
     get:         (id)       => api.get(`/composer/media/${id}/`),
     delete:      (id)       => api.delete(`/composer/media/${id}/`),
     update:      (id, data) => api.patch(`/composer/media/${id}/`, data),
-    upload:      (formData) => api.post('/composer/media/', formData,
-                              { headers: { 'Content-Type': 'multipart/form-data' } }),
-    bulkUpload:  (formData) => api.post('/composer/media/bulk_upload/', formData,
-                              { headers: { 'Content-Type': 'multipart/form-data' } }),
+    upload:      (formData, params) => {
+      if (params?.client_id != null && !formData.has('client')) {
+        formData.append('client', String(params.client_id));
+      }
+      return api.post('/composer/media/', formData, {
+        params,
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    },
+    bulkUpload:  (formData, params) => {
+      if (params?.client_id != null && !formData.has('client')) {
+        formData.append('client', String(params.client_id));
+      }
+      return api.post('/composer/media/bulk_upload/', formData, {
+        params,
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    },
   },
   queues: {
     list:        (params)   => api.get('/composer/queues/', { params }),

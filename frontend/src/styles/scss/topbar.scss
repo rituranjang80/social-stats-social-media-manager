@@ -1,0 +1,215 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.ds-topbar {
+  position: fixed;
+  top: 0;
+  left: calc(var(--module-rail-width) + var(--feature-sidebar-width));
+  right: 0;
+  height: var(--topbar-height);
+  z-index: 80;
+  background: var(--surface-card);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  box-sizing: border-box;
+
+  &__crumbs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    flex: 0 1 220px;
+  }
+
+  &__crumb {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  &__crumb-sep {
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+  }
+
+  &__crumb-current {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__crumb-link,
+  &__crumb-muted {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  &__crumb-link:hover {
+    color: var(--text-secondary);
+  }
+
+  &__workspace {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+    padding: 0 8px;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+}
+
+.ds-topbar-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 1 240px;
+  min-width: 140px;
+  height: 34px;
+  padding: 0 12px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-tertiary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+
+  &:hover {
+    border-color: var(--border-default);
+  }
+
+  &__label {
+    flex: 1;
+    text-align: left;
+  }
+
+  &__kbd {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    padding: 2px 6px;
+    background: var(--surface-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    color: var(--text-tertiary);
+  }
+}
+
+.ds-whats-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: var(--brand-primary-glow);
+  color: var(--brand-primary-hover);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  letter-spacing: 0.2px;
+  transition: var(--transition-fast);
+
+  &:hover {
+    background: var(--brand-primary-soft);
+  }
+}
+
+.ds-mobile-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--topbar-height);
+  z-index: 150;
+  background: var(--surface-card);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  box-sizing: border-box;
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--surface-hover);
+      color: var(--text-primary);
+    }
+  }
+
+  &__workspace {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  &__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--ds-avatar-hue, 200), 65%, 55%),
+      hsl(calc(var(--ds-avatar-hue, 200) + 50), 65%, 45%)
+    );
+  }
+}
+
+@include respond-down(900px) {
+  .ds-topbar {
+    &__crumbs {
+      display: none;
+    }
+
+    .ds-topbar-search__label,
+    .ds-topbar-search__kbd {
+      display: none;
+    }
+
+    .ds-topbar-search {
+      flex: 0 0 34px;
+      min-width: 34px;
+      width: 34px;
+      padding: 0;
+      justify-content: center;
+    }
+  }
+}

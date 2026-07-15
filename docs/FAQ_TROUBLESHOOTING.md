@@ -19,6 +19,21 @@ alternative to tools like Hootsuite, Buffer, and Sprout Social. See
 
 ## Setup & runtime
 
+### Docker backend/gateway restart loop (`pipefail` / `host not found in upstream "backend"`)
+On Windows, if `SocialMediaStart/docker/entrypoint-backend.sh` has CRLF line
+endings, bash fails with `set: pipefail\r: invalid option name`, the backend
+never binds, and the gateway crash-loops looking up `backend:8000`. Convert the
+script to LF (or keep `*.sh text eol=lf` in `.gitattributes`), then
+`docker compose --env-file .env up -d --force-recreate`. Backend health uses
+`/api/health/services/` (not `/admin/login/`).
+
+### How do I switch workspaces?
+Use **Switch Workspace** in the **top navigation bar** (centered on desktop;
+in the mobile top bar on smaller screens). The selection is global: dashboard,
+composer, calendar, media, inbox, analytics, and settings all use that
+workspace. Your choice persists across refresh (localStorage); it does not
+log you out or refresh JWT.
+
 ### `/admin/clients` or `/admin/management` shows “Page not found”
 Those URLs belong to the **React admin shell**, not Django. If the Docker
 gateway still proxies `/admin/` to Django, you’ll see a Django 404.
@@ -41,6 +56,17 @@ uses:
 
 In production these must be your HTTPS domain. Update both the platform app
 **and** the env var. See [CONNECT_ACCOUNTS.md](CONNECT_ACCOUNTS.md).
+
+### Brightbean HTML 404 or missing CSS/JS
+Files must live under `frontend/public/Brightbean/` and the **gateway** must be
+rebuilt (`docker compose --env-file .env up -d --build gateway`). Use URLs like
+`/Brightbean/NewPost.html`. Prefer asset folders **without spaces** and
+`.js` (not `.js.download`). See `frontend/public/Brightbean/README.txt`.
+
+If the URL loads the **React app “Not Found”** screen instead of the HTML:
+unregister the site service worker (DevTools → Application → Service Workers →
+Unregister) or hard-refresh after rebuild — an older SW may have cached the SPA
+shell for `/Brightbean/*`.
 
 ### Where is the API Swagger?
 **http://localhost:8000/api/docs/** (ReDoc: `/api/redoc/`). Click

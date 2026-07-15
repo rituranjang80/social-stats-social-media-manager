@@ -2,6 +2,67 @@
 
 ## [Unreleased]
 
+### Fixed — Docker stack crash-loop on Windows (entrypoint CRLF)
+
+`entrypoint-backend.sh` with CRLF prevented bash `set -o pipefail`, so
+backend/celery never started and nginx failed with `host not found in upstream
+"backend:8000"`. Scripts enforce LF; backend healthcheck now probes
+`/api/health/services/`.
+
+### Changed — Global Switch Workspace in the top navigation bar
+
+Workspace selection is centralized in the app **TopBar** (and mobile top bar)
+via `WorkspaceSwitcher` + `useWorkspace`, synced to `appStore`
+(`currentClientId` / `currentClient`, localStorage). Axios now attaches
+`client_id` (and `X-Client-Id`) on requests automatically. Switching workspace
+invalidates React Query and remounts the main outlet so modules refetch for the
+new Client. Composer and the admin sidebar no longer host their own switchers.
+
+### Changed — Composer: no page-local Multi-workspace & Teams chrome
+
+Composer page drops org breadcrumb, team rail, RBAC/invites capability cards,
+and “Manage workspaces” links. Workspace selection moved to the **global top
+bar** (see above). Saves, drafts, schedule, publish, duplicate params, media
+upload, preflight, tags, and AI calls use the active workspace from
+`appStore` / axios (`client` / `client_id`). Tenant mixin also accepts
+`client_id` in the request body (backward compatible). Removed unused composer
+tenant components/hook and the page-local workspace switcher.
+
+### Changed — Composer shell components + closer Brightbean match
+
+Post composer UI further aligned with `/Brightbean/NewPost.html`: Create header
+with bordered back control, platform pills without card chrome, caption card
+footer (Media Library + char count), empty preview state, orange brand action
+buttons, Cmd/Ctrl+S draft shortcut. Extracted reusable presentational pieces
+(`ComposerHeader`, `ComposerCaptionEditor`, `ComposerScheduleCard`,
+`ComposerActionFooter`, `ComposerPreviewPanel`) — **no API or state-logic
+regressions**.
+
+### Changed — Composer UI matches Brightbean Create look
+
+React composer (`/admin/analytics/composer` and dashboard equivalent) restyled to
+align with Brightbean `NewPost.html`: warm stone page surface, orange primary
+actions, Create/Edit header with back, account-style platform pills, caption
+card with inline media, uppercase section labels, entrance motion, and live
+preview panel polish. **Logic unchanged** (save/publish/schedule/preflight/AI/
+upload/tenant/connect). Brightbean tokens are scoped under `.composer` so the
+global cyan brand tokens stay intact elsewhere.
+
+### Fixed — Brightbean URL showed React “Not Found”
+
+A production service worker had cached the SPA `index.html` under
+`/Brightbean/NewPost.html`, so the browser showed the React 404 instead of the
+static HTML. `sw.js` now **bypasses** `/Brightbean/*` (and uses network-first
+for navigations); cache bumped to `socialstats-v2`.
+
+### Added — Static Brightbean HTML at `/Brightbean/*`
+
+Serve prototype pages from `frontend/public/Brightbean/` at
+http://localhost:8000/Brightbean/NewPost.html (also any `a.html` / `b.html` you
+add). Gateway nginx `location ^~ /Brightbean/` returns real files (no SPA
+fallback). Assets live in `NewPost_files/` (no spaces); `.js.download` → `.js`.
+Rebuild gateway after changes. Notes: `frontend/public/Brightbean/README.txt`.
+
 ### Added — Interactive Swagger / OpenAPI (`/api/docs/`)
 
 - **drf-spectacular** with Swagger UI, ReDoc, and raw schema:

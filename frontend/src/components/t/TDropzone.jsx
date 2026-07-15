@@ -10,6 +10,7 @@ export default function TDropzone({
   onFiles,
   label = 'Upload',
   className = '',
+  children,
 }) {
   const inputRef = useRef(null);
   const [active, setActive] = useState(false);
@@ -45,8 +46,12 @@ export default function TDropzone({
         }}
         aria-label={label}
       >
-        <Upload size={18} strokeWidth={2.2} aria-hidden="true" />
-        <span className="t-dropzone__label">{label}</span>
+        {children || (
+          <>
+            <Upload size={18} strokeWidth={2.2} aria-hidden="true" />
+            <span className="t-dropzone__label">{label}</span>
+          </>
+        )}
       </button>
     </>
   );

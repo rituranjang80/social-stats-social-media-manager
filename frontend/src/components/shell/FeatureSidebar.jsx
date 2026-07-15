@@ -6,13 +6,12 @@
  *  Copyright (c) 2026 Chandrabhan Shekhawat / Gigai Kripa Services.
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
-import { useState } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, LineChart, FileText, FileType, CalendarDays, Wand2, Lightbulb, Hash,
   TrendingUp, AlertCircle, FolderSync,
   Inbox, Send, Users2, ListChecks, Settings, Webhook,
-  Rocket, ChevronDown, Building2, Search,
+  Rocket,
   PenSquare, Layers, Images,
   Star, AtSign,
   Zap, Film,
@@ -22,25 +21,18 @@ import {
 } from 'lucide-react';
 
 import PermissionGate from '../ui/PermissionGate';
-import { useAuth } from '../../hooks/useAuth';
-import { useClients } from '../../hooks/useData';
 import { useBadgeCount } from '../../stores/appStore';
 
 /**
  * 240px feature sidebar; nav set varies by `module`.
  *
  * Props:
- *   module:        'analytics' | 'messaging' | 'ads'
- *   basePath:      '/admin' | '/dashboard'
- *   isAdmin:       bool — when true, show client switcher pill at the bottom
- *   selectedClient + onSelectClient: client switcher state (admin only)
+ *   module:   'analytics' | 'messaging' | 'ads'
+ *   basePath: '/admin' | '/dashboard'
  */
 export default function FeatureSidebar({
   module,
   basePath,
-  isAdmin = false,
-  selectedClient,
-  onSelectClient,
 }) {
   const location = useLocation();
 
@@ -122,10 +114,7 @@ export default function FeatureSidebar({
         )}
       </div>
 
-      {/* Client switcher (admin only) */}
-      {isAdmin && (
-        <ClientSwitcher selected={selectedClient} onSelect={onSelectClient} />
-      )}
+      {/* Client switcher lives in TopBar — sidebar no longer duplicates it */}
     </aside>
   );
 }
@@ -216,138 +205,6 @@ function EmptyModule({ message }) {
       <Rocket size={28} strokeWidth={1.5} style={{ marginBottom: 8 }} />
       <div>{message}</div>
     </div>
-  );
-}
-
-function ClientSwitcher({ selected, onSelect }) {
-  const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState('');
-  const navigate = useNavigate();
-  const { clients } = useClients();
-
-  const filtered = (clients || []).filter((c) =>
-    !search || (c.company || '').toLowerCase().includes(search.toLowerCase())
-  );
-
-  return (
-    <div style={{ borderTop: '1px solid var(--border-subtle)', padding: 10, position: 'relative' }}>
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          width: '100%', padding: '8px 10px',
-          background: 'var(--surface-sunken)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: 'var(--radius-md)',
-          cursor: 'pointer',
-          transition: 'var(--transition-fast)',
-        }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--surface-hover)'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--surface-sunken)'; }}
-      >
-        <Building2 size={14} color="var(--text-tertiary)" />
-        <span style={{
-          flex: 1, minWidth: 0,
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', textAlign: 'left',
-        }}>
-          {selected?.company || 'All clients'}
-        </span>
-        <ChevronDown size={14} color="var(--text-tertiary)" />
-      </button>
-
-      {open && (
-        <div
-          role="listbox"
-          style={{
-            position: 'absolute', bottom: 'calc(100% + 4px)', left: 10, right: 10,
-            background: 'var(--surface-elevated)',
-            border: '1px solid var(--border-default)',
-            borderRadius: 'var(--radius-md)',
-            boxShadow: 'var(--shadow-lg)',
-            // Cap at 320px AND viewport-height-minus-rail so we never overflow
-            // off the top of short viewports.
-            maxHeight: 'min(320px, calc(100vh - 96px))',
-            overflow: 'auto',
-            zIndex: 110,
-          }}
-        >
-          <div style={{
-            padding: 8,
-            borderBottom: '1px solid var(--border-subtle)',
-            position: 'sticky', top: 0, background: 'var(--surface-elevated)',
-          }}>
-            <div style={{ position: 'relative' }}>
-              <Search size={12} color="var(--text-tertiary)"
-                      style={{ position: 'absolute', top: 9, left: 8 }} />
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search clients…"
-                style={{
-                  width: '100%', padding: '6px 10px 6px 26px',
-                  background: 'var(--surface-sunken)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: 'var(--radius-sm)',
-                  fontSize: 12, color: 'var(--text-primary)',
-                  outline: 'none',
-                }}
-                autoFocus
-              />
-            </div>
-          </div>
-          <div style={{ padding: 4 }}>
-            <SwitcherRow
-              label="All clients"
-              active={!selected}
-              onClick={() => { onSelect?.(null); setOpen(false); }}
-            />
-            {filtered.map((c) => (
-              <SwitcherRow
-                key={c.id}
-                label={c.company}
-                active={selected?.id === c.id}
-                onClick={() => {
-                  onSelect?.(c);
-                  setOpen(false);
-                  navigate(`/admin/client/${c.id}`);
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function SwitcherRow({ label, active, onClick }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      role="option"
-      aria-selected={active}
-      style={{
-        display: 'block', width: '100%',
-        textAlign: 'left',
-        padding: '7px 10px',
-        background: active ? 'var(--brand-primary-glow)' : 'transparent',
-        color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
-        border: 'none',
-        borderRadius: 'var(--radius-sm)',
-        fontSize: 12, fontWeight: active ? 600 : 500,
-        cursor: 'pointer',
-        transition: 'var(--transition-fast)',
-      }}
-      onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = 'var(--surface-hover)'; }}
-      onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = 'transparent'; }}
-    >
-      {label}
-    </button>
   );
 }
 
