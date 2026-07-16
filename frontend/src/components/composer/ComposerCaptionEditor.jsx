@@ -1,7 +1,6 @@
 /* ============================================================================
  * Caption card — textarea, inline media dropzone/thumbs, footer meta.
  * ========================================================================== */
-import { Link } from 'react-router-dom';
 import { Image as ImageIcon } from 'lucide-react';
 import AIWriteButton from '../ai/AIWriteButton';
 import { TCard, TDropzone, TTextArea } from '../t';
@@ -18,7 +17,7 @@ export default function ComposerCaptionEditor({
   onInsertAi,
   charUsed,
   charMax,
-  mediaLibraryPath,
+  onOpenMediaLibrary,
   gridSpan = 12,
 }) {
   const over = charMax != null && charUsed > charMax;
@@ -62,10 +61,14 @@ export default function ComposerCaptionEditor({
         </div>
 
         <div className="composer__caption-meta">
-          {mediaLibraryPath ? (
-            <Link to={mediaLibraryPath} className="composer__media-library-link">
+          {onOpenMediaLibrary ? (
+            <button
+              type="button"
+              className="composer__media-library-link"
+              onClick={onOpenMediaLibrary}
+            >
               Media Library
-            </Link>
+            </button>
           ) : (
             <span />
           )}

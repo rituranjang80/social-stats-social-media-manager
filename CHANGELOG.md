@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Added — Composer Media Library picker modal
+
+Clicking **Media Library** in the composer caption card opens a reusable
+`MediaPickerModal` (lazy-loaded) instead of navigating away. The dialog reuses
+`MediaLibraryBody` (search, filters, upload, infinite scroll, multi-select).
+Selecting assets inserts them into the composer media row (deduped), persists
+via `media_urls` (`asset:<id>`) + `media_assets` IDs, and restores nested
+`media_assets` when reopening a draft. Standalone Media Library page unchanged.
+
 ### Added — Media Library previews + open video in Video Studio
 
 Media Library tiles now show the real image (`thumbnail_url` / `file_url`) and

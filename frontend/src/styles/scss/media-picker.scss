@@ -1,0 +1,36 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// Composer / reusable Media Picker dialog chrome
+.media-picker {
+  margin: -8px -4px 0;
+  min-height: min(52vh, 480px);
+  max-height: min(70vh, 640px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+
+  @include respond-down(640px) {
+    margin: -4px 0 0;
+    min-height: 40vh;
+    max-height: calc(100vh - 200px);
+  }
+
+  .media-library__body--picker {
+    padding: 0;
+  }
+}
+
+.media-picker__footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.media-picker__footer-hint {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  min-width: 140px;
+}

@@ -6,7 +6,7 @@
  * Copyright (c) 2026 Chandrabhan Shekhawat / Gigai Kripa Services.
  * Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Wand2, Hash, Clock, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -28,6 +28,7 @@ import {
   scheduleFromQuery,
   supportsFirstComment,
 } from '../../components/composer';
+import { normalizeMediaAsset } from '../../components/media';
 import { composerAPI, captionAPI, hashtagAPI } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import useWorkspace from '../../hooks/useWorkspace';
@@ -35,6 +36,8 @@ import { useComposerPost } from '../../hooks/useComposer';
 import { readComposerPreviewExpanded } from '../../components/composer/ComposerPreviewPanel';
 
 import '../../styles/scss/composer.scss';
+
+const MediaPickerModal = lazy(() => import('../../components/media/MediaPickerModal'));
 
 export default function ComposerPage() {
   const { id } = useParams();
@@ -46,7 +49,6 @@ export default function ComposerPage() {
   const isEditing = !!id;
   const { data: existing, loading: loadingExisting } = useComposerPost(id);
   const basePath = location.pathname.startsWith('/admin') ? '/admin' : '/dashboard';
-  const mediaLibraryPath = `${basePath}/analytics/media`;
 
   const { workspaceId } = useWorkspace({ user, autoHydrate: false });
 
@@ -72,6 +74,7 @@ export default function ComposerPage() {
   const [activePreview, setActivePreview] = useState(targetPlatforms[0] || 'facebook');
   const [showPreviewPanel, setShowPreviewPanel] = useState(false);
   const [previewExpanded, setPreviewExpanded] = useState(readComposerPreviewExpanded);
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const saveDraftRef = useRef(() => {});
 
   useEffect(() => {
@@ -92,6 +95,11 @@ export default function ComposerPage() {
     setInternalNotes(existing.internal_notes || '');
     setMediaType(existing.media_type || 'text');
     setTargetPlatforms(existing.target_platforms || []);
+    if (Array.isArray(existing.media_assets) && existing.media_assets.length) {
+      setMediaAssets(existing.media_assets.map(normalizeMediaAsset).filter(Boolean));
+    } else {
+      setMediaAssets([]);
+    }
     if (existing.scheduled_at) {
       setScheduleMode('schedule');
       setScheduledAt(toLocalInput(existing.scheduled_at));
@@ -156,6 +164,36 @@ export default function ComposerPage() {
     setMediaAssets((cur) => cur.filter((_, i) => i !== idx));
   }
 
+  function applyMediaTypeFromCount(count, mimeHint) {
+    if (count <= 0) {
+      setMediaType('text');
+      return;
+    }
+    if (count === 1) {
+      if ((mimeHint || '').startsWith('video/')) setMediaType('video');
+      else setMediaType('image');
+      return;
+    }
+    setMediaType('carousel');
+  }
+
+  function addLibraryAssets(picked) {
+    const incoming = (picked || []).map(normalizeMediaAsset).filter(Boolean);
+    if (!incoming.length) return;
+    setMediaAssets((cur) => {
+      const have = new Set(cur.map((a) => String(a.id)));
+      const added = incoming.filter((a) => !have.has(String(a.id)));
+      if (!added.length) {
+        toast('Already added');
+        return cur;
+      }
+      const next = [...cur, ...added];
+      applyMediaTypeFromCount(next.length, added[0]?.mime_type);
+      toast.success(added.length === 1 ? 'Media added' : `${added.length} media items added`);
+      return next;
+    });
+  }
+
   function buildPayload() {
     const payload = {
       title: title.trim(),
@@ -166,6 +204,7 @@ export default function ComposerPage() {
       media_type: mediaType,
       target_platforms: targetPlatforms,
       media_urls: mediaAssets.map((a) => `asset:${a.id}`),
+      media_assets: mediaAssets.map((a) => a.id),
     };
     if (workspaceId) {
       payload.client = workspaceId;
@@ -386,7 +425,7 @@ export default function ComposerPage() {
                 onInsertAi={(text) => setContent((c) => (c ? `${c}\n\n${text}` : text))}
                 charUsed={content.length}
                 charMax={primaryMax}
-                mediaLibraryPath={mediaLibraryPath}
+                onOpenMediaLibrary={() => setMediaPickerOpen(true)}
                 gridSpan={showFirstComment ? 8 : 12}
               />
 
@@ -501,6 +540,18 @@ export default function ComposerPage() {
           user={user}
           firstComment={showFirstComment ? firstComment : ''}
         />
+
+        {mediaPickerOpen ? (
+          <Suspense fallback={null}>
+            <MediaPickerModal
+              open={mediaPickerOpen}
+              onClose={() => setMediaPickerOpen(false)}
+              multiple
+              excludeIds={mediaAssets.map((a) => a.id)}
+              onSelect={addLibraryAssets}
+            />
+          </Suspense>
+        ) : null}
       </div>
     </div>
   );

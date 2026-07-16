@@ -56,7 +56,7 @@ logger = logging.getLogger(__name__)
 
 # ── Unified posts ─────────────────────────────────────────────────────────────
 class UnifiedPostViewSet(TenantScopedMixin, viewsets.ModelViewSet):
-    queryset = UnifiedPost.objects.prefetch_related('publish_logs').all()
+    queryset = UnifiedPost.objects.prefetch_related('publish_logs', 'media_assets').all()
 
     def get_serializer_class(self):
         if self.action == 'list':

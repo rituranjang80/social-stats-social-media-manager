@@ -15,7 +15,7 @@ Frontend:
 Backend:
 - Django REST Framework.
 - Create generic, reusable, plug-and-play REST APIs, serializers, services, permissions, validators, and utility classes.
-- Follow SOLID principles, DRY, clean architecture, dependency injection where applicable, and proper error handling.
+- Follow SOLID principles, DRY, clean architecture, dependency injection where applicable, and proper error handling.lazy loading, 
 - Do not duplicate code; refactor into reusable modules.
 
 General Standards:

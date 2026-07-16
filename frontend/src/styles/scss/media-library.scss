@@ -7,6 +7,31 @@
 
   &__body {
     padding: 0 24px;
+
+    &--picker {
+      padding: 0;
+    }
+  }
+
+  &__manage-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+  }
+
+  &__empty {
+    overflow: hidden;
+  }
+
+  &__sentinel {
+    height: 1px;
+    width: 100%;
+  }
+
+  &__loading--more {
+    padding: 12px;
   }
 
   &__toolbar {
@@ -110,9 +135,23 @@
     box-shadow: 0 0 0 2px var(--brand-primary-glow);
   }
 
-  &:focus-visible {
-    outline: 2px solid var(--brand-primary);
-    outline-offset: 2px;
+  &.is-disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  &__badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: rgba(10, 14, 20, 0.75);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
 
   &__preview {

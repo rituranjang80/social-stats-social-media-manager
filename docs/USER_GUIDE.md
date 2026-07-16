@@ -63,6 +63,9 @@ no per-page workspace chrome on the composer.
   state, modular shell components. Form sections use reusable **T-Type**
   `TCard` / `TInput` / `TTextArea` containers in a responsive card grid
   (caption beside first comment; tags beside notes on wide screens).
+  **Media Library** in the caption card opens an in-composer picker modal
+  (does not leave the page); selected assets appear in the media row and are
+  saved/published with the post.
   Reference: `/Brightbean/NewPost.html`.
   Keyboard: **Ctrl/Cmd+S** saves draft. Workspace switching is in the **global
   top bar**, not the composer header.
@@ -89,6 +92,9 @@ shows real image previews and the first frame of videos. Click tiles to
 multi-select for bulk delete. **Double-click a video** opens it in
 **Video Studio** (`…/analytics/video?asset_id=…`) for trim, resize, thumbnail,
 captions, and YouTube publish.
+
+From the **composer**, **Media Library** opens a modal picker (same library
+body) so you can attach existing assets without leaving the draft.
 
 ### Unified inbox
 One queue across DMs, comments, and Google reviews, with **AI reply suggestions**
