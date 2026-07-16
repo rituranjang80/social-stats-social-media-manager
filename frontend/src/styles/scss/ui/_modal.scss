@@ -1,0 +1,156 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+// Accessible dialog — used by Modal.jsx (no inline layout CSS)
+.ds-modal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal, 1200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: var(--overlay-backdrop);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: ds-modal-fade 200ms var(--ease-out, ease-out);
+
+  // Always above rails / preview edge toggles / topbar
+  &--elevated {
+    z-index: var(--z-modal-elevated, 1300);
+  }
+}
+
+.ds-modal__dialog {
+  --ds-modal-x: 0px;
+  --ds-modal-y: 0px;
+
+  position: relative;
+  left: var(--ds-modal-x);
+  top: var(--ds-modal-y);
+  width: 100%;
+  max-height: calc(100vh - 32px);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: ds-modal-scale 240ms var(--ease-out, ease-out);
+  will-change: left, top;
+
+  &--sm { max-width: 420px; }
+  &--md { max-width: 560px; }
+  &--lg { max-width: 760px; }
+  &--xl { max-width: 960px; }
+
+  &--dragging {
+    animation: none;
+    user-select: none;
+    box-shadow: var(--shadow-xl), 0 16px 48px rgba(15, 23, 42, 0.18);
+  }
+}
+
+.ds-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 24px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+
+  &--drag {
+    cursor: grab;
+    touch-action: none;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  &--plain {
+    border-bottom: none;
+  }
+}
+
+.ds-modal__title-block {
+  min-width: 0;
+}
+
+.ds-modal__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.ds-modal__desc {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.ds-modal__body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+  color: var(--text-primary);
+  min-height: 0;
+}
+
+.ds-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 24px 20px;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--surface-elevated);
+  flex-shrink: 0;
+}
+
+@keyframes ds-modal-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ds-modal-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@include respond-down(640px) {
+  .ds-modal__overlay {
+    padding: 8px;
+    align-items: flex-end;
+  }
+
+  .ds-modal__dialog {
+    max-height: calc(100vh - 16px);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+
+    &--xl,
+    &--lg {
+      max-width: 100%;
+    }
+  }
+
+  // Disable drag offset on small screens — full-width sheet
+  .ds-modal__dialog--draggable {
+    left: 0 !important;
+    top: 0 !important;
+  }
+
+  .ds-modal__header--drag {
+    cursor: default;
+  }
+}

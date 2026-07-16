@@ -42,13 +42,17 @@ export default function MediaPickerModal({
       description={description}
       size="xl"
       closeOnBackdrop
+      draggable
+      elevated
+      overlayClassName="media-picker-overlay"
+      className="media-picker-dialog"
       footer={multiple ? (
         <div className="media-picker__footer">
           <Button variant="ghost" onClick={onClose}>Cancel</Button>
           <span className="media-picker__footer-hint" aria-live="polite">
             {selectionCount
               ? `${selectionCount} selected — use Add in the toolbar, or double-click a tile`
-              : 'Click tiles to multi-select, or double-click to add one'}
+              : 'Click tiles to multi-select, or double-click to add one · Drag header to move'}
           </span>
         </div>
       ) : (

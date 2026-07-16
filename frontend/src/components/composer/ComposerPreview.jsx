@@ -54,17 +54,68 @@ export function ComposerPreviewCard({
   );
 }
 
+function isVideoAsset(a) {
+  return (a?.mime_type || '').startsWith('video/');
+}
+
+function seekFirstFrame(e) {
+  try {
+    const el = e.currentTarget;
+    if (el.currentTime < 0.05) el.currentTime = 0.1;
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Renders image or video for platform live preview (FB / IG / YT / LI / …). */
+function PreviewAssetVisual({ asset, className = '' }) {
+  if (!asset) return null;
+  const thumb = asset.thumbnail_url || '';
+  const fileUrl = asset.file_url || '';
+
+  if (isVideoAsset(asset) && fileUrl) {
+    return (
+      <video
+        className={`composer-media-stage__video ${className}`.trim()}
+        src={fileUrl}
+        poster={thumb || undefined}
+        muted
+        playsInline
+        preload="metadata"
+        controls={false}
+        onLoadedData={seekFirstFrame}
+      />
+    );
+  }
+
+  if (thumb || fileUrl) {
+    return (
+      <img
+        className={className || undefined}
+        src={thumb || fileUrl}
+        alt={asset.alt_text || ''}
+      />
+    );
+  }
+
+  return null;
+}
+
 function PreviewMedia({ assets, mediaType, platform }) {
   const isSquare = platform === 'instagram';
+  const primary = assets[0];
+  const treatAsVideo = mediaType === 'video'
+    || mediaType === 'reel'
+    || isVideoAsset(primary);
 
-  if (mediaType === 'video' || mediaType === 'reel') {
-    const a = assets[0];
-    const ratioClass = platform === 'instagram' && mediaType === 'reel'
+  if (treatAsVideo) {
+    const a = primary;
+    const ratioClass = platform === 'instagram' && (mediaType === 'reel' || isVideoAsset(a))
       ? 'composer-media-stage--reel'
       : 'composer-media-stage--widescreen';
     return (
       <div className={`composer-media-stage ${ratioClass}`}>
-        {a?.thumbnail_url ? <img src={a.thumbnail_url} alt="" /> : null}
+        <PreviewAssetVisual asset={a} />
         <div className="composer-media-stage__play" aria-hidden="true">▶</div>
       </div>
     );
@@ -78,8 +129,9 @@ function PreviewMedia({ assets, mediaType, platform }) {
             key={a.id}
             className={`composer-media-stage__slide ${isSquare ? 'composer-media-stage__slide--square' : 'composer-media-stage__slide--wide'}`}
           >
-            {a.thumbnail_url || a.file_url ? (
-              <img src={a.thumbnail_url || a.file_url} alt={a.alt_text || ''} />
+            <PreviewAssetVisual asset={a} />
+            {isVideoAsset(a) ? (
+              <div className="composer-media-stage__play composer-media-stage__play--sm" aria-hidden="true">▶</div>
             ) : null}
           </div>
         ))}
@@ -92,9 +144,7 @@ function PreviewMedia({ assets, mediaType, platform }) {
     <div
       className={`composer-media-stage ${isSquare ? 'composer-media-stage--square' : 'composer-media-stage--photo'}`}
     >
-      {a?.thumbnail_url || a?.file_url ? (
-        <img src={a.thumbnail_url || a.file_url} alt={a.alt_text || ''} />
-      ) : null}
+      <PreviewAssetVisual asset={a} />
     </div>
   );
 }

@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Fixed — Media picker z-index / drag + composer video previews
+
+Media Library picker uses elevated modal z-index (above rails / preview toggles)
+and is **draggable by the header** on desktop. Composer media-row thumbs and
+platform Preview (Facebook, Instagram, YouTube, LinkedIn, …) now render video
+first-frame / `file_url` previews instead of an empty stage when no thumbnail
+exists. Shared `Modal` styles moved to SCSS.
+
 ### Added — Composer Media Library picker modal
 
 Clicking **Media Library** in the composer caption card opens a reusable

@@ -94,7 +94,9 @@ multi-select for bulk delete. **Double-click a video** opens it in
 captions, and YouTube publish.
 
 From the **composer**, **Media Library** opens a modal picker (same library
-body) so you can attach existing assets without leaving the draft.
+body) so you can attach existing assets without leaving the draft. Drag the
+dialog header to reposition it. Videos show a first-frame preview in the media
+row and in the live platform Preview panel.
 
 ### Unified inbox
 One queue across DMs, comments, and Google reviews, with **AI reply suggestions**
