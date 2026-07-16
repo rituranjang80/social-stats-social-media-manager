@@ -1,0 +1,45 @@
+@use '../abstracts/variables' as *;
+
+// Themeable rail tokens — bridge to app design tokens
+:root {
+  --rail-bg: var(--surface-card, #ffffff);
+  --rail-border: var(--border-subtle, #eeeeee);
+  --rail-shadow: var(--shadow-sm, rgba(0, 0, 0, 0.05));
+  --rail-primary: var(--brand-primary, #007bff);
+  --rail-text: var(--text-primary, #333333);
+  --collapsible-rail-offset: #{$rail-width-collapsed};
+  --feature-sidebar-width-expanded: 240px;
+}
+
+[data-theme='dark'] {
+  --rail-bg: var(--surface-card, #1a1a1a);
+  --rail-border: var(--border-subtle, #333333);
+  --rail-shadow: rgba(0, 0, 0, 0.5);
+  --rail-text: var(--text-primary, #f5f5f5);
+}
+
+// Shell: CollapsibleRail sits beside ModuleRail and drives layout width
+.ds-feature-collapsible-rail {
+  --collapsible-rail-left: var(--module-rail-width, 64px);
+  --collapsible-rail-expanded-width: var(--feature-sidebar-width-expanded, 240px);
+  --collapsible-rail-collapsed-width: 0px;
+  // Never let the wrapper steal clicks from TopBar / Switch Workspace
+  pointer-events: none;
+}
+
+html.collapsible-feature-rail-active {
+  --feature-sidebar-width: var(--feature-sidebar-width-expanded, 240px);
+}
+
+html.collapsible-feature-rail-active.feature-sidebar-collapsed {
+  --feature-sidebar-width: 0px;
+}
+
+// Smooth layout when sidebar collapses (not TopBar z-index / pointer events)
+html.collapsible-feature-rail-active {
+  .ds-topbar,
+  .main-content {
+    transition: left $transition-speed $transition-easing,
+      margin-left $transition-speed $transition-easing;
+  }
+}

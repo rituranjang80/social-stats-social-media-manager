@@ -60,20 +60,35 @@ no per-page workspace chrome on the composer.
 - **Brightbean-aligned chrome** — Create/Edit header with back + Preview,
   orange accents, stone surfaces, account-style platform pills, caption card
   with inline media + Media Library link / character count, empty live-preview
-  state, modular shell components. Reference: `/Brightbean/NewPost.html`.
+  state, modular shell components. Form sections use reusable **T-Type**
+  `TCard` / `TInput` / `TTextArea` containers in a responsive card grid
+  (caption beside first comment; tags beside notes on wide screens).
+  Reference: `/Brightbean/NewPost.html`.
   Keyboard: **Ctrl/Cmd+S** saves draft. Workspace switching is in the **global
   top bar**, not the composer header.
-- **Connect channels** — brand icons with check / unchecked state for the
-  **current** workspace. Driven by `PLATFORM_*` / `CONNECT_PLATFORMS` in
-  SocialMediaStart `.env`. Manage from **Settings → Connect Accounts**.
+- **Connect channels** — CHANNELS icon grid in the left Analytics sidebar
+  (under **Publish**, inside `.sidebar-scroll`) for the **current** workspace.
+  Post targets still use the composer platform pills. Driven by `PLATFORM_*` /
+  `CONNECT_PLATFORMS` in SocialMediaStart `.env`. Manage from
+  **Settings → Connect Accounts**.
 - **First comment** — optional comment auto-posted after publish on Facebook,
   Instagram, and LinkedIn.
 - **Tags** — internal team-only labels (not caption hashtags); suggestions from
   prior posts in the active workspace.
 - **Internal notes** — team-only; never published.
 - **Live preview** — per-platform preview drawer (mobile) / side panel (desktop).
+  On desktop, collapse/expand with the **top-aligned** right-edge chevron
+  (same idea as the left sidebar toggle) so the editor can use full width.
+  The composer form scrolls inside its panel when content is long.
 
 ![Composer + scheduler](images/composer.png)
+
+### Media Library + Video Studio
+**Media Library** (`/dashboard/analytics/media` or `/admin/analytics/media`)
+shows real image previews and the first frame of videos. Click tiles to
+multi-select for bulk delete. **Double-click a video** opens it in
+**Video Studio** (`…/analytics/video?asset_id=…`) for trim, resize, thumbnail,
+captions, and YouTube publish.
 
 ### Unified inbox
 One queue across DMs, comments, and Google reviews, with **AI reply suggestions**

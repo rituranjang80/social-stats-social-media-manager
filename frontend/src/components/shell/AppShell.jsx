@@ -14,7 +14,7 @@ import toast from 'react-hot-toast';
 import { useRealtime } from '../../hooks/useRealtime';
 
 import ModuleRail from './ModuleRail';
-import FeatureSidebar from './FeatureSidebar';
+import FeatureSidebar, { getFeatureSidebarMeta } from './FeatureSidebar';
 import TopBar from './TopBar';
 import CommandPalette from './CommandPalette';
 import MobileNav from './MobileNav';
@@ -22,6 +22,7 @@ import AIFloatingTrigger from '../ai/AIFloatingTrigger';
 import SkipLink from '../ui/SkipLink';
 import ThemeToggle from '../ui/ThemeToggle';
 import WorkspaceSwitcher from '../workspace/WorkspaceSwitcher';
+import { CollapsibleRail, RailHeader } from '../common/CollapsibleRail';
 import useBreakpoint from '../../hooks/useBreakpoint';
 import { useAuth } from '../../hooks/useAuth';
 import useWorkspace from '../../hooks/useWorkspace';
@@ -29,6 +30,8 @@ import { useCurrentClientId } from '../../stores/appStore';
 
 import '../../styles/scss/topbar.scss';
 import '../../styles/scss/workspace-switcher.scss';
+import '../../styles/scss/feature-sidebar.scss';
+import '../../styles/base/_themes.scss';
 
 /**
  * Root layout shell. Replaces the inline layout logic in App.js.
@@ -113,15 +116,14 @@ export default function AppShell({ children, isAdmin }) {
 
   const showRail    = !isMobile;
   const showSidebar = !isMobile;
+  const sidebarMeta = useMemo(
+    () => getFeatureSidebarMeta(currentModule),
+    [currentModule],
+  );
+  const SidebarIcon = sidebarMeta.Icon;
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: 'var(--surface-page)',
-        color: 'var(--text-primary)',
-      }}
-    >
+    <div className="ds-app-shell">
       <SkipLink targetId="main-content" />
 
       {showRail && (
@@ -133,10 +135,25 @@ export default function AppShell({ children, isAdmin }) {
       )}
 
       {showSidebar && (
-        <FeatureSidebar
-          module={currentModule}
-          basePath={basePath}
-        />
+        <CollapsibleRail
+          shellLayout
+          persist
+          defaultExpanded
+          ariaLabel={`${sidebarMeta.label} navigation`}
+          header={(
+            <RailHeader
+              title={sidebarMeta.label}
+              subtitle={sidebarMeta.subtitle}
+              icon={SidebarIcon ? <SidebarIcon size={15} strokeWidth={2.4} /> : null}
+            />
+          )}
+        >
+          <FeatureSidebar
+            module={currentModule}
+            basePath={basePath}
+            embedded
+          />
+        </CollapsibleRail>
       )}
 
       {/* Mobile drawer */}
@@ -171,13 +188,6 @@ export default function AppShell({ children, isAdmin }) {
         id="main-content"
         tabIndex={-1}
         className="main-content"
-        style={{
-          marginLeft: isMobile ? 0 : 'calc(var(--module-rail-width) + var(--feature-sidebar-width))',
-          paddingTop: 'var(--topbar-height)',
-          paddingBottom: isMobile ? 80 : 0,
-          minHeight: '100vh',
-          outline: 'none',
-        }}
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
@@ -364,7 +374,7 @@ function MobileDrawer({ open, onClose, modules, currentModule, basePath }) {
         </div>
 
         <div className="sidebar-scroll" style={{ flex: 1, overflowY: 'auto' }}>
-          <FeatureSidebar module={currentModule} basePath={basePath} />
+          <FeatureSidebar module={currentModule} basePath={basePath} embedded />
         </div>
       </div>
     </>

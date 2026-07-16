@@ -26,9 +26,12 @@
 
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - var(--topbar-height, 56px) - 24px);
+  height: calc(100vh - var(--topbar-height, 56px) - 24px);
+  max-height: calc(100vh - var(--topbar-height, 56px) - 24px);
+  min-height: 0;
   margin: -8px -24px 0;
   background: var(--surface-page);
+  overflow: hidden;
 
   @include respond-down(768px) {
     margin: -8px -16px 0;
@@ -198,6 +201,10 @@
   @include respond-up($composer-bp-lg) {
     .composer-preview-toggle { display: none !important; }
 
+    &.is-preview-collapsed .composer-preview-toggle {
+      display: inline-flex !important;
+    }
+
     &__preview-close { display: none !important; }
 
     &__preview { display: flex; }
@@ -205,17 +212,22 @@
 
   &__body {
     display: flex;
-    flex: 1;
+    flex: 1 1 auto;
     min-height: 0;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
   }
 
   &__center {
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 0;
+    min-height: 0;
+    height: 100%;
     display: flex;
     flex-direction: column;
     background: var(--surface-sunken);
-    min-height: 0;
+    overflow: hidden;
   }
 
   &__engage-stack {
@@ -233,8 +245,11 @@
   }
 
   &__form-scroll {
-    flex: 1;
+    flex: 1 1 auto;
     min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     @include panel-scroll;
     padding: 16px;
 
@@ -254,6 +269,84 @@
     @include respond-up($composer-bp-sm) {
       gap: 20px;
     }
+
+    // T-Type cards: visible chrome on stone page (border-subtle ≈ page bg)
+    &--t-cards {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 16px;
+      max-width: 960px;
+
+      @include respond-up($composer-bp-sm) {
+        gap: 18px;
+      }
+
+      .t-card {
+        --t-card-bg: #ffffff;
+        --t-card-border: var(--border-default);
+        --t-card-shadow: 0 1px 2px rgba(28, 25, 23, 0.06), 0 4px 12px rgba(28, 25, 23, 0.04);
+        --t-card-label: var(--text-secondary);
+        grid-column: span 12;
+        background: var(--t-card-bg);
+        border-color: var(--t-card-border);
+        box-shadow: var(--t-card-shadow);
+      }
+
+      [data-theme='dark'] & .t-card {
+        --t-card-bg: var(--surface-card, #1c1917);
+        --t-card-border: var(--border-default);
+        --t-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+      }
+
+      .t-card--span-4 { grid-column: span 12; }
+      .t-card--span-6 { grid-column: span 12; }
+      .t-card--span-8 { grid-column: span 12; }
+
+      @include respond-up($composer-bp-lg) {
+        .t-card--span-4 { grid-column: span 4; }
+        .t-card--span-6 { grid-column: span 6; }
+        .t-card--span-8 { grid-column: span 8; }
+      }
+
+      .composer__caption {
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+
+        &:hover,
+        &:focus-within {
+          border: none;
+          box-shadow: none;
+        }
+      }
+
+      .t-field__textarea.composer__textarea {
+        border: none;
+        box-shadow: none;
+        background: transparent;
+        padding: 4px 0 8px;
+        min-height: 160px;
+
+        &:hover,
+        &:focus {
+          border: none;
+          box-shadow: none;
+        }
+      }
+    }
+  }
+
+  .composer-schedule {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .composer-schedule__block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
 
   &__section {
@@ -534,7 +627,45 @@
     &--d3 { animation-delay: 150ms; }
   }
 
-  // Right preview panel — drawer on mobile, static on desktop
+  // Right preview panel — drawer on mobile, collapsible rail on desktop
+  &__preview-rail {
+    --composer-preview-rail-width: #{$composer-preview-width};
+    position: relative;
+    flex-shrink: 0;
+    display: contents;
+
+    @include respond-up($composer-bp-lg) {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      width: var(--composer-preview-rail-width);
+      max-width: var(--composer-preview-rail-width);
+      height: 100%;
+      min-height: 0;
+      overflow: visible;
+      transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+        max-width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+      &.is-collapsed {
+        --composer-preview-rail-width: 0px;
+        width: 0;
+        max-width: 0;
+      }
+
+      .composer__preview-edge-toggle {
+        display: flex;
+        // top / transform come from .t-edge-toggle.is-top-aligned
+        // right bound to same CSS var as rail width
+        right: var(--composer-preview-rail-width);
+        z-index: 1001;
+      }
+
+      &.is-collapsed .composer__preview-edge-toggle {
+        right: 0;
+      }
+    }
+  }
+
   &__preview {
     position: fixed;
     inset: 0 0 0 auto;
@@ -542,7 +673,8 @@
     max-width: $composer-preview-max-mobile;
     z-index: 58;
     transform: translateX(100%);
-    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+      width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: -8px 0 24px rgba(23, 20, 18, 0.08);
     background: var(--surface-sunken);
     border-left: 1px solid var(--border-default);
@@ -555,10 +687,23 @@
       position: static;
       width: $composer-preview-width;
       max-width: none;
-      flex-shrink: 0;
+      flex: 1 1 auto;
+      min-width: 0;
       transform: none;
-      transition: none;
       box-shadow: none;
+      overflow: hidden;
+
+      &.is-desktop-collapsed {
+        width: 0;
+        border-left: none;
+        pointer-events: none;
+        opacity: 0;
+      }
+
+      &.is-desktop-expanded {
+        opacity: 1;
+        pointer-events: auto;
+      }
     }
   }
 

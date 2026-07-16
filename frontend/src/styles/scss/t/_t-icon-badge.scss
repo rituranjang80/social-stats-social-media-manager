@@ -1,0 +1,72 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+.t-icon-badge {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: $radius-md;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  border: 1px solid transparent;
+  @include flex-center;
+  @include theme-aware(background, #ffffff, #1e293b);
+  @include theme-aware(border-color, $border-light, $border-dark);
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  &.is-connected {
+    border-color: $primary-green;
+    background: rgba($primary-green, 0.1);
+    opacity: 1;
+    box-shadow: 0 2px 4px rgba($primary-green, 0.1);
+  }
+
+  &.is-selected:not(.is-disconnected) {
+    border-color: color-mix(in srgb, var(--accent, #2563eb) 55%, var(--border-default));
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent, #2563eb) 18%, transparent);
+  }
+
+  &.is-disconnected {
+    opacity: 0.6;
+
+    &:not(:disabled):hover {
+      opacity: 1;
+      transform: translateY(-1px);
+    }
+  }
+
+  .icon-container {
+    @include flex-center;
+    line-height: 0;
+
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+  }
+
+  .badge {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: $primary-green;
+    border: 2px solid #fff;
+    color: #fff;
+    @include flex-center;
+
+    [data-theme='dark'] & {
+      border-color: $bg-dark;
+    }
+  }
+}

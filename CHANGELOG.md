@@ -2,6 +2,61 @@
 
 ## [Unreleased]
 
+### Added — Media Library previews + open video in Video Studio
+
+Media Library tiles now show the real image (`thumbnail_url` / `file_url`) and
+the first frame of videos (thumbnail or muted preview seek). **Double-click** a
+video navigates to Video Studio with `?asset_id=` so the clip loads for trim /
+resize / thumbnail / publish. Single-click selection and bulk delete unchanged.
+
+### Fixed — Composer / Media Library thumbnails 404 behind the gateway
+
+Uploaded files were saved under `data/media/` but `/media/...` returned 404 when
+`DEBUG=False` because Django’s `static()` helper does not register media routes
+in production, and nginx was proxying `/media/` to Django. Gateway now serves
+`/media/` directly from the shared media volume (`^~` so image regex rules do
+not steal the path). Django also keeps an explicit `media/` serve fallback for
+non-Docker runs.
+
+### Changed — Composer form sections use reusable T-Type cards/fields
+
+Composer (`/admin/analytics/composer` and dashboard equivalent) now wraps
+platforms, title, caption, first comment, tags, notes, schedule, and AI assist
+in reusable `TCard` / `TInput` / `TTextArea` primitives (SCSS modules under
+`styles/scss/t/`). Desktop uses a 12-column card grid (caption + first comment,
+tags + notes side-by-side). Card borders use `--border-default` so they read on
+the stone page background. Save, publish, schedule, media upload, AI, and
+workspace behavior are unchanged. Service worker bumped to `socialstats-v3`
+(network-first for JS/CSS) so deploys are not masked by stale caches.
+
+### Fixed — Collapsible rail sync, preview toggle top-align, composer scroll
+
+- **Main rail:** html layout classes (`feature-sidebar-collapsed`) sync in the
+  same click tick as `aria-expanded` (plus `useLayoutEffect`).
+- **Preview edge toggle:** top-aligned (`top: 24px`, no `translateY(-50%)`);
+  `right` bound to `--composer-preview-rail-width`.
+- **Form scroll:** `.composer` / `__center` constrain height with
+  `overflow: hidden`; `__form-scroll` uses `flex: 1` + `min-height: 0` so the
+  form scrolls internally instead of growing the page.
+
+Desktop `#composer-preview` can collapse to the right via a chevron edge
+button (mirrors left FeatureSidebar CollapsibleRail). Form uses full width when
+collapsed; state persists in localStorage. Mobile drawer Preview unchanged.
+Reusable `TEdgeToggle` added for left/right rails.
+
+CollapsibleRail z-index no longer sits above the TopBar. TopBar / `.ws-switcher`
+menu stay on top; the rail wrapper uses `pointer-events: none` (children
+re-enable). Layout width sync uses `useLayoutEffect` so Switch Workspace on
+`/dashboard/analytics/composer` and `/admin/...` remains clickable.
+
+### Changed — Composer Channels use reusable T-Type grid badges
+
+Connect Channels renders via `ChannelSidebar` + `TGrid` + `TIconBadge` inside
+the Analytics FeatureSidebar `.sidebar-scroll` (under **Publish**), matching
+Brightbean. Composer form no longer duplicates the block; post targeting stays
+on platform pills. Compact full-width SCSS:
+`.channel-sidebar-module--compact` / `.composer-connect--compact`.
+
 ### Fixed — Docker stack crash-loop on Windows (entrypoint CRLF)
 
 `entrypoint-backend.sh` with CRLF prevented bash `set -o pipefail`, so

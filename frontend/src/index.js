@@ -11,6 +11,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './styles/tokens.css';
 import './styles/common.css';
+import './styles/base/_themes.scss';
 import { bootstrapTheme } from './hooks/useTheme';
 
 // Apply persisted theme before React paints, to avoid flash of wrong theme.

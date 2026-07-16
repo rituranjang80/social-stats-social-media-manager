@@ -1,0 +1,14 @@
+// T-Type theme bridge — dark/light via [data-theme] + CSS custom properties.
+// Keeps card/field tokens aligned with the global design system.
+
+:root {
+  --t-spacing-sm: 8px;
+  --t-spacing-md: 16px;
+  --t-spacing-lg: 24px;
+  --t-radius-lg: var(--radius-lg, 12px);
+  --t-shadow-sm: var(--shadow-sm, 0 1px 2px rgba(15, 23, 42, 0.06));
+}
+
+[data-theme='dark'] {
+  --t-shadow-sm: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.35));
+}

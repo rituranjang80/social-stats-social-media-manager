@@ -5,7 +5,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Tag, X, ChevronDown, Plus } from 'lucide-react';
 import { composerAPI } from '../../services/api';
 
-export default function ComposerTags({ value = [], onChange, clientId = null }) {
+export default function ComposerTags({
+  value = [],
+  onChange,
+  clientId = null,
+  showLabel = true,
+}) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [allTags, setAllTags] = useState([]);
@@ -66,13 +71,15 @@ export default function ComposerTags({ value = [], onChange, clientId = null }) 
 
   return (
     <div className="composer-tags" ref={rootRef}>
-      <div className="composer-tags__label-row">
-        <span className="composer-tags__label">
-          <Tag size={14} aria-hidden="true" />
-          Tags
-        </span>
-        <span className="composer-badge">Internal team only</span>
-      </div>
+      {showLabel ? (
+        <div className="composer-tags__label-row">
+          <span className="composer-tags__label">
+            <Tag size={14} aria-hidden="true" />
+            Tags
+          </span>
+          <span className="composer-badge">Internal team only</span>
+        </div>
+      ) : null}
 
       <button
         type="button"

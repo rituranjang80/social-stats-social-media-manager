@@ -1,5 +1,6 @@
 /* ============================================================================
  * Schedule + media-type selectors (presentation wrapper).
+ * Nested under a TCard on ComposerPage — keep sub-labels, no outer chrome.
  * ========================================================================== */
 import { Calendar, Send, Clock } from 'lucide-react';
 import { TPill } from '../t';
@@ -14,14 +15,11 @@ export default function ComposerScheduleCard({
   onScheduledAt,
 }) {
   return (
-    <>
-      <section
-        className="composer__section composer__animate composer__animate--d3"
-        aria-labelledby="composer-media-type-label"
-      >
-        <h2 id="composer-media-type-label" className="composer__section-label">
+    <div className="composer-schedule">
+      <div className="composer-schedule__block" aria-labelledby="composer-media-type-label">
+        <h3 id="composer-media-type-label" className="composer__section-label">
           Media type
-        </h2>
+        </h3>
         <div className="composer__type-row" role="group" aria-label="Media type">
           {MEDIA_TYPES.map((m) => (
             <TPill
@@ -33,15 +31,12 @@ export default function ComposerScheduleCard({
             </TPill>
           ))}
         </div>
-      </section>
+      </div>
 
-      <section
-        className="composer__section composer__animate composer__animate--d3"
-        aria-labelledby="composer-when-label"
-      >
-        <h2 id="composer-when-label" className="composer__section-label">
+      <div className="composer-schedule__block" aria-labelledby="composer-when-label">
+        <h3 id="composer-when-label" className="composer__section-label">
           When to post
-        </h2>
+        </h3>
         <div className="composer__type-row" role="group" aria-label="Schedule mode">
           {SCHEDULE_MODES.map((m) => (
             <TPill
@@ -76,7 +71,7 @@ export default function ComposerScheduleCard({
             then add it to a queue from there.
           </p>
         )}
-      </section>
-    </>
+      </div>
+    </div>
   );
 }

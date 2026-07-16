@@ -1,0 +1,7 @@
+// Minimal reset scoped helpers for common layout primitives.
+// Global app reset remains in index.js / common.css for backward compatibility.
+
+.collapsible-rail-root,
+.collapsible-rail-root * {
+  box-sizing: border-box;
+}

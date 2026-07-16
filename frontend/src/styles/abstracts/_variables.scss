@@ -1,0 +1,12 @@
+// ==========================================================================
+// Collapsible rail + shared abstracts
+// ==========================================================================
+
+$rail-width-expanded: 300px;
+$rail-width-collapsed: 0px;
+$transition-speed: 0.4s;
+$transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+// Below TopBar (110) so Switch Workspace stays clickable
+$rail-z-container: 90;
+$rail-z-toggle: 95;

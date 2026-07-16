@@ -1,0 +1,88 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+// T-Type card — section container (theme via CSS vars)
+.t-card {
+  --t-card-bg: var(--surface-card, #ffffff);
+  --t-card-border: var(--border-subtle, #e2e8f0);
+  --t-card-shadow: var(--shadow-sm, 0 1px 2px rgba(15, 23, 42, 0.06));
+  --t-card-label: var(--text-tertiary, #94a3b8);
+
+  background: var(--t-card-bg);
+  border-radius: $t-radius-lg;
+  padding: 14px 16px;
+  border: 1px solid var(--t-card-border);
+  box-shadow: var(--t-card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color $t-transition, box-shadow $t-transition;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+
+  [data-theme='dark'] & {
+    --t-card-bg: var(--surface-card, #1e293b);
+    --t-card-border: var(--border-subtle, #334155);
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  &__label {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--t-card-label);
+  }
+
+  &__meta {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  &--flush {
+    padding: 0;
+
+    .t-card__header {
+      padding: 14px 16px 0;
+    }
+
+    .t-card__body {
+      padding: 12px 16px 16px;
+    }
+  }
+
+  &--sunken {
+    background: var(--surface-sunken, #f8fafc);
+  }
+
+  &--dashed {
+    border-style: dashed;
+  }
+
+  // Optional 12-col span helpers (when parent is CSS grid)
+  @for $i from 1 through 12 {
+    &--span-#{$i} {
+      grid-column: span #{$i};
+
+      @include respond-down(768px) {
+        grid-column: span 12;
+      }
+    }
+  }
+}

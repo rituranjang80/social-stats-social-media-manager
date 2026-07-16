@@ -6,6 +6,7 @@
  *  Copyright (c) 2026 Chandrabhan Shekhawat / Gigai Kripa Services.
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
+import { useMemo } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, LineChart, FileText, FileType, CalendarDays, Wand2, Lightbulb, Hash,
@@ -21,79 +22,46 @@ import {
 } from 'lucide-react';
 
 import PermissionGate from '../ui/PermissionGate';
+import ComposerConnectChannels from '../composer/ComposerConnectChannels';
 import { useBadgeCount } from '../../stores/appStore';
+import { useAuth } from '../../hooks/useAuth';
+import useWorkspace from '../../hooks/useWorkspace';
 
 /**
- * 240px feature sidebar; nav set varies by `module`.
+ * Feature sidebar nav. When `embedded`, renders scroll content only
+ * (header + chrome come from CollapsibleRail in AppShell).
  *
  * Props:
  *   module:   'analytics' | 'messaging' | 'ads'
  *   basePath: '/admin' | '/dashboard'
+ *   embedded: bool
  */
 export default function FeatureSidebar({
   module,
   basePath,
+  embedded = false,
 }) {
   const location = useLocation();
+  const { user } = useAuth();
+  const { workspaceId } = useWorkspace({ user, autoHydrate: false });
 
   const navSet = NAV_SETS[module] || NAV_SETS.analytics;
+  const showChannels = module === 'analytics';
 
-  return (
-    <aside
-      className="ds-feature-sidebar"
-      aria-label={`${module} navigation`}
-      style={{
-        position: 'fixed',
-        top: 0, bottom: 0,
-        left: 'var(--module-rail-width)',
-        width: 'var(--feature-sidebar-width)',
-        zIndex: 90,
-        background: 'var(--surface-card)',
-        borderRight: '1px solid var(--border-subtle)',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      {/* Module header */}
-      <header style={{
-        height: 'var(--topbar-height)',
-        padding: '0 16px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        borderBottom: '1px solid var(--border-subtle)',
-      }}>
-        <div style={{
-          width: 28, height: 28,
-          borderRadius: 'var(--radius-sm)',
-          background: 'var(--brand-primary-glow)',
-          color: 'var(--brand-primary-hover)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          {navSet.icon && <navSet.icon size={15} strokeWidth={2.4} />}
-        </div>
-        <div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
-            {navSet.label}
-          </div>
-          {navSet.subtitle && (
-            <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
-              {navSet.subtitle}
-            </div>
-          )}
-        </div>
-      </header>
+  const settingsPath = useMemo(() => {
+    if (basePath === '/admin' && workspaceId) {
+      return `/admin/client/${workspaceId}/settings`;
+    }
+    return `${basePath}/settings`;
+  }, [basePath, workspaceId]);
 
-      {/* Nav */}
-      <div className="sidebar-scroll" style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: '12px 10px',
-      }}>
-        {navSet.empty ? (
-          <EmptyModule message={navSet.empty} />
-        ) : (
-          navSet.sections.map((section) => (
+  const body = (
+    <div className={`sidebar-scroll${embedded ? ' sidebar-scroll--embedded' : ''}`}>
+      {navSet.empty ? (
+        <EmptyModule message={navSet.empty} />
+      ) : (
+        <>
+          {navSet.sections.map((section) => (
             <Section key={section.title} title={section.title}>
               {section.items.map((item) => (
                 <PermissionGate key={item.path} code={item.permission}>
@@ -109,14 +77,52 @@ export default function FeatureSidebar({
                   />
                 </PermissionGate>
               ))}
+              {showChannels && section.title === 'Publish' ? (
+                <ComposerConnectChannels
+                  clientId={workspaceId}
+                  settingsPath={settingsPath}
+                  compact
+                />
+              ) : null}
             </Section>
-          ))
-        )}
-      </div>
+          ))}
+        </>
+      )}
+    </div>
+  );
 
-      {/* Client switcher lives in TopBar — sidebar no longer duplicates it */}
+  if (embedded) {
+    return body;
+  }
+
+  return (
+    <aside
+      className="ds-feature-sidebar"
+      aria-label={`${module} navigation`}
+    >
+      <header className="ds-feature-sidebar__header">
+        <div className="ds-feature-sidebar__icon">
+          {navSet.icon && <navSet.icon size={15} strokeWidth={2.4} />}
+        </div>
+        <div>
+          <div className="ds-feature-sidebar__label">{navSet.label}</div>
+          {navSet.subtitle && (
+            <div className="ds-feature-sidebar__subtitle">{navSet.subtitle}</div>
+          )}
+        </div>
+      </header>
+      {body}
     </aside>
   );
+}
+
+export function getFeatureSidebarMeta(module) {
+  const navSet = NAV_SETS[module] || NAV_SETS.analytics;
+  return {
+    label: navSet.label,
+    subtitle: navSet.subtitle,
+    Icon: navSet.icon,
+  };
 }
 
 function NavItem({ to, icon: Icon, label, end, badge, badgeKey, pathname, disabled }) {

@@ -1,0 +1,30 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+.t-grid {
+  display: grid;
+  width: 100%;
+  gap: 8px;
+  min-width: 0;
+
+  @for $i from 1 through 12 {
+    &--cols-#{$i} {
+      grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
+    }
+  }
+
+  &--gap-4 { gap: 4px; }
+  &--gap-6 { gap: 6px; }
+  &--gap-8 { gap: 8px; }
+  &--gap-10 { gap: 10px; }
+  &--gap-12 { gap: 12px; }
+  &--gap-16 { gap: 16px; }
+
+  @include respond-down(480px) {
+    &--cols-4,
+    &--cols-5,
+    &--cols-6 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+}

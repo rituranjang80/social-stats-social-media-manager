@@ -7,9 +7,10 @@
 #  Released under the MIT License — see LICENSE. Keep this notice.
 # ============================================================================
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.static import serve as media_serve
 
 from social_stats.oauth_views import (
     facebook_oauth_callback,
@@ -45,4 +46,18 @@ urlpatterns = [
         linkedin_oauth_callback,
         name='compat_linkedin_personal_callback',
     ),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+# django.conf.urls.static.static() is a no-op when DEBUG=False. Keep an explicit
+# serve route so composer thumbnails still resolve outside Docker. In Compose,
+# nginx serves /media/ from the shared data/media volume (preferred).
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+else:
+    urlpatterns += [
+        re_path(
+            r'^media/(?P<path>.*)$',
+            media_serve,
+            {'document_root': settings.MEDIA_ROOT},
+        ),
+    ]

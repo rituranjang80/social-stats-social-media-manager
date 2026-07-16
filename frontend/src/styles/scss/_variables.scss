@@ -2,18 +2,38 @@
 // Prefer CSS custom properties so dark/light themes stay in sync.
 
 $t-radius-sm: var(--radius-sm);
-$t-radius-md: var(--radius-md);
-$t-radius-lg: var(--radius-lg);
+$t-radius-md: var(--radius-md, 10px);
+$t-radius-lg: var(--radius-lg, 12px);
 $t-radius-pill: var(--radius-pill);
 
 $t-transition: var(--transition-fast, 150ms ease);
 
-$composer-preview-width: 320px;
+// T-Type semantic tokens (hex so rgba()/mix work; dark via theme-aware)
+$primary-green: #10b981;
+$bg-light: #f8fafc;
+$bg-dark: #0f172a;
+$border-light: #e2e8f0;
+$border-dark: #1e293b;
+$text-muted: #94a3b8;
+$radius-lg: 12px;
+$radius-md: 10px;
+
+$composer-preview-width: 500px;
 $composer-preview-max-mobile: 380px;
 $composer-rail-width: 280px;
 $composer-bp-xl: 1180px;
 $composer-bp-lg: 1024px;
 $composer-bp-sm: 640px;
+
+// Responsive breakpoints map (T-Type)
+$breakpoints: (
+  'xs': 320px,
+  'sm': 425px,
+  'md': 768px,
+  'lg': 1024px,
+  'xl': 1440px,
+  'xxl': 1920px,
+);
 
 $platform-facebook: #1877F2;
 $platform-instagram: #E1306C;

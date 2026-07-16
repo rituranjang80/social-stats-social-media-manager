@@ -1,0 +1,76 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+.t-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  width: 100%;
+
+  &__label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  &__label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+  }
+
+  &__hint {
+    margin: 0;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    line-height: 1.4;
+  }
+
+  &__input,
+  &__textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 14px;
+    border-radius: $t-radius-md;
+    border: 1.5px solid var(--border-default);
+    background: var(--surface-card);
+    color: var(--text-primary);
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.45;
+    transition: border-color $t-transition, box-shadow $t-transition;
+
+    &::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    &:hover {
+      border-color: var(--border-strong);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--border-focus, var(--brand-primary));
+      box-shadow: 0 0 0 3px var(--brand-primary-glow, rgba(249, 115, 22, 0.12));
+    }
+
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+  }
+
+  &__textarea {
+    resize: vertical;
+    min-height: 88px;
+
+    &--sm {
+      min-height: 56px;
+      resize: none;
+    }
+  }
+}

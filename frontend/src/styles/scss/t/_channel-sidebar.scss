@@ -1,0 +1,113 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+.channel-sidebar-module {
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: $radius-lg;
+  border: 1px solid;
+  @include theme-aware(background, $bg-light, rgba(255, 255, 255, 0.05));
+  @include theme-aware(border-color, $border-light, $border-dark);
+
+  .module-title,
+  &__title {
+    margin: 0 0 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: $text-muted;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  &__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 0;
+
+    .module-title,
+    .channel-sidebar-module__title {
+      margin-bottom: 4px;
+    }
+  }
+
+  &__sub {
+    margin: 0 0 12px;
+    font-size: 11px;
+    color: $text-muted;
+    line-height: 1.35;
+  }
+
+  &__refresh {
+    border: none;
+    background: transparent;
+    color: $text-muted;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: $radius-md;
+    flex-shrink: 0;
+    @include flex-center;
+
+    &:hover:not(:disabled) {
+      color: var(--text-primary);
+      background: var(--surface-hover, rgba(0, 0, 0, 0.04));
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__error {
+    margin: 0 0 10px;
+    font-size: 12px;
+    color: var(--danger, #dc2626);
+  }
+
+  &__cta {
+    margin-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent, #2563eb);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  // Compact — full width inside FeatureSidebar .sidebar-scroll
+  &.channel-sidebar-module--compact,
+  &.composer-connect--compact {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin: 12px 0 4px;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+// Nested under app nav scroll (Brightbean-style Connect channels)
+.sidebar-scroll {
+  .channel-sidebar-module.channel-sidebar-module--compact,
+  .composer-connect.composer-connect--compact {
+    width: 100%;
+    box-sizing: border-box;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+@keyframes channel-sidebar-spin {
+  to { transform: rotate(360deg); }
+}
+
+.composer__spin {
+  animation: channel-sidebar-spin 0.8s linear infinite;
+}

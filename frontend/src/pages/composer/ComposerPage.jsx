@@ -12,9 +12,9 @@ import { Wand2, Hash, Clock, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import Button from '../../components/ui/Button';
+import { TCard, TInput, TTextArea } from '../../components/t';
 import {
   ComposerPlatformPills,
-  ComposerConnectChannels,
   ComposerFirstComment,
   ComposerTags,
   ComposerHeader,
@@ -32,6 +32,7 @@ import { composerAPI, captionAPI, hashtagAPI } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import useWorkspace from '../../hooks/useWorkspace';
 import { useComposerPost } from '../../hooks/useComposer';
+import { readComposerPreviewExpanded } from '../../components/composer/ComposerPreviewPanel';
 
 import '../../styles/scss/composer.scss';
 
@@ -45,15 +46,9 @@ export default function ComposerPage() {
   const isEditing = !!id;
   const { data: existing, loading: loadingExisting } = useComposerPost(id);
   const basePath = location.pathname.startsWith('/admin') ? '/admin' : '/dashboard';
-  const isAdminShell = location.pathname.startsWith('/admin');
   const mediaLibraryPath = `${basePath}/analytics/media`;
 
   const { workspaceId } = useWorkspace({ user, autoHydrate: false });
-
-  const settingsPath = useMemo(() => {
-    if (isAdminShell && workspaceId) return `/admin/client/${workspaceId}/settings`;
-    return `${basePath}/settings`;
-  }, [isAdminShell, workspaceId, basePath]);
 
   const clientParams = useMemo(
     () => (workspaceId ? { client_id: workspaceId } : undefined),
@@ -76,6 +71,7 @@ export default function ComposerPage() {
   const [aiBusy, setAiBusy] = useState(false);
   const [activePreview, setActivePreview] = useState(targetPlatforms[0] || 'facebook');
   const [showPreviewPanel, setShowPreviewPanel] = useState(false);
+  const [previewExpanded, setPreviewExpanded] = useState(readComposerPreviewExpanded);
   const saveDraftRef = useRef(() => {});
 
   useEffect(() => {
@@ -336,56 +332,48 @@ export default function ComposerPage() {
     );
   }
 
-  const connectProps = {
-    clientId: workspaceId,
-    settingsPath,
-    selectedPlatforms: targetPlatforms,
-    onTogglePlatform: togglePlatform,
-  };
-
   return (
-    <div className="composer">
+    <div className={`composer${previewExpanded ? '' : ' is-preview-collapsed'}`}>
       <ComposerHeader
         title={isEditing ? 'Edit' : 'Create'}
         previewCount={targetPlatforms.length}
         onBack={() => navigate(-1)}
-        onPreview={() => setShowPreviewPanel(true)}
+        onPreview={() => {
+          setShowPreviewPanel(true);
+          setPreviewExpanded(true);
+        }}
       />
 
       <div className="composer__body">
         <div className="composer__center">
           <div className="composer__form-scroll">
-            <div className="composer__stack">
-              <section className="composer__section composer__animate" aria-label="Connected channels">
-                <ComposerConnectChannels {...connectProps} compact />
-              </section>
-
-              <section className="composer__section composer__animate" aria-label="Publish to platforms">
+            <div className="composer__stack composer__stack--t-cards">
+              <TCard label="Target platforms" className="composer__animate" aria-label="Publish to platforms">
                 <ComposerPlatformPills
                   selected={targetPlatforms}
                   onToggle={togglePlatform}
                 />
-              </section>
+              </TCard>
 
-              <section className="composer__section composer__animate composer__animate--d1">
-                <div className="composer__section-head">
-                  <label className="composer__section-label" htmlFor="composer-post-title">
-                    Title
-                  </label>
+              <TCard
+                label="Post title"
+                className="composer__animate composer__animate--d1"
+                meta={(
                   <span className="composer__title-count">
                     {title.length}
                     {' / 255'}
                   </span>
-                </div>
-                <input
+                )}
+              >
+                <TInput
                   id="composer-post-title"
-                  className="composer__standalone-input"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Enter a title…"
                   maxLength={255}
+                  aria-label="Post title"
                 />
-              </section>
+              </TCard>
 
               <ComposerCaptionEditor
                 content={content}
@@ -399,46 +387,58 @@ export default function ComposerPage() {
                 charUsed={content.length}
                 charMax={primaryMax}
                 mediaLibraryPath={mediaLibraryPath}
+                gridSpan={showFirstComment ? 8 : 12}
               />
 
               <ComposerFirstComment
                 value={firstComment}
                 onChange={setFirstComment}
                 visible={showFirstComment}
+                gridSpan={4}
               />
 
-              <hr className="composer__divider" />
+              <TCard
+                label="Tags"
+                className="composer__animate"
+                gridSpan={6}
+                meta={<span className="composer-badge">Internal team only</span>}
+              >
+                <ComposerTags
+                  value={tags}
+                  onChange={setTags}
+                  clientId={workspaceId}
+                  showLabel={false}
+                />
+              </TCard>
 
-              <ComposerTags value={tags} onChange={setTags} clientId={workspaceId} />
-
-              <div className="composer-notes">
-                <div className="composer-notes__label-row">
-                  <label className="composer__section-label" htmlFor="composer-internal-notes">
-                    Notes
-                  </label>
-                  <span className="composer-badge">Internal team only</span>
-                </div>
-                <textarea
+              <TCard
+                label="Notes"
+                className="composer__animate"
+                gridSpan={6}
+                meta={<span className="composer-badge">Internal team only</span>}
+              >
+                <TTextArea
                   id="composer-internal-notes"
-                  className="composer-notes__input"
+                  size="sm"
+                  rows={2}
                   value={internalNotes}
                   onChange={(e) => setInternalNotes(e.target.value)}
                   placeholder="Internal team notes — not visible to clients…"
-                  rows={2}
                 />
-              </div>
+              </TCard>
 
-              <ComposerScheduleCard
-                mediaType={mediaType}
-                onMediaType={setMediaType}
-                scheduleMode={scheduleMode}
-                onScheduleMode={setScheduleMode}
-                scheduledAt={scheduledAt}
-                onScheduledAt={setScheduledAt}
-              />
+              <TCard label="Schedule" className="composer__animate composer__animate--d3">
+                <ComposerScheduleCard
+                  mediaType={mediaType}
+                  onMediaType={setMediaType}
+                  scheduleMode={scheduleMode}
+                  onScheduleMode={setScheduleMode}
+                  scheduledAt={scheduledAt}
+                  onScheduledAt={setScheduledAt}
+                />
+              </TCard>
 
-              <section className="composer__section composer__section--assist composer__animate composer__animate--d3">
-                <h2 className="composer__section-label">AI assist</h2>
+              <TCard label="AI assist" className="composer__animate composer__animate--d3" dashed>
                 <div className="composer__ai-row">
                   <Button
                     variant="secondary"
@@ -469,7 +469,7 @@ export default function ComposerPage() {
                     Best time
                   </Button>
                 </div>
-              </section>
+              </TCard>
 
               {preflight && (
                 <ComposerPreflight result={preflight} onClose={() => setPreflight(null)} />
@@ -490,6 +490,8 @@ export default function ComposerPage() {
         <ComposerPreviewPanel
           open={showPreviewPanel}
           onClose={() => setShowPreviewPanel(false)}
+          desktopExpanded={previewExpanded}
+          onDesktopExpandedChange={setPreviewExpanded}
           platforms={targetPlatforms}
           activePreview={activePreview}
           onSelectPreview={setActivePreview}

@@ -24,3 +24,8 @@ General Standards:
 - Modular, maintainable, documented, and easily extendable.
 - No hardcoded values; use configuration, constants, and environment variables.
 - Backward compatible with the existing project.
+
+not break anything always (backend code,frontend,db ,etc )
+
+Perform a comprehensive security audit of this project. Act as an ethical security engineer only. Do NOT exploit, damage, or modify production data. Identify potential vulnerabilities (XSS, CSRF, SQL Injection, SSRF, IDOR, authentication, authorization, session management, file upload, API security, secrets exposure, CORS, CSP, rate limiting, clickjacking, dependency vulnerabilities, and security misconfigurations). Provide secure code fixes following OWASP Top 10 best practices. Preserve 100% of existing functionality while improving security. Do not create backdoors, malware, or destructive code.
+

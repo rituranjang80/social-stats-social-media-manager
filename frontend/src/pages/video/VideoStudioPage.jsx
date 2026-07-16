@@ -7,6 +7,7 @@
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
 import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Upload, Scissors, Crop, Camera, Captions, Youtube,
   Loader2, Play, X, Link as LinkIcon, FileVideo, Wand2,
@@ -36,9 +37,44 @@ const TABS = [
 ];
 
 export default function VideoStudioPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [active, setActive] = useState(null);   // currently-loaded MediaAsset (video)
   const [derived, setDerived] = useState([]);   // list of derived assets (trims/resizes/thumbs)
   const [tab, setTab] = useState('trim');
+  const [loadingAsset, setLoadingAsset] = useState(false);
+  const loadedAssetRef = useRef(null);
+
+  // Deep-link from Media Library: /analytics/video?asset_id=123
+  useEffect(() => {
+    const raw = searchParams.get('asset_id');
+    if (!raw) return;
+    if (loadedAssetRef.current === raw) return;
+
+    let cancelled = false;
+    (async () => {
+      setLoadingAsset(true);
+      try {
+        const res = await composerAPI.media.get(raw);
+        const asset = res.data;
+        if (cancelled) return;
+        if (!(asset?.mime_type || '').startsWith('video/')) {
+          toast.error('That media item is not a video');
+          return;
+        }
+        loadedAssetRef.current = raw;
+        setActive(asset);
+        setDerived([]);
+        // Clear query so refresh/upload flows stay clean; asset stays loaded
+        setSearchParams({}, { replace: true });
+      } catch {
+        if (!cancelled) toast.error('Could not load video from Media Library');
+      } finally {
+        if (!cancelled) setLoadingAsset(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [searchParams, setSearchParams]);
 
   return (
     <div style={{ paddingBottom: 32 }}>
@@ -46,6 +82,15 @@ export default function VideoStudioPage() {
         title="Video Studio"
         subtitle="Trim, resize, capture thumbnails, and publish to YouTube"
       />
+
+      {loadingAsset && !active ? (
+        <div style={{ padding: 40, textAlign: 'center' }}>
+          <Loader2 size={20} className="ds-spin" color="var(--text-tertiary)" />
+          <p style={{ marginTop: 8, color: 'var(--text-tertiary)', fontSize: 13 }}>
+            Loading video from Media Library…
+          </p>
+        </div>
+      ) : null}
 
       <div className="vs-grid" style={{
         display: 'grid',
@@ -55,11 +100,15 @@ export default function VideoStudioPage() {
       }}>
         {/* ── Player + derived assets ─────────────────────────────── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {!active && <UploadCard onUploaded={(a) => setActive(a)} />}
+          {!active && !loadingAsset && <UploadCard onUploaded={(a) => setActive(a)} />}
           {active && (
             <PlayerCard
               asset={active}
-              onClear={() => { setActive(null); setDerived([]); }}
+              onClear={() => {
+                setActive(null);
+                setDerived([]);
+                loadedAssetRef.current = null;
+              }}
             />
           )}
 
@@ -139,6 +188,8 @@ export default function VideoStudioPage() {
       </div>
 
       <style>{`
+        .ds-spin { animation: ds-spin 0.9s linear infinite; }
+        @keyframes ds-spin { to { transform: rotate(360deg); } }
         @media (max-width: 1024px) {
           .vs-grid { grid-template-columns: 1fr !important; }
           .vs-grid > div:last-child { position: static !important; }

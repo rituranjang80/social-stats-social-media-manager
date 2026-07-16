@@ -1,0 +1,45 @@
+@use 'variables' as *;
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin theme-aware($property, $light, $dark) {
+  #{$property}: $light;
+
+  [data-theme='dark'] & {
+    #{$property}: $dark;
+  }
+}
+
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin custom-scrollbar($thumb: var(--rail-border), $track: transparent) {
+  scrollbar-width: thin;
+  scrollbar-color: $thumb $track;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $track;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $thumb;
+    border-radius: 999px;
+  }
+}
+
+@mixin rail-transition($props...) {
+  transition-property: $props;
+  transition-duration: $transition-speed;
+  transition-timing-function: $transition-easing;
+}

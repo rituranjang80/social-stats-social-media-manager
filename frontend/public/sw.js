@@ -1,5 +1,5 @@
 /* Social Stats Service Worker — caches app shell for offline + Add to Home Screen */
-const CACHE_NAME = 'socialstats-v2';
+const CACHE_NAME = 'socialstats-v3';
 const SHELL_ASSETS = ['/', '/index.html'];
 
 self.addEventListener('install', (event) => {
@@ -57,10 +57,26 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Hashed JS/CSS: network-first so deploys are not masked by cache-first SW
+  if (url.pathname.match(/\.(js|css)$/)) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(request).then((cached) => {
       const fetched = fetch(request).then((response) => {
-        if (response.ok && request.url.match(/\.(js|css|png|jpg|jpeg|gif|webp|svg|woff2?)$/)) {
+        if (response.ok && request.url.match(/\.(png|jpg|jpeg|gif|webp|svg|woff2?)$/)) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
         }

@@ -4,7 +4,7 @@
 import { Link } from 'react-router-dom';
 import { Image as ImageIcon } from 'lucide-react';
 import AIWriteButton from '../ai/AIWriteButton';
-import { TDropzone } from '../t';
+import { TCard, TDropzone, TTextArea } from '../t';
 import { ComposerMediaThumbs } from './ComposerPlatformPills';
 
 export default function ComposerCaptionEditor({
@@ -19,35 +19,34 @@ export default function ComposerCaptionEditor({
   charUsed,
   charMax,
   mediaLibraryPath,
+  gridSpan = 12,
 }) {
   const over = charMax != null && charUsed > charMax;
 
   return (
-    <section className="composer__section composer__animate composer__animate--d2">
-      <div className="composer__section-head">
-        <label className="composer__section-label" htmlFor="composer-caption">
-          Caption
-        </label>
-        <div className="composer__caption-tools">
-          <AIWriteButton
-            clientId={clientId}
-            platform={platform || 'instagram'}
-            onInsert={onInsertAi}
-            size="sm"
-            align="right"
-          />
-        </div>
-      </div>
-
+    <TCard
+      label="Caption"
+      gridSpan={gridSpan}
+      className="composer__animate composer__animate--d2"
+      meta={(
+        <AIWriteButton
+          clientId={clientId}
+          platform={platform || 'instagram'}
+          onInsert={onInsertAi}
+          size="sm"
+          align="right"
+        />
+      )}
+    >
       <div className="composer__caption">
-        <textarea
+        <TTextArea
           id="composer-caption"
-          className="composer__textarea"
+          rows={7}
           value={content}
           onChange={(e) => onContentChange(e.target.value)}
           placeholder="What would you like to share?"
-          rows={7}
           aria-label="Post caption"
+          textareaClassName="composer__textarea"
         />
 
         <div className="composer__media-row">
@@ -78,6 +77,6 @@ export default function ComposerCaptionEditor({
           </span>
         </div>
       </div>
-    </section>
+    </TCard>
   );
 }

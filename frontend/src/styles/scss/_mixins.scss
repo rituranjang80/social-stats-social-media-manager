@@ -1,5 +1,20 @@
 @use 'variables' as *;
 
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/// Theme-aware property: light value by default, dark when `[data-theme='dark']`.
+@mixin theme-aware($property, $light, $dark) {
+  #{$property}: $light;
+
+  [data-theme='dark'] & {
+    #{$property}: $dark;
+  }
+}
+
 @mixin focus-ring($color: var(--brand-primary)) {
   outline: none;
   border-color: $color;

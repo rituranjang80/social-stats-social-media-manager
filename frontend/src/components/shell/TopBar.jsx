@@ -16,6 +16,7 @@ import useWorkspace from '../../hooks/useWorkspace';
 import { useAuth } from '../../hooks/useAuth';
 
 import '../../styles/scss/topbar.scss';
+import '../../styles/scss/workspace-switcher.scss';
 
 /**
  * 56px-tall top bar.

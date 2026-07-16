@@ -1,0 +1,55 @@
+@use '../variables' as *;
+@use '../mixins' as *;
+
+$edge-toggle-width: 28px;
+$edge-toggle-height: 56px;
+$edge-transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+$edge-top-offset: 24px;
+
+.t-edge-toggle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: $edge-toggle-width;
+  height: $edge-toggle-height;
+  padding: 0;
+  border: none;
+  background: var(--brand-primary, #f97316);
+  color: #fff;
+  cursor: pointer;
+  z-index: 1001;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.12));
+  transition: right $edge-transition, left $edge-transition, background $t-transition;
+
+  &:hover {
+    filter: brightness(1.06);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--brand-primary, #f97316);
+    outline-offset: 2px;
+  }
+
+  // Top-aligned — never combine with translateY(-50%)
+  &.is-top-aligned {
+    top: $edge-top-offset;
+    transform: none;
+  }
+
+  &--left {
+    left: 0;
+    border-radius: 0 8px 8px 0;
+  }
+
+  &--right {
+    right: var(--composer-preview-rail-width, #{$composer-preview-width});
+    border-radius: 8px 0 0 8px;
+  }
+
+  &--right.is-collapsed {
+    right: 0;
+  }
+}

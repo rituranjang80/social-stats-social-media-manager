@@ -1,27 +1,31 @@
 /* ============================================================================
  * First Comment — optional comment posted after publish (FB/IG/LI).
  * ========================================================================== */
+import { TCard, TTextArea } from '../t';
 
-export default function ComposerFirstComment({ value, onChange, visible = true }) {
+export default function ComposerFirstComment({
+  value,
+  onChange,
+  visible = true,
+  gridSpan = 4,
+}) {
   if (!visible) return null;
 
   return (
-    <div className="composer-first-comment">
-      <label className="composer__section-label" htmlFor="composer-first-comment">
-        First Comment
-      </label>
-      <textarea
+    <TCard label="First comment" className="composer-first-comment" gridSpan={gridSpan}>
+      <TTextArea
         id="composer-first-comment"
-        className="composer-first-comment__input"
+        size="sm"
+        rows={2}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="First comment posted after the main post…"
-        rows={1}
         aria-describedby="composer-first-comment-hint"
+        hint="Supported on Facebook, Instagram, and LinkedIn when those channels are selected."
       />
-      <p id="composer-first-comment-hint" className="composer__hint">
+      <span id="composer-first-comment-hint" className="sr-only">
         Supported on Facebook, Instagram, and LinkedIn when those channels are selected.
-      </p>
-    </div>
+      </span>
+    </TCard>
   );
 }

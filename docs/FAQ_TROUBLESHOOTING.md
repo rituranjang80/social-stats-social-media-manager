@@ -27,12 +27,31 @@ script to LF (or keep `*.sh text eol=lf` in `.gitattributes`), then
 `docker compose --env-file .env up -d --force-recreate`. Backend health uses
 `/api/health/services/` (not `/admin/login/`).
 
+### How do I collapse the left feature sidebar?
+On desktop, use the blue chevron tab on the edge of the Analytics/Messaging
+sidebar (mid-height). Collapse/expand is remembered in the browser. Mobile uses
+the hamburger drawer instead.
+
 ### How do I switch workspaces?
 Use **Switch Workspace** in the **top navigation bar** (centered on desktop;
 in the mobile top bar on smaller screens). The selection is global: dashboard,
 composer, calendar, media, inbox, analytics, and settings all use that
 workspace. Your choice persists across refresh (localStorage); it does not
 log you out or refresh JWT.
+
+### Composer / Media Library image shows 404
+Uploads are stored under `SocialMediaStart/data/media/`. With `DEBUG=False`,
+Django does not auto-serve them; the **gateway** must mount that folder and
+serve `/media/` (Compose does this). After changing nginx/compose, rebuild and
+recreate the gateway:
+
+```powershell
+cd C:\app\SocialMediaStart
+docker compose --env-file .env up -d --build gateway
+```
+
+Confirm the file exists under `data/media/media_assets/...` and that
+`http://localhost:8000/media/...` returns **200**.
 
 ### `/admin/clients` or `/admin/management` shows “Page not found”
 Those URLs belong to the **React admin shell**, not Django. If the Docker
