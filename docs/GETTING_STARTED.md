@@ -71,7 +71,8 @@ cd C:\app\SocialMediaStart
 docker compose --env-file .env up -d --build gateway
 ```
 
-Open e.g. **http://localhost:8000/Brightbean/NewPost.html**. New files like
+Open e.g. **http://localhost:8000/Brightbean/NewPost.html** or
+**http://localhost:8000/Brightbean/YouTubeBrightbean.html**. New files like
 `a.html` / `b.html` appear at `/Brightbean/a.html` after the same rebuild.
 
 If you previously opened that URL and saw the React **Not Found** page, clear

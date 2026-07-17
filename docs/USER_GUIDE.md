@@ -63,6 +63,10 @@ no per-page workspace chrome on the composer.
   state, modular shell components. Form sections use reusable **T-Type**
   `TCard` / `TInput` / `TTextArea` containers in a responsive card grid
   (caption beside first comment; tags beside notes on wide screens).
+  **Connected channels** — Brightbean-style account cards for connected
+  accounts only (logged-in user avatar / initials, platform icon, name, handle,
+  workspace chip, connected badge). Selection still drives which platforms the
+  post publishes to.
   **Media Library** in the caption card opens an in-composer picker modal
   (does not leave the page); selected assets appear in the media row and are
   saved/published with the post.

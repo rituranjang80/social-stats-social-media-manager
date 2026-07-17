@@ -1,34 +1,29 @@
-import { Check, X, Video } from 'lucide-react';
-import SocialPlatformIcon from '../ui/SocialPlatformIcon';
-import { PLATFORMS } from './constants';
+import { X, Video } from 'lucide-react';
+import { ChannelSelector } from '../channels';
 
-export function ComposerPlatformPills({ platforms = PLATFORMS, selected, onToggle }) {
+/**
+ * Legacy composer platform pills — now Brightbean-style ChannelSelector.
+ * Keeps the same selected/onToggle contract for targetPlatforms.
+ */
+export function ComposerPlatformPills({
+  selected,
+  onToggle,
+  clientId = null,
+  workspaceLabel = '',
+  platforms,
+}) {
+  const platformIds = platforms?.length
+    ? platforms.map((p) => p.id)
+    : undefined;
+
   return (
-    <div className="composer__platforms" role="group" aria-label="Publish to platforms">
-      {platforms.map((p) => {
-        const on = selected.includes(p.id);
-        return (
-          <button
-            key={p.id}
-            type="button"
-            className={`composer-acct-pill ${on ? 'is-selected' : ''}`}
-            aria-pressed={on}
-            onClick={() => onToggle(p.id)}
-          >
-            <span className="composer-acct-pill__check" aria-hidden="true">
-              {on ? <Check size={10} strokeWidth={3} /> : null}
-            </span>
-            <span
-              className={`composer-acct-pill__icon composer-acct-pill__icon--${p.id}`}
-              aria-hidden="true"
-            >
-              <SocialPlatformIcon platform={p.id} size={14} />
-            </span>
-            <span className="composer-acct-pill__label">{p.label}</span>
-          </button>
-        );
-      })}
-    </div>
+    <ChannelSelector
+      clientId={clientId}
+      workspaceLabel={workspaceLabel}
+      selected={selected}
+      onToggle={onToggle}
+      platformIds={platformIds}
+    />
   );
 }
 

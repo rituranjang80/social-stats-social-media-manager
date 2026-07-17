@@ -79,8 +79,9 @@ In production these must be your HTTPS domain. Update both the platform app
 ### Brightbean HTML 404 or missing CSS/JS
 Files must live under `frontend/public/Brightbean/` and the **gateway** must be
 rebuilt (`docker compose --env-file .env up -d --build gateway`). Use URLs like
-`/Brightbean/NewPost.html`. Prefer asset folders **without spaces** and
-`.js` (not `.js.download`). See `frontend/public/Brightbean/README.txt`.
+`/Brightbean/NewPost.html` or `/Brightbean/YouTubeBrightbean.html`. Prefer
+asset folders **without spaces** and `.js` (not `.js.download`). See
+`frontend/public/Brightbean/README.txt`.
 
 If the URL loads the **React app “Not Found”** screen instead of the HTML:
 unregister the site service worker (DevTools → Application → Service Workers →

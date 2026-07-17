@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 
+### Fixed — Brightbean YouTube prototype 404 on gateway
+
+`YouTubeBrightbean.html` (+ `YouTubeBrightbean_files/`) under
+`frontend/public/Brightbean/` was missing from the built gateway image, so
+http://localhost:8000/Brightbean/YouTubeBrightbean.html returned nginx 404.
+Asset scripts renamed from `.js.download` to `.js`. Rebuild gateway after
+adding Brightbean HTML. See `frontend/public/Brightbean/README.txt`.
+
+### Changed — Composer connected channels card UI
+
+Composer “Connected channels” replaces the old platform pills with reusable
+Brightbean-style cards (`ChannelSelector` / `ChannelCard` / `ChannelGrid`,
+plus `ChannelAvatar`, `SocialIcon`, `StatusBadge`). Cards load live workspace
+accounts from `/oauth/status` and now render **connected accounts only**.
+Cards show the logged-in user profile image (or initials fallback), platform
+icon, account name, handle, workspace chip, and connected status. Selection
+still toggles `targetPlatforms` — publish, schedule, preview, and save are
+unchanged.
+
 ### Fixed — Media picker z-index / drag + composer video previews
 
 Media Library picker uses elevated modal z-index (above rails / preview toggles)

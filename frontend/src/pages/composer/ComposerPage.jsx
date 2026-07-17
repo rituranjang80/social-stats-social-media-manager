@@ -13,8 +13,8 @@ import toast from 'react-hot-toast';
 
 import Button from '../../components/ui/Button';
 import { TCard, TInput, TTextArea } from '../../components/t';
+import { ChannelSelector } from '../../components/channels';
 import {
-  ComposerPlatformPills,
   ComposerFirstComment,
   ComposerTags,
   ComposerHeader,
@@ -50,7 +50,7 @@ export default function ComposerPage() {
   const { data: existing, loading: loadingExisting } = useComposerPost(id);
   const basePath = location.pathname.startsWith('/admin') ? '/admin' : '/dashboard';
 
-  const { workspaceId } = useWorkspace({ user, autoHydrate: false });
+  const { workspaceId, workspace } = useWorkspace({ user, autoHydrate: false });
 
   const clientParams = useMemo(
     () => (workspaceId ? { client_id: workspaceId } : undefined),
@@ -387,8 +387,11 @@ export default function ComposerPage() {
         <div className="composer__center">
           <div className="composer__form-scroll">
             <div className="composer__stack composer__stack--t-cards">
-              <TCard label="Target platforms" className="composer__animate" aria-label="Publish to platforms">
-                <ComposerPlatformPills
+              <TCard label="Connected channels" className="composer__animate" aria-label="Publish to platforms">
+                <ChannelSelector
+                  clientId={workspaceId}
+                  workspaceLabel={workspace?.company || workspace?.name || workspace?.label || ''}
+                  currentUser={user}
                   selected={targetPlatforms}
                   onToggle={togglePlatform}
                 />

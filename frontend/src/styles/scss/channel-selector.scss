@@ -1,0 +1,307 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// Connected social channels — Brightbean-inspired selectable cards
+
+.channel-selector {
+  width: 100%;
+  min-width: 0;
+}
+
+.channel-grid {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 2px 8px;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 999px;
+  }
+
+  &__item {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  &__empty {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-tertiary);
+  }
+
+  &--loading {
+    flex-wrap: nowrap;
+  }
+
+  @include respond-up($composer-bp-sm) {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    scroll-snap-type: none;
+    padding-bottom: 2px;
+  }
+}
+
+.channel-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 200px;
+  max-width: 260px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border-default);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  user-select: none;
+  text-align: left;
+  min-height: unset;
+  transition:
+    border-color $t-transition,
+    background $t-transition,
+    box-shadow $t-transition,
+    transform $t-transition;
+
+  &:hover {
+    border-color: var(--border-strong);
+    background: var(--surface-hover);
+    transform: translateY(-1px) scale(1.01);
+    box-shadow: var(--shadow-sm, 0 2px 8px rgba(28, 25, 23, 0.08));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+  }
+
+  &.is-selected {
+    border-color: var(--brand-primary);
+    background: var(--brand-primary-soft);
+    box-shadow: 0 0 0 3px var(--brand-primary-glow);
+  }
+
+  &.is-disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  &--skeleton {
+    height: 64px;
+    min-width: 200px;
+    border-radius: 14px;
+    border: 1.5px solid var(--border-subtle);
+    background: linear-gradient(
+      90deg,
+      var(--surface-sunken) 25%,
+      var(--surface-hover) 50%,
+      var(--surface-sunken) 75%
+    );
+    background-size: 200% 100%;
+    animation: channel-skeleton 1.2s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  &__check {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 1.5px solid var(--border-strong);
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transition: background $t-transition, border-color $t-transition;
+  }
+
+  &.is-selected &__check {
+    background: var(--brand-primary);
+    border-color: var(--brand-primary);
+  }
+
+  &__avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+  }
+
+  &__platform {
+    position: absolute;
+    right: -3px;
+    bottom: -3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: var(--surface-card);
+    border: 1.5px solid var(--surface-card);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 1px var(--border-subtle);
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+  }
+
+  &__handle {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+  }
+
+  &__workspace {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text-tertiary);
+    background: var(--surface-sunken);
+    border: 1px solid var(--border-subtle);
+    border-radius: 999px;
+    padding: 1px 6px;
+    max-width: 88px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.channel-avatar {
+  --channel-avatar-hue: 24;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: linear-gradient(
+    135deg,
+    hsl(var(--channel-avatar-hue) 70% 58%),
+    hsl(calc(var(--channel-avatar-hue) + 28) 65% 48%)
+  );
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: var(--shadow-xs, 0 1px 2px rgba(0, 0, 0, 0.08));
+
+  &--sm {
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+  }
+
+  &--md {
+    width: 40px;
+    height: 40px;
+    font-size: 13px;
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__initials {
+    line-height: 1;
+  }
+}
+
+.social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+
+  &__dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  &--ok {
+    color: #047857;
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.25);
+  }
+
+  &--warn {
+    color: #b45309;
+    background: rgba(245, 158, 11, 0.14);
+    border-color: rgba(245, 158, 11, 0.28);
+  }
+
+  &--muted {
+    color: var(--text-tertiary);
+    background: var(--surface-sunken);
+    border-color: var(--border-subtle);
+  }
+}
+
+[data-theme='dark'] {
+  .status-badge--ok {
+    color: #6ee7b7;
+  }
+
+  .status-badge--warn {
+    color: #fcd34d;
+  }
+}
+
+@keyframes channel-skeleton {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

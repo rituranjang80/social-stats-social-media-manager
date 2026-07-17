@@ -15,10 +15,14 @@ class UserSerializer(serializers.ModelSerializer):
     role         = serializers.CharField(source='profile.role',         read_only=True)
     client_id    = serializers.IntegerField(source='profile.client_id', read_only=True)
     account_type = serializers.CharField(source='profile.account_type', read_only=True)
+    profile_image = serializers.ImageField(source='profile.profile_image', read_only=True)
 
     class Meta:
         model  = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 'client_id', 'account_type']
+        fields = [
+            'id', 'username', 'email', 'first_name', 'last_name',
+            'role', 'client_id', 'account_type', 'profile_image',
+        ]
 
 
 class ClientSerializer(serializers.ModelSerializer):
