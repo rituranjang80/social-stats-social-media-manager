@@ -88,6 +88,11 @@ unregister the site service worker (DevTools → Application → Service Workers
 Unregister) or hard-refresh after rebuild — an older SW may have cached the SPA
 shell for `/Brightbean/*`.
 
+### YouTube Settings missing in Composer
+Select a **YouTube** connected channel. The panel is lazy-loaded. After deploy,
+**reconnect YouTube** so `youtube.upload` / `youtube.force-ssl` scopes apply.
+Custom thumbnails require a video attached first.
+
 ### Where is the API Swagger?
 **http://localhost:8000/api/docs/** (ReDoc: `/api/redoc/`). Click
 **Authorize → passwordAuth**, enter `admin@demo.local` / `demo`. Or use

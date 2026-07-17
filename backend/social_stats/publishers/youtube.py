@@ -108,21 +108,44 @@ class YouTubePublisher(BasePublisher):
         self._require_youtube(credential)
         title = (kwargs.get('title') or content or 'Untitled').split('\n', 1)[0][:100]
         privacy = (kwargs.get('privacy') or DEFAULT_PRIVACY).lower()
+        if privacy == 'scheduled':
+            privacy = 'private'
 
         snippet = {
             'title':       title,
             'description': content or '',
-            'tags':        kwargs.get('tags') or [],
+            'tags':        list(kwargs.get('tags') or [])[:500],
             'categoryId':  str(kwargs.get('category_id') or 22),  # 22 = People & Blogs
         }
+        if kwargs.get('default_language'):
+            snippet['defaultLanguage'] = str(kwargs['default_language'])[:10]
+        if kwargs.get('default_audio_language'):
+            snippet['defaultAudioLanguage'] = str(kwargs['default_audio_language'])[:10]
+
         status = {
-            'privacyStatus':       privacy if privacy in ('public', 'unlisted', 'private') else 'public',
+            'privacyStatus': privacy if privacy in ('public', 'unlisted', 'private') else 'public',
             'selfDeclaredMadeForKids': bool(kwargs.get('made_for_kids', False)),
+            'embeddable': bool(kwargs.get('embeddable', True)),
+            'publicStatsViewable': bool(kwargs.get('public_stats_viewable', True)),
+            'license': (
+                kwargs.get('license')
+                if kwargs.get('license') in ('youtube', 'creativeCommon')
+                else 'youtube'
+            ),
         }
         if kwargs.get('scheduled_publish_time'):
             # ISO 8601 UTC; YouTube expects RFC3339
             status['publishAt'] = kwargs['scheduled_publish_time']
             status['privacyStatus'] = 'private'  # required for scheduled
+        if kwargs.get('contains_synthetic_media') is not None:
+            status['containsSyntheticMedia'] = bool(kwargs['contains_synthetic_media'])
+
+        recording_details = {}
+        if kwargs.get('recording_date'):
+            recording_details['recordingDate'] = str(kwargs['recording_date'])
+        loc = (kwargs.get('recording_location') or '').strip()
+        if loc:
+            recording_details['locationDescription'] = loc[:150]
 
         client = GoogleClient(credential, timeout=LONG_TIMEOUT)
 
@@ -131,10 +154,23 @@ class YouTubePublisher(BasePublisher):
         # init endpoint needs the raw `Location` header, so we make this
         # request directly (still using the helper's auth).
         access_token = client.access_token()
+        parts = ['snippet', 'status']
         meta = {'snippet': snippet, 'status': status}
+        if recording_details:
+            parts.append('recordingDetails')
+            meta['recordingDetails'] = recording_details
+
+        notify = kwargs.get('notify_subscribers')
+        init_params = {
+            'part': ','.join(parts),
+            'uploadType': 'resumable',
+        }
+        if notify is not None:
+            init_params['notifySubscribers'] = 'true' if notify else 'false'
+
         init = requests.post(
             UPLOAD_URL,
-            params={'part': 'snippet,status', 'uploadType': 'resumable'},
+            params=init_params,
             headers={
                 'Authorization': f'Bearer {access_token}',
                 'Content-Type':  'application/json; charset=UTF-8',
@@ -154,20 +190,88 @@ class YouTubePublisher(BasePublisher):
         # ── Step 2: stream the video bytes to the upload URL ─────────────
         video_id = self._stream_upload(upload_url, video_url, access_token)
 
+        warnings = []
+        if is_short:
+            warnings.append(
+                'Reel was published as a standard video; YouTube classifies as Short '
+                'automatically when duration ≤60s + 9:16'
+            )
+        if kwargs.get('is_premiere'):
+            warnings.append(
+                'Premiere flag stored; true YouTube Premieres require Live Streaming API — '
+                'video was scheduled/published with privacy settings instead.'
+            )
+
         # ── Step 3: optional thumbnail ───────────────────────────────────
         if thumbnail:
             try:
                 self._set_thumbnail(client, video_id, thumbnail)
             except Exception:
                 logger.exception('Thumbnail upload failed for video %s — continuing', video_id)
+                warnings.append('Custom thumbnail upload failed')
+
+        # ── Step 4: playlist (optional) ──────────────────────────────────
+        playlist_id = (kwargs.get('playlist_id') or '').strip()
+        if playlist_id:
+            try:
+                self._add_to_playlist(client, video_id, playlist_id)
+            except Exception:
+                logger.exception('Playlist add failed for video %s', video_id)
+                warnings.append('Could not add video to playlist')
+
+        # ── Step 5: age restriction (optional) ───────────────────────────
+        if kwargs.get('age_restriction'):
+            try:
+                self._set_age_restriction(client, video_id)
+            except Exception:
+                logger.exception('Age restriction failed for video %s', video_id)
+                warnings.append('Age restriction could not be applied')
 
         return PublishResult(
             success=True,
             platform_post_id=video_id,
             platform_url=f'https://www.youtube.com/watch?v={video_id}',
             raw_response={'video_id': video_id},
-            warnings=['Reel was published as a standard video; YouTube classifies as Short automatically when duration ≤60s + 9:16'] if is_short else [],
+            warnings=warnings,
         )
+
+    def _add_to_playlist(self, client: GoogleClient, video_id: str, playlist_id: str):
+        client.post(
+            'https://www.googleapis.com/youtube/v3/playlistItems',
+            params={'part': 'snippet'},
+            json={
+                'snippet': {
+                    'playlistId': playlist_id,
+                    'resourceId': {
+                        'kind': 'youtube#video',
+                        'videoId': video_id,
+                    },
+                },
+            },
+            timeout=LONG_TIMEOUT,
+        )
+
+    def _set_age_restriction(self, client: GoogleClient, video_id: str):
+        access_token = client.access_token()
+        resp = requests.put(
+            VIDEOS_URL,
+            params={'part': 'contentDetails'},
+            headers={
+                'Authorization': f'Bearer {access_token}',
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            json={
+                'id': video_id,
+                'contentDetails': {
+                    'contentRating': {'ytRating': 'ytAgeRestricted'},
+                },
+            },
+            timeout=LONG_TIMEOUT,
+        )
+        if resp.status_code not in (200, 201):
+            from ._google_client import _map_response
+            _map_response('PUT', VIDEOS_URL, resp)
+
 
     def _stream_upload(self, upload_url: str, video_url: str, access_token: str) -> str:
         """Download video_url to a tempfile and PUT to YouTube's resumable URL."""

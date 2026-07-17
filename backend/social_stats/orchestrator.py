@@ -125,13 +125,26 @@ def publish_to_platform(self, unified_post_id: int, platform: str):
     media_urls = overrides.get('media_urls', post.media_urls) or []
     media_type = overrides.get('media_type', post.media_type) or 'text'
 
+    # YouTube: description override lives on the settings object
+    if platform == 'youtube':
+        content = (
+            overrides.get('description_override')
+            or overrides.get('description')
+            or overrides.get('content')
+            or post.content
+            or ''
+        )
+
     # Resolve any internal MediaAsset IDs to public URLs (S3 presigned or local).
     media_urls = _resolve_media_urls(post, media_urls)
 
     publisher = get_publisher(platform)
 
     try:
-        result = _dispatch_publish(publisher, cred, content, media_urls, media_type, post=post)
+        result = _dispatch_publish(
+            publisher, cred, content, media_urls, media_type,
+            post=post, overrides=overrides, platform=platform,
+        )
     except TokenExpiredError as e:
         # Mark credential dead + alert + persist
         _mark_failed(log, code='token_expired', message=str(e))
@@ -191,7 +204,7 @@ def publish_to_platform(self, unified_post_id: int, platform: str):
     ])
 
     # Optional first comment (FB / IG when publishers support it)
-    _maybe_post_first_comment(publisher, credential, log, post)
+    _maybe_post_first_comment(publisher, cred, log, post)
 
     # Mark referenced media as used
     MediaAsset.objects.filter(used_in_posts=post, is_used=False).update(is_used=True)
@@ -215,9 +228,34 @@ def _maybe_post_first_comment(publisher, credential, log, post):
         )
 
 
-def _dispatch_publish(publisher, credential, content, media_urls, media_type, *, post):
+def _dispatch_publish(publisher, credential, content, media_urls, media_type, *,
+                      post, overrides=None, platform=None):
     """Pick the right publisher method based on media_type."""
     media_type = (media_type or 'text').lower()
+    platform = platform or getattr(publisher, 'platform', '')
+    overrides = overrides or {}
+    extra = {}
+
+    if platform == 'youtube':
+        from .publishers.youtube_options import build_youtube_kwargs
+
+        def _resolve_thumb(asset_id):
+            asset = MediaAsset.objects.filter(id=asset_id, client=post.client).first()
+            if not asset:
+                return None
+            return media_service.presigned_url(asset) or None
+
+        extra = build_youtube_kwargs(post, overrides, resolve_thumbnail_url=_resolve_thumb)
+        # Prefer explicit description from kwargs builder when set
+        if overrides.get('description_override') or overrides.get('description'):
+            content = (
+                overrides.get('description_override')
+                or overrides.get('description')
+                or content
+            )
+        thumb = extra.pop('thumbnail', None)
+    else:
+        thumb = None
 
     if media_type == 'text':
         return publisher.publish_text(credential, content)
@@ -225,11 +263,17 @@ def _dispatch_publish(publisher, credential, content, media_urls, media_type, *,
         return publisher.publish_image(credential, content, media_urls)
     if media_type == 'video':
         first = media_urls[0] if media_urls else ''
-        return publisher.publish_video(credential, content, first)
+        if platform == 'youtube':
+            return publisher.publish_video(
+                credential, content, first, thumbnail=thumb, **extra,
+            )
+        return publisher.publish_video(credential, content, first, thumbnail=thumb)
     if media_type == 'carousel':
         return publisher.publish_carousel(credential, content, media_urls)
     if media_type == 'reel':
         first = media_urls[0] if media_urls else ''
+        if platform == 'youtube':
+            return publisher.publish_reel(credential, first, content, thumbnail=thumb, **extra)
         return publisher.publish_reel(credential, first, content)
     if media_type == 'story':
         first = media_urls[0] if media_urls else ''

@@ -117,6 +117,8 @@ to obtain a refresh token):
 - **YouTube** (`?platform=youtube`):
   ```
   https://www.googleapis.com/auth/youtube.readonly
+  https://www.googleapis.com/auth/youtube.upload
+  https://www.googleapis.com/auth/youtube.force-ssl
   https://www.googleapis.com/auth/yt-analytics.readonly
   openid email profile
   ```
@@ -126,6 +128,8 @@ to obtain a refresh token):
   openid email profile
   ```
 - **All** (default) combines both sets.
+
+Reconnect YouTube after this change so upload / thumbnail scopes are granted.
 
 ### 4. Env vars
 ```
@@ -138,11 +142,12 @@ GOOGLE_REDIRECT_URI=http://localhost:8000/api/oauth/google/callback/
 The wizard has users create their own Google Cloud project, enable the same APIs,
 and generate a **refresh token** via the **Google OAuth Playground**
 (`https://developers.google.com/oauthplayground` as the redirect URI). Scopes:
-`youtube.readonly` + `yt-analytics.readonly` for YouTube; `business.manage` for
+`youtube.readonly` + `youtube.upload` + `youtube.force-ssl` +
+`yt-analytics.readonly` for YouTube; `business.manage` for
 Business Profile. They paste **Channel ID** (YouTube) or **Account ID + Location
 ID** (Business Profile), plus their OAuth Client ID/Secret and the refresh token.
 
-> `youtube.readonly`, `yt-analytics.readonly`, and `business.manage` are
+> `youtube.readonly`, `youtube.upload`, `yt-analytics.readonly`, and `business.manage` are
 > **sensitive/restricted** Google scopes — see [GOING_LIVE.md](GOING_LIVE.md)
 > for the consent-screen verification implications.
 

@@ -70,7 +70,12 @@ no per-page workspace chrome on the composer.
   **Media Library** in the caption card opens an in-composer picker modal
   (does not leave the page); selected assets appear in the media row and are
   saved/published with the post.
-  Reference: `/Brightbean/NewPost.html`.
+  **YouTube Settings** — when YouTube is a selected channel, Composer shows a
+  dedicated settings card (visibility, audience / Made for Kids, tags, category,
+  license, distribution, comments prefs, advanced + metadata). **Custom
+  Thumbnail** opens a frame-capture dialog (reuse Video Studio extract path);
+  the chosen image is saved on the draft and sent with YouTube publish.
+  Reference: `/Brightbean/YouTubeBrightbean.html`.
   Keyboard: **Ctrl/Cmd+S** saves draft. Workspace switching is in the **global
   top bar**, not the composer header.
 - **Connect channels** — CHANNELS icon grid in the left Analytics sidebar

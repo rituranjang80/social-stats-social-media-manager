@@ -384,6 +384,8 @@ def facebook_oauth_callback(request):
 
 GOOGLE_SCOPES_YOUTUBE = ' '.join([
     'https://www.googleapis.com/auth/youtube.readonly',
+    'https://www.googleapis.com/auth/youtube.upload',
+    'https://www.googleapis.com/auth/youtube.force-ssl',
     'https://www.googleapis.com/auth/yt-analytics.readonly',
     'openid', 'email', 'profile',
 ])
@@ -396,6 +398,8 @@ GOOGLE_SCOPES_GMB = ' '.join([
 # Keep combined for backwards compatibility
 GOOGLE_SCOPES = ' '.join([
     'https://www.googleapis.com/auth/youtube.readonly',
+    'https://www.googleapis.com/auth/youtube.upload',
+    'https://www.googleapis.com/auth/youtube.force-ssl',
     'https://www.googleapis.com/auth/yt-analytics.readonly',
     'https://www.googleapis.com/auth/business.manage',
     'openid', 'email', 'profile',

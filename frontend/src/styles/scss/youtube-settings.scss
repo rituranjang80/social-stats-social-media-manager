@@ -1,0 +1,580 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+/* ── YouTube Settings panel (Composer) ─────────────────────────────────── */
+.yt-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 0;
+
+  @include theme-aware(color, $text-muted, #cbd5e1);
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  &__platform-dot {
+    width: 10px;
+    height: 10px;
+    margin-top: 6px;
+    border-radius: 50%;
+    background: $platform-youtube;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    @include theme-aware(color, #1c1917, #f8fafc);
+  }
+
+  &__subtitle {
+    margin: 2px 0 0;
+    font-size: 0.75rem;
+    @include theme-aware(color, #a8a29e, #94a3b8);
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    @include theme-aware(color, #a8a29e, #94a3b8);
+  }
+
+  &__count {
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  &__hint {
+    display: block;
+    margin: 4px 0 0;
+    font-size: 11px;
+    line-height: 1.4;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    @include theme-aware(color, #a8a29e, #64748b);
+  }
+
+  &__error {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: #dc2626;
+  }
+
+  &__input,
+  &__textarea,
+  &__select {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 0.875rem;
+    border-radius: 8px;
+    border: 1px solid;
+    @include theme-aware(border-color, #e7e5e4, $border-dark);
+    @include theme-aware(background, #fff, #0f172a);
+    @include theme-aware(color, #1c1917, #f8fafc);
+    transition: border-color $t-transition, box-shadow $t-transition;
+
+    &:focus {
+      outline: none;
+      border-color: #f97316;
+      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+    }
+
+    &.is-invalid {
+      border-color: #dc2626;
+    }
+  }
+
+  &__textarea {
+    resize: vertical;
+    min-height: 72px;
+  }
+
+  &__select {
+    cursor: pointer;
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 14px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: 1px solid;
+    cursor: pointer;
+    @include theme-aware(border-color, #e7e5e4, $border-dark);
+    @include theme-aware(background, #fff, #1e293b);
+    @include theme-aware(color, #1c1917, #f8fafc);
+    transition: background $t-transition, border-color $t-transition;
+
+    &:hover {
+      @include theme-aware(background, #fff7ed, #334155);
+      border-color: #f97316;
+      color: #ea580c;
+    }
+  }
+
+  &__thumb-block {
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid;
+    @include theme-aware(border-color, #e7e5e4, $border-dark);
+    @include theme-aware(background, #fafaf9, #1e293b);
+  }
+
+  &__thumb-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  &__thumb-preview,
+  &__thumb-empty {
+    position: relative;
+    width: 160px;
+    max-width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid;
+    @include theme-aware(border-color, #e7e5e4, $border-dark);
+    @include theme-aware(background, #f5f5f4, #0f172a);
+  }
+
+  &__thumb-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__thumb-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    @include theme-aware(color, #a8a29e, #64748b);
+  }
+
+  &__thumb-clear {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    display: inline-flex;
+    padding: 4px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(28, 25, 23, 0.65);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  &__thumb-actions {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  &__accordion {
+    border-top: 1px solid;
+    @include theme-aware(border-color, #f5f5f4, $border-dark);
+    padding-top: 8px;
+  }
+
+  &__accordion-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 0;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    @include theme-aware(color, #78716c, #94a3b8);
+    transition: color $t-transition;
+
+    &:hover {
+      @include theme-aware(color, #1c1917, #f8fafc);
+    }
+  }
+
+  &__accordion-icon {
+    transition: transform 180ms ease;
+  }
+
+  &__accordion.is-open &__accordion-icon {
+    transform: rotate(90deg);
+  }
+
+  &__accordion-body {
+    margin-top: 10px;
+    animation: yt-settings-in 180ms ease;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+
+    @include respond-up(640px) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  &__field {
+    min-width: 0;
+
+    &--full {
+      grid-column: 1 / -1;
+    }
+  }
+
+  &__field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__check {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.875rem;
+    @include theme-aware(color, #44403c, #e2e8f0);
+    cursor: pointer;
+
+    input {
+      margin-top: 2px;
+      accent-color: #f97316;
+    }
+
+    .yt-settings__hint {
+      margin-top: 2px;
+    }
+  }
+
+  &__checks {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  &__radio-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+  }
+
+  &__radio-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@keyframes yt-settings-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Thumbnail dialog ──────────────────────────────────────────────────── */
+.thumb-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+
+  &__backdrop {
+    position: absolute;
+    inset: 0;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    background: rgba(28, 25, 23, 0.45);
+    backdrop-filter: blur(4px);
+  }
+
+  &__panel {
+    position: relative;
+    z-index: 1;
+    width: min(960px, 100%);
+    max-height: min(90vh, 860px);
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px;
+    border: 1px solid;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+    @include theme-aware(border-color, #e7e5e4, $border-dark);
+    @include theme-aware(background, #fff, #0f172a);
+  }
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 18px;
+    border-bottom: 1px solid;
+    @include theme-aware(border-color, #f5f5f4, $border-dark);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    @include theme-aware(color, #1c1917, #f8fafc);
+  }
+
+  &__subtitle {
+    margin: 4px 0 0;
+    font-size: 0.8rem;
+    @include theme-aware(color, #78716c, #94a3b8);
+  }
+
+  &__close {
+    display: inline-flex;
+    padding: 6px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    @include theme-aware(color, #78716c, #94a3b8);
+
+    &:hover {
+      @include theme-aware(background, #f5f5f4, #1e293b);
+    }
+  }
+
+  &__body {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px 18px;
+    overflow: auto;
+    flex: 1;
+    min-height: 0;
+
+    @include respond-up(768px) {
+      grid-template-columns: 1.4fr 1fr;
+    }
+  }
+
+  &__stage {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #0c0a09;
+
+    &--empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #a8a29e;
+      font-size: 0.875rem;
+      padding: 24px;
+      text-align: center;
+    }
+  }
+
+  &__video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  &__safe-area {
+    pointer-events: none;
+    position: absolute;
+    inset: 8%;
+    border: 1px dashed rgba(249, 115, 22, 0.85);
+    border-radius: 4px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.18);
+
+    &--player {
+      inset: 6%;
+    }
+  }
+
+  &__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  &__icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid;
+    cursor: pointer;
+    @include theme-aware(border-color, #e7e5e4, $border-dark);
+    @include theme-aware(background, #fff, #1e293b);
+    @include theme-aware(color, #1c1917, #f8fafc);
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+      border-color: #f97316;
+      color: #ea580c;
+    }
+  }
+
+  &__now {
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    @include theme-aware(color, #57534e, #94a3b8);
+  }
+
+  &__safe-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    font-size: 0.75rem;
+    @include theme-aware(color, #78716c, #94a3b8);
+    cursor: pointer;
+
+    input {
+      accent-color: #f97316;
+    }
+  }
+
+  &__timeline {
+    margin-top: 8px;
+  }
+
+  &__scrubber {
+    width: 100%;
+    accent-color: #f97316;
+    cursor: pointer;
+  }
+
+  &__timecode {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    @include theme-aware(color, #a8a29e, #64748b);
+  }
+
+  &__timecode-sep {
+    opacity: 0.5;
+  }
+
+  &__preview {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid;
+    @include theme-aware(border-color, #e7e5e4, $border-dark);
+    @include theme-aware(background, #f5f5f4, #1e293b);
+
+    &--empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      text-align: center;
+      font-size: 0.8rem;
+      @include theme-aware(color, #a8a29e, #64748b);
+    }
+  }
+
+  &__preview-zoom {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transform: scale(1);
+    transform-origin: center center;
+    transition: transform 150ms ease;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    @for $i from 10 through 30 {
+      &[data-zoom='#{$i}'] {
+        transform: scale(#{$i * 0.1});
+      }
+    }
+  }
+
+  &__zoom-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    font-size: 0.8rem;
+    @include theme-aware(color, #78716c, #94a3b8);
+  }
+
+  &__error {
+    margin-top: 8px;
+    font-size: 0.8rem;
+    color: #dc2626;
+  }
+
+  &__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border-top: 1px solid;
+    @include theme-aware(border-color, #f5f5f4, $border-dark);
+  }
+
+  &__footer-spacer {
+    flex: 1;
+    min-width: 8px;
+  }
+
+  &__file {
+    @include visually-hidden;
+  }
+}

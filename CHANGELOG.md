@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+### Added — Composer YouTube Settings + custom thumbnail creator
+
+When a YouTube channel is selected in Composer, a **YouTube Settings** panel
+appears (Brightbean-aligned accordions): title/description overrides, tags,
+category, playlist, language, recording details, visibility (public / unlisted /
+private / schedule + premiere flag), audience (Made for Kids, age restriction),
+license, distribution, comments preferences, advanced flags, and metadata.
+**Custom Thumbnail** opens a lazy-loaded dialog (play/seek/frame capture, 16:9
+overlay, upload, Use Thumbnail) that stores a media asset on the draft without
+changing the main media row. Settings persist in `platform_overrides.youtube`
+(draft save/restore, schedule, edit). Publish/orchestrator passes supported
+fields to `YouTubePublisher` (privacy, tags, category, kids, thumb, schedule,
+license, embed, notify, playlist, languages, recording, altered content).
+YouTube OAuth scopes now include `youtube.upload` + `youtube.force-ssl` —
+reconnect YouTube after deploy. Reference UI: `/Brightbean/YouTubeBrightbean.html`.
+
 ### Fixed — Brightbean YouTube prototype 404 on gateway
 
 `YouTubeBrightbean.html` (+ `YouTubeBrightbean_files/`) under

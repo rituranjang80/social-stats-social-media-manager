@@ -28,6 +28,11 @@ import {
   scheduleFromQuery,
   supportsFirstComment,
 } from '../../components/composer';
+import {
+  createDefaultYoutubeSettings,
+  normalizeYoutubeSettings,
+  validateYoutubeSettings,
+} from '../../components/youtube';
 import { normalizeMediaAsset } from '../../components/media';
 import { composerAPI, captionAPI, hashtagAPI } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
@@ -38,6 +43,12 @@ import { readComposerPreviewExpanded } from '../../components/composer/ComposerP
 import '../../styles/scss/composer.scss';
 
 const MediaPickerModal = lazy(() => import('../../components/media/MediaPickerModal'));
+const YoutubeSettingsPanel = lazy(() =>
+  import('../../components/youtube/YoutubeSettingsPanel'),
+);
+const ThumbnailDialog = lazy(() =>
+  import('../../components/thumbnail/ThumbnailDialog'),
+);
 
 export default function ComposerPage() {
   const { id } = useParams();
@@ -75,7 +86,16 @@ export default function ComposerPage() {
   const [showPreviewPanel, setShowPreviewPanel] = useState(false);
   const [previewExpanded, setPreviewExpanded] = useState(readComposerPreviewExpanded);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+  const [youtubeSettings, setYoutubeSettings] = useState(createDefaultYoutubeSettings);
+  const [youtubeErrors, setYoutubeErrors] = useState({});
+  const [thumbnailOpen, setThumbnailOpen] = useState(false);
   const saveDraftRef = useRef(() => {});
+
+  const showYoutubeSettings = targetPlatforms.includes('youtube');
+  const primaryVideoAsset = useMemo(
+    () => mediaAssets.find((a) => (a.mime_type || '').startsWith('video/')) || null,
+    [mediaAssets],
+  );
 
   useEffect(() => {
     if (isEditing) return;
@@ -104,12 +124,17 @@ export default function ComposerPage() {
       setScheduleMode('schedule');
       setScheduledAt(toLocalInput(existing.scheduled_at));
     }
+    const ytRaw = existing.platform_overrides?.youtube;
+    setYoutubeSettings(normalizeYoutubeSettings(ytRaw));
+    setYoutubeErrors({});
   }, [existing, isEditing]);
 
   /* Global top-bar switch remounts routes; also clear local media if id changes mid-page */
   useEffect(() => {
     setMediaAssets([]);
     setPreflight(null);
+    setYoutubeSettings(createDefaultYoutubeSettings());
+    setYoutubeErrors({});
   }, [workspaceId]);
 
   useEffect(() => {
@@ -205,7 +230,13 @@ export default function ComposerPage() {
       target_platforms: targetPlatforms,
       media_urls: mediaAssets.map((a) => `asset:${a.id}`),
       media_assets: mediaAssets.map((a) => a.id),
+      platform_overrides: {},
     };
+    if (showYoutubeSettings) {
+      payload.platform_overrides = {
+        youtube: { ...youtubeSettings },
+      };
+    }
     if (workspaceId) {
       payload.client = workspaceId;
       payload.client_id = workspaceId;
@@ -269,7 +300,7 @@ export default function ComposerPage() {
   }
 
   async function onSchedule() {
-    if (!validate()) return;
+    if (!validate({ forPublish: true })) return;
     if (!scheduledAt) { toast.error('Pick a future date/time first'); return; }
     setSaving(true);
     try {
@@ -288,7 +319,7 @@ export default function ComposerPage() {
   }
 
   async function onPublishNow() {
-    if (!validate()) return;
+    if (!validate({ forPublish: true })) return;
     setSaving(true);
     try {
       const post = await ensurePost();
@@ -302,7 +333,7 @@ export default function ComposerPage() {
     }
   }
 
-  function validate() {
+  function validate({ forPublish = false } = {}) {
     if (!workspaceId) {
       toast.error('Select a workspace first'); return false;
     }
@@ -314,6 +345,24 @@ export default function ComposerPage() {
     }
     if (targetPlatforms.length === 0) {
       toast.error('Pick at least one platform'); return false;
+    }
+    if (showYoutubeSettings) {
+      if (forPublish && !['video', 'reel'].includes(mediaType)) {
+        toast.error('YouTube requires a video or reel');
+        return false;
+      }
+      const effectiveTitle = (youtubeSettings.title_override || title || '').trim();
+      if (forPublish && !effectiveTitle) {
+        toast.error('YouTube needs a video title');
+        setYoutubeErrors((e) => ({ ...e, title_override: 'Enter a video title' }));
+        return false;
+      }
+      const yt = validateYoutubeSettings(youtubeSettings, { forPublish });
+      setYoutubeErrors(yt.errors);
+      if (!yt.ok) {
+        toast.error(Object.values(yt.errors)[0] || 'Fix YouTube settings');
+        return false;
+      }
     }
     return true;
   }
@@ -480,6 +529,39 @@ export default function ComposerPage() {
                 />
               </TCard>
 
+              {showYoutubeSettings ? (
+                <TCard
+                  label="YouTube"
+                  className="composer__animate"
+                  aria-label="YouTube Settings"
+                >
+                  <Suspense
+                    fallback={(
+                      <div className="composer__loading">
+                        <Loader2 size={16} className="composer__spin" />
+                        Loading YouTube settings…
+                      </div>
+                    )}
+                  >
+                    <YoutubeSettingsPanel
+                      value={youtubeSettings}
+                      onChange={(next) => {
+                        setYoutubeSettings(next);
+                        setYoutubeErrors({});
+                      }}
+                      errors={youtubeErrors}
+                      onOpenThumbnail={() => {
+                        if (!primaryVideoAsset) {
+                          toast.error('Attach a video first to create a thumbnail');
+                          return;
+                        }
+                        setThumbnailOpen(true);
+                      }}
+                    />
+                  </Suspense>
+                </TCard>
+              ) : null}
+
               <TCard label="AI assist" className="composer__animate composer__animate--d3" dashed>
                 <div className="composer__ai-row">
                   <Button
@@ -552,6 +634,24 @@ export default function ComposerPage() {
               multiple
               excludeIds={mediaAssets.map((a) => a.id)}
               onSelect={addLibraryAssets}
+            />
+          </Suspense>
+        ) : null}
+
+        {thumbnailOpen ? (
+          <Suspense fallback={null}>
+            <ThumbnailDialog
+              open={thumbnailOpen}
+              onClose={() => setThumbnailOpen(false)}
+              videoAsset={primaryVideoAsset}
+              clientId={workspaceId}
+              onUseThumbnail={({ thumbnail_asset_id, thumbnail_url }) => {
+                setYoutubeSettings((cur) => ({
+                  ...cur,
+                  thumbnail_asset_id,
+                  thumbnail_url,
+                }));
+              }}
             />
           </Suspense>
         ) : null}
