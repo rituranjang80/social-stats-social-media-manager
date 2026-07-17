@@ -7,29 +7,69 @@
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { calendarAPI } from '../services/api';
+import { calendarAPI, composerAPI } from '../services/api';
+import {
+  groupComposerPostsByDate,
+  mergePostsByDate,
+  mapLegacyCalendarPost,
+} from '../components/calendar/utils';
+
+async function fetchAllComposerPosts(clientId) {
+  const rows = [];
+  let page = 1;
+  let guard = 0;
+  while (guard < 20) {
+    guard += 1;
+    const res = await composerAPI.posts.list({
+      client_id: clientId,
+      page,
+    });
+    const payload = res.data;
+    const batch = payload?.results || (Array.isArray(payload) ? payload : []);
+    rows.push(...batch);
+    if (!payload?.next || !batch.length) break;
+    page += 1;
+  }
+  return rows;
+}
+
+function normalizeCalendarMap(data) {
+  const out = {};
+  Object.entries(data || {}).forEach(([date, list]) => {
+    out[date] = (list || []).map(mapLegacyCalendarPost);
+  });
+  return out;
+}
 
 // ── useCalendarPosts ───────────────────────────────────────────────────────────
-export function useCalendarPosts(clientId, month, year, platform) {
+export function useCalendarPosts(clientId, month, year) {
   const [postsByDate, setPostsByDate] = useState({});
   const [loading,    setLoading]     = useState(false);
   const [error,      setError]       = useState('');
 
   const fetch = useCallback(async () => {
-    if (!clientId) return;
+    if (!clientId) {
+      setPostsByDate({});
+      return;
+    }
     setLoading(true);
     setError('');
     try {
       const params = { client_id: clientId, month, year };
-      if (platform && platform !== 'all') params.platform = platform;
-      const res = await calendarAPI.getPosts(params);
-      setPostsByDate(res.data || {});
+      const [calRes, composerRows] = await Promise.all([
+        calendarAPI.getPosts(params),
+        fetchAllComposerPosts(clientId).catch(() => []),
+      ]);
+      const calendarMap = normalizeCalendarMap(calRes.data || {});
+      const composerMap = groupComposerPostsByDate(composerRows, month, year);
+      setPostsByDate(mergePostsByDate(calendarMap, composerMap));
     } catch (e) {
       setError(e.response?.data?.error || 'Failed to load calendar posts.');
+      setPostsByDate({});
     } finally {
       setLoading(false);
     }
-  }, [clientId, month, year, platform]);
+  }, [clientId, month, year]);
 
   useEffect(() => { fetch(); }, [fetch]);
 
@@ -126,14 +166,18 @@ export function useCreatePost() {
     }
   }, []);
 
-  const remove = useCallback(async (id) => {
+  const remove = useCallback(async (id, { source = 'calendar' } = {}) => {
     setCreating(true);
     setError('');
     try {
-      await calendarAPI.deletePost(id);
+      if (source === 'composer') {
+        await composerAPI.posts.delete(id);
+      } else {
+        await calendarAPI.deletePost(id);
+      }
       return { success: true };
     } catch (e) {
-      const msg = e.response?.data?.error || 'Failed to delete post.';
+      const msg = e.response?.data?.error || e.response?.data?.detail || 'Failed to delete post.';
       setError(msg);
       return { success: false, error: msg };
     } finally {
@@ -141,14 +185,19 @@ export function useCreatePost() {
     }
   }, []);
 
-  const reschedule = useCallback(async (id, datetime) => {
+  const reschedule = useCallback(async (id, datetime, { source = 'calendar', clientId } = {}) => {
     setCreating(true);
     setError('');
     try {
+      if (source === 'composer') {
+        const params = clientId ? { client_id: clientId } : undefined;
+        const res = await composerAPI.posts.schedule(id, datetime, params);
+        return { success: true, post: { ...res.data, source: 'composer', calendarKey: `composer-${id}` } };
+      }
       const res = await calendarAPI.reschedule(id, { scheduled_at: datetime });
       return { success: true, post: res.data };
     } catch (e) {
-      const msg = e.response?.data?.error || 'Failed to reschedule.';
+      const msg = e.response?.data?.error || e.response?.data?.detail || 'Failed to reschedule.';
       setError(msg);
       return { success: false, error: msg };
     } finally {

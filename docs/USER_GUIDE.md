@@ -35,7 +35,20 @@ actually publishing needs them.
 
 **Route:** `/dashboard/analytics/composer` (clients) or
 `/admin/analytics/composer` (admin shell). Calendar deep-links support
-`?scheduled_date=&scheduled_time=` to prefill the schedule.
+`?scheduled_date=&scheduled_time=` to prefill the schedule. Calendar **+** /
+cell create buttons open Composer with those params plus the active workspace.
+
+### Content calendar (Publish)
+**Route:** `/dashboard/analytics/calendar` or `/admin/analytics/calendar`.
+BrightBean-style Publish UI: List ↔ Calendar toggle, month/week/day/agenda
+views, status / **connected-channel** / tag / search filters, summary counts,
+drag-and-drop reschedule, hover **+** on date cells (opens Composer with that
+date), and a floating **+** to compose. Bound to the global Switch Workspace.
+Defaults: current workspace, current month, **All Channels** + **All Tags**
+(shows every scheduled/published post for the workspace — Composer unified
+posts and legacy calendar posts). Channel and tag multi-selects support search,
+select-all, and clear-all (clear = All). Reference prototype:
+`/Brightbean/NewPost.html`.
 
 **Manage workspaces & team access** (other admin pages — not on the composer):
 

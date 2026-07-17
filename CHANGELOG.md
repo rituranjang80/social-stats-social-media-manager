@@ -2,6 +2,39 @@
 
 ## [Unreleased]
 
+### Fixed — Calendar filters, All semantics, and Composer posts on grid
+
+Publish calendar channel/tag dropdowns were clipped by `overflow` on the toolbar
+shell (looked empty). Channels load from OAuth status (avatar, platform icon,
+name, handle) with post-platform fallback; tags from `tag_suggestions` plus
+hashtags/tags on loaded posts. Empty selection = **All Channels** / **All Tags**
+(no restriction). Month data merges legacy `CalendarPost` with Composer
+`UnifiedPost` rows for the workspace so scheduled composer posts appear by
+default. Channel/tag filters run client-side (no extra refetch per toggle).
+Cards show thumbnail, platforms, time, status, and tags. DnD reschedule routes
+composer posts through the existing schedule API.
+
+### Changed — Calendar hover create + connected channel/tag filters
+
+Month view is the default (current month). Date-cell **+** appears only on
+hover (top-right fade/scale), then opens Composer with that date + workspace.
+Channel filter lists **connected** OAuth accounts (avatar, platform icon, name,
+handle; multi-select + search). Tags load from `tag_suggestions` with search /
+select-all / clear. New reusable pieces: `CalendarMonthView`,
+`CalendarDateCell`, `HoverCreateButton`, `ConnectedChannelFilter`,
+`TagFilterDropdown`.
+
+### Changed — Analytics Calendar matches BrightBean Publish UI
+
+Calendar (`/admin|dashboard/analytics/calendar`) redesigned to the BrightBean
+Publish/Calendar chrome (stone/orange, List↔Calendar toggle, toolbar filters,
+month grid). Adds week/day/agenda views, status/channel/tag/search filters,
+summary stats, drag-and-drop reschedule (existing `reschedule` API), floating
+**+** / cell **+** that open Composer with `scheduled_date`, `scheduled_time`,
+and workspace. Uses global Switch Workspace (no per-page client dropdown).
+Existing drawers, notes, and CalendarPost APIs unchanged. Reference:
+`/Brightbean/NewPost.html`.
+
 ### Added — Composer YouTube Settings + custom thumbnail creator
 
 When a YouTube channel is selected in Composer, a **YouTube Settings** panel

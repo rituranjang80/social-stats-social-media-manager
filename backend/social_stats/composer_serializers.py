@@ -218,7 +218,7 @@ class UnifiedPostListSerializer(serializers.ModelSerializer):
         model = UnifiedPost
         fields = [
             'id', 'client', 'title',
-            'content', 'tags', 'media_type', 'target_platforms', 'platform_count',
+            'content', 'tags', 'media_type', 'media_urls', 'target_platforms', 'platform_count',
             'status', 'scheduled_at', 'published_at',
             'created_by', 'created_at',
         ]

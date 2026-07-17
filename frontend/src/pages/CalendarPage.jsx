@@ -1,228 +1,109 @@
 /* ============================================================================
- *  Social Stats — Social Media Management & Marketing Platform
- *  Author    : Chandrabhan Shekhawat
- *  Company   : Gigai Kripa Services
- *  Website   : https://gigaikripaservices.com/
- *  Copyright (c) 2026 Chandrabhan Shekhawat / Gigai Kripa Services.
- *  Released under the MIT License — see LICENSE. Keep this notice.
+ * Social Stats — Social Media Management & Marketing Platform
+ * Author    : Chandrabhan Shekhawat
+ * Company   : Gigai Kripa Services
+ * Website   : https://gigaikripaservices.com/
+ * Copyright (c) 2026 Chandrabhan Shekhawat / Gigai Kripa Services.
+ * Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
-import { useState, useCallback, useEffect } from 'react';
-import { addMonths, subMonths, format, parseISO } from 'date-fns';
-import { ChevronLeft, ChevronRight, Plus, Calendar, List, BarChart2 } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import { useClients } from '../hooks/useData';
 import {
-  useCalendarPosts, useCalendarStats, useCalendarNotes,
-  useCreatePost, useUpcomingPosts,
+  lazy, Suspense, useCallback, useEffect, useMemo, useState,
+} from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { format } from 'date-fns';
+import { Calendar as CalIcon, List, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+import { useAuth } from '../hooks/useAuth';
+import useWorkspace from '../hooks/useWorkspace';
+import {
+  useCalendarNotes,
+  useCalendarPosts,
+  useCalendarStats,
+  useCreatePost,
+  useUpcomingPosts,
 } from '../hooks/useCalendar';
-import { PLATFORMS, PLATFORM_LIST } from '../services/platforms';
-import CalendarGrid       from '../components/calendar/CalendarGrid';
-import PostDrawer         from '../components/calendar/PostDrawer';
-import PostFormDrawer     from '../components/calendar/PostFormDrawer';
-import CalendarStats      from '../components/calendar/CalendarStats';
-import UpcomingPosts      from '../components/calendar/UpcomingPosts';
-import PageHeader         from '../components/layout/PageHeader';
-import SocialPlatformIcon from '../components/ui/SocialPlatformIcon';
+import CalendarToolbar from '../components/calendar/CalendarToolbar';
+import CalendarStatistics from '../components/calendar/CalendarStatistics';
+import FloatingCreateButton from '../components/calendar/FloatingCreateButton';
+import PostDrawer from '../components/calendar/PostDrawer';
+import PostFormDrawer from '../components/calendar/PostFormDrawer';
+import UpcomingPosts from '../components/calendar/UpcomingPosts';
+import {
+  computeStatsFromPosts,
+  composerUrl,
+  extractPlatformsFromPosts,
+  extractTagsFromPosts,
+  filterPosts,
+  flattenPosts,
+  preserveTimeOnDate,
+  shiftPeriod,
+} from '../components/calendar/utils';
+import { DEFAULT_COMPOSE_TIME } from '../components/calendar/constants';
 
-// ── Inject animation keyframes once ──────────────────────────────────────────
-const STYLE_ID = 'cal-keyframes';
-if (!document.getElementById(STYLE_ID)) {
-  const s = document.createElement('style');
-  s.id = STYLE_ID;
-  s.textContent = `
-    @keyframes calFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .cal-fade { animation: calFadeIn 0.2s ease-out; }
-  `;
-  document.head.appendChild(s);
-}
+import '../styles/scss/calendar.scss';
 
-const VIEWS = [
-  { key: 'month', icon: <Calendar size={14} />, label: 'Month'  },
-  { key: 'list',  icon: <List     size={14} />, label: 'List'   },
-  { key: 'stats', icon: <BarChart2 size={14}/>, label: 'Stats'  },
-];
+const MonthView = lazy(() => import('../components/calendar/CalendarMonthView'));
+const WeekView = lazy(() => import('../components/calendar/WeekView'));
+const DayView = lazy(() => import('../components/calendar/DayView'));
+const AgendaView = lazy(() => import('../components/calendar/AgendaView'));
+const CalendarStats = lazy(() => import('../components/calendar/CalendarStats'));
 
-// ── List view helpers ─────────────────────────────────────────────────────────
-function fmt(n) {
-  if (!n) return '0';
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
-  if (n >= 1_000)     return (n / 1_000).toFixed(1) + 'K';
-  return n.toLocaleString();
-}
-
-const STATUS_BADGE = {
-  published: { bg: '#D1FAE5', color: '#059669' },
-  scheduled: { bg: '#e6fbff', color: '#007a9a' },
-  draft:     { bg: '#F1F5F9', color: 'var(--text-secondary)' },
-  failed:    { bg: '#FEE2E2', color: '#EF4444' },
-};
-
-// ── List view ─────────────────────────────────────────────────────────────────
-function ListView({ postsByDate, onPostClick, onEditPost, onDeletePost, onReschedule, isAdmin, month, year }) {
-  // Build sorted date groups for the month
-  const prefix = `${year}-${String(month).padStart(2, '0')}`;
-  const entries = Object.entries(postsByDate)
-    .filter(([d]) => d.startsWith(prefix))
-    .sort(([a], [b]) => a.localeCompare(b));
-
-  if (entries.length === 0) {
-    return (
-      <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-tertiary)' }}>
-        <div style={{ fontSize: 48, marginBottom: 12 }}>📅</div>
-        <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8, color: 'var(--text-primary)' }}>
-          No posts this month
-        </div>
-        <div style={{ fontSize: 13 }}>Schedule your first post using the "+" button above.</div>
-      </div>
-    );
-  }
-
+function ViewFallback() {
   return (
-    <div>
-      {entries.map(([dateStr, posts]) => (
-        <div key={dateStr} style={{ marginBottom: 24 }}>
-          {/* Sticky date header */}
-          <div style={{
-            position: 'sticky', top: 0, zIndex: 10,
-            background: 'var(--surface-page)', padding: '8px 0',
-            borderBottom: '2px solid var(--border-default)', marginBottom: 8,
-          }}>
-            <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>
-              {format(parseISO(dateStr), 'EEEE, MMMM d')}
-            </span>
-            <span style={{ marginLeft: 8, fontSize: 12, color: 'var(--text-tertiary)' }}>
-              {posts.length} post{posts.length !== 1 ? 's' : ''}
-            </span>
-          </div>
-          {posts.map(post => {
-            const p     = PLATFORMS[post.platform] || { color: 'var(--text-secondary)', label: post.platform };
-            const badge = STATUS_BADGE[post.status] || STATUS_BADGE.draft;
-            const timeStr = (post.scheduled_at || post.published_at)
-              ? format(parseISO(post.scheduled_at || post.published_at), 'h:mm a')
-              : '';
-            return (
-              <div key={post.id} style={{
-                display: 'flex', alignItems: 'flex-start', gap: 12,
-                background: 'var(--surface-card)', borderRadius: 10,
-                border: '1px solid var(--border-default)',
-                borderLeft: `4px solid ${p.color}`,
-                padding: '12px 16px', marginBottom: 8,
-              }}>
-                {/* Platform icon */}
-                <div style={{
-                  width: 36, height: 36, borderRadius: '50%',
-                  background: p.color + '20',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 18, flexShrink: 0,
-                }}>
-                  <SocialPlatformIcon platform={post.platform} size={18} />
-                </div>
-
-                {/* Content */}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--text-primary)' }}>
-                      {post.title || '(no title)'}
-                    </span>
-                    <span style={{
-                      padding: '1px 8px', borderRadius: 20, fontSize: 10, fontWeight: 700,
-                      background: badge.bg, color: badge.color,
-                    }}>
-                      {post.status}
-                    </span>
-                  </div>
-                  <div style={{
-                    fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4,
-                    overflow: 'hidden', display: '-webkit-box',
-                    WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-                    marginBottom: 4,
-                  }}>
-                    {post.caption || '(no caption)'}
-                  </div>
-                  {post.hashtags && (
-                    <div style={{ fontSize: 11, color: '#007a9a' }}>
-                      {post.hashtags.split(' ').filter(h => h.startsWith('#')).length} hashtags
-                    </div>
-                  )}
-                  {post.status === 'published' && (post.impressions > 0 || post.likes > 0) && (
-                    <div style={{ display: 'flex', gap: 12, fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>
-                      {post.impressions > 0 && <span>👁 {fmt(post.impressions)}</span>}
-                      {post.likes       > 0 && <span>❤️ {fmt(post.likes)}</span>}
-                      {post.comments    > 0 && <span>💬 {fmt(post.comments)}</span>}
-                    </div>
-                  )}
-                </div>
-
-                {/* Right: time + actions */}
-                <div style={{ flexShrink: 0, textAlign: 'right' }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8 }}>
-                    {timeStr}
-                  </div>
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <button onClick={() => onPostClick(post)} style={listBtnStyle}>View</button>
-                    {isAdmin && post.status !== 'published' && (
-                      <>
-                        <button onClick={() => onEditPost(post)} style={listBtnStyle}>Edit</button>
-                        <button
-                          onClick={() => onDeletePost(post.id)}
-                          style={{ ...listBtnStyle, color: '#EF4444', borderColor: '#FECACA' }}
-                        >
-                          Delete
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ))}
+    <div className="bb-cal__loading">
+      <Loader2 size={18} className="bb-cal__spin" />
+      Loading view…
     </div>
   );
 }
 
-const listBtnStyle = {
-  padding: '4px 10px', borderRadius: 6,
-  background: 'var(--surface-page)', border: '1px solid var(--border-default)',
-  cursor: 'pointer', fontSize: 11, color: 'var(--text-secondary)',
-};
-
-// ── Main CalendarPage ─────────────────────────────────────────────────────────
 export default function CalendarPage({ clientId: propClientId }) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user }     = useAuth();
-  const { clients }  = useClients();
-  const isAdmin      = user?.role === 'superadmin' || user?.role === 'staff';
-  const isEmbedded   = !!propClientId;
-  const showClientSelector = isAdmin && !propClientId;
-  const queryClientId = searchParams.get('client');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'superadmin' || user?.role === 'staff';
+  const basePath = location.pathname.startsWith('/admin') ? '/admin' : '/dashboard';
+
+  const { workspaceId, workspace } = useWorkspace({ user, autoHydrate: true });
+  const clientId = propClientId || workspaceId || user?.client_id || null;
+
   const queryView = searchParams.get('view');
-  const parsedClientId = queryClientId ? parseInt(queryClientId, 10) : null;
-  const initialView = ['month', 'list', 'stats'].includes(queryView) ? queryView : 'month';
+  const queryMode = searchParams.get('mode');
+  // Default: Calendar mode + Month view for the current month
+  const initialView = ['month', 'week', 'day', 'agenda', 'stats', 'list'].includes(queryView)
+    ? (queryView === 'list' ? 'agenda' : queryView)
+    : 'month';
+  const initialMode = queryMode === 'list' ? 'list' : 'calendar';
 
-  // Client selector for admin
-  const [selectedClientId, setSelectedClientId] = useState(
-    propClientId || parsedClientId || (isAdmin ? null : user?.client_id) || null
-  );
-  const clientId = selectedClientId;
+  const [currentDate, setCurrentDate] = useState(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
+  const [view, setView] = useState(initialView);
+  const [mode, setMode] = useState(initialMode);
+  const [status, setStatus] = useState('');
+  const [channels, setChannels] = useState([]); // empty = All Channels
+  const [tags, setTags] = useState([]); // empty = All Tags
+  const [search, setSearch] = useState('');
 
-  useEffect(() => {
-    if (!clientId && !isAdmin && user?.client_id) {
-      setSelectedClientId(user.client_id);
-    }
-  }, [user, isAdmin, clientId]);
-
-  // Month navigation
-  const now = new Date();
-  const [currentDate, setCurrentDate] = useState(new Date(now.getFullYear(), now.getMonth(), 1));
   const month = currentDate.getMonth() + 1;
-  const year  = currentDate.getFullYear();
+  const year = currentDate.getFullYear();
 
-  // View + platform filter
-  const [view,     setView]     = useState(initialView);
-  const [platform, setPlatform] = useState('all');
+  const [detailPost, setDetailPost] = useState(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [formDate, setFormDate] = useState(null);
+  const [editingPost, setEditingPost] = useState(null);
+
+  // Fetch full month once; channel/tag filters apply client-side (All = no restriction)
+  const { postsByDate, loading: postsLoading, refetch: refetchPosts } =
+    useCalendarPosts(clientId, month, year);
+  const { notesByDate } = useCalendarNotes(clientId, month, year);
+  const { stats } = useCalendarStats(clientId, month, year);
+  const { upcoming } = useUpcomingPosts(clientId);
+  const { create, update, remove, reschedule } = useCreatePost();
 
   const updateSearch = useCallback((updates) => {
     const next = new URLSearchParams(searchParams);
@@ -234,57 +115,78 @@ export default function CalendarPage({ clientId: propClientId }) {
   }, [searchParams, setSearchParams]);
 
   useEffect(() => {
-    if (parsedClientId && parsedClientId !== clientId) {
-      setSelectedClientId(parsedClientId);
+    if (['month', 'week', 'day', 'agenda', 'stats'].includes(queryView) && queryView !== view) {
+      setView(queryView === 'list' ? 'agenda' : queryView);
     }
-    if (['month', 'list', 'stats'].includes(queryView) && queryView !== view) {
-      setView(queryView);
+    if (queryMode === 'list' || queryMode === 'calendar') {
+      setMode(queryMode);
     }
-  }, [parsedClientId, queryView, clientId, view]);
+  }, [queryView, queryMode, view]);
 
-  // Drawer state
-  const [detailPost,   setDetailPost]   = useState(null);
-  const [detailOpen,   setDetailOpen]   = useState(false);
-  const [formOpen,     setFormOpen]     = useState(false);
-  const [formDate,     setFormDate]     = useState(null);
-  const [editingPost,  setEditingPost]  = useState(null);
+  const filteredPosts = useMemo(
+    () => filterPosts(postsByDate, { status, channels, tags, search }),
+    [postsByDate, status, channels, tags, search],
+  );
 
-  // Data hooks
-  const { postsByDate, loading: postsLoading, refetch: refetchPosts } =
-    useCalendarPosts(clientId, month, year, platform === 'all' ? '' : platform);
-  const { notesByDate } = useCalendarNotes(clientId, month, year);
-  const { stats }       = useCalendarStats(clientId, month, year);
-  const { upcoming }    = useUpcomingPosts(clientId);
-  const { creating, create, update, remove, reschedule } = useCreatePost();
+  const tagOptions = useMemo(
+    () => extractTagsFromPosts(flattenPosts(postsByDate)),
+    [postsByDate],
+  );
 
-  function prevMonth() { setCurrentDate(d => subMonths(d, 1)); }
-  function nextMonth() { setCurrentDate(d => addMonths(d, 1)); }
-  function goToday()   { setCurrentDate(new Date(now.getFullYear(), now.getMonth(), 1)); }
+  const fallbackPlatforms = useMemo(
+    () => extractPlatformsFromPosts(flattenPosts(postsByDate)),
+    [postsByDate],
+  );
 
-  function openPostDetail(post) { setDetailPost(post); setDetailOpen(true); }
-  function closeDetail()        { setDetailOpen(false); setTimeout(() => setDetailPost(null), 300); }
+  const localCounts = useMemo(
+    () => computeStatsFromPosts(filteredPosts),
+    [filteredPosts],
+  );
 
-  function openFormForDate(date) {
-    if (!isAdmin) return;
-    setEditingPost(null);
-    setFormDate(date);
-    setFormOpen(true);
+  function goComposer(dateStr, timeStr = DEFAULT_COMPOSE_TIME) {
+    navigate(composerUrl(basePath, {
+      date: dateStr,
+      time: timeStr,
+      workspaceId: clientId,
+    }));
   }
+
+  function openPostDetail(post) {
+    if (post?.source === 'composer') {
+      navigate(`${basePath}/analytics/composer/${post.id}`);
+      return;
+    }
+    setDetailPost(post);
+    setDetailOpen(true);
+  }
+  function closeDetail() {
+    setDetailOpen(false);
+    setTimeout(() => setDetailPost(null), 300);
+  }
+
   function openFormForEdit(post) {
     if (!isAdmin) return;
+    if (post?.source === 'composer') {
+      navigate(`${basePath}/analytics/composer/${post.id}`);
+      return;
+    }
     setEditingPost(post);
     setFormDate(null);
     setFormOpen(true);
     setDetailOpen(false);
   }
-  function closeForm() { setFormOpen(false); setTimeout(() => { setEditingPost(null); setFormDate(null); }, 300); }
+
+  function closeForm() {
+    setFormOpen(false);
+    setTimeout(() => { setEditingPost(null); setFormDate(null); }, 300);
+  }
 
   async function handleSavePost(data, postId) {
     let result;
     if (postId) {
       result = await update(postId, data);
     } else {
-      if (!clientId) return { success: false, error: 'No user selected.' };
+      if (!clientId) return { success: false, error: 'No workspace selected.' };
       result = await create({ ...data, client: clientId });
     }
     if (result.success) {
@@ -294,58 +196,116 @@ export default function CalendarPage({ clientId: propClientId }) {
     return result;
   }
 
-  async function handleDeletePost(postId) {
-    const r = await remove(postId);
-    if (r.success) { closeDetail(); refetchPosts(); }
-    else alert(r.error);
-  }
-
-  async function handleReschedule(postId, datetime) {
-    const r = await reschedule(postId, datetime);
+  async function handleDeletePost(postOrId) {
+    const post = typeof postOrId === 'object' ? postOrId : { id: postOrId, source: 'calendar' };
+    const r = await remove(post.id, { source: post.source || 'calendar' });
     if (r.success) {
-      setDetailPost(r.post);
+      closeDetail();
       refetchPosts();
+      toast.success('Post deleted');
     } else {
-      alert(r.error);
+      toast.error(r.error || 'Delete failed');
     }
   }
 
-  // ── No client selected (admin only) ──
-  if (showClientSelector && !clientId) {
+  async function handleReschedule(postId, datetime, source = 'calendar') {
+    const r = await reschedule(postId, datetime, {
+      source,
+      clientId,
+    });
+    if (r.success) {
+      setDetailPost(r.post);
+      refetchPosts();
+      toast.success('Rescheduled');
+    } else {
+      toast.error(r.error || 'Reschedule failed');
+    }
+    return r;
+  }
+
+  async function handleDropPost(postId, dateStr, timeStr, source = 'calendar') {
+    const all = flattenPosts(postsByDate);
+    const post = all.find((p) => String(p.id) === String(postId)
+      && (p.source || 'calendar') === (source || 'calendar'));
+    const resolved = post || all.find((p) => String(p.id) === String(postId));
+    if (!resolved || resolved.status === 'published') {
+      toast.error('Published posts cannot be moved');
+      return;
+    }
+    const datetime = preserveTimeOnDate(dateStr, timeStr, resolved.scheduled_at);
+    await handleReschedule(
+      resolved.id,
+      new Date(datetime).toISOString(),
+      resolved.source || source || 'calendar',
+    );
+  }
+
+  function handleDuplicate(post) {
+    if (post?.source === 'composer') {
+      navigate(`${basePath}/analytics/composer/${post.id}`);
+      return;
+    }
+    // Legacy calendar posts: open form prefilled via edit clone path
+    if (!isAdmin) return;
+    setEditingPost({
+      ...post,
+      id: undefined,
+      title: post.title ? `${post.title} (copy)` : 'Copy',
+      status: 'draft',
+    });
+    setFormDate(null);
+    setFormOpen(true);
+  }
+
+  const cardActions = {
+    onOpen: openPostDetail,
+    onEdit: isAdmin ? openFormForEdit : undefined,
+    onDelete: isAdmin ? handleDeletePost : undefined,
+    onDuplicate: isAdmin ? handleDuplicate : undefined,
+    onPreview: openPostDetail,
+    onAnalytics: () => navigate(`${basePath}/analytics`),
+    onComposer: (post) => {
+      if (post?.source === 'composer') {
+        navigate(`${basePath}/analytics/composer/${post.id}`);
+        return;
+      }
+      const d = post.scheduled_at
+        ? format(new Date(post.scheduled_at), 'yyyy-MM-dd')
+        : format(new Date(), 'yyyy-MM-dd');
+      const t = post.scheduled_at
+        ? format(new Date(post.scheduled_at), 'HH:mm')
+        : DEFAULT_COMPOSE_TIME;
+      goComposer(d, t);
+    },
+  };
+
+  function setViewAndUrl(nextView) {
+    setView(nextView);
+    updateSearch({ view: nextView, mode: mode === 'list' ? 'list' : 'calendar' });
+  }
+
+  function setModeAndUrl(nextMode) {
+    setMode(nextMode);
+    if (nextMode === 'list') {
+      setView('agenda');
+      updateSearch({ mode: 'list', view: 'agenda' });
+    } else {
+      setView((v) => (v === 'agenda' ? 'month' : v));
+      updateSearch({ mode: 'calendar', view: view === 'agenda' ? 'month' : view });
+    }
+  }
+
+  if (!clientId) {
     return (
-      <div style={{
-        padding: '28px 32px 40px',
-        background: 'var(--surface-page)',
-        minHeight: '100vh',
-        width: '100%',
-        maxWidth: '100%',
-        overflowX: 'hidden',
-        boxSizing: 'border-box',
-      }}>
-        <div style={{ maxWidth: 1480, margin: '0 auto' }}>
-          <PageHeader
-            title="Content Calendar"
-            subtitle="Plan, review, and measure your scheduled content."
-            actions={(
-              <select
-                value=""
-                onChange={e => {
-                  const nextClientId = e.target.value ? parseInt(e.target.value, 10) : null;
-                  setSelectedClientId(nextClientId);
-                  updateSearch({ client: nextClientId });
-                }}
-                style={adminClientSelectStyle}
-              >
-                <option value="">All Users</option>
-                {clients.map(c => <option key={c.id} value={c.id}>{c.company}</option>)}
-              </select>
-            )}
-          />
-          <div style={{ padding: 40, maxWidth: 500, margin: '60px auto', textAlign: 'center' }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>📅</div>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 8 }}>Content Calendar</h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 0 }}>
-              Select a user from the top-right dropdown to view their content calendar.
+      <div className="bb-cal">
+        <div className="bb-cal__shell">
+          <div className="bb-cal__title-row">
+            <h1 className="bb-cal__title">Publish</h1>
+          </div>
+          <div className="bb-cal__empty">
+            <h3 className="bb-cal__empty-title">Select a workspace</h3>
+            <p className="bb-cal__empty-copy">
+              Use Switch Workspace in the top bar to load this calendar.
             </p>
           </div>
         </div>
@@ -353,257 +313,170 @@ export default function CalendarPage({ clientId: propClientId }) {
     );
   }
 
+  const activeView = mode === 'list' ? 'agenda' : view;
+
   return (
-    <div style={{
-      padding: '28px 32px 40px',
-      background: 'var(--surface-page)',
-      minHeight: '100vh',
-      width: '100%',
-      maxWidth: '100%',
-      overflowX: 'hidden',
-      boxSizing: 'border-box',
-    }}>
-      <div style={{
-        maxWidth: isEmbedded ? '100%' : 1480,
-        margin: isEmbedded ? '0' : '0 auto',
-      }}>
-        <PageHeader
-          title="Content Calendar"
-          subtitle="Plan, review, and measure your scheduled content."
-          actions={showClientSelector ? (
-            <select
-              value={clientId || ''}
-              onChange={e => {
-                const nextClientId = e.target.value ? parseInt(e.target.value, 10) : null;
-                setSelectedClientId(nextClientId);
-                updateSearch({ client: nextClientId });
-              }}
-              style={adminClientSelectStyle}
+    <div className="bb-cal">
+      <div className="bb-cal__shell">
+        <div className="bb-cal__title-row">
+          <h1 className="bb-cal__title">Publish</h1>
+          <div className="bb-cal__mode-toggle" role="tablist" aria-label="Publish mode">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'list'}
+              className={`bb-cal__mode-btn${mode === 'list' ? ' is-active' : ''}`}
+              onClick={() => setModeAndUrl('list')}
             >
-              <option value="">All Users</option>
-              {clients.map(c => <option key={c.id} value={c.id}>{c.company}</option>)}
-            </select>
-          ) : null}
+              <List size={14} /> List
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'calendar'}
+              className={`bb-cal__mode-btn${mode === 'calendar' ? ' is-active' : ''}`}
+              onClick={() => setModeAndUrl('calendar')}
+            >
+              <CalIcon size={14} /> Calendar
+            </button>
+          </div>
+        </div>
+
+        {workspace?.label ? (
+          <div className="bb-cal__workspace-hint">
+            Showing posts for
+            {' '}
+            <strong>{workspace.label}</strong>
+          </div>
+        ) : null}
+
+        <CalendarToolbar
+          view={activeView}
+          onViewChange={setViewAndUrl}
+          currentDate={currentDate}
+          onPrev={() => setCurrentDate((d) => shiftPeriod(activeView, d, -1))}
+          onNext={() => setCurrentDate((d) => shiftPeriod(activeView, d, 1))}
+          onToday={() => {
+            const now = new Date();
+            if (activeView === 'month' || activeView === 'stats') {
+              setCurrentDate(new Date(now.getFullYear(), now.getMonth(), 1));
+            } else {
+              setCurrentDate(now);
+            }
+          }}
+          status={status}
+          onStatusChange={setStatus}
+          channels={channels}
+          onChannelsChange={setChannels}
+          tags={tags}
+          onTagsChange={setTags}
+          tagOptions={tagOptions}
+          fallbackPlatforms={fallbackPlatforms}
+          search={search}
+          onSearchChange={setSearch}
+          clientId={clientId}
+          workspaceLabel={workspace?.label || workspace?.company || ''}
+          currentUser={user}
         />
 
-        {/* Top bar */}
-        <div className="calendar-toolbar" style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: 12,
-          marginBottom: 20,
-          flexWrap: 'wrap',
-          width: '100%',
-        }}>
-        {/* Month nav */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          flexWrap: 'wrap',
-          flex: '1 1 260px',
-          minWidth: 0,
-        }}>
-          <button onClick={prevMonth} style={navBtnStyle}><ChevronLeft size={16} /></button>
-          <div style={{
-            fontWeight: 800,
-            fontSize: 18,
-            color: 'var(--text-primary)',
-            minWidth: isEmbedded ? 140 : 160,
-            textAlign: 'center',
-          }}>
-            {format(currentDate, 'MMMM yyyy')}
-          </div>
-          <button onClick={nextMonth} style={navBtnStyle}><ChevronRight size={16} /></button>
-          <button onClick={goToday} style={{
-            padding: '6px 12px', borderRadius: 8, background: 'var(--surface-page)',
-            border: '1px solid var(--border-default)', cursor: 'pointer', fontSize: 12,
-            fontWeight: 600, color: 'var(--text-secondary)',
-          }}>Today</button>
-        </div>
+        <CalendarStatistics counts={localCounts} />
 
-        {/* Platform filter */}
-        <div style={{
-          display: 'flex',
-          gap: 6,
-          flexWrap: 'wrap',
-          flex: '999 1 420px',
-          minWidth: 0,
-        }}>
-          {[{ key: 'all', label: 'All', color: '#00d7ff' },
-            ...PLATFORM_LIST.map(k => ({ key: k, ...PLATFORMS[k] }))
-          ].map(p => (
-            <button
-              key={p.key}
-              onClick={() => setPlatform(p.key)}
-              style={{
-                padding: '5px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600,
-                cursor: 'pointer', transition: 'all 0.15s',
-                background: platform === p.key ? '#00d7ff' : '#fff',
-                color:      platform === p.key ? '#fff' : 'var(--text-secondary)',
-                border:     platform === p.key
-                  ? '1px solid #00d7ff'
-                  : '1px solid var(--border-default)',
-              }}
-            >
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                {p.key === 'all' ? null : <SocialPlatformIcon platform={p.key} size={14} />}
-                {p.label?.split(' ')[0] || 'All'}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        {/* Right: Schedule + View Toggle */}
-        <div style={{
-          marginLeft: isEmbedded ? 0 : 'auto',
-          display: 'flex',
-          gap: 8,
-          flexWrap: 'wrap',
-          justifyContent: isEmbedded ? 'flex-start' : 'flex-end',
-          flex: '1 1 260px',
-          minWidth: 0,
-        }}>
-          {isAdmin && (
-            <button
-              onClick={() => openFormForDate(new Date())}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                padding: '8px 16px', borderRadius: 8,
-                background: '#00d7ff', color: 'var(--text-primary)',
-                border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 700,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              <Plus size={16} /> Schedule Post
-            </button>
-          )}
-          <div style={{
-            display: 'flex', border: '1px solid var(--border-default)',
-            borderRadius: 8, overflow: 'hidden',
-            flexWrap: 'wrap',
-            maxWidth: '100%',
-          }}>
-            {VIEWS.map(v => (
-              <button
-                key={v.key}
-                onClick={() => {
-                  setView(v.key);
-                  updateSearch({ view: v.key, client: clientId });
-                }}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 5,
-                  padding: '7px 14px', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
-                  background: view === v.key ? '#00d7ff' : '#fff',
-                  color:      view === v.key ? '#fff'   : 'var(--text-secondary)',
-                  transition: 'all 0.15s',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {v.icon} {v.label}
-              </button>
-            ))}
-          </div>
-        </div>
-        </div>
-
-        {/* Loading state */}
-        {postsLoading && (
-          <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-tertiary)', fontSize: 14 }}>
+        {postsLoading ? (
+          <div className="bb-cal__loading">
+            <Loader2 size={18} className="bb-cal__spin" />
             Loading calendar…
           </div>
-        )}
-
-        {/* ── MONTH VIEW ── */}
-        {!postsLoading && view === 'month' && (
-          <div className="cal-fade">
-            <CalendarGrid
-              month={month} year={year}
-              postsByDate={postsByDate}
-              notesByDate={notesByDate}
-              onDayClick={openFormForDate}
-              onPostClick={openPostDetail}
-              selectedPlatform={platform}
-            />
-          </div>
-        )}
-
-        {/* ── LIST VIEW ── */}
-        {!postsLoading && view === 'list' && (
-          <div className="cal-fade">
-          {/* Upcoming strip */}
-          {upcoming.length > 0 && (
-            <div style={{
-              background: 'var(--surface-card)', borderRadius: 12, border: '1px solid var(--border-default)',
-              padding: '16px 20px', marginBottom: 20,
-            }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>
-                📅 Coming up this week
+        ) : (
+          <Suspense fallback={<ViewFallback />}>
+            {activeView === 'month' && (
+              <MonthView
+                month={month}
+                year={year}
+                postsByDate={filteredPosts}
+                notesByDate={notesByDate}
+                cardActions={cardActions}
+                onCreateAt={goComposer}
+                onDropPost={handleDropPost}
+              />
+            )}
+            {activeView === 'week' && (
+              <WeekView
+                currentDate={currentDate}
+                postsByDate={filteredPosts}
+                cardActions={cardActions}
+                onCreateAt={goComposer}
+                onDropPost={handleDropPost}
+                onEmptyCreate={() => goComposer(format(new Date(), 'yyyy-MM-dd'))}
+              />
+            )}
+            {activeView === 'day' && (
+              <DayView
+                currentDate={currentDate}
+                postsByDate={filteredPosts}
+                cardActions={cardActions}
+                onCreateAt={goComposer}
+                onDropPost={handleDropPost}
+                onEmptyCreate={() => goComposer(format(currentDate, 'yyyy-MM-dd'))}
+              />
+            )}
+            {activeView === 'agenda' && (
+              <>
+                {upcoming.length > 0 && mode === 'list' ? (
+                  <div className="bb-cal__agenda-group">
+                    <div className="bb-cal__agenda-date">Coming up</div>
+                    <UpcomingPosts posts={upcoming} />
+                  </div>
+                ) : null}
+                <AgendaView
+                  currentDate={currentDate}
+                  postsByDate={filteredPosts}
+                  onOpen={openPostDetail}
+                  onEdit={openFormForEdit}
+                  onDelete={handleDeletePost}
+                  isAdmin={isAdmin}
+                  scope={mode === 'list' ? 'all' : 'week'}
+                  onEmptyCreate={() => goComposer(format(new Date(), 'yyyy-MM-dd'))}
+                />
+              </>
+            )}
+            {activeView === 'stats' && (
+              <div className="bb-cal__body">
+                <CalendarStats
+                  stats={stats}
+                  month={month}
+                  year={year}
+                  postsByDate={filteredPosts}
+                />
               </div>
-              <UpcomingPosts posts={upcoming} />
-            </div>
-          )}
-
-          <ListView
-            postsByDate={postsByDate}
-            onPostClick={openPostDetail}
-            onEditPost={openFormForEdit}
-            onDeletePost={handleDeletePost}
-            onReschedule={handleReschedule}
-            isAdmin={isAdmin}
-            month={month}
-            year={year}
-          />
-          </div>
+            )}
+          </Suspense>
         )}
-
-        {/* ── STATS VIEW ── */}
-        {!postsLoading && view === 'stats' && (
-          <div className="cal-fade">
-            <CalendarStats stats={stats} month={month} year={year} postsByDate={postsByDate} />
-          </div>
-        )}
-
-        {/* ── Post Detail Drawer ── */}
-        <PostDrawer
-          post={detailPost}
-          isOpen={detailOpen}
-          onClose={closeDetail}
-          onEdit={openFormForEdit}
-          onDelete={handleDeletePost}
-          onReschedule={handleReschedule}
-        />
-
-        {/* ── Post Form Drawer ── */}
-        <PostFormDrawer
-          date={formDate}
-          post={editingPost}
-          isOpen={formOpen}
-          onClose={closeForm}
-          onSave={handleSavePost}
-          clientId={clientId}
-          readOnly={!isAdmin}
-        />
       </div>
+
+      {isAdmin ? (
+        <FloatingCreateButton
+          onClick={() => goComposer(format(currentDate, 'yyyy-MM-dd'), DEFAULT_COMPOSE_TIME)}
+        />
+      ) : null}
+
+      <PostDrawer
+        post={detailPost}
+        isOpen={detailOpen}
+        onClose={closeDetail}
+        onEdit={openFormForEdit}
+        onDelete={handleDeletePost}
+        onReschedule={(id, dt) => handleReschedule(id, dt, detailPost?.source || 'calendar')}
+      />
+
+      <PostFormDrawer
+        date={formDate}
+        post={editingPost}
+        isOpen={formOpen}
+        onClose={closeForm}
+        onSave={handleSavePost}
+        clientId={clientId}
+        readOnly={!isAdmin}
+      />
     </div>
   );
 }
-
-const navBtnStyle = {
-  width: 32, height: 32, borderRadius: '50%',
-  background: 'var(--surface-card)', border: '1px solid var(--border-default)',
-  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-  color: 'var(--text-secondary)', transition: 'background 0.15s',
-};
-
-const adminClientSelectStyle = {
-  padding: '8px 14px',
-  borderRadius: 10,
-  border: '1.5px solid var(--border-default)',
-  fontSize: 13,
-  color: 'var(--text-primary)',
-  background: 'var(--surface-card)',
-  outline: 'none',
-  minWidth: 200,
-  fontWeight: 600,
-};

@@ -61,12 +61,22 @@ export default function ComposerPage() {
   const { data: existing, loading: loadingExisting } = useComposerPost(id);
   const basePath = location.pathname.startsWith('/admin') ? '/admin' : '/dashboard';
 
-  const { workspaceId, workspace } = useWorkspace({ user, autoHydrate: false });
+  const { workspaceId, workspace, workspaces, switchWorkspace } = useWorkspace({ user, autoHydrate: true });
 
   const clientParams = useMemo(
     () => (workspaceId ? { client_id: workspaceId } : undefined),
     [workspaceId],
   );
+
+  /* Calendar FAB / deep-link may pass workspace|client_id */
+  useEffect(() => {
+    const raw = searchParams.get('workspace') || searchParams.get('client_id');
+    if (!raw || !workspaces?.length) return;
+    const match = workspaces.find((w) => String(w.id) === String(raw));
+    if (match && String(match.id) !== String(workspaceId)) {
+      switchWorkspace(match);
+    }
+  }, [searchParams, workspaces, workspaceId, switchWorkspace]);
 
   /* ── Editor state ───────────────────────────────────────────────────── */
   const [title, setTitle] = useState('');

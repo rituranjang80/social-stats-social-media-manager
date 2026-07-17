@@ -52,28 +52,37 @@ export function buildChannelCards({
     || currentUser?.avatar_url
     || '';
 
+  const catalogById = new Map(
+    (Array.isArray(catalog) ? catalog : [])
+      .map((c) => [c.id || c.credential_key, c])
+      .filter(([key]) => key),
+  );
+
   return ids.map((id) => {
-    const meta = getPlatformMeta(id);
-    const st = status[id] || {};
-    const connected = isPlatformConnected({ status: st.status });
+    const meta = getPlatformMeta(id) || {};
+    const cat = catalogById.get(id) || {};
+    const credKey = cat.credential_key || id;
+    const st = status[id] || status[credKey] || {};
+    const rawStatus = st.status || cat.status || '';
+    const connected = isPlatformConnected({ status: rawStatus });
     if (!connected) return null;
-    const accountName = st.account_name || '';
+    const accountName = st.account_name || cat.account_name || '';
     const name = accountName || userName || meta.label || id;
-    const connStatus = st.status || (connected ? 'active' : 'not_connected');
+    const connStatus = rawStatus || (connected ? 'active' : 'not_connected');
 
     return {
       id,
       platform: id,
-      label: meta.label || id,
+      label: meta.label || cat.label || id,
       name,
       handle: accountName ? slugHandle(accountName, id) : (meta.shortLabel ? `@${meta.shortLabel.toLowerCase()}` : ''),
-      avatarUrl: st.avatar_url || st.profile_image_url || st.picture || userAvatarUrl,
+      avatarUrl: st.avatar_url || st.profile_image_url || st.picture || cat.avatar_url || userAvatarUrl,
       avatarName: userName || name,
       status: connStatus,
       workspaceLabel: workspaceLabel || '',
       title: [
         name,
-        meta.label,
+        meta.label || cat.label,
         connStatus === 'active' ? 'Connected' : connStatus === 'expired' ? 'Expired' : 'Not connected',
         workspaceLabel,
       ].filter(Boolean).join(' · '),

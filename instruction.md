@@ -1,6 +1,7 @@
 
 
 Requirements:
+all module and code must be plug and play on other project use any module and code vice versa
 - Redesign only the UI/UX and layout. Do NOT remove or break any existing functionality, business logic, API, or database operations.
 - Keep all existing features fully functional while adding new UI enhancements where appropriate.
 - Build a modern, responsive, mobile-first interface with 100% vertical and horizontal responsiveness.

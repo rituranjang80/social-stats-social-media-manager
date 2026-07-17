@@ -93,6 +93,11 @@ Select a **YouTube** connected channel. The panel is lazy-loaded. After deploy,
 **reconnect YouTube** so `youtube.upload` / `youtube.force-ssl` scopes apply.
 Custom thumbnails require a video attached first.
 
+### Calendar shows wrong workspace / empty
+Calendar uses the global **Switch Workspace** (top bar), not a page dropdown.
+Change workspace there — posts reload for that client. Create via the floating
+**+** opens Composer with `scheduled_date` / `scheduled_time`.
+
 ### Where is the API Swagger?
 **http://localhost:8000/api/docs/** (ReDoc: `/api/redoc/`). Click
 **Authorize → passwordAuth**, enter `admin@demo.local` / `demo`. Or use

@@ -50,14 +50,22 @@
   left: var(--collapsible-rail-left, 0);
   top: 50%;
   transform: translateY(-50%);
-  width: 28px;
-  height: 56px;
+
   padding: 0;
   background: var(--rail-primary, var(--brand-primary, #f97316));
   color: #fff;
   border: none;
   border-radius: 0 8px 8px 0;
   cursor: pointer;
+  min-width: 28px;
+  min-height: 28px;
+  width: 28px;
+  height: 32px;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
   z-index: $rail-z-toggle;
   @include rail-transition(left);
   @include flex-center;
