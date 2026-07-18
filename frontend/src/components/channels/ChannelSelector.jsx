@@ -97,6 +97,7 @@ export default function ChannelSelector({
   onToggle,
   platformIds = OAUTH_PLATFORM_IDS,
   currentUser = null,
+  emptyAction = null,
   className = '',
 }) {
   const { status, catalog, loading } = useOAuthStatus(clientId);
@@ -120,6 +121,7 @@ export default function ChannelSelector({
         onToggle={onToggle}
         loading={loading && !channels.length}
         emptyMessage="No connected channels for this workspace. Connect an account first."
+        emptyAction={emptyAction}
       />
     </div>
   );

@@ -3,7 +3,7 @@
  * ========================================================================== */
 import { Image as ImageIcon } from 'lucide-react';
 import AIWriteButton from '../ai/AIWriteButton';
-import { TCard, TDropzone, TTextArea } from '../t';
+import { TCard, TCharBar, TDropzone, TTextArea } from '../t';
 import { ComposerMediaThumbs } from './ComposerPlatformPills';
 
 export default function ComposerCaptionEditor({
@@ -12,11 +12,14 @@ export default function ComposerCaptionEditor({
   mediaAssets,
   onDropFiles,
   onRemoveAsset,
+  onReplaceAsset,
   clientId,
   platform,
   onInsertAi,
   charUsed,
   charMax,
+  charLimits = [],
+  uploading = false,
   onOpenMediaLibrary,
   gridSpan = 12,
 }) {
@@ -38,6 +41,12 @@ export default function ComposerCaptionEditor({
       )}
     >
       <div className="composer__caption">
+        <div className="composer__editor-toolbar" aria-label="Caption tools">
+          <span className="composer__editor-mode">Plain text</span>
+          <span className="composer__editor-help">
+            Add hashtags directly or use AI assist below
+          </span>
+        </div>
         <TTextArea
           id="composer-caption"
           rows={7}
@@ -49,7 +58,12 @@ export default function ComposerCaptionEditor({
         />
 
         <div className="composer__media-row">
-          <TDropzone onFiles={onDropFiles} className="composer-dropzone" label="Add media">
+          <TDropzone
+            onFiles={onDropFiles}
+            className="composer-dropzone"
+            label="Add images or videos"
+            uploading={uploading}
+          >
             <ImageIcon size={22} strokeWidth={1.5} className="composer-dropzone__icon" aria-hidden="true" />
             <span className="composer-dropzone__text">
               Drag &amp; drop or
@@ -57,7 +71,11 @@ export default function ComposerCaptionEditor({
               <span className="composer-dropzone__accent">select files</span>
             </span>
           </TDropzone>
-          <ComposerMediaThumbs assets={mediaAssets} onRemove={onRemoveAsset} />
+          <ComposerMediaThumbs
+            assets={mediaAssets}
+            onRemove={onRemoveAsset}
+            onReplace={onReplaceAsset}
+          />
         </div>
 
         <div className="composer__caption-meta">
@@ -66,6 +84,7 @@ export default function ComposerCaptionEditor({
               type="button"
               className="composer__media-library-link"
               onClick={onOpenMediaLibrary}
+              aria-label="Open Media Library"
             >
               Media Library
             </button>
@@ -79,6 +98,11 @@ export default function ComposerCaptionEditor({
             {charMax != null ? `${charUsed} / ${charMax}` : charUsed}
           </span>
         </div>
+        <TCharBar
+          used={charUsed}
+          max={charMax || 1}
+          items={charLimits}
+        />
       </div>
     </TCard>
   );

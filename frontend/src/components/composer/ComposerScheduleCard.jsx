@@ -2,7 +2,8 @@
  * Schedule + media-type selectors (presentation wrapper).
  * Nested under a TCard on ComposerPage — keep sub-labels, no outer chrome.
  * ========================================================================== */
-import { Calendar, Send, Clock } from 'lucide-react';
+import { useMemo } from 'react';
+import { Calendar, Send, Clock, Globe2 } from 'lucide-react';
 import { TPill } from '../t';
 import { MEDIA_TYPES, SCHEDULE_MODES } from './constants';
 
@@ -13,7 +14,18 @@ export default function ComposerScheduleCard({
   onScheduleMode,
   scheduledAt,
   onScheduledAt,
+  scheduledSuccess = '',
+  onOpenCalendar,
+  onOpenQueues,
 }) {
+  const timezone = useMemo(() => {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local time';
+    } catch {
+      return 'Local time';
+    }
+  }, []);
+
   return (
     <div className="composer-schedule">
       <div className="composer-schedule__block" aria-labelledby="composer-media-type-label">
@@ -59,17 +71,36 @@ export default function ComposerScheduleCard({
               value={scheduledAt}
               onChange={(e) => onScheduledAt(e.target.value)}
               aria-label="Scheduled date and time"
+              aria-describedby="composer-schedule-timezone composer-schedule-hint"
             />
-            <p className="composer__hint">
-              Local time. The scheduler runs every minute.
+            <div id="composer-schedule-timezone" className="composer-schedule__timezone">
+              <Globe2 size={13} aria-hidden="true" />
+              <span>{timezone}</span>
+            </div>
+            <p id="composer-schedule-hint" className="composer__hint">
+              The selected local time is converted securely for scheduling. The scheduler runs every minute.
             </p>
+            {scheduledSuccess ? (
+              <div className="composer-schedule__success" role="status">
+                <span>Scheduled successfully.</span>
+                {onOpenCalendar ? (
+                  <button type="button" onClick={onOpenCalendar}>
+                    Open calendar
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
           </>
         )}
         {scheduleMode === 'queue' && (
-          <p className="composer__hint">
-            Manage queues from the <strong>Queues</strong> page. Save as a draft,
-            then add it to a queue from there.
-          </p>
+          <div className="composer-schedule__queue-help">
+            <p className="composer__hint">
+              Save this post as a draft, then add it to an active recurring queue.
+            </p>
+            {onOpenQueues ? (
+              <button type="button" onClick={onOpenQueues}>Manage queues</button>
+            ) : null}
+          </div>
         )}
       </div>
     </div>

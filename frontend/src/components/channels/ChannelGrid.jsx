@@ -9,6 +9,7 @@ export default function ChannelGrid({
   onToggle,
   loading = false,
   emptyMessage = 'No channels available for this workspace.',
+  emptyAction,
 }) {
   const selected = new Set((selectedIds || []).map(String));
 
@@ -24,7 +25,10 @@ export default function ChannelGrid({
 
   if (!channels.length) {
     return (
-      <p className="channel-grid__empty">{emptyMessage}</p>
+      <div className="channel-grid__empty" role="status">
+        <p>{emptyMessage}</p>
+        {emptyAction}
+      </div>
     );
   }
 

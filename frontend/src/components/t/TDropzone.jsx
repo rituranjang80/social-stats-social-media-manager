@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Upload } from 'lucide-react';
+import { Loader2, Upload } from 'lucide-react';
 
 /**
  * Compact square dropzone for media upload (click + drag/drop).
@@ -9,6 +9,8 @@ export default function TDropzone({
   multiple = true,
   onFiles,
   label = 'Upload',
+  disabled = false,
+  uploading = false,
   className = '',
   children,
 }) {
@@ -27,6 +29,7 @@ export default function TDropzone({
         type="file"
         accept={accept}
         multiple={multiple}
+        disabled={disabled || uploading}
         hidden
         onChange={(e) => {
           emit(e.target.files);
@@ -35,18 +38,33 @@ export default function TDropzone({
       />
       <button
         type="button"
-        className={`t-dropzone ${active ? 't-dropzone--active' : ''} ${className}`.trim()}
+        className={[
+          't-dropzone',
+          active ? 't-dropzone--active' : '',
+          uploading ? 't-dropzone--uploading' : '',
+          className,
+        ].filter(Boolean).join(' ')}
         onClick={() => inputRef.current?.click()}
-        onDragOver={(e) => { e.preventDefault(); setActive(true); }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (!disabled && !uploading) setActive(true);
+        }}
         onDragLeave={() => setActive(false)}
         onDrop={(e) => {
           e.preventDefault();
           setActive(false);
-          emit(e.dataTransfer.files);
+          if (!disabled && !uploading) emit(e.dataTransfer.files);
         }}
         aria-label={label}
+        aria-busy={uploading}
+        disabled={disabled || uploading}
       >
-        {children || (
+        {uploading ? (
+          <>
+            <Loader2 className="t-dropzone__spinner" size={18} aria-hidden="true" />
+            <span className="t-dropzone__label">Uploading…</span>
+          </>
+        ) : children || (
           <>
             <Upload size={18} strokeWidth={2.2} aria-hidden="true" />
             <span className="t-dropzone__label">{label}</span>

@@ -1,7 +1,7 @@
 /* ============================================================================
  * Internal Tags — workspace/team labels (not published hashtags).
  * ========================================================================== */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Tag, X, ChevronDown, Plus } from 'lucide-react';
 import { composerAPI } from '../../services/api';
 
@@ -16,6 +16,7 @@ export default function ComposerTags({
   const [allTags, setAllTags] = useState([]);
   const rootRef = useRef(null);
   const inputRef = useRef(null);
+  const listboxId = useId();
 
   useEffect(() => {
     let cancelled = false;
@@ -81,15 +82,12 @@ export default function ComposerTags({
         </div>
       ) : null}
 
-      <button
-        type="button"
+      <div
         className={`composer-tags__trigger ${open ? 'is-open' : ''}`}
         onClick={() => {
           setOpen((o) => !o);
           setTimeout(() => inputRef.current?.focus(), 0);
         }}
-        aria-expanded={open}
-        aria-haspopup="listbox"
       >
         <span className="composer-tags__chips">
           {value.length === 0 && (
@@ -109,11 +107,25 @@ export default function ComposerTags({
             </span>
           ))}
         </span>
-        <ChevronDown size={16} className="composer-tags__chevron" aria-hidden="true" />
-      </button>
+        <button
+          type="button"
+          className="composer-tags__open"
+          aria-expanded={open}
+          aria-haspopup="listbox"
+          aria-controls={listboxId}
+          aria-label={open ? 'Close tag selector' : 'Select tags'}
+        >
+          <ChevronDown size={16} className="composer-tags__chevron" aria-hidden="true" />
+        </button>
+      </div>
 
       {open && (
-        <div className="composer-tags__dropdown" role="listbox" aria-label="Tag suggestions">
+        <div
+          id={listboxId}
+          className="composer-tags__dropdown"
+          role="listbox"
+          aria-label="Tag suggestions"
+        >
           <input
             ref={inputRef}
             className="composer-tags__search"
@@ -124,6 +136,10 @@ export default function ComposerTags({
                 e.preventDefault();
                 if (canCreate) createTag();
                 else if (filtered[0]) toggleTag(filtered[0]);
+              }
+              if (e.key === 'Escape') {
+                e.preventDefault();
+                setOpen(false);
               }
             }}
             placeholder="Search or create…"

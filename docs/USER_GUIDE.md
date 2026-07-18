@@ -38,6 +38,15 @@ actually publishing needs them.
 `?scheduled_date=&scheduled_time=` to prefill the schedule. Calendar **+** /
 cell create buttons open Composer with those params plus the active workspace.
 
+The Composer is organized into **Create content**, **Publishing**, **Team
+details**, and **Assist** sections. The sticky header shows the active workspace
+and current editor status. Caption limits are shown for every selected platform,
+media uploads report progress, and an attached item can be replaced from the
+existing Media Library without removing it first. Scheduling shows the browser
+timezone and offers an **Open calendar** action after a successful schedule.
+Queue mode continues to save the post as a draft before queue assignment; use
+**Manage queues** to select and manage recurring queues.
+
 ### Content calendar (Publish)
 **Route:** `/dashboard/analytics/calendar` or `/admin/analytics/calendar`.
 BrightBean-style Publish UI: List ↔ Calendar toggle, month/week/day/agenda
@@ -71,18 +80,20 @@ no per-page workspace chrome on the composer.
 
 **Compose features (in addition to caption + media + schedule):**
 - **Brightbean-aligned chrome** — Create/Edit header with back + Preview,
-  orange accents, stone surfaces, account-style platform pills, caption card
-  with inline media + Media Library link / character count, empty live-preview
-  state, modular shell components. Form sections use reusable **T-Type**
-  `TCard` / `TInput` / `TTextArea` containers in a responsive card grid
-  (caption beside first comment; tags beside notes on wide screens).
+  workspace/status context, orange accents, stone surfaces, account-style
+  platform cards, caption card with inline media + Media Library link /
+  per-platform character guidance, empty live-preview state, and modular shell
+  components. Form sections use reusable **T-Type** `TCard` / `TInput` /
+  `TTextArea` containers in a responsive card grid. Secondary team and AI
+  sections collapse to reduce scrolling.
   **Connected channels** — Brightbean-style account cards for connected
   accounts only (logged-in user avatar / initials, platform icon, name, handle,
   workspace chip, connected badge). Selection still drives which platforms the
   post publishes to.
   **Media Library** in the caption card opens an in-composer picker modal
   (does not leave the page); selected assets appear in the media row and are
-  saved/published with the post.
+  saved/published with the post. Use the replace control on a media thumbnail
+  to swap that item through the same picker.
   **YouTube Settings** — when YouTube is a selected channel, Composer shows a
   dedicated settings card (visibility, audience / Made for Kids, tags, category,
   license, distribution, comments prefs, advanced + metadata). **Custom
@@ -104,7 +115,8 @@ no per-page workspace chrome on the composer.
 - **Live preview** — per-platform preview drawer (mobile) / side panel (desktop).
   On desktop, collapse/expand with the **top-aligned** right-edge chevron
   (same idea as the left sidebar toggle) so the editor can use full width.
-  The composer form scrolls inside its panel when content is long.
+  The composer form scrolls inside its panel when content is long. Preview tabs
+  support Left/Right Arrow plus Home/End keyboard navigation.
 
 ![Composer + scheduler](images/composer.png)
 

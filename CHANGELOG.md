@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+### Changed — Composer usability, responsive layout, and accessibility
+
+Composer now groups content, publishing, team details, and AI assistance into
+clear responsive sections with an 8px spacing rhythm, sticky workspace/status
+header, compact mobile actions, and improved loading skeleton. Connected
+channels have a first-run Connect Accounts action; captions show per-platform
+character guidance and media upload progress; attached media can be replaced
+through the existing Media Library. Scheduling displays the detected timezone,
+clarifies the existing queue workflow, and links back to Calendar after a
+successful schedule. Preview tabs support arrow/Home/End keyboard navigation,
+tag controls no longer nest buttons, validation/preflight use live regions,
+and reduced-motion preferences are respected. Existing Composer payloads,
+REST endpoints, permissions, publishing, scheduling, drafts, and routing are
+unchanged.
+
 ### Fixed — Calendar filters, All semantics, and Composer posts on grid
 
 Publish calendar channel/tag dropdowns were clipped by `overflow` on the toolbar

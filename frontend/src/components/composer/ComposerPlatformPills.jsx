@@ -1,4 +1,4 @@
-import { X, Video } from 'lucide-react';
+import { RefreshCw, X, Video } from 'lucide-react';
 import { ChannelSelector } from '../channels';
 
 /**
@@ -61,6 +61,8 @@ function MediaThumbPreview({ asset }) {
       <img
         src={thumb || fileUrl}
         alt={asset.alt_text || ''}
+        loading="lazy"
+        decoding="async"
       />
     );
   }
@@ -72,21 +74,35 @@ function MediaThumbPreview({ asset }) {
   );
 }
 
-export function ComposerMediaThumbs({ assets, onRemove }) {
+export function ComposerMediaThumbs({ assets, onRemove, onReplace }) {
   if (!assets?.length) return null;
   return (
     <>
       {assets.map((a, idx) => (
-        <div key={a.id} className="t-media-thumb">
+        <div
+          key={a.id}
+          className="t-media-thumb"
+          aria-label={`Attached media ${idx + 1}: ${a.filename || a.name || 'media file'}`}
+        >
           <MediaThumbPreview asset={a} />
           {(a.mime_type || '').startsWith('video/') ? (
             <span className="t-media-thumb__video-badge" aria-hidden="true">▶</span>
+          ) : null}
+          {onReplace ? (
+            <button
+              type="button"
+              className="t-media-thumb__replace"
+              onClick={() => onReplace(idx)}
+              aria-label={`Replace ${a.filename || a.name || `media item ${idx + 1}`}`}
+            >
+              <RefreshCw size={11} aria-hidden="true" />
+            </button>
           ) : null}
           <button
             type="button"
             className="t-media-thumb__remove"
             onClick={() => onRemove(idx)}
-            aria-label="Remove media"
+            aria-label={`Remove ${a.filename || a.name || `media item ${idx + 1}`}`}
           >
             <X size={12} />
           </button>

@@ -2,10 +2,14 @@
  * Composer page header — back + title + mobile preview.
  * Workspace switching lives in the global TopBar.
  * ========================================================================== */
-import { ArrowLeft, Eye } from 'lucide-react';
+import PropTypes from 'prop-types';
+import { ArrowLeft, Building2, Eye, Save } from 'lucide-react';
 
 export default function ComposerHeader({
   title = 'Create',
+  workspaceLabel = '',
+  status = 'Draft',
+  saving = false,
   previewCount = 0,
   onBack,
   onPreview,
@@ -20,9 +24,34 @@ export default function ComposerHeader({
       >
         <ArrowLeft size={16} strokeWidth={2} aria-hidden="true" />
       </button>
-      <h1 className="composer__title">{title}</h1>
+
+      <div className="composer__header-text">
+        <nav className="composer__breadcrumb" aria-label="Breadcrumb">
+          <span>Publish</span>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">{title}</span>
+        </nav>
+        <h1 className="composer__title">{title} post</h1>
+        <p className="composer__subtitle">
+          {workspaceLabel || 'Select a workspace to start composing'}
+        </p>
+      </div>
 
       <div className="composer__header-actions">
+        {workspaceLabel ? (
+          <span className="composer__workspace-chip" title={workspaceLabel}>
+            <Building2 size={13} aria-hidden="true" />
+            <span>{workspaceLabel}</span>
+          </span>
+        ) : null}
+        <span
+          className={`composer__status-chip${saving ? ' is-saving' : ''}`}
+          role="status"
+          aria-live="polite"
+        >
+          <Save size={12} aria-hidden="true" />
+          {saving ? 'Saving…' : status}
+        </span>
         <button
           type="button"
           className="composer-preview-toggle"
@@ -41,3 +70,13 @@ export default function ComposerHeader({
     </header>
   );
 }
+
+ComposerHeader.propTypes = {
+  title: PropTypes.string,
+  workspaceLabel: PropTypes.string,
+  status: PropTypes.string,
+  saving: PropTypes.bool,
+  previewCount: PropTypes.number,
+  onBack: PropTypes.func.isRequired,
+  onPreview: PropTypes.func.isRequired,
+};

@@ -15,6 +15,10 @@ export default function ComposerActionFooter({
   return (
     <TActionBar
       className="composer__action-bar"
+      ariaBusy={saving}
+      ariaLabel="Composer actions"
+      hint="Ctrl/Cmd + S to save"
+      status={saving ? 'Saving your changes…' : 'Changes are saved manually'}
       left={(
         <button
           type="button"
@@ -32,6 +36,7 @@ export default function ComposerActionFooter({
             type="button"
             className="composer-btn composer-btn--secondary"
             onClick={onPreflight}
+          disabled={saving}
           >
             <Eye size={16} strokeWidth={2} aria-hidden="true" />
             <span className="composer-btn__label">Preflight</span>
@@ -44,7 +49,7 @@ export default function ComposerActionFooter({
               disabled={saving}
             >
               <Calendar size={16} strokeWidth={2} aria-hidden="true" />
-              Schedule
+              {saving ? 'Scheduling…' : 'Schedule'}
             </button>
           ) : (
             <button
@@ -54,7 +59,7 @@ export default function ComposerActionFooter({
               disabled={saving}
             >
               <Send size={16} strokeWidth={2} aria-hidden="true" />
-              Publish Now
+              {saving ? 'Publishing…' : 'Publish Now'}
             </button>
           )}
         </div>

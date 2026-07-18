@@ -8,7 +8,17 @@
  * ========================================================================== */
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Wand2, Hash, Clock, Loader2 } from 'lucide-react';
+import {
+  CalendarClock,
+  Clock,
+  Hash,
+  Loader2,
+  PenLine,
+  PlugZap,
+  Sparkles,
+  Users,
+  Wand2,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import Button from '../../components/ui/Button';
@@ -18,11 +28,13 @@ import {
   ComposerFirstComment,
   ComposerTags,
   ComposerHeader,
+  ComposerLoadingState,
   ComposerCaptionEditor,
   ComposerScheduleCard,
   ComposerActionFooter,
   ComposerPreviewPanel,
   ComposerPreflight,
+  ComposerSection,
   PLATFORMS,
   toLocalInput,
   scheduleFromQuery,
@@ -89,13 +101,18 @@ export default function ComposerPage() {
   const [targetPlatforms, setTargetPlatforms] = useState(['facebook', 'instagram']);
   const [scheduleMode, setScheduleMode] = useState('now');
   const [scheduledAt, setScheduledAt] = useState('');
+  const [lastScheduledAt, setLastScheduledAt] = useState('');
   const [saving, setSaving] = useState(false);
+  const [uploadingCount, setUploadingCount] = useState(0);
+  const [composerStatus, setComposerStatus] = useState('Draft');
+  const [formError, setFormError] = useState('');
   const [preflight, setPreflight] = useState(null);
   const [aiBusy, setAiBusy] = useState(false);
   const [activePreview, setActivePreview] = useState(targetPlatforms[0] || 'facebook');
   const [showPreviewPanel, setShowPreviewPanel] = useState(false);
   const [previewExpanded, setPreviewExpanded] = useState(readComposerPreviewExpanded);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+  const [replaceAssetIndex, setReplaceAssetIndex] = useState(null);
   const [youtubeSettings, setYoutubeSettings] = useState(createDefaultYoutubeSettings);
   const [youtubeErrors, setYoutubeErrors] = useState({});
   const [thumbnailOpen, setThumbnailOpen] = useState(false);
@@ -134,6 +151,11 @@ export default function ComposerPage() {
       setScheduleMode('schedule');
       setScheduledAt(toLocalInput(existing.scheduled_at));
     }
+    if (existing.status) {
+      setComposerStatus(
+        `${existing.status.charAt(0).toUpperCase()}${existing.status.slice(1)}`,
+      );
+    }
     const ytRaw = existing.platform_overrides?.youtube;
     setYoutubeSettings(normalizeYoutubeSettings(ytRaw));
     setYoutubeErrors({});
@@ -143,6 +165,9 @@ export default function ComposerPage() {
   useEffect(() => {
     setMediaAssets([]);
     setPreflight(null);
+    setLastScheduledAt('');
+    setComposerStatus('Draft');
+    setFormError('');
     setYoutubeSettings(createDefaultYoutubeSettings());
     setYoutubeErrors({});
   }, [workspaceId]);
@@ -157,6 +182,20 @@ export default function ComposerPage() {
     const first = PLATFORMS.find((p) => targetPlatforms.includes(p.id)) || PLATFORMS[0];
     return first.maxText;
   }, [targetPlatforms]);
+
+  const characterLimits = useMemo(
+    () => targetPlatforms
+      .map((idValue) => PLATFORMS.find((platform) => platform.id === idValue))
+      .filter(Boolean)
+      .map((platform) => ({
+        id: platform.id,
+        label: platform.label,
+        used: content.length,
+        max: platform.maxText,
+        over: content.length > platform.maxText,
+      })),
+    [content.length, targetPlatforms],
+  );
 
   const showFirstComment = supportsFirstComment(targetPlatforms);
 
@@ -173,6 +212,7 @@ export default function ComposerPage() {
     }
     const fd = new FormData();
     fd.append('file', file);
+    setUploadingCount((count) => count + 1);
     try {
       const res = await composerAPI.media.upload(fd, { client_id: workspaceId });
       setMediaAssets((cur) => {
@@ -188,6 +228,8 @@ export default function ComposerPage() {
       toast.success('Uploaded');
     } catch (e) {
       toast.error(e.response?.data?.detail || 'Upload failed');
+    } finally {
+      setUploadingCount((count) => Math.max(0, count - 1));
     }
   }
 
@@ -215,6 +257,14 @@ export default function ComposerPage() {
   function addLibraryAssets(picked) {
     const incoming = (picked || []).map(normalizeMediaAsset).filter(Boolean);
     if (!incoming.length) return;
+    if (replaceAssetIndex != null) {
+      setMediaAssets((current) => current.map(
+        (asset, index) => (index === replaceAssetIndex ? incoming[0] : asset),
+      ));
+      setReplaceAssetIndex(null);
+      toast.success('Media replaced');
+      return;
+    }
     setMediaAssets((cur) => {
       const have = new Set(cur.map((a) => String(a.id)));
       const added = incoming.filter((a) => !have.has(String(a.id)));
@@ -273,6 +323,7 @@ export default function ComposerPage() {
     setSaving(true);
     try {
       await ensurePost();
+      setComposerStatus('Draft saved');
       toast.success('Draft saved');
     } catch (e) {
       toast.error(e.response?.data?.detail || e.message || 'Save failed');
@@ -311,7 +362,11 @@ export default function ComposerPage() {
 
   async function onSchedule() {
     if (!validate({ forPublish: true })) return;
-    if (!scheduledAt) { toast.error('Pick a future date/time first'); return; }
+    if (!scheduledAt) {
+      setFormError('Pick a future date/time first');
+      toast.error('Pick a future date/time first');
+      return;
+    }
     setSaving(true);
     try {
       const post = await ensurePost();
@@ -320,6 +375,8 @@ export default function ComposerPage() {
         new Date(scheduledAt).toISOString(),
         clientParams,
       );
+      setLastScheduledAt(scheduledAt);
+      setComposerStatus('Scheduled');
       toast.success(`Scheduled for ${new Date(scheduledAt).toLocaleString()}`);
     } catch (e) {
       toast.error(e.response?.data?.detail || e.message || 'Schedule failed');
@@ -334,8 +391,13 @@ export default function ComposerPage() {
     try {
       const post = await ensurePost();
       const res = await composerAPI.posts.publishNow(post.id, clientParams);
-      if (res.data?.status === 'pending_approval') toast.success('Sent for approval');
-      else toast.success('Publishing — check status in a few seconds');
+      if (res.data?.status === 'pending_approval') {
+        setComposerStatus('Pending approval');
+        toast.success('Sent for approval');
+      } else {
+        setComposerStatus('Publishing');
+        toast.success('Publishing — check status in a few seconds');
+      }
     } catch (e) {
       toast.error(e.response?.data?.detail || e.message || 'Publish failed');
     } finally {
@@ -344,34 +406,37 @@ export default function ComposerPage() {
   }
 
   function validate({ forPublish = false } = {}) {
+    setFormError('');
+    const fail = (message) => {
+      setFormError(message);
+      toast.error(message);
+      return false;
+    };
     if (!workspaceId) {
-      toast.error('Select a workspace first'); return false;
+      return fail('Select a workspace first');
     }
     if (mediaType === 'text' && !content.trim()) {
-      toast.error('Add some text first'); return false;
+      return fail('Add some text first');
     }
     if (mediaType !== 'text' && mediaAssets.length === 0) {
-      toast.error('Upload at least one media file'); return false;
+      return fail('Upload at least one media file');
     }
     if (targetPlatforms.length === 0) {
-      toast.error('Pick at least one platform'); return false;
+      return fail('Pick at least one platform');
     }
     if (showYoutubeSettings) {
       if (forPublish && !['video', 'reel'].includes(mediaType)) {
-        toast.error('YouTube requires a video or reel');
-        return false;
+        return fail('YouTube requires a video or reel');
       }
       const effectiveTitle = (youtubeSettings.title_override || title || '').trim();
       if (forPublish && !effectiveTitle) {
-        toast.error('YouTube needs a video title');
         setYoutubeErrors((e) => ({ ...e, title_override: 'Enter a video title' }));
-        return false;
+        return fail('YouTube needs a video title');
       }
       const yt = validateYoutubeSettings(youtubeSettings, { forPublish });
       setYoutubeErrors(yt.errors);
       if (!yt.ok) {
-        toast.error(Object.values(yt.errors)[0] || 'Fix YouTube settings');
-        return false;
+        return fail(Object.values(yt.errors)[0] || 'Fix YouTube settings');
       }
     }
     return true;
@@ -422,18 +487,16 @@ export default function ComposerPage() {
   }
 
   if (loadingExisting && isEditing) {
-    return (
-      <div className="composer__loading">
-        <Loader2 size={20} className="composer__spin" />
-        Loading post…
-      </div>
-    );
+    return <ComposerLoadingState />;
   }
 
   return (
     <div className={`composer${previewExpanded ? '' : ' is-preview-collapsed'}`}>
       <ComposerHeader
         title={isEditing ? 'Edit' : 'Create'}
+        workspaceLabel={workspace?.company || workspace?.name || workspace?.label || ''}
+        status={composerStatus}
+        saving={saving}
         previewCount={targetPlatforms.length}
         onBack={() => navigate(-1)}
         onPreview={() => {
@@ -446,133 +509,196 @@ export default function ComposerPage() {
         <div className="composer__center">
           <div className="composer__form-scroll">
             <div className="composer__stack composer__stack--t-cards">
-              <TCard label="Connected channels" className="composer__animate" aria-label="Publish to platforms">
-                <ChannelSelector
-                  clientId={workspaceId}
-                  workspaceLabel={workspace?.company || workspace?.name || workspace?.label || ''}
-                  currentUser={user}
-                  selected={targetPlatforms}
-                  onToggle={togglePlatform}
-                />
-              </TCard>
-
-              <TCard
-                label="Post title"
-                className="composer__animate composer__animate--d1"
-                meta={(
-                  <span className="composer__title-count">
-                    {title.length}
-                    {' / 255'}
-                  </span>
-                )}
-              >
-                <TInput
-                  id="composer-post-title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Enter a title…"
-                  maxLength={255}
-                  aria-label="Post title"
-                />
-              </TCard>
-
-              <ComposerCaptionEditor
-                content={content}
-                onContentChange={setContent}
-                mediaAssets={mediaAssets}
-                onDropFiles={onDropFiles}
-                onRemoveAsset={removeAsset}
-                clientId={workspaceId}
-                platform={targetPlatforms?.[0] || 'instagram'}
-                onInsertAi={(text) => setContent((c) => (c ? `${c}\n\n${text}` : text))}
-                charUsed={content.length}
-                charMax={primaryMax}
-                onOpenMediaLibrary={() => setMediaPickerOpen(true)}
-                gridSpan={showFirstComment ? 8 : 12}
-              />
-
-              <ComposerFirstComment
-                value={firstComment}
-                onChange={setFirstComment}
-                visible={showFirstComment}
-                gridSpan={4}
-              />
-
-              <TCard
-                label="Tags"
+              {formError ? (
+                <div className="composer__form-error" role="alert">
+                  <strong>Check this post</strong>
+                  <span>{formError}</span>
+                </div>
+              ) : null}
+              <ComposerSection
+                title="Create content"
+                description="Choose channels, write your post, and attach media."
+                icon={PenLine}
                 className="composer__animate"
-                gridSpan={6}
-                meta={<span className="composer-badge">Internal team only</span>}
               >
-                <ComposerTags
-                  value={tags}
-                  onChange={setTags}
-                  clientId={workspaceId}
-                  showLabel={false}
-                />
-              </TCard>
+                <div className="composer__section-grid">
+                  <TCard label="Connected channels" aria-label="Publish to platforms">
+                    <ChannelSelector
+                      clientId={workspaceId}
+                      workspaceLabel={workspace?.company || workspace?.name || workspace?.label || ''}
+                      currentUser={user}
+                      selected={targetPlatforms}
+                      onToggle={togglePlatform}
+                      emptyAction={(
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          icon={PlugZap}
+                          onClick={() => navigate(`${basePath}/settings`)}
+                        >
+                          Connect accounts
+                        </Button>
+                      )}
+                    />
+                  </TCard>
 
-              <TCard
-                label="Notes"
-                className="composer__animate"
-                gridSpan={6}
-                meta={<span className="composer-badge">Internal team only</span>}
-              >
-                <TTextArea
-                  id="composer-internal-notes"
-                  size="sm"
-                  rows={2}
-                  value={internalNotes}
-                  onChange={(e) => setInternalNotes(e.target.value)}
-                  placeholder="Internal team notes — not visible to clients…"
-                />
-              </TCard>
-
-              <TCard label="Schedule" className="composer__animate composer__animate--d3">
-                <ComposerScheduleCard
-                  mediaType={mediaType}
-                  onMediaType={setMediaType}
-                  scheduleMode={scheduleMode}
-                  onScheduleMode={setScheduleMode}
-                  scheduledAt={scheduledAt}
-                  onScheduledAt={setScheduledAt}
-                />
-              </TCard>
-
-              {showYoutubeSettings ? (
-                <TCard
-                  label="YouTube"
-                  className="composer__animate"
-                  aria-label="YouTube Settings"
-                >
-                  <Suspense
-                    fallback={(
-                      <div className="composer__loading">
-                        <Loader2 size={16} className="composer__spin" />
-                        Loading YouTube settings…
-                      </div>
+                  <TCard
+                    label="Post title"
+                    meta={(
+                      <span className="composer__title-count" aria-live="polite">
+                        {title.length}
+                        {' / 255'}
+                      </span>
                     )}
                   >
-                    <YoutubeSettingsPanel
-                      value={youtubeSettings}
-                      onChange={(next) => {
-                        setYoutubeSettings(next);
-                        setYoutubeErrors({});
-                      }}
-                      errors={youtubeErrors}
-                      onOpenThumbnail={() => {
-                        if (!primaryVideoAsset) {
-                          toast.error('Attach a video first to create a thumbnail');
-                          return;
-                        }
-                        setThumbnailOpen(true);
-                      }}
+                    <TInput
+                      id="composer-post-title"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="Give this post a clear internal title…"
+                      maxLength={255}
+                      aria-label="Post title"
                     />
-                  </Suspense>
-                </TCard>
-              ) : null}
+                  </TCard>
 
-              <TCard label="AI assist" className="composer__animate composer__animate--d3" dashed>
+                  <ComposerCaptionEditor
+                    content={content}
+                    onContentChange={setContent}
+                    mediaAssets={mediaAssets}
+                    onDropFiles={onDropFiles}
+                    onRemoveAsset={removeAsset}
+                    onReplaceAsset={(index) => {
+                      setReplaceAssetIndex(index);
+                      setMediaPickerOpen(true);
+                    }}
+                    clientId={workspaceId}
+                    platform={targetPlatforms?.[0] || 'instagram'}
+                    onInsertAi={(text) => setContent((c) => (c ? `${c}\n\n${text}` : text))}
+                    charUsed={content.length}
+                    charMax={primaryMax}
+                    charLimits={characterLimits}
+                    uploading={uploadingCount > 0}
+                    onOpenMediaLibrary={() => setMediaPickerOpen(true)}
+                    gridSpan={showFirstComment ? 8 : 12}
+                  />
+
+                  <ComposerFirstComment
+                    value={firstComment}
+                    onChange={setFirstComment}
+                    visible={showFirstComment}
+                    gridSpan={4}
+                  />
+                </div>
+              </ComposerSection>
+
+              <ComposerSection
+                title="Publishing"
+                description="Choose when to publish and review platform-specific settings."
+                icon={CalendarClock}
+              >
+                <div className="composer__section-grid">
+                  <TCard label="Schedule">
+                    <ComposerScheduleCard
+                      mediaType={mediaType}
+                      onMediaType={setMediaType}
+                      scheduleMode={scheduleMode}
+                      onScheduleMode={setScheduleMode}
+                      scheduledAt={scheduledAt}
+                      onScheduledAt={setScheduledAt}
+                      scheduledSuccess={lastScheduledAt}
+                      onOpenCalendar={() => navigate(`${basePath}/analytics/calendar`)}
+                      onOpenQueues={() => navigate(`${basePath}/analytics/queues`)}
+                    />
+                  </TCard>
+
+                  {showYoutubeSettings ? (
+                    <TCard label="YouTube" aria-label="YouTube Settings">
+                      <Suspense
+                        fallback={(
+                          <div className="composer__loading">
+                            <Loader2 size={16} className="composer__spin" />
+                            Loading YouTube settings…
+                          </div>
+                        )}
+                      >
+                        <YoutubeSettingsPanel
+                          value={youtubeSettings}
+                          onChange={(next) => {
+                            setYoutubeSettings(next);
+                            setYoutubeErrors({});
+                          }}
+                          errors={youtubeErrors}
+                          onOpenThumbnail={() => {
+                            if (!primaryVideoAsset) {
+                              toast.error('Attach a video first to create a thumbnail');
+                              return;
+                            }
+                            setThumbnailOpen(true);
+                          }}
+                        />
+                      </Suspense>
+                    </TCard>
+                  ) : null}
+
+                  {preflight ? (
+                    <ComposerPreflight result={preflight} onClose={() => setPreflight(null)} />
+                  ) : (
+                    <div className="composer__checklist" role="status">
+                      <strong>Publishing checklist</strong>
+                      <span>{targetPlatforms.length > 0 ? 'Channels selected' : 'Select at least one channel'}</span>
+                      <span>{content.trim() || mediaAssets.length > 0 ? 'Content added' : 'Add text or media'}</span>
+                      <span>Run Preflight before publishing for platform-specific checks</span>
+                    </div>
+                  )}
+                </div>
+              </ComposerSection>
+
+              <ComposerSection
+                title="Team details"
+                description="Internal labels and notes are never published."
+                icon={Users}
+                collapsible
+                defaultOpen={false}
+              >
+                <div className="composer__section-grid">
+                  <TCard
+                    label="Tags"
+                    gridSpan={6}
+                    meta={<span className="composer-badge">Internal team only</span>}
+                  >
+                    <ComposerTags
+                      value={tags}
+                      onChange={setTags}
+                      clientId={workspaceId}
+                      showLabel={false}
+                    />
+                  </TCard>
+
+                  <TCard
+                    label="Notes"
+                    gridSpan={6}
+                    meta={<span className="composer-badge">Internal team only</span>}
+                  >
+                    <TTextArea
+                      id="composer-internal-notes"
+                      size="sm"
+                      rows={3}
+                      value={internalNotes}
+                      onChange={(e) => setInternalNotes(e.target.value)}
+                      placeholder="Add context for teammates…"
+                      aria-label="Internal team notes"
+                    />
+                  </TCard>
+                </div>
+              </ComposerSection>
+
+              <ComposerSection
+                title="Assist"
+                description="Generate a starting point or add relevant hashtags."
+                icon={Sparkles}
+                collapsible
+                defaultOpen={false}
+              >
                 <div className="composer__ai-row">
                   <Button
                     variant="secondary"
@@ -603,11 +729,7 @@ export default function ComposerPage() {
                     Best time
                   </Button>
                 </div>
-              </TCard>
-
-              {preflight && (
-                <ComposerPreflight result={preflight} onClose={() => setPreflight(null)} />
-              )}
+              </ComposerSection>
             </div>
           </div>
 
@@ -640,8 +762,12 @@ export default function ComposerPage() {
           <Suspense fallback={null}>
             <MediaPickerModal
               open={mediaPickerOpen}
-              onClose={() => setMediaPickerOpen(false)}
-              multiple
+              onClose={() => {
+                setMediaPickerOpen(false);
+                setReplaceAssetIndex(null);
+              }}
+              multiple={replaceAssetIndex == null}
+              title={replaceAssetIndex == null ? 'Media Library' : 'Replace media'}
               excludeIds={mediaAssets.map((a) => a.id)}
               onSelect={addLibraryAssets}
             />

@@ -39,9 +39,9 @@ export function ComposerPreviewCard({
       )}
 
       <div className="composer-preview-card__engage">
-        <span>♡ Like</span>
-        <span>💬 Comment</span>
-        <span>↗ Share</span>
+        <span aria-hidden="true">♡ Like</span>
+        <span aria-hidden="true">💬 Comment</span>
+        <span aria-hidden="true">↗ Share</span>
       </div>
 
       {firstComment.trim() && (
@@ -94,6 +94,7 @@ function PreviewAssetVisual({ asset, className = '' }) {
         className={className || undefined}
         src={thumb || fileUrl}
         alt={asset.alt_text || ''}
+        decoding="async"
       />
     );
   }
@@ -151,7 +152,12 @@ function PreviewMedia({ assets, mediaType, platform }) {
 
 export function ComposerPreflight({ result, onClose }) {
   return (
-    <div className="t-panel composer-preflight">
+    <div
+      className="t-panel composer-preflight"
+      role={result.ok ? 'status' : 'alert'}
+      aria-live={result.ok ? 'polite' : 'assertive'}
+      aria-atomic="true"
+    >
       <div className="t-panel__body">
         <div className="composer-preflight__row">
           <strong className="composer-preflight__title">

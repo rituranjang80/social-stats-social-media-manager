@@ -1,11 +1,14 @@
 /* ============================================================================
  * T-Type section card — reusable labeled container.
  * ========================================================================== */
+import { useId } from 'react';
+
 export default function TCard({
   label,
   meta,
   children,
   gridSpan,
+  headingId,
   className = '',
   flush = false,
   sunken = false,
@@ -13,6 +16,8 @@ export default function TCard({
   as: Tag = 'section',
   ...rest
 }) {
+  const generatedId = useId();
+  const resolvedHeadingId = headingId || `${generatedId}-heading`;
   const classes = [
     't-card',
     gridSpan ? `t-card--span-${gridSpan}` : '',
@@ -23,10 +28,14 @@ export default function TCard({
   ].filter(Boolean).join(' ');
 
   return (
-    <Tag className={classes} {...rest}>
+    <Tag
+      className={classes}
+      aria-labelledby={label && !rest['aria-label'] ? resolvedHeadingId : undefined}
+      {...rest}
+    >
       {(label || meta) ? (
         <header className="t-card__header">
-          {label ? <h2 className="t-card__label">{label}</h2> : <span />}
+          {label ? <h2 id={resolvedHeadingId} className="t-card__label">{label}</h2> : <span />}
           {meta ? <div className="t-card__meta">{meta}</div> : null}
         </header>
       ) : null}

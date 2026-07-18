@@ -3,7 +3,7 @@
  * Desktop: collapsible via right-edge toggle (mirrors left CollapsibleRail).
  * Mobile: slide-over drawer (unchanged).
  * ========================================================================== */
-import { useEffect } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { Eye, X } from 'lucide-react';
 import { PLATFORMS } from './constants';
 import { ComposerPreviewCard } from './ComposerPreview';
@@ -37,6 +37,8 @@ export default function ComposerPreviewPanel({
   user,
   firstComment,
 }) {
+  const tabsId = useId();
+  const tabsRef = useRef(null);
   const tabs = platforms?.length ? platforms : ['facebook'];
   const hasPreview = Boolean(content?.trim()) || (mediaAssets?.length > 0);
 
@@ -51,6 +53,22 @@ export default function ComposerPreviewPanel({
   const toggleDesktop = () => {
     onDesktopExpandedChange?.(!desktopExpanded);
   };
+
+  function handleTabKeyDown(event) {
+    const currentIndex = tabs.indexOf(activePreview);
+    if (currentIndex < 0) return;
+    let nextIndex = currentIndex;
+    if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % tabs.length;
+    else if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+    else if (event.key === 'Home') nextIndex = 0;
+    else if (event.key === 'End') nextIndex = tabs.length - 1;
+    else return;
+    event.preventDefault();
+    onSelectPreview(tabs[nextIndex]);
+    requestAnimationFrame(() => {
+      tabsRef.current?.querySelector(`[data-platform="${tabs[nextIndex]}"]`)?.focus();
+    });
+  }
 
   return (
     <div
@@ -110,7 +128,13 @@ export default function ComposerPreviewPanel({
           </div>
         </div>
 
-        <div className="composer__preview-tabs" role="tablist" aria-label="Preview platform">
+        <div
+          ref={tabsRef}
+          className="composer__preview-tabs"
+          role="tablist"
+          aria-label="Preview platform"
+          onKeyDown={handleTabKeyDown}
+        >
           {tabs.map((pid) => {
             const p = PLATFORMS.find((x) => x.id === pid) || PLATFORMS[0];
             const active = pid === activePreview;
@@ -120,6 +144,10 @@ export default function ComposerPreviewPanel({
                 type="button"
                 role="tab"
                 aria-selected={active}
+                aria-controls={`${tabsId}-${pid}-panel`}
+                id={`${tabsId}-${pid}-tab`}
+                tabIndex={active ? 0 : -1}
+                data-platform={pid}
                 className={`composer__preview-tab composer__preview-tab--${pid} ${active ? 'is-active' : ''}`}
                 onClick={() => onSelectPreview(pid)}
               >
@@ -130,26 +158,40 @@ export default function ComposerPreviewPanel({
         </div>
 
         <div className="composer__preview-body">
-          {!hasPreview ? (
-            <div className="composer-preview-empty">
-              <div className="composer-preview-empty__icon" aria-hidden="true">
-                <Eye size={28} strokeWidth={1.5} />
+          {tabs.map((pid) => {
+            const active = pid === activePreview;
+            return (
+              <div
+                key={pid}
+                id={`${tabsId}-${pid}-panel`}
+                role="tabpanel"
+                aria-labelledby={`${tabsId}-${pid}-tab`}
+                tabIndex={active ? 0 : -1}
+                hidden={!active}
+              >
+                {active && (!hasPreview ? (
+                  <div className="composer-preview-empty">
+                    <div className="composer-preview-empty__icon" aria-hidden="true">
+                      <Eye size={28} strokeWidth={1.5} />
+                    </div>
+                    <p className="composer-preview-empty__title">No preview yet</p>
+                    <p className="composer-preview-empty__hint">
+                      Select a platform and start writing to see how your post will look
+                    </p>
+                  </div>
+                ) : (
+                  <ComposerPreviewCard
+                    platform={pid}
+                    content={content}
+                    mediaAssets={mediaAssets}
+                    mediaType={mediaType}
+                    user={user}
+                    firstComment={firstComment}
+                  />
+                ))}
               </div>
-              <p className="composer-preview-empty__title">No preview yet</p>
-              <p className="composer-preview-empty__hint">
-                Select a platform and start writing to see how your post will look
-              </p>
-            </div>
-          ) : (
-            <ComposerPreviewCard
-              platform={activePreview}
-              content={content}
-              mediaAssets={mediaAssets}
-              mediaType={mediaType}
-              user={user}
-              firstComment={firstComment}
-            />
-          )}
+            );
+          })}
         </div>
       </aside>
     </div>
