@@ -47,7 +47,7 @@ export default function ChannelCard({
       <span className="channel-card__check" aria-hidden="true">
         {selected ? <Check size={10} strokeWidth={3} /> : null}
       </span>
-      <span className="sr-only">{selected ? 'Selected' : 'Not selected'}</span>
+      {/* <span className="sr-only">{selected ? 'Selected' : 'Not selected'}</span> */}
 
       <span className="channel-card__avatar-wrap">
         <ChannelAvatar src={avatarUrl} name={avatarName || displayName} size="sm" />

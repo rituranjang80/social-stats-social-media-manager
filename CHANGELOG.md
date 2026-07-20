@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+### Added — Local backend auto-reload workflow
+
+The development Compose override runs Django's development server against the
+existing bind-mounted backend source, so saved Python changes reload without an
+image build. Development CORS/CSRF settings allow the React hot-reload server on
+port 3000; Celery services still require a restart after task-code changes.
+
+### Fixed — Composer preview no longer hardcodes Facebook/Instagram
+
+New Composer drafts start with no platform selected. Preview tabs are now
+created only from the connected channels the user selects; the previous
+hardcoded Facebook/Instagram defaults and fallback Facebook tab were removed.
+With no selection, Preview shows a Select a channel empty state.
+
 ### Changed — Composer usability, responsive layout, and accessibility
 
 Composer now groups content, publishing, team details, and AI assistance into

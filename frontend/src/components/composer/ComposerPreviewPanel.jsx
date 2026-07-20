@@ -39,7 +39,7 @@ export default function ComposerPreviewPanel({
 }) {
   const tabsId = useId();
   const tabsRef = useRef(null);
-  const tabs = platforms?.length ? platforms : ['facebook'];
+  const tabs = platforms?.length ? platforms : [];
   const hasPreview = Boolean(content?.trim()) || (mediaAssets?.length > 0);
 
   useEffect(() => {
@@ -128,36 +128,49 @@ export default function ComposerPreviewPanel({
           </div>
         </div>
 
-        <div
-          ref={tabsRef}
-          className="composer__preview-tabs"
-          role="tablist"
-          aria-label="Preview platform"
-          onKeyDown={handleTabKeyDown}
-        >
-          {tabs.map((pid) => {
-            const p = PLATFORMS.find((x) => x.id === pid) || PLATFORMS[0];
-            const active = pid === activePreview;
-            return (
-              <button
-                key={pid}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                aria-controls={`${tabsId}-${pid}-panel`}
-                id={`${tabsId}-${pid}-tab`}
-                tabIndex={active ? 0 : -1}
-                data-platform={pid}
-                className={`composer__preview-tab composer__preview-tab--${pid} ${active ? 'is-active' : ''}`}
-                onClick={() => onSelectPreview(pid)}
-              >
-                {p.label}
-              </button>
-            );
-          })}
-        </div>
+        {tabs.length > 0 ? (
+          <div
+            ref={tabsRef}
+            className="composer__preview-tabs"
+            role="tablist"
+            aria-label="Preview platform"
+            onKeyDown={handleTabKeyDown}
+          >
+            {tabs.map((pid) => {
+              const platform = PLATFORMS.find((item) => item.id === pid);
+              const active = pid === activePreview;
+              return (
+                <button
+                  key={pid}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  aria-controls={`${tabsId}-${pid}-panel`}
+                  id={`${tabsId}-${pid}-tab`}
+                  tabIndex={active ? 0 : -1}
+                  data-platform={pid}
+                  className={`composer__preview-tab composer__preview-tab--${pid} ${active ? 'is-active' : ''}`}
+                  onClick={() => onSelectPreview(pid)}
+                >
+                  {platform?.label || pid}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
 
         <div className="composer__preview-body">
+          {tabs.length === 0 ? (
+            <div className="composer-preview-empty" role="status">
+              <div className="composer-preview-empty__icon" aria-hidden="true">
+                <Eye size={28} strokeWidth={1.5} />
+              </div>
+              <p className="composer-preview-empty__title">Select a channel</p>
+              <p className="composer-preview-empty__hint">
+                Choose a connected channel to create its live preview.
+              </p>
+            </div>
+          ) : null}
           {tabs.map((pid) => {
             const active = pid === activePreview;
             return (

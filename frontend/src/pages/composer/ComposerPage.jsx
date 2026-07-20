@@ -98,7 +98,7 @@ export default function ComposerPage() {
   const [internalNotes, setInternalNotes] = useState('');
   const [mediaType, setMediaType] = useState('text');
   const [mediaAssets, setMediaAssets] = useState([]);
-  const [targetPlatforms, setTargetPlatforms] = useState(['facebook', 'instagram']);
+  const [targetPlatforms, setTargetPlatforms] = useState([]);
   const [scheduleMode, setScheduleMode] = useState('now');
   const [scheduledAt, setScheduledAt] = useState('');
   const [lastScheduledAt, setLastScheduledAt] = useState('');
@@ -108,7 +108,7 @@ export default function ComposerPage() {
   const [formError, setFormError] = useState('');
   const [preflight, setPreflight] = useState(null);
   const [aiBusy, setAiBusy] = useState(false);
-  const [activePreview, setActivePreview] = useState(targetPlatforms[0] || 'facebook');
+  const [activePreview, setActivePreview] = useState('');
   const [showPreviewPanel, setShowPreviewPanel] = useState(false);
   const [previewExpanded, setPreviewExpanded] = useState(readComposerPreviewExpanded);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
@@ -173,14 +173,14 @@ export default function ComposerPage() {
   }, [workspaceId]);
 
   useEffect(() => {
-    if (!targetPlatforms.includes(activePreview) && targetPlatforms[0]) {
-      setActivePreview(targetPlatforms[0]);
+    if (!targetPlatforms.includes(activePreview)) {
+      setActivePreview(targetPlatforms[0] || '');
     }
   }, [targetPlatforms, activePreview]);
 
   const primaryMax = useMemo(() => {
-    const first = PLATFORMS.find((p) => targetPlatforms.includes(p.id)) || PLATFORMS[0];
-    return first.maxText;
+    const first = PLATFORMS.find((p) => targetPlatforms.includes(p.id));
+    return first?.maxText ?? null;
   }, [targetPlatforms]);
 
   const characterLimits = useMemo(

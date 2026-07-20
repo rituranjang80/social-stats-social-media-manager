@@ -1438,17 +1438,17 @@
                                 <input type="text" :name="&#39;override_title_&#39; + accId" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-200 bg-white outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 transition-all" :placeholder="&#39;Custom &#39; + (charLimits[accId]?.title_label || &#39;title&#39;) + &#39;…&#39;" :maxlength="charLimits[accId]?.title_max_length || 255" name="override_title_4509a879-75ab-4641-9c60-13a46eeb491a" placeholder="Custom Video Title…" maxlength="100">
                             </div>
                         <textarea :name="&#39;override_caption_&#39; + accId" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-200 bg-white outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 transition-all resize-none" style="font-family: system-ui, -apple-system, sans-serif;" :placeholder="&#39;Custom &#39; + (charLimits[accId]?.caption_label || &#39;caption&#39;) + &#39; for this platform...&#39;" rows="3" name="override_caption_4509a879-75ab-4641-9c60-13a46eeb491a" placeholder="Custom Description for this platform..."></textarea>
+  <!-- First Comment (conditional - only when a platform supporting comments is selected) -->
+  <div x-show="anyPlatformSupportsFirstComment" x-transition="">
+    <label class="block text-sm font-semibold text-stone-500 uppercase tracking-wider mb-2">First Comment</label>
+    <textarea name="first_comment" class="comment-editor" placeholder="First comment posted after the main post…" rows="1"></textarea>
+</div>
+<!-- Hidden first_comment field for form submission when section is hidden -->
+<template x-if="!anyPlatformSupportsFirstComment"></template>
 
                     </div>
 
-                <!-- First Comment (conditional - only when a platform supporting comments is selected) -->
-                <div x-show="anyPlatformSupportsFirstComment" x-transition="">
-                    <label class="block text-sm font-semibold text-stone-500 uppercase tracking-wider mb-2">First Comment</label>
-                    <textarea name="first_comment" class="comment-editor" placeholder="First comment posted after the main post…" rows="1"></textarea>
-                </div>
-                <!-- Hidden first_comment field for form submission when section is hidden -->
-                <template x-if="!anyPlatformSupportsFirstComment"></template>
-
+              
                 <!-- Content Category -->
                 
 

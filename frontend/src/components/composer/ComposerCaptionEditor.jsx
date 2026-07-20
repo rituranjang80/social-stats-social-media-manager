@@ -98,11 +98,13 @@ export default function ComposerCaptionEditor({
             {charMax != null ? `${charUsed} / ${charMax}` : charUsed}
           </span>
         </div>
-        <TCharBar
-          used={charUsed}
-          max={charMax || 1}
-          items={charLimits}
-        />
+        {charMax != null || charLimits.length > 0 ? (
+          <TCharBar
+            used={charUsed}
+            max={charMax || 1}
+            items={charLimits}
+          />
+        ) : null}
       </div>
     </TCard>
   );

@@ -45,7 +45,9 @@ media uploads report progress, and an attached item can be replaced from the
 existing Media Library without removing it first. Scheduling shows the browser
 timezone and offers an **Open calendar** action after a successful schedule.
 Queue mode continues to save the post as a draft before queue assignment; use
-**Manage queues** to select and manage recurring queues.
+**Manage queues** to select and manage recurring queues. New drafts do not
+preselect a platform: choose one or more connected channels to create matching
+live-preview tabs.
 
 ### Content calendar (Publish)
 **Route:** `/dashboard/analytics/calendar` or `/admin/analytics/calendar`.

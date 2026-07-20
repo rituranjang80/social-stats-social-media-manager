@@ -59,4 +59,11 @@ describe('ComposerPreviewPanel', () => {
     expect(localStorage.getItem(COMPOSER_PREVIEW_STORAGE_KEY)).toBe('0');
     expect(readComposerPreviewExpanded()).toBe(false);
   });
+
+  test('does not render hardcoded platform tabs when no channels are selected', () => {
+    renderPanel({ platforms: [], activePreview: '' });
+
+    expect(screen.queryByRole('tab')).not.toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Select a channel');
+  });
 });
