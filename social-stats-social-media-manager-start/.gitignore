@@ -1,0 +1,6 @@
+.env
+paths.env
+data/postgres/
+data/db.sqlite3
+k8s/_rendered/
+k8s/secret.yaml

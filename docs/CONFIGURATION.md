@@ -45,6 +45,9 @@ OAuth tokens and manual credentials are encrypted at rest using these keys.
 |---|---|---|---|
 | `DATABASE_URL` | No (dev) / **Yes (prod)** | SQLite | Full DB URL, e.g. `postgres://user:pass@host:5432/dbname`. If unset, dev uses SQLite. |
 | `DB_NAME` / `DB_USER` / `DB_PASSWORD` / `DB_HOST` / `DB_PORT` | No | `postgres` / `5432` etc. | Alternative to `DATABASE_URL` — set individual Postgres connection parts. |
+| `SQLITE_PATH` | No | `backend/db.sqlite3` | When `DB_NAME` is unset, path to the SQLite file (Docker: `/data/db.sqlite3`). |
+| `MEDIA_ROOT` | No | `backend/media` | Filesystem root for user uploads (Docker bind-mount: `/data/media`). |
+| `STATIC_ROOT` | No | `backend/staticfiles` | Target for `collectstatic` (Docker: `/data/staticfiles`). |
 
 ## Redis / Celery
 
@@ -88,9 +91,10 @@ Get these from [linkedin.com/developers](https://www.linkedin.com/developers).
 
 ## Connect Accounts catalog (Settings → Connect)
 
-When deploying via **SocialMediaStart**, put these in `C:\app\SocialMediaStart\.env`
+When deploying via **social-stats-social-media-manager-start** (or legacy
+**SocialMediaStart**), put these in that folder's `.env`
 (not inside the source tree). Restart backend after changes:
-`docker compose --env-file .env up -d`.
+`docker compose --env-file paths.env --env-file .env up -d`.
 
 `is_configured` on `/dashboard/settings` matches the SS connect page: a platform
 shows **Connect** when its app credentials are non-empty in `.env`; otherwise it

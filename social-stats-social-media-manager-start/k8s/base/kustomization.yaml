@@ -1,0 +1,10 @@
+apiVersion: kustomization.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: social-stats
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - redis.yaml
+  - backend.yaml
+  - frontend.yaml
+  - gateway.yaml

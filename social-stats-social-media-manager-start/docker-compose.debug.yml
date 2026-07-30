@@ -1,0 +1,9 @@
+# Debug override — attach debugpy on DEBUGPY_PORT (5678 by default).
+#   docker compose --env-file paths.env --env-file .env \
+#     -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.debug.yml up -d backend
+
+services:
+  backend:
+    environment:
+      ENABLE_DEBUGPY: "true"
+      WAIT_FOR_DEBUGGER: ${WAIT_FOR_DEBUGGER:-false}

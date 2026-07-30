@@ -64,11 +64,12 @@ Interactive API docs (Swagger — Try it out + enum dropdowns):
 
 ### Brightbean static HTML prototypes
 
-Drop HTML (+ relative asset folders) under `frontend/public/Brightbean/`, then:
+Drop HTML (+ relative asset folders) under `frontend/public/Brightbean/`, then
+rebuild or recreate the gateway from the deployment folder:
 
-```bash
-cd C:\app\SocialMediaStart
-docker compose --env-file .env up -d --build gateway
+```powershell
+cd ..\social-stats-social-media-manager-start
+docker compose --env-file paths.env --env-file .env up -d --build gateway
 ```
 
 Open e.g. **http://localhost:8000/Brightbean/NewPost.html** or

@@ -1,0 +1,35 @@
+# Development override — Django runserver auto-reload, nginx → React dev server.
+#   docker compose --env-file paths.env --env-file .env \
+#     -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+
+services:
+  backend:
+    environment:
+      APP_MODE: dev
+      DEBUG: "True"
+
+  gateway:
+    environment:
+      NGINX_MODE: dev
+    depends_on:
+      frontend:
+        condition: service_started
+
+  frontend:
+    env_file:
+      - paths.env
+      - .env
+    build:
+      context: ${START_REL:-.}
+      dockerfile: docker/Dockerfile.frontend-dev
+    environment:
+      REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:8000/api}
+      CHOKIDAR_USEPOLLING: ${CHOKIDAR_USEPOLLING:-true}
+      WATCHPACK_POLLING: ${WATCHPACK_POLLING:-true}
+      NPM_INSTALL: ${NPM_INSTALL:-always}
+    volumes:
+      - ${SOURCE_REL}/frontend:/app/frontend
+      - frontend_node_modules:/app/frontend/node_modules
+      - ${START_REL:-.}/docker/entrypoint-frontend-dev.sh:/entrypoint.sh:ro
+    ports:
+      - "${FRONTEND_DEV_PORT:-3000}:3000"

@@ -2,6 +2,30 @@
 
 ## [Unreleased]
 
+### Fixed — Docker dev stack on Windows (CRLF, nginx, Celery)
+
+- Shell entrypoints use LF line endings; frontend entrypoint is bind-mounted like backend.
+- Gateway nginx templates moved off `/etc/nginx/templates/` to avoid duplicate envsubst.
+- Celery worker/beat use `bash -c` so commands run correctly under Compose.
+
+### Added — Run & debug documentation (Python + React)
+
+- **`social-stats-social-media-manager-start/RUN_AND_DEBUG.md`** — how to run Docker
+  dev/hybrid/native stacks, attach **debugpy** to Django, and debug the React app
+  (DevTools, env vars, Celery restarts).
+- **`docs/RUN_AND_DEBUG.md`** — same workflows from the source repo perspective.
+- **`.vscode/launch.json.example`** — attach/l launch configs for Docker debugpy,
+  native Django, and Chrome.
+
+### Added — External Docker & Kubernetes deployment (`social-stats-social-media-manager-start`)
+
+New sibling folder layout runs the app with **config and data outside the source
+tree**: bind-mounted backend/frontend code (no image rebuild on edits), dev
+auto-reload, optional **debugpy**, Compose + Kubernetes manifests, and
+`paths.env` relative paths (`SOURCE_REL`, `DATA_REL`) for different machines.
+Django accepts optional `MEDIA_ROOT`, `STATIC_ROOT`, and `SQLITE_PATH` env vars
+for container data volumes.
+
 ### Added — Local backend auto-reload workflow
 
 The development Compose override runs Django's development server against the

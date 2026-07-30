@@ -132,10 +132,11 @@ if os.environ.get('DB_NAME'):
         }
     }
 else:
+    _sqlite_path = os.environ.get('SQLITE_PATH', '').strip()
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'NAME': Path(_sqlite_path) if _sqlite_path else BASE_DIR / 'db.sqlite3',
         }
     }
 
@@ -154,14 +155,15 @@ USE_I18N = True
 USE_TZ = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+_media_root = os.environ.get('MEDIA_ROOT', '').strip()
+MEDIA_ROOT = Path(_media_root) if _media_root else BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ── Static files (production build, collectstatic) ─────────────────
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+_static_root = os.environ.get('STATIC_ROOT', '').strip()
+STATIC_ROOT = Path(_static_root) if _static_root else BASE_DIR / 'staticfiles'
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
 # ── Security headers + HTTPS enforcement () ──────────────────────────
 # Defaults flip ON when DEBUG is False. Each can still be overridden per env

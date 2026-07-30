@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: social-stats
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: social-stats-frontend-dev:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: social-stats-config
+          env:
+            - name: NPM_INSTALL
+              value: "always"
+          volumeMounts:
+            - name: frontend-source
+              mountPath: /app/frontend
+      volumes:
+        - name: frontend-source
+          hostPath:
+            path: REPLACE_SOURCE_FRONTEND
+            type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: social-stats
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 3000
+      targetPort: 3000

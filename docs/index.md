@@ -45,6 +45,8 @@ python manage.py runserver
 ## Guides
 
 - [Getting Started](GETTING_STARTED.md)
+- [Run & Debug (Python + Frontend)](RUN_AND_DEBUG.md)
+- [Docker & Kubernetes](DOCKER_K8S.md) — config outside source (`../social-stats-social-media-manager-start`)
 - [API Swagger (Try it out)](API_SWAGGER.md) — http://localhost:8000/api/docs/
 - [Configuration](CONFIGURATION.md)
 - [Connect Social Accounts](CONNECT_ACCOUNTS.md)
