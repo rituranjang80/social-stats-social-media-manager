@@ -235,7 +235,7 @@ const NAV_SETS = {
         items: [
           { label: 'Composer',      icon: PenSquare,   path: '/composer',  permission: 'composer.view' },
           { label: 'Calendar',      icon: CalendarDays, path: '/calendar', permission: 'calendar.view' },
-          { label: 'Queues',        icon: Layers,      path: '/queues',    permission: 'composer.view' },
+         // { label: 'Queues',        icon: Layers,      path: '/queues',    permission: 'composer.view' },
           { label: 'Media Library', icon: Images,      path: '/media',     permission: 'composer.view' },
           { label: 'Video Studio',  icon: Film,        path: '/video',     permission: 'video.view' },
         ],
@@ -244,9 +244,9 @@ const NAV_SETS = {
         title: 'Engage',
         items: [
           { label: 'Inbox',       icon: Inbox, path: '/inbox',       permission: 'inbox.view',
-            badgeKey: 'unread_inbox' },
-          { label: 'Reviews',     icon: Star,  path: '/reviews',     permission: 'inbox.view' },
-          { label: 'Automations', icon: Zap,   path: '/automations', permission: 'automations.view' },
+            badgeKey: 'unread_inbox' }
+          // { label: 'Reviews',     icon: Star,  path: '/reviews',     permission: 'inbox.view' },
+          // { label: 'Automations', icon: Zap,   path: '/automations', permission: 'automations.view' },
         ],
       },
       {
@@ -257,42 +257,42 @@ const NAV_SETS = {
           { label: 'Reports',    icon: FileText,        path: '/reports',                  permission: 'reports.view' },
         ],
       },
-      {
-        title: 'Content',
-        items: [
-          { label: 'Posts',          icon: FileType,     path: '/posts',                  permission: 'dashboard.posts_table' },
-          { label: 'Caption Writer', icon: Wand2,        path: '/caption-writer' },
-          { label: 'Post Ideas',     icon: Lightbulb,    path: '/post-ideas' },
-          { label: 'Hashtags',       icon: Hash,         path: '/hashtags' },
-          { label: 'AI Studio',      icon: Sparkles,     path: '/ai-studio' },
-          { label: 'Brand Voice',    icon: Mic,          path: '/brand-voice',  permission: 'ai.brand_voice' },
-          { label: 'AI Insights',    icon: Sparkles,     path: '/insights' },
-          { label: 'AI Audit',       icon: ShieldCheck,  path: '/ai-audit' },
-        ],
-      },
-      {
-        title: 'Performance',
-        items: [
-          { label: 'ROI Calculator', icon: TrendingUp,  path: '/roi',       permission: 'roi.view' },
-          { label: 'Alerts',         icon: AlertCircle, path: '/alerts',    permission: 'alerts.view' },
-          { label: 'Sync Logs',      icon: FolderSync,  path: '/synclogs' },
-        ],
-      },
-      {
-        title: 'Grow',
-        items: [
-          { label: 'Audience',    icon: Users2,     path: '/audience',    permission: 'audience.view' },
-          { label: 'Competitors', icon: TrendingUp, path: '/competitors', permission: 'competitors.view' },
-        ],
-      },
+      // {
+      //   title: 'Content',
+      //   items: [
+      //     { label: 'Posts',          icon: FileType,     path: '/posts',                  permission: 'dashboard.posts_table' },
+      //     { label: 'Caption Writer', icon: Wand2,        path: '/caption-writer' },
+      //     { label: 'Post Ideas',     icon: Lightbulb,    path: '/post-ideas' },
+      //     { label: 'Hashtags',       icon: Hash,         path: '/hashtags' },
+      //     { label: 'AI Studio',      icon: Sparkles,     path: '/ai-studio' },
+      //     { label: 'Brand Voice',    icon: Mic,          path: '/brand-voice',  permission: 'ai.brand_voice' },
+      //     { label: 'AI Insights',    icon: Sparkles,     path: '/insights' },
+      //     { label: 'AI Audit',       icon: ShieldCheck,  path: '/ai-audit' },
+      //   ],
+      // },
+      // {
+      //   title: 'Performance',
+      //   items: [
+      //     { label: 'ROI Calculator', icon: TrendingUp,  path: '/roi',       permission: 'roi.view' },
+      //     { label: 'Alerts',         icon: AlertCircle, path: '/alerts',    permission: 'alerts.view' },
+      //     { label: 'Sync Logs',      icon: FolderSync,  path: '/synclogs' },
+      //   ],
+      // },
+      // {
+      //   title: 'Grow',
+      //   items: [
+      //     { label: 'Audience',    icon: Users2,     path: '/audience',    permission: 'audience.view' },
+      //     { label: 'Competitors', icon: TrendingUp, path: '/competitors', permission: 'competitors.view' },
+      //   ],
+      // },
       {
         title: 'Setup',
         items: [
           { label: 'Approvals',     icon: ClipboardCheck, path: '/approvals',     permission: 'composer.approve',
             badgeKey: 'pending_approvals' },
-          { label: 'Notifications', icon: Bell,           path: '/notifications',
-            badgeKey: 'unread_notifications' },
-          { label: 'Audit Log',     icon: ShieldCheck,    path: '/audit-log',     permission: 'audit.view' },
+          // { label: 'Notifications', icon: Bell,           path: '/notifications',
+          //   badgeKey: 'unread_notifications' },
+          // { label: 'Audit Log',     icon: ShieldCheck,    path: '/audit-log',     permission: 'audit.view' },
         ],
       },
     ],
@@ -309,35 +309,35 @@ const NAV_SETS = {
           { label: 'All conversations', icon: Inbox, path: '/inbox', permission: 'whatsapp.view_inbox' },
         ],
       },
-      {
-        title: 'Outreach',
-        items: [
-          { label: 'Campaigns', icon: Send,       path: '/campaigns', permission: 'whatsapp.manage_campaigns' },
-          { label: 'Templates', icon: FileType,   path: '/templates', permission: 'whatsapp.manage_templates' },
-          { label: 'Contacts',  icon: Users2,     path: '/contacts',  permission: 'whatsapp.manage_contacts' },
-          { label: 'Lists',     icon: ListChecks, path: '/lists',     permission: 'whatsapp.manage_contacts' },
-        ],
-      },
-      {
-        title: 'Conversational AI',
-        items: [
-          { label: 'Bot Flows',     icon: Bot,            path: '/admin/bot-flows',     permission: 'bot.view' },
-          { label: 'Conversations', icon: MessageSquare,  path: '/admin/conversations', permission: 'bot.view' },
-          { label: 'Handoff Queue', icon: UserPlus,       path: '/admin/handoff',       permission: 'bot.view' },
-          { label: 'Leads',         icon: Users2,         path: '/admin/leads',         permission: 'leads.view',
-            badgeKey: 'new_leads' },
-          { label: 'CTWA Campaigns', icon: Megaphone,     path: '/admin/ctwa',          permission: 'ctwa.view' },
-          { label: 'Templates',     icon: Sparkles,       path: '/admin/bot-templates', permission: 'bot.view' },
-          { label: 'Bot Safety',    icon: ShieldCheck,    path: '/admin/bot-settings', permission: 'bot.view' },
-        ],
-      },
-      {
-        title: 'Setup',
-        items: [
-          { label: 'Account',  icon: Settings, path: '/account',                                  permission: 'whatsapp.manage_account' },
-          { label: 'Webhooks', icon: Webhook,  path: '/account#webhooks', disabled: true },
-        ],
-      },
+      // {
+      //   title: 'Outreach',
+      //   items: [
+      //     { label: 'Campaigns', icon: Send,       path: '/campaigns', permission: 'whatsapp.manage_campaigns' },
+      //     { label: 'Templates', icon: FileType,   path: '/templates', permission: 'whatsapp.manage_templates' },
+      //     { label: 'Contacts',  icon: Users2,     path: '/contacts',  permission: 'whatsapp.manage_contacts' },
+      //     { label: 'Lists',     icon: ListChecks, path: '/lists',     permission: 'whatsapp.manage_contacts' },
+      //   ],
+      // },
+      // {
+      //   title: 'Conversational AI',
+      //   items: [
+      //     { label: 'Bot Flows',     icon: Bot,            path: '/admin/bot-flows',     permission: 'bot.view' },
+      //     { label: 'Conversations', icon: MessageSquare,  path: '/admin/conversations', permission: 'bot.view' },
+      //     { label: 'Handoff Queue', icon: UserPlus,       path: '/admin/handoff',       permission: 'bot.view' },
+      //     { label: 'Leads',         icon: Users2,         path: '/admin/leads',         permission: 'leads.view',
+      //       badgeKey: 'new_leads' },
+      //     { label: 'CTWA Campaigns', icon: Megaphone,     path: '/admin/ctwa',          permission: 'ctwa.view' },
+      //     { label: 'Templates',     icon: Sparkles,       path: '/admin/bot-templates', permission: 'bot.view' },
+      //     { label: 'Bot Safety',    icon: ShieldCheck,    path: '/admin/bot-settings', permission: 'bot.view' },
+      //   ],
+      // },
+      // {
+      //   title: 'Setup',
+      //   items: [
+      //     { label: 'Account',  icon: Settings, path: '/account',                                  permission: 'whatsapp.manage_account' },
+      //     { label: 'Webhooks', icon: Webhook,  path: '/account#webhooks', disabled: true },
+      //   ],
+      // },
     ],
   },
 

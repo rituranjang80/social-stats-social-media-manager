@@ -54,9 +54,9 @@ export default function AIFloatingTrigger() {
           style={{
             position: 'fixed',
             bottom: 'calc(20px + env(safe-area-inset-bottom))',
-            right: 20,
+            right: 1,
             zIndex: 950,
-            width: 52, height: 52,
+            width: 22, height: 22,
             minHeight: 'unset', minWidth: 'unset',
             borderRadius: '50%',
             border: 'none',

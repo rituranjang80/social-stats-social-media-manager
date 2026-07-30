@@ -397,28 +397,7 @@ export default function SettingsPage({ clientId: propClientId }) {
         subtitle="Manage your account and business profile."
       />
 
-      <div className="oauth-hero" style={heroStyle}>
-        <div>
-          <span style={heroBadgeStyle}>Business Profile</span>
-          <h2 style={heroTitleStyle}>Keep your settings aligned with onboarding</h2>
-          <p style={heroTextStyle}>
-            Everything here mirrors the information that powers your dashboard, content generation, and reporting experience.
-          </p>
-        </div>
-        <div style={heroPanelStyle}>
-          <div style={heroPanelLabelStyle}>Profile coverage</div>
-          <div style={heroPanelValueStyle}>
-            {[
-              formData.company,
-              formData.business_category,
-              formData.target_audience,
-              formData.business_location,
-            ].filter(Boolean).length}/4
-          </div>
-          <div style={heroPanelTextStyle}>Core profile areas completed</div>
-        </div>
-      </div>
-
+      
       {/* Tab Navigation */}
       <div style={{ marginBottom: 32 }}>
         <SegmentedTabs
