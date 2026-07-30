@@ -24,6 +24,24 @@ and the platform credentials only when you want to connect real accounts.
 | `ALLOWED_HOSTS` | **Yes (prod)** | `socialstats.app,www.socialstats.app` | Comma-separated hostnames Django will serve. For local dev add `localhost,127.0.0.1`. Requests to other hosts are rejected. |
 | `FRONTEND_URL` | **Yes** | `https://socialstats.app` | Base URL of the React app. Used to build links in emails and OAuth redirects back to the UI. For local dev set `http://localhost:3000`. |
 
+## Frontend branding (React `.env`)
+
+Set in **`frontend/.env`** for native `npm start`, or in **`social-stats-social-media-manager-start/.env`**
+for Docker (passed to the frontend container). **Restart** the dev server after changes.
+
+| Variable | Required | Default | What it does |
+|---|---|---|---|
+| `REACT_APP_BRAND_NAME` | No | `Social Stats` | Product name in the header wordmark and aria labels |
+| `REACT_APP_BRAND_SHORT_NAME` | No | same as brand name | PWA / apple-mobile-web-app title |
+| `REACT_APP_DOCUMENT_TITLE` | No | `Social Stats — The marketing OS…` | Browser tab title |
+| `REACT_APP_BRAND_DESCRIPTION` | No | stock marketing blurb | `<meta name="description">` |
+| `REACT_APP_BRAND_LOGO_URL` | No | *(empty = built-in SVG mark)* | Image path or URL for the header icon (replaces the default SVG in `BrandLogo`) |
+| `REACT_APP_FAVICON_URL` | No | `/icons/icon-192.png` | Favicon (under `frontend/public/`) |
+| `REACT_APP_APPLE_TOUCH_ICON_URL` | No | `/apple-touch-icon.png` | iOS home-screen icon |
+| `REACT_APP_BRAND_PRIMARY_COLOR` | No | `#00CCF5` | Built-in mark background when `REACT_APP_BRAND_LOGO_URL` is empty |
+
+Template: [`frontend/.env.example`](../frontend/.env.example).
+
 ## Field-level encryption
 
 OAuth tokens and manual credentials are encrypted at rest using these keys.
@@ -49,12 +67,50 @@ OAuth tokens and manual credentials are encrypted at rest using these keys.
 | `MEDIA_ROOT` | No | `backend/media` | Filesystem root for user uploads (Docker bind-mount: `/data/media`). |
 | `STATIC_ROOT` | No | `backend/staticfiles` | Target for `collectstatic` (Docker: `/data/staticfiles`). |
 
+## CORS (browser → API)
+
+When the React app runs on a different origin than the API (typical dev:
+`http://localhost:3000` → `http://localhost:8000/api`).
+
+| Variable | Required | Default | What it does |
+|---|---|---|---|
+| `CORS_ALLOWED_ORIGINS` | When `DEBUG=False` | `http://localhost:3000` | Comma-separated UI origins. Add `http://127.0.0.1:3000` if you open the app by IP name. |
+| `CORS_ALLOW_ALL_ORIGINS` | No | `True` when `DEBUG=True` | Dev-only wildcard-style allow; production should use explicit origins. |
+
+`X-Client-Id` / `X-Workspace-Id` are allowed via `CORS_ALLOW_HEADERS` in
+`dashboard/settings.py` (required for most authenticated `/api/*` calls). See
+[FAQ_TROUBLESHOOTING.md](FAQ_TROUBLESHOOTING.md).
+
 ## Redis / Celery
 
 | Variable | Required | Default | What it does |
 |---|---|---|---|
 | `CELERY_BROKER_URL` | **Yes (for background tasks)** | `redis://localhost:6379/0` | Where Celery queues jobs. Without Redis + this, scheduled publishing, metric sync, and notifications won't run. |
 | `CELERY_RESULT_BACKEND` | No | `redis://localhost:6379/0` | Where task results are stored. |
+
+## Error monitoring
+
+Persisted exception logging (`ErrorLog`) for API and background failures. Staff/superadmin
+review in Django admin (`/django-admin/`), the React page **`/admin/error-logs`**, or REST `GET /api/errors/`.
+
+| Variable | Required | Default | What it does |
+|---|---|---|---|
+| `ERROR_MONITORING_ENABLED` | No | `True` | Master switch for capture + DRF `error_id` enrichment. |
+| `ERROR_MONITORING_ASYNC` | No | `True` | Queue DB writes via Celery (`social_stats.error_monitoring.persist_error_log`). Falls back to sync if the broker is down. |
+| `ERROR_MONITORING_APP_NAME` | No | `social-stats` | Stored on each row as `application_name`. |
+| `ERROR_MONITORING_DEDUP_SECONDS` | No | `30` | Suppress duplicate rows with the same exception signature within this window. |
+| `APP_ENV` | No | `Development` if `DEBUG=True` else `Production` | `Development` / `Staging` / `Production` label on each log. |
+| `GIT_COMMIT` | No | empty | Optional deploy revision stored on each log. |
+
+Programmatic logging from any module:
+
+```python
+from social_stats.error_monitoring import ErrorLogger
+
+ErrorLogger.log_exception(exc, request=request, severity='ERROR')
+```
+
+API error responses include `error_id`, `timestamp`, and a safe `message` (no stack traces).
 
 ## Meta (Facebook + Instagram)
 

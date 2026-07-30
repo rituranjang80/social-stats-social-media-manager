@@ -1,32 +1,29 @@
 /* ============================================================================
- *  Social Stats — Social Media Management & Marketing Platform
- *  Author    : Chandrabhan Shekhawat
- *  Company   : Gigai Kripa Services
- *  Website   : https://gigaikripaservices.com/
- *  Copyright (c) 2026 Chandrabhan Shekhawat / Gigai Kripa Services.
- *  Released under the MIT License — see LICENSE. Keep this notice.
+ *  Brand mark + wordmark — driven by frontend/.env (REACT_APP_BRAND_*).
  * ========================================================================== */
+import { brand } from '../../config/brand';
+
 /**
- * Social Stats logo — pure SVG / CSS, no image assets required.
- *
- * Five variants kept compatible with the prior API so consumers don't
- * have to change:
- *   BrandMark            — square brand mark (icon-only)
- *   BrandMarkInverted    — same, inverted for dark surfaces
- *   BrandWordmark        — small wordmark (text only)
- *   BrandLogoHorizontal  — mark + wordmark, side by side
- *   BrandLogoStacked     — mark + wordmark, stacked
- *
- * To swap in a real logo asset later, replace these renderers with <img>
- * tags pointing at the new file. The export signatures don't need to change.
+ * Variants (unchanged API):
+ *   BrandMark, BrandMarkInverted, BrandWordmark,
+ *   BrandLogoHorizontal, BrandLogoStacked
  */
 
-const BRAND_CYAN = '#00CCF5';
+function MarkImage({ size, inverted }) {
+  const filter = inverted ? 'brightness(0) invert(1)' : undefined;
+  return (
+    <img
+      src={brand.logoUrl}
+      alt=""
+      width={size}
+      height={size}
+      style={{ display: 'block', flexShrink: 0, objectFit: 'contain', filter }}
+    />
+  );
+}
 
-// Square brand mark. Two interlocking "S" curves on a rounded-rect cyan
-// background. Renders fine at any size; clean for favicon-down to hero.
 function MarkSvg({ size = 40, inverted = false }) {
-  const bg = inverted ? 'transparent' : BRAND_CYAN;
+  const bg = inverted ? 'transparent' : brand.primaryColor;
   const fg = inverted ? '#ffffff' : '#0a0e14';
   return (
     <svg
@@ -34,7 +31,8 @@ function MarkSvg({ size = 40, inverted = false }) {
       height={size}
       viewBox="0 0 64 64"
       role="img"
-      aria-label="Social Stats"
+      aria-hidden={brand.logoUrl ? true : undefined}
+      aria-label={brand.logoUrl ? undefined : brand.name}
       style={{ display: 'block', flexShrink: 0 }}
     >
       <rect x="0" y="0" width="64" height="64" rx="14" fill={bg} />
@@ -50,14 +48,19 @@ function MarkSvg({ size = 40, inverted = false }) {
   );
 }
 
+function Mark({ size, inverted }) {
+  if (brand.logoUrl) {
+    return <MarkImage size={size} inverted={inverted} />;
+  }
+  return <MarkSvg size={size} inverted={inverted} />;
+}
+
 function WordmarkSvg({ height = 22, color = 'currentColor' }) {
-  // Wordmark width is roughly 6.3x height. We render with text + a tight
-  // letter-spacing for a modern look.
   const fontSize = Math.round(height * 0.86);
   return (
     <span
       role="img"
-      aria-label="Social Stats"
+      aria-label={brand.name}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -71,7 +74,7 @@ function WordmarkSvg({ height = 22, color = 'currentColor' }) {
         userSelect: 'none',
       }}
     >
-      Social&nbsp;Stats
+      {brand.name.replace(/ /g, '\u00a0')}
     </span>
   );
 }
@@ -79,7 +82,7 @@ function WordmarkSvg({ height = 22, color = 'currentColor' }) {
 export function BrandMark({ size = 40, className, style: extraStyle }) {
   return (
     <span className={className} style={{ display: 'inline-flex', ...extraStyle }}>
-      <MarkSvg size={size} />
+      <Mark size={size} />
     </span>
   );
 }
@@ -87,7 +90,7 @@ export function BrandMark({ size = 40, className, style: extraStyle }) {
 export function BrandMarkInverted({ size = 40, className, style: extraStyle }) {
   return (
     <span className={className} style={{ display: 'inline-flex', ...extraStyle }}>
-      <MarkSvg size={size} inverted />
+      <Mark size={size} inverted />
     </span>
   );
 }
@@ -113,7 +116,7 @@ export function BrandLogoHorizontal({ height = 36, className, style: extraStyle 
         ...extraStyle,
       }}
     >
-      <MarkSvg size={markSize} />
+      <Mark size={markSize} />
       <WordmarkSvg height={Math.round(height * 0.7)} />
     </span>
   );
@@ -133,7 +136,7 @@ export function BrandLogoStacked({ height = 100, className, style: extraStyle })
         ...extraStyle,
       }}
     >
-      <MarkSvg size={markSize} />
+      <Mark size={markSize} />
       <WordmarkSvg height={Math.round(height * 0.22)} />
     </span>
   );

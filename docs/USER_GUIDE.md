@@ -13,6 +13,11 @@ from `demo_setup` (all password `demo`).
 
 Sign in via `/login` — one-click buttons pick the account for you.
 
+If the account has **two-factor authentication (MFA)** enabled, after email and
+password you will see a second screen for the 6-digit authenticator code (or a
+one-time backup code). Codes expire after about five minutes; use **Back to sign in**
+to start over.
+
 ![/login one-click demo sign-in](images/login.png)
 
 ---

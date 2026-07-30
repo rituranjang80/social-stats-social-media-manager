@@ -23,6 +23,7 @@ import { BrandLogoStacked } from './components/ui/BrandLogo';
 import AppShell from './components/shell/AppShell';
 import CookieBanner from './components/legal/CookieBanner';
 import PageviewTracker from './components/PageviewTracker';
+import BrandHead from './components/BrandHead';
 
 // ── Modules (sub-routers) ──────────────────────────────────────────────────
 const AnalyticsModule = lazy(() => import('./modules/AnalyticsModule'));
@@ -96,6 +97,7 @@ const MarketplacePage            = lazy(() => import('./pages/marketplace/Market
 const AgencyProfilePage          = lazy(() => import('./pages/marketplace/AgencyProfilePage'));
 const AgencyMarketplaceProfilePage = lazy(() => import('./pages/agency/AgencyMarketplaceProfilePage'));
 const AdminTrustQueuePage          = lazy(() => import('./pages/admin/AdminTrustQueuePage'));
+const ErrorLogsPage                = lazy(() => import('./pages/admin/ErrorLogsPage'));
 
 // ── CTWA bot builder ────────────────────────────────────────────────────────
 const BotFlowsListPage             = lazy(() => import('./pages/bots/BotFlowsListPage'));
@@ -155,6 +157,7 @@ function AdminLayout() {
           <Route path="management"         element={<ManagementPage />} />
           <Route path="account-settings"   element={<UserSettingsPage />} />
           <Route path="trust"               element={<AdminTrustQueuePage />} />
+          <Route path="error-logs"          element={<ErrorLogsPage />} />
 
           {/* Agency-only pages moved to /agency/*. Redirect any stale links. */}
           <Route path="marketplace-profile" element={<Navigate to="/agency/marketplace-profile" replace />} />
@@ -323,6 +326,7 @@ function Loader() {
 export default function App() {
   return (
     <BrowserRouter>
+      <BrandHead />
       <PageviewTracker />
       <ErrorBoundary>
       <ThemeProvider>

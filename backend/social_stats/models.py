@@ -2495,6 +2495,9 @@ from .security.webhook_replay import WebhookEvent  # noqa: E402,F401
 # ── security build-out — security audit log ───────────────────────────
 from .security.audit import SecurityAuditLog  # noqa: E402,F401
 
+# ── error monitoring ──────────────────────────────────────────────────
+from .error_monitoring.models import ErrorLog  # noqa: E402,F401
+
 # ── security build-out — privacy / data-subject rights ────────────────
 from .security.privacy_models import (  # noqa: E402,F401
     DataExportRequest, AccountDeletionRequest, UserConsent,

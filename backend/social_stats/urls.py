@@ -657,6 +657,9 @@ urlpatterns = [
     # Public service health (powers /status marketing page)
     path('health/services/', services_health, name='services_health'),
 
+    # Error monitoring (staff / superadmin)
+    path('', include('social_stats.error_monitoring.urls')),
+
     path('dashboard/counts/', dashboard_counts, name='dashboard_counts'),
     path('search/unified/',   unified_search,   name='search_unified'),
     path('dashboard/today/',  dashboard_today,  name='dashboard_today'),

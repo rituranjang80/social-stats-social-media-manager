@@ -1,0 +1,19 @@
+# Frontend branding & API — copy to .env (or use social-stats-social-media-manager-start/.env in Docker).
+# Restart `npm start` or the frontend container after changes.
+
+REACT_APP_API_URL=http://localhost:8000/api
+
+# ── Branding (header logo SVG, name, favicon, tab title) ─────────────────────
+REACT_APP_BRAND_NAME=Social Stats11
+REACT_APP_BRAND_SHORT_NAME=Social Stats1
+REACT_APP_DOCUMENT_TITLE=Social Stats1   — The marketing OS for modern teams
+REACT_APP_BRAND_DESCRIPTION=Social Stats1 — the marketing OS for modern teams. Manage analytics, content, conversations, and ads across Facebook, Instagram, YouTube, LinkedIn, and Google Business in one place.
+
+# Built-in mark (default). Set a URL to replace header icon / mark everywhere:
+# REACT_APP_BRAND_LOGO_URL=/my-logo.svg
+# REACT_APP_BRAND_LOGO_URL=https://cdn.example.com/logo.png
+REACT_APP_BRAND_LOGO_URL=
+
+REACT_APP_FAVICON_URL=/icons/icon-192.png
+REACT_APP_APPLE_TOUCH_ICON_URL=/apple-touch-icon.png
+REACT_APP_BRAND_PRIMARY_COLOR=#00CCF5

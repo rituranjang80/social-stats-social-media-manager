@@ -19,12 +19,59 @@ alternative to tools like Hootsuite, Buffer, and Sprout Social. See
 
 ## Setup & runtime
 
+### Browser shows "CORS error" on `/api/*` (oauth/status, alerts, notifications, overview, …)
+The React app sends **`X-Client-Id`** and **`X-Workspace-Id`** on API calls (see
+`frontend/src/services/api.js`). Browsers **preflight** those headers; if Django
+does not allow them, the request fails and DevTools labels it a CORS error even
+though the real issue is a failed OPTIONS check.
+
+**Fix (backend):** `CORS_ALLOW_HEADERS` in `dashboard/settings.py` must include
+`x-client-id` and `x-workspace-id` (shipped in current code). Restart the
+backend container after pulling.
+
+**Fix (deploy `.env`):** include both `localhost` and `127.0.0.1` for the UI
+port when `DEBUG=False`:
+
+```env
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://localhost:8000,http://127.0.0.1:8000
+```
+
+Use the **same host** in the address bar and in `REACT_APP_API_URL` (e.g. both
+`localhost`, not `127.0.0.1` UI → `localhost` API). Hard-refresh after env
+changes.
+
+Verify preflight:
+
+```powershell
+curl.exe -X OPTIONS "http://localhost:8000/api/alerts/" ^
+  -H "Origin: http://localhost:3000" ^
+  -H "Access-Control-Request-Method: GET" ^
+  -H "Access-Control-Request-Headers: authorization,x-client-id,x-workspace-id"
+```
+
+`Access-Control-Allow-Headers` should list `x-client-id` and `x-workspace-id`.
+
+### Docker backend exit 127 (`bash\r: No such file or directory`) or `SOURCE_REL` warnings
+**Cause:** `docker compose up` without loading `paths.env`, and/or Windows CRLF on
+bind-mounted `docker/*.sh` entrypoints (shebang becomes `bash\r`).
+
+**Fix:**
+1. Prefer `.\scripts\compose-up.ps1 -Build` or
+   `docker compose --env-file paths.env --env-file .env up -d --build`.
+   Plain `docker compose up` now defaults `SOURCE_REL` to
+   `../social-stats-social-media-manager` when unset.
+2. Ensure shell scripts use **LF** (repo `.gitattributes` sets `*.sh text eol=lf`).
+   Re-checkout or convert CRLF→LF, then `docker compose up -d --force-recreate backend`.
+3. Orphan `frontend` container after switching away from dev compose: add
+   `--remove-orphans` or use `compose-up.ps1 -Mode dev`.
+
 ### Docker backend/gateway restart loop (`pipefail` / `host not found in upstream "backend"`)
-On Windows, if `SocialMediaStart/docker/entrypoint-backend.sh` has CRLF line
-endings, bash fails with `set: pipefail\r: invalid option name`, the backend
-never binds, and the gateway crash-loops looking up `backend:8000`. Convert the
-script to LF (or keep `*.sh text eol=lf` in `.gitattributes`), then
-`docker compose --env-file .env up -d --force-recreate`. Backend health uses
+On Windows, if `social-stats-social-media-manager-start/docker/entrypoint-backend.sh`
+has CRLF line endings, bash fails with `set: pipefail\r: invalid option name` or
+`/usr/bin/env: 'bash\r': No such file or directory`, the backend never binds, and
+the gateway crash-loops looking up `backend:8000`. Convert the script to LF (or keep
+`*.sh text eol=lf` in `.gitattributes`), then
+`docker compose up -d --force-recreate backend`. Backend health uses
 `/api/health/services/` (not `/admin/login/`).
 
 ### How do I collapse the left feature sidebar?

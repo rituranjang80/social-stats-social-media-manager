@@ -48,11 +48,12 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_celery_beat',
     'axes',
-    'social_stats',
+    'social_stats.apps.SocialStatsConfig',
 ]
 
 MIDDLEWARE = [
     'social_stats.security.middleware.RequestIDMiddleware',
+    'social_stats.error_monitoring.middleware.GlobalExceptionLoggingMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'social_stats.security.middleware.SecurityHeadersMiddleware',
@@ -228,10 +229,18 @@ GOOGLE_DELETION_SHARED_SECRET = os.environ.get('GOOGLE_DELETION_SHARED_SECRET', 
 # PLAN_AI_DAILY_BUDGETS_USD = {'free': 0.5, 'pro': 5.0, 'premium': 25.0, ...}
 
 # ── CORS ──────────────────────────────────────────────
+from corsheaders.defaults import default_headers
+
 CORS_ALLOW_ALL_ORIGINS = DEBUG and _env_bool('CORS_ALLOW_ALL_ORIGINS', True)
 CORS_ALLOWED_ORIGINS   = [
     o.strip() for o in os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
     if o.strip()
+]
+# Frontend api.js attaches workspace scope via these headers on every API call.
+# Browsers preflight them; they must be listed or DevTools shows a "CORS error".
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'x-client-id',
+    'x-workspace-id',
 ]
 CORS_ALLOW_CREDENTIALS = True
 # Surface the request-id header so the frontend can include it in support reports.
@@ -260,6 +269,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'EXCEPTION_HANDLER': 'social_stats.error_monitoring.exception_handler.custom_exception_handler',
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.FormParser',
@@ -268,6 +278,15 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 50,
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+ERROR_MONITORING = {
+    'ENABLED': _env_bool('ERROR_MONITORING_ENABLED', True),
+    'ASYNC': _env_bool('ERROR_MONITORING_ASYNC', True),
+    'APPLICATION_NAME': os.environ.get('ERROR_MONITORING_APP_NAME', 'social-stats'),
+    'ENVIRONMENT': os.environ.get('APP_ENV', ''),
+    'DEDUP_SECONDS': int(os.environ.get('ERROR_MONITORING_DEDUP_SECONDS', '30')),
+    'GIT_COMMIT': os.environ.get('GIT_COMMIT', ''),
 }
 
 # Interactive Swagger / ReDoc — see docs/API_SWAGGER.md

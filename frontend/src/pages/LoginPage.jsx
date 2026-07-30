@@ -31,7 +31,7 @@ const DEMO_LOGINS = [
 const DEMO_PASSWORD = 'demo';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, completeMfaLogin } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
@@ -40,6 +40,12 @@ export default function LoginPage() {
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const [mfaStep, setMfaStep] = useState(false);
+  const [mfaToken, setMfaToken] = useState('');
+  const [mfaCode, setMfaCode] = useState('');
+  const [backupCode, setBackupCode] = useState('');
+  const [useBackupCode, setUseBackupCode] = useState(false);
 
   const params = new URLSearchParams(window.location.search);
   const urlError = params.get('error');
@@ -54,23 +60,36 @@ export default function LoginPage() {
     return Object.keys(e).length === 0;
   }
 
+  function navigateAfterLogin(user) {
+    if (nextPath) {
+      navigate(nextPath, { replace: true });
+    } else if (user.role === 'superadmin' || user.role === 'staff') {
+      navigate('/admin');
+    } else if (user.account_type === 'end_user') {
+      navigate('/u');
+    } else if (user.role === 'client' && !user.client_id) {
+      navigate('/pending');
+    } else if (user.role === 'client' && !user.onboarding_complete) {
+      navigate('/dashboard/onboarding');
+    } else {
+      navigate('/dashboard');
+    }
+  }
+
   async function doLogin(emailVal, passwordVal) {
     setLoading(true);
     try {
-      const user = await login(emailVal, passwordVal, true);
-      if (nextPath) {
-        navigate(nextPath, { replace: true });
-      } else if (user.role === 'superadmin' || user.role === 'staff') {
-        navigate('/admin');
-      } else if (user.account_type === 'end_user') {
-        navigate('/u');
-      } else if (user.role === 'client' && !user.client_id) {
-        navigate('/pending');
-      } else if (user.role === 'client' && !user.onboarding_complete) {
-        navigate('/dashboard/onboarding');
-      } else {
-        navigate('/dashboard');
+      const result = await login(emailVal, passwordVal, true);
+      if (result.mfaRequired) {
+        setMfaToken(result.mfaToken);
+        setMfaStep(true);
+        setMfaCode('');
+        setBackupCode('');
+        setUseBackupCode(false);
+        setServerError('');
+        return;
       }
+      navigateAfterLogin(result.user);
     } catch (err) {
       const detail = err?.response?.data?.detail;
       setServerError(
@@ -81,6 +100,55 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleMfaSubmit(ev) {
+    ev.preventDefault();
+    setServerError('');
+    const codeVal = mfaCode.trim();
+    const backupVal = backupCode.trim();
+    if (useBackupCode) {
+      if (!backupVal) {
+        setServerError('Enter a backup code.');
+        return;
+      }
+    } else if (!/^\d{6}$/.test(codeVal)) {
+      setServerError('Enter the 6-digit code from your authenticator app.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const user = await completeMfaLogin(
+        mfaToken,
+        { code: codeVal, backupCode: useBackupCode ? backupVal : '' },
+        accepted,
+      );
+      navigateAfterLogin(user);
+    } catch (err) {
+      const msg = err?.response?.data?.error;
+      setServerError(
+        msg === 'mfa session expired or invalid — sign in again'
+          ? 'Your verification session expired. Sign in again with your password.'
+          : msg === 'invalid code'
+            ? 'Invalid code. Try again or use a backup code.'
+            : msg || 'Verification failed. Please try again.'
+      );
+      if (msg === 'mfa session expired or invalid — sign in again') {
+        setMfaStep(false);
+        setMfaToken('');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function backToPasswordLogin() {
+    setMfaStep(false);
+    setMfaToken('');
+    setMfaCode('');
+    setBackupCode('');
+    setUseBackupCode(false);
+    setServerError('');
   }
 
   async function handleSubmit(ev) {
@@ -128,13 +196,88 @@ export default function LoginPage() {
               color: 'var(--text-primary)',
             }}
           >
-            Welcome back
+            {mfaStep ? 'Two-factor authentication' : 'Welcome back'}
           </h1>
           <p style={{ margin: '6px 0 0', fontSize: 14, color: 'var(--text-secondary)' }}>
-            Sign in to your Social Stats workspace.
+            {mfaStep
+              ? `Enter the code from your authenticator app for ${email}.`
+              : 'Sign in to your Social Stats workspace.'}
           </p>
         </header>
 
+        {mfaStep ? (
+          <form onSubmit={handleMfaSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {!useBackupCode ? (
+              <Input
+                label="Authentication code"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                value={mfaCode}
+                onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="000000"
+                size="lg"
+                autoFocus
+              />
+            ) : (
+              <Input
+                label="Backup code"
+                type="text"
+                autoComplete="off"
+                value={backupCode}
+                onChange={(e) => setBackupCode(e.target.value)}
+                placeholder="Enter a one-time backup code"
+                size="lg"
+                autoFocus
+              />
+            )}
+
+            <button
+              type="button"
+              onClick={() => { setUseBackupCode((v) => !v); setServerError(''); }}
+              style={{
+                alignSelf: 'flex-start',
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                fontSize: 12,
+                color: 'var(--text-link)',
+                fontWeight: 500,
+                cursor: 'pointer',
+              }}
+            >
+              {useBackupCode ? 'Use authenticator code instead' : 'Use a backup code instead'}
+            </button>
+
+            {(serverError || urlError) && (
+              <div
+                role="alert"
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 8,
+                  padding: '10px 12px',
+                  background: 'var(--danger-bg)',
+                  border: '1px solid var(--danger)',
+                  borderRadius: 'var(--radius-md)',
+                  color: 'var(--danger)',
+                  fontSize: 13,
+                  lineHeight: 1.45,
+                }}
+              >
+                <AlertCircle size={15} style={{ flexShrink: 0, marginTop: 1 }} />
+                <span>{serverError || decodeURIComponent(urlError)}</span>
+              </div>
+            )}
+
+            <Button type="submit" size="lg" iconRight={ArrowRight} fullWidth loading={loading}>
+              Verify and sign in
+            </Button>
+            <Button type="button" variant="secondary" size="md" fullWidth onClick={backToPasswordLogin} disabled={loading}>
+              Back to sign in
+            </Button>
+          </form>
+        ) : (
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <Input
             label="Email"
@@ -214,7 +357,10 @@ export default function LoginPage() {
             Sign in
           </Button>
         </form>
+        )}
 
+        {!mfaStep && (
+        <>
         {/* Divider */}
         <div
           style={{
@@ -311,6 +457,8 @@ export default function LoginPage() {
             })}
           </div>
         </div>
+        </>
+        )}
       </div>
     </AuthLayout>
   );

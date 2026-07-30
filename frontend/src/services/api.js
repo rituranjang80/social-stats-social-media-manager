@@ -93,6 +93,15 @@ function _redirectToLogin() {
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
+    const data = error.response?.data;
+    if (data && typeof data === 'object') {
+      error.errorId = data.error_id || data.errorId || null;
+      error.userMessage =
+        data.message ||
+        (typeof data.detail === 'string' ? data.detail : null) ||
+        error.message;
+      error.errorTimestamp = data.timestamp || null;
+    }
     const original = error.config;
     if (error.response?.status !== 401 || original?._retry) {
       return Promise.reject(error);
@@ -635,6 +644,13 @@ export const aiV2API = {
 // ── Audit + Notification preferences + Approval queue () ──
 export const auditAPI = {
   list: (params) => api.get('/audit/log/', { params }),
+};
+
+export const errorMonitoringAPI = {
+  list:    (params) => api.get('/errors/', { params }),
+  get:     (id)     => api.get(`/errors/${id}/`),
+  resolve: (id, data) => api.post(`/errors/${id}/resolve/`, data),
+  delete:  (id)     => api.delete(`/errors/${id}/`),
 };
 
 export const notificationsAPI = {

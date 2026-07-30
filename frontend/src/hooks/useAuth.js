@@ -7,7 +7,7 @@
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { authAPI } from '../services/api';
+import { authAPI, mfaAPI } from '../services/api';
 import { useAppStore } from '../stores/appStore';
 
 const AuthContext = createContext(null);
@@ -30,7 +30,31 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password, termsAccepted) => {
     const res = await authAPI.login(email, password, termsAccepted);
-    localStorage.setItem('access_token',  res.data.access);
+    if (res.data?.mfa_required && res.data?.mfa_token) {
+      return {
+        mfaRequired: true,
+        mfaToken: res.data.mfa_token,
+        expiresIn: res.data.expires_in ?? 300,
+      };
+    }
+    if (!res.data?.access || !res.data?.refresh) {
+      const err = new Error('login_failed');
+      err.response = { data: { detail: res.data?.detail || 'login_failed' } };
+      throw err;
+    }
+    localStorage.setItem('access_token', res.data.access);
+    localStorage.setItem('refresh_token', res.data.refresh);
+    const me = await authAPI.me();
+    setUser(me.data);
+    return { user: me.data };
+  };
+
+  const completeMfaLogin = async (mfaToken, { code, backupCode }, termsAccepted = true) => {
+    const payload = { mfa_token: mfaToken, terms_accepted: termsAccepted };
+    if (backupCode) payload.backup_code = backupCode.trim();
+    else payload.code = (code || '').trim();
+    const res = await mfaAPI.login(payload);
+    localStorage.setItem('access_token', res.data.access);
     localStorage.setItem('refresh_token', res.data.refresh);
     const me = await authAPI.me();
     setUser(me.data);
@@ -78,7 +102,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{
-      user, loading, login, logout, can,
+      user, loading, login, completeMfaLogin, logout, can,
       refreshUser, refreshAuth, isPending,
       accountType, isEndUser, isAgency,
     }}>

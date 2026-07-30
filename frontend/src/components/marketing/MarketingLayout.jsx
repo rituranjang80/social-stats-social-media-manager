@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 
 import Logo from '../ui/Logo';
+import { brand } from '../../config/brand';
 import Button from '../ui/Button';
 import ThemeToggle from '../ui/ThemeToggle';
 import SkipLink from '../ui/SkipLink';
@@ -182,7 +183,7 @@ function MarketingNav() {
           gap: 24,
         }}
       >
-        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }} aria-label="Social Stats home">
+        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center' }} aria-label={`${brand.name} home`}>
           <Logo variant="horizontal" height={isMobile ? 26 : 30} />
         </Link>
 

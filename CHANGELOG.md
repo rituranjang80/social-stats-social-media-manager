@@ -2,6 +2,40 @@
 
 ## [Unreleased]
 
+### Added — Global error monitoring (DRF)
+
+Backend module `social_stats/error_monitoring/` captures unhandled and API
+exceptions into `ErrorLog` (UUID id), with DRF `error_id` on error responses,
+staff APIs at `/api/errors/`, Django admin export/resolve, async Celery persist,
+deduplication, and redaction of secrets. Staff UI at `/admin/error-logs`. Configure via `ERROR_MONITORING_*` env
+vars — see `docs/CONFIGURATION.md`.
+
+### Fixed — Login UI ignores MFA (`mfa_required` from `/api/auth/login/`)
+
+When MFA is enabled, the API returns `mfa_required` and a short-lived
+`mfa_token` instead of JWTs. The login page now shows a second step for the
+authenticator or backup code and completes sign-in via `/api/auth/mfa/login/`.
+
+### Fixed — Docker Compose on Windows (exit 127, blank `SOURCE_REL`)
+
+- **`social-stats-social-media-manager-start`:** `SOURCE_REL` defaults in
+  `docker-compose.yml` when `paths.env` is not passed on the CLI; backend
+  entrypoint invokes `/bin/bash` explicitly.
+- Shell entrypoints under `docker/` converted to LF (CRLF caused
+  `/usr/bin/env: 'bash\r': No such file or directory` and exit code 127).
+
+### Added — Frontend branding via `.env` only
+
+Product name, header logo mark (built-in SVG or `REACT_APP_BRAND_LOGO_URL`), favicon,
+and document title are driven by `REACT_APP_BRAND_*` in `frontend/.env` or the
+start-folder `.env`. See `frontend/src/config/brand.js` and `frontend/.env.example`.
+
+### Fixed — API "CORS error" from workspace headers (alerts, oauth/status, overview, …)
+
+Browsers preflight `X-Client-Id` and `X-Workspace-Id` from `frontend/src/services/api.js`.
+Django now lists them in `CORS_ALLOW_HEADERS`. Deployment `.env` examples include
+`127.0.0.1` UI origins alongside `localhost`.
+
 ### Fixed — Docker dev stack on Windows (CRLF, nginx, Celery)
 
 - Shell entrypoints use LF line endings; frontend entrypoint is bind-mounted like backend.
