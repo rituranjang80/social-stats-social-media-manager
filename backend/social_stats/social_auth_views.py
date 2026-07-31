@@ -29,7 +29,7 @@ GOOGLE_CLIENT_ID = getattr(settings, 'GOOGLE_AUTH_CLIENT_ID', '') or settings.GO
 GOOGLE_CLIENT_SECRET = getattr(settings, 'GOOGLE_AUTH_CLIENT_SECRET', '') or settings.GOOGLE_CLIENT_SECRET
 GOOGLE_SOCIAL_REDIRECT_URI = getattr(
     settings, 'GOOGLE_SOCIAL_REDIRECT_URI',
-    'http://localhost:8000/api/auth/social/google/callback/'
+    getattr(settings, 'GOOGLE_REDIRECT_URI', 'http://localhost:8000/api/oauth/google/callback/'),
 )
 
 FACEBOOK_APP_ID     = getattr(settings, 'FACEBOOK_SOCIAL_APP_ID', '')

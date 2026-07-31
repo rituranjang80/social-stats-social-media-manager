@@ -342,13 +342,7 @@ export default function CalendarPage({ clientId: propClientId }) {
           </div>
         </div>
 
-        {workspace?.label ? (
-          <div className="bb-cal__workspace-hint">
-            Showing posts for
-            {' '}
-            <strong>{workspace.label}</strong>
-          </div>
-        ) : null}
+       
 
         <CalendarToolbar
           view={activeView}

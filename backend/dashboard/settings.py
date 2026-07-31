@@ -489,6 +489,9 @@ GOOGLE_REDIRECT_URI = os.environ.get(
     'GOOGLE_REDIRECT_URI', 'http://localhost:8000/api/oauth/google/callback/'
 )
 
+# Sign-in with Google uses GOOGLE_SOCIAL_REDIRECT_URI when set; otherwise the same
+# URI as platform connect so one Authorized redirect URI in Google Cloud suffices.
+
 # ── Google / Facebook / Microsoft — social LOGIN (Sign in with …) ─────
 # Prefer dedicated GOOGLE_AUTH_* so login and platform-connect stay separate.
 GOOGLE_AUTH_CLIENT_ID = _env_first('GOOGLE_AUTH_CLIENT_ID', 'GOOGLE_CLIENT_ID', 'PLATFORM_GOOGLE_CLIENT_ID')
@@ -496,7 +499,8 @@ GOOGLE_AUTH_CLIENT_SECRET = _env_first(
     'GOOGLE_AUTH_CLIENT_SECRET', 'GOOGLE_CLIENT_SECRET', 'PLATFORM_GOOGLE_CLIENT_SECRET'
 )
 GOOGLE_SOCIAL_REDIRECT_URI = os.environ.get(
-    'GOOGLE_SOCIAL_REDIRECT_URI', 'http://localhost:8000/api/auth/social/google/callback/'
+    'GOOGLE_SOCIAL_REDIRECT_URI',
+    os.environ.get('GOOGLE_REDIRECT_URI', 'http://localhost:8000/api/oauth/google/callback/'),
 )
 FACEBOOK_SOCIAL_REDIRECT_URI = os.environ.get(
     'FACEBOOK_SOCIAL_REDIRECT_URI', 'http://localhost:8000/api/auth/social/facebook/callback/'

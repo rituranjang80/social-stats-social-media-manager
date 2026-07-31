@@ -442,7 +442,17 @@ def google_oauth_start(request, client_id):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def google_oauth_callback(request):
-    """Exchange code for tokens, fetch YouTube channel + GMB location."""
+    """Exchange code for tokens, fetch YouTube channel + GMB location.
+
+    Also handles Sign-in with Google when ``social_state`` is in session (same
+    redirect URI as platform connect — one Google Cloud redirect entry).
+    """
+    session_social = request.session.get('social_state')
+    req_state = request.GET.get('state', '')
+    if session_social and req_state and req_state == session_social:
+        from .social_auth_views import google_social_callback
+        return google_social_callback(request)
+
     code      = request.GET.get('code')
     state     = request.GET.get('state', '')
     error     = request.GET.get('error')

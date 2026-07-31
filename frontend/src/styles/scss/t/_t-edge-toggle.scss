@@ -1,8 +1,8 @@
 @use '../variables' as *;
 @use '../mixins' as *;
 
-$edge-toggle-width: 28px;
-$edge-toggle-height: 56px;
+$edge-toggle-width: 28px !important;
+$edge-toggle-height: 26px !important;
 $edge-transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 $edge-top-offset: 24px;
 
@@ -14,7 +14,7 @@ $edge-top-offset: 24px;
   height: $edge-toggle-height;
   padding: 0;
   border: none;
-  background: var(--brand-primary, #f97316);
+  background: var(--rail-primary, #f97316);
   color: #fff;
   cursor: pointer;
   z-index: 1001;

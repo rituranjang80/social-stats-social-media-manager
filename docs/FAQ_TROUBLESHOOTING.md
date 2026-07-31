@@ -117,11 +117,18 @@ The redirect URI registered in the platform's developer app must match the app's
 `*_REDIRECT_URI` **exactly** (scheme, host, port, path, trailing slash). The code
 uses:
 - Meta: `http://localhost:8000/api/oauth/facebook/callback/`
-- Google: `http://localhost:8000/api/oauth/google/callback/`
+- Google (Quick Connect **and** Sign-in with Google): `http://localhost:8000/api/oauth/google/callback/`
 - LinkedIn: `http://localhost:8000/api/oauth/linkedin/callback/`
 
-In production these must be your HTTPS domain. Update both the platform app
-**and** the env var. See [CONNECT_ACCOUNTS.md](CONNECT_ACCOUNTS.md).
+Optional separate login-only URI: set `GOOGLE_SOCIAL_REDIRECT_URI` and register
+`http://localhost:8000/api/auth/social/google/callback/` as a second redirect.
+
+If Google shows *“doesn't comply with Google's OAuth 2.0 policy”* / *register the
+redirect URI*, add the exact URI from the error (including trailing `/`) under
+**Google Cloud Console → APIs & Services → Credentials → your OAuth client →
+Authorized redirect URIs**. For local dev, also add `http://127.0.0.1:8000/api/oauth/google/callback/`
+if you open the app via `127.0.0.1`. Ensure **OAuth consent screen** is configured
+and your Google account is a **Test user** while the app is in Testing mode.
 
 ### Brightbean HTML 404 or missing CSS/JS
 Files must live under `frontend/public/Brightbean/` and the **gateway** must be

@@ -250,12 +250,12 @@ export default function AnalyticsPage() {
   const selectedClientName = clients.find(c => String(c.id) === String(selectedClientId))?.company;
 
   return (
-    <div style={{ padding: '32px 36px', background: 'var(--surface-page)', minHeight: '100vh' }}>
+    <div style={{ padding: '32px 36px', background: 'var(--surface-page)', minHeight: '10vh' }}>
       <PageHeader
         title="Analytics"
-        subtitle={isClientSelected
-          ? `Viewing ${selectedClientName} — ${range.since} to ${range.until}`
-          : `All clients overview — ${range.since} to ${range.until}`}
+        // subtitle={isClientSelected
+        //   ? `Viewing ${selectedClientName} — ${range.since} to ${range.until}`
+        //   : `All clients overview — ${range.since} to ${range.until}`}
         actions={(
           <div className="analytics-controls" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
             <DateRangePicker range={range} onChange={setRange} />

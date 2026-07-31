@@ -106,9 +106,20 @@ One OAuth flow covers both APIs; the start endpoint accepts
 - **APIs & Services → Credentials → Create OAuth 2.0 Client ID** → type **Web application**.
 
 ### 2. Register the redirect URI
+Add **both** if you use Sign-in with Google and Quick Connect (or only the first
+if you leave `GOOGLE_SOCIAL_REDIRECT_URI` unset — it defaults to the same URL):
+
 ```
 http://localhost:8000/api/oauth/google/callback/
 ```
+
+Optional (only if you set `GOOGLE_SOCIAL_REDIRECT_URI` to this path in `.env`):
+
+```
+http://localhost:8000/api/auth/social/google/callback/
+```
+
+Also add `http://127.0.0.1:8000/...` variants if you browse the UI via `127.0.0.1`.
 
 ### 3. Scopes the app requests (Quick Connect)
 From `oauth_views.py` (the flow also requests `access_type=offline` + `prompt=consent`

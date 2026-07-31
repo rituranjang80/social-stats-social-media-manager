@@ -47,7 +47,7 @@ export default function TopBar({
             {i === crumbs.length - 1 ? (
               <span className="ds-topbar__crumb-current">{c.label}</span>
             ) : c.to ? (
-              <Link to={c.to} className="ds-topbar__crumb-link">{c.label}</Link>
+               ''
             ) : (
               <span className="ds-topbar__crumb-muted">{c.label}</span>
             )}

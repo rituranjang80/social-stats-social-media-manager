@@ -45,7 +45,7 @@ export default function FeatureSidebar({
   const { user } = useAuth();
   const { workspaceId } = useWorkspace({ user, autoHydrate: false });
 
-  const navSet = NAV_SETS[module] || NAV_SETS.analytics;
+  const navSet = NAV_SETS[module] ;//|| NAV_SETS.analytics;
   const showChannels = module === 'analytics';
 
   const settingsPath = useMemo(() => {
@@ -117,7 +117,7 @@ export default function FeatureSidebar({
 }
 
 export function getFeatureSidebarMeta(module) {
-  const navSet = NAV_SETS[module] || NAV_SETS.analytics;
+  const navSet = NAV_SETS[module] ;//|| NAV_SETS.analytics;
   return {
     label: navSet.label,
     subtitle: navSet.subtitle,
@@ -223,12 +223,12 @@ const navItemBase = {
   cursor: 'pointer',
   transition: 'var(--transition-fast)',
 };
-
+const trim = (v) => (v == null ? '' : String(v).trim());
 const NAV_SETS = {
   analytics: {
-    label: 'Analytics',
-    subtitle: 'Social performance',
-    icon: LineChart,
+    label: trim(process.env.REACT_APP_BRAND_NAME),
+    subtitle: '',
+    icon: process.env.REACT_APP_BRAND_LOGO_UR,
     sections: [
       {
         title: 'Publish',

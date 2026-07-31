@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Fixed — Google Sign-in redirect URI (OAuth policy error)
+
+Sign-in with Google now defaults to **`GOOGLE_REDIRECT_URI`**
+(`/api/oauth/google/callback/`) so the same Authorized redirect URI used for
+YouTube/GMB connect works on `/login`. The shared callback dispatches social login
+when `social_state` is present. Override with `GOOGLE_SOCIAL_REDIRECT_URI` only if
+you register a separate redirect in Google Cloud.
+
 ### Added — Global error monitoring (DRF)
 
 Backend module `social_stats/error_monitoring/` captures unhandled and API

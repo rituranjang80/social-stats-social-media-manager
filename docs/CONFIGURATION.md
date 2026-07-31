@@ -134,6 +134,7 @@ enable **YouTube Data API v3**, **YouTube Analytics API**, **Business Profile AP
 | `GOOGLE_CLIENT_ID` | For Quick Connect | placeholder | OAuth 2.0 Web Application client ID (ends `.apps.googleusercontent.com`). |
 | `GOOGLE_CLIENT_SECRET` | For Quick Connect | placeholder | OAuth client secret. |
 | `GOOGLE_REDIRECT_URI` | For Quick Connect | `http://localhost:8000/api/oauth/google/callback/` | Must match the Authorized redirect URI in Google Cloud exactly. |
+| `GOOGLE_SOCIAL_REDIRECT_URI` | No | same as `GOOGLE_REDIRECT_URI` | Sign-in with Google on `/login`. Defaults to `GOOGLE_REDIRECT_URI` so one redirect URI is enough locally. |
 
 ## LinkedIn
 
