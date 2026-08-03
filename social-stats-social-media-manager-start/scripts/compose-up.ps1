@@ -18,6 +18,11 @@ if (-not (Test-Path '.env')) {
     Write-Host 'Created .env from .env.example.'
 }
 
+$normalizeScript = Join-Path $StartRoot 'normalize-shell-lf.ps1'
+if (Test-Path $normalizeScript) {
+    & $normalizeScript -StartRoot (Get-Location)
+}
+
 $composeArgs = @(
     'compose',
     '--env-file', 'paths.env',

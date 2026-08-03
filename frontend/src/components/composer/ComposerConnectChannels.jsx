@@ -128,7 +128,7 @@ export default function ComposerConnectChannels({
   }), [rows, selectedPlatforms, onTogglePlatform]);
 
   const subtitle = connectedCount
-    ? `${connectedCount} connected · driven by SocialMediaStart `
+    ? ``
     : '';
 
   return (

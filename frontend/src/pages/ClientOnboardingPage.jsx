@@ -949,7 +949,7 @@ export default function ClientOnboardingPage() {
         subtitle="Set up your business profile to get the most out of Social Stats"
       />
 
-      <div style={styles.heroShell}>
+      {/* <div style={styles.heroShell}>
         <div style={styles.heroCopy}>
           <span style={styles.heroBadge}>Onboarding Flow</span>
           <h2 style={styles.heroTitle}>Build a dashboard that already feels tailored to your business</h2>
@@ -969,7 +969,7 @@ export default function ClientOnboardingPage() {
             Step {currentStep + 1} of {steps.length}
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Progress Steps */}
       <div style={styles.progressContainer}>

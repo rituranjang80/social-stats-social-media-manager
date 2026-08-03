@@ -7,8 +7,8 @@
 Sign-in with Google now defaults to **`GOOGLE_REDIRECT_URI`**
 (`/api/oauth/google/callback/`) so the same Authorized redirect URI used for
 YouTube/GMB connect works on `/login`. The shared callback dispatches social login
-when `social_state` is present. Override with `GOOGLE_SOCIAL_REDIRECT_URI` only if
-you register a separate redirect in Google Cloud.
+when `social_state` is present or when OAuth `state` is a social-login token (fixes
+HTTP 500 when the session cookie was missing on callback).
 
 ### Added — Global error monitoring (DRF)
 
@@ -24,13 +24,15 @@ When MFA is enabled, the API returns `mfa_required` and a short-lived
 `mfa_token` instead of JWTs. The login page now shows a second step for the
 authenticator or backup code and completes sign-in via `/api/auth/mfa/login/`.
 
-### Fixed — Docker Compose on Windows (exit 127, blank `SOURCE_REL`)
+### Fixed — Docker Compose on Windows (exit 127 / exit 2, blank `SOURCE_REL`)
 
 - **`social-stats-social-media-manager-start`:** `SOURCE_REL` defaults in
   `docker-compose.yml` when `paths.env` is not passed on the CLI; backend
   entrypoint invokes `/bin/bash` explicitly.
 - Shell entrypoints under `docker/` converted to LF (CRLF caused
   `/usr/bin/env: 'bash\r': No such file or directory` and exit code 127).
+- **`scripts/normalize-shell-lf.ps1`** runs automatically from **`compose-up.ps1`**
+  so Windows CRLF on bind-mounted `*.sh` entrypoints does not recur.
 
 ### Added — Frontend branding via `.env` only
 

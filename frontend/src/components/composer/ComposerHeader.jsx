@@ -16,14 +16,14 @@ export default function ComposerHeader({
 }) {
   return (
     <header className="composer__header">
-      <button
+      {/* <button
         type="button"
         className="composer__back"
         onClick={onBack}
         aria-label="Go back"
       >
         <ArrowLeft size={16} strokeWidth={2} aria-hidden="true" />
-      </button>
+      </button> */}
 
       <div className="composer__header-text">
         <nav className="composer__breadcrumb" aria-label="Breadcrumb">

@@ -11,7 +11,7 @@ OAuth 2.0 handlers for all 5 platforms:
   Facebook, Instagram, YouTube, Google My Business, LinkedIn
 """
 import secrets, requests, logging
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote
 from datetime import timedelta
 
 logger = logging.getLogger(__name__)
@@ -444,14 +444,23 @@ def google_oauth_start(request, client_id):
 def google_oauth_callback(request):
     """Exchange code for tokens, fetch YouTube channel + GMB location.
 
-    Also handles Sign-in with Google when ``social_state`` is in session (same
-    redirect URI as platform connect — one Google Cloud redirect entry).
+    Also handles Sign-in with Google when ``social_state`` is in session or the
+    OAuth ``state`` is a social-login token (no ``client_id:platform:`` shape).
     """
-    session_social = request.session.get('social_state')
-    req_state = request.GET.get('state', '')
-    if session_social and req_state and req_state == session_social:
-        from .social_auth_views import google_social_callback
-        return google_social_callback(request)
+    req_state = (request.GET.get('state') or '').strip()
+    session_social = (request.session.get('social_state') or '').strip()
+    oauth_flow = request.session.get('oauth_flow')
+
+    from .social_auth_views import handle_google_social_oauth_callback, is_google_social_login_state
+
+    if oauth_flow == 'social_google' or (
+        session_social and req_state == session_social
+    ) or is_google_social_login_state(req_state):
+        try:
+            del request.session['oauth_flow']
+        except Exception:
+            pass
+        return handle_google_social_oauth_callback(request)
 
     code      = request.GET.get('code')
     state     = request.GET.get('state', '')
@@ -460,7 +469,17 @@ def google_oauth_callback(request):
     if error:
         return redirect(f"{settings.FRONTEND_URL}/settings?error=google_denied")
 
+    if not code:
+        return redirect(f"{settings.FRONTEND_URL}/settings?error=google_denied")
+
     parts = state.split(':')
+    if len(parts) < 3 or not parts[0].isdigit():
+        logger.warning("Google OAuth callback: invalid platform state=%r", state)
+        return redirect(
+            f"{settings.FRONTEND_URL}/login?error="
+            f"{quote('Invalid OAuth state. Use Sign in with Google from the login page.')}"
+        )
+
     client_id = parts[0]
     platform  = parts[1] if len(parts) >= 3 else 'all'  # youtube | google_my_business | all
 

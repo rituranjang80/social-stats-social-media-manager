@@ -55,7 +55,86 @@ def _frontend_error(msg):
     return redirect(f'{FRONTEND_URL}/login?error={urllib.parse.quote(msg)}')
 
 
+def is_google_social_login_state(state: str) -> bool:
+    """Platform connect uses ``{client_id}:{platform}:{nonce}`` (numeric client id)."""
+    if not state:
+        return False
+    parts = state.split(':')
+    if len(parts) >= 3 and parts[0].isdigit():
+        return False
+    return ':' not in state
 
+
+def handle_google_social_oauth_callback(request):
+    """Exchange Google auth code → user → JWT redirect to frontend (no DRF wrapper)."""
+    error = request.GET.get('error') or request.query_params.get('error')
+    code = request.GET.get('code') or request.query_params.get('code')
+    req_state = (request.GET.get('state') or request.query_params.get('state') or '').strip()
+
+    session_social = (request.session.get('social_state') or '').strip()
+    if session_social:
+        if req_state != session_social:
+            return _frontend_error('Sign-in session expired. Please try again from the login page.')
+        try:
+            del request.session['social_state']
+        except Exception:
+            pass
+    elif not is_google_social_login_state(req_state):
+        return _frontend_error('Invalid sign-in response. Please try again.')
+
+    if error or not code:
+        return _frontend_error('Google sign-in was cancelled.')
+
+    redirect_uri = getattr(settings, 'GOOGLE_SOCIAL_REDIRECT_URI', None) or getattr(
+        settings, 'GOOGLE_REDIRECT_URI',
+        'http://localhost:8000/api/oauth/google/callback/',
+    )
+
+    token_resp = http_requests.post(
+        'https://oauth2.googleapis.com/token',
+        data={
+            'code':          code,
+            'client_id':     GOOGLE_CLIENT_ID,
+            'client_secret': GOOGLE_CLIENT_SECRET,
+            'redirect_uri':  redirect_uri,
+            'grant_type':    'authorization_code',
+        },
+        timeout=10,
+    )
+    if token_resp.status_code != 200:
+        return _frontend_error('Google sign-in failed. Please try again.')
+
+    token_data   = token_resp.json()
+    access_token = token_data.get('access_token')
+
+    userinfo_resp = http_requests.get(
+        'https://www.googleapis.com/oauth2/v3/userinfo',
+        headers={'Authorization': f'Bearer {access_token}'},
+        timeout=10,
+    )
+    if userinfo_resp.status_code != 200:
+        return _frontend_error('Could not retrieve your Google profile.')
+
+    info       = userinfo_resp.json()
+    email      = info.get('email', '').lower()
+    first_name = info.get('given_name', '')
+    last_name  = info.get('family_name', '')
+
+    if not email:
+        return _frontend_error('Your Google account has no email address.')
+
+    user, err = _find_or_create_client(email, first_name, last_name)
+    if err:
+        return _frontend_error(err)
+
+    access, refresh = _make_jwt(user)
+    try:
+        has_client = user.profile.client_id is not None
+    except Exception:
+        has_client = False
+    if not has_client:
+        return redirect(f'{FRONTEND_CALLBACK}?access={access}&refresh={refresh}&state=self')
+    return redirect(f'{FRONTEND_CALLBACK}?access={access}&refresh={refresh}')
 
 def _make_jwt(user):
     """Build JWT tokens with the same custom claims as our login view."""
@@ -126,6 +205,8 @@ def google_social_start(request):
     """Redirect browser to Google OAuth consent screen."""
     state = secrets.token_urlsafe(16)
     request.session['social_state'] = state
+    request.session['oauth_flow'] = 'social_google'
+    request.session.modified = True
     params = {
         'client_id':     GOOGLE_CLIENT_ID,
         'redirect_uri':  GOOGLE_SOCIAL_REDIRECT_URI,
@@ -143,59 +224,7 @@ def google_social_start(request):
 @permission_classes([AllowAny])
 def google_social_callback(request):
     """Google redirects here; exchange code → profile → JWT → frontend."""
-    error = request.query_params.get('error')
-    code  = request.query_params.get('code')
-
-    if error or not code:
-        return _frontend_error('Google sign-in was cancelled.')
-
-    # Exchange code for tokens
-    token_resp = http_requests.post(
-        'https://oauth2.googleapis.com/token',
-        data={
-            'code':          code,
-            'client_id':     GOOGLE_CLIENT_ID,
-            'client_secret': GOOGLE_CLIENT_SECRET,
-            'redirect_uri':  GOOGLE_SOCIAL_REDIRECT_URI,
-            'grant_type':    'authorization_code',
-        },
-        timeout=10,
-    )
-    if token_resp.status_code != 200:
-        return _frontend_error('Google sign-in failed. Please try again.')
-
-    token_data   = token_resp.json()
-    access_token = token_data.get('access_token')
-
-    # Get user info from Google
-    userinfo_resp = http_requests.get(
-        'https://www.googleapis.com/oauth2/v3/userinfo',
-        headers={'Authorization': f'Bearer {access_token}'},
-        timeout=10,
-    )
-    if userinfo_resp.status_code != 200:
-        return _frontend_error('Could not retrieve your Google profile.')
-
-    info       = userinfo_resp.json()
-    email      = info.get('email', '').lower()
-    first_name = info.get('given_name', '')
-    last_name  = info.get('family_name', '')
-
-    if not email:
-        return _frontend_error('Your Google account has no email address.')
-
-    user, err = _find_or_create_client(email, first_name, last_name)
-    if err:
-        return _frontend_error(err)
-
-    access, refresh = _make_jwt(user)
-    try:
-        has_client = user.profile.client_id is not None
-    except Exception:
-        has_client = False
-    if not has_client:
-        return redirect(f'{FRONTEND_CALLBACK}?access={access}&refresh={refresh}&state=self')
-    return redirect(f'{FRONTEND_CALLBACK}?access={access}&refresh={refresh}')
+    return handle_google_social_oauth_callback(request)
 
 
 # ── Facebook ───────────────────────────────────────────────────────────────────

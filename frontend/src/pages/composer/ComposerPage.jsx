@@ -509,12 +509,12 @@ export default function ComposerPage() {
         <div className="composer__center">
           <div className="composer__form-scroll">
             <div className="composer__stack composer__stack--t-cards">
-              {formError ? (
+              {/* {formError ? (
                 <div className="composer__form-error" role="alert">
                   <strong>Check this post</strong>
                   <span>{formError}</span>
                 </div>
-              ) : null}
+              ) : null} */}
               <ComposerSection
                 title="Create content"
                 description="Choose channels, write your post, and attach media."
