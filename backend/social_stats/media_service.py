@@ -273,14 +273,26 @@ def _s3_enabled() -> bool:
     return bool(getattr(settings, 'AWS_ACCESS_KEY_ID', None) and getattr(settings, 'AWS_S3_BUCKET', None))
 
 
-def backend_public_base_url() -> str:
-    """Base URL for locally served media (must be absolute for HTTP clients)."""
+def browser_public_base_url() -> str:
+    """
+    Origin the user's browser uses to reach the gateway (not Docker service names).
+    """
     explicit = (getattr(settings, 'BACKEND_PUBLIC_URL', None) or '').strip()
     if explicit:
-        return explicit.rstrip('/')
-    if getattr(settings, 'DEBUG', False):
-        return 'http://localhost:8000'
-    return 'http://localhost:8000'
+        parsed = urlparse(explicit)
+        host = parsed.hostname or ''
+        if host not in ('backend', 'gateway', 'celery_worker'):
+            if host in ('localhost', '127.0.0.1') and not parsed.port:
+                port = os.environ.get('GATEWAY_HTTP_PORT', '8000')
+                return f'{parsed.scheme or "http"}://{host}:{port}'
+            return explicit.rstrip('/')
+    port = os.environ.get('GATEWAY_HTTP_PORT', '8000')
+    return f'http://localhost:{port}'
+
+
+def backend_public_base_url() -> str:
+    """Base URL for locally served media (must be absolute for HTTP clients)."""
+    return browser_public_base_url()
 
 
 def absolute_media_url(url: str) -> str:
@@ -289,11 +301,44 @@ def absolute_media_url(url: str) -> str:
         return ''
     u = str(url).strip()
     if u.startswith(('http://', 'https://')):
-        return u
+        return ensure_browser_media_url(_rewrite_internal_media_host(u))
     base = backend_public_base_url()
     if u.startswith('/'):
-        return f'{base}{u}'
-    return f'{base}/{u.lstrip("/")}'
+        return ensure_browser_media_url(f'{base}{u}')
+    return ensure_browser_media_url(f'{base}/{u.lstrip("/")}')
+
+
+def ensure_browser_media_url(url: str) -> str:
+    """Fix http://localhost/media/... (no port) → http://localhost:8000/media/..."""
+    if not url:
+        return ''
+    try:
+        parsed = urlparse(url)
+    except Exception:
+        return url
+    if parsed.hostname not in ('localhost', '127.0.0.1'):
+        return url
+    if parsed.port and parsed.port not in (80, 443):
+        return url
+    port = os.environ.get('GATEWAY_HTTP_PORT', '8000')
+    scheme = parsed.scheme or 'http'
+    path = parsed.path or '/'
+    query = f'?{parsed.query}' if parsed.query else ''
+    return f'{scheme}://{parsed.hostname}:{port}{path}{query}'
+
+
+def _rewrite_internal_media_host(url: str) -> str:
+    """Map http://backend:8000/media/... to browser-reachable localhost gateway."""
+    try:
+        parsed = urlparse(url)
+    except Exception:
+        return url
+    if parsed.hostname in ('backend', 'gateway', 'celery_worker', 'celery_beat'):
+        base = browser_public_base_url()
+        path = parsed.path or '/'
+        query = f'?{parsed.query}' if parsed.query else ''
+        return ensure_browser_media_url(f'{base.rstrip("/")}{path}{query}')
+    return ensure_browser_media_url(url)
 
 
 def resolve_local_media_path(url: str) -> Optional[Path]:

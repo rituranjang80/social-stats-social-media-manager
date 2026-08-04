@@ -1,6 +1,7 @@
 # ============================================================================
 #  Media URL resolution for composer publish
 # ============================================================================
+import os
 from pathlib import Path
 
 from django.test import TestCase, override_settings
@@ -32,6 +33,20 @@ class MediaPublishUrlTests(TestCase):
             url = f'/media/{rel}'
             found = media_service.resolve_local_media_path(url)
             self.assertEqual(found, sample)
+
+    def test_ensure_browser_media_url_adds_port(self):
+        prev = os.environ.get('GATEWAY_HTTP_PORT')
+        os.environ['GATEWAY_HTTP_PORT'] = '8000'
+        try:
+            fixed = media_service.ensure_browser_media_url(
+                'http://localhost/media/media_assets/x.mp4',
+            )
+            self.assertEqual(fixed, 'http://localhost:8000/media/media_assets/x.mp4')
+        finally:
+            if prev is None:
+                os.environ.pop('GATEWAY_HTTP_PORT', None)
+            else:
+                os.environ['GATEWAY_HTTP_PORT'] = prev
 
     @override_settings(MEDIA_ROOT='/data/media', BACKEND_PUBLIC_URL='http://api.example.com')
     def test_youtube_prefers_local_path_when_file_exists(self, tmp_path):

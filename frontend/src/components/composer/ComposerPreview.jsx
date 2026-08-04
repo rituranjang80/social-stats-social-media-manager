@@ -1,8 +1,11 @@
+import { useEffect, useId, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { PLATFORMS } from './constants';
+import { resolveMediaUrl } from '../media/mediaUtils';
 
 export function ComposerPreviewCard({
   platform, content, mediaAssets, mediaType, user, firstComment = '',
+  onPreviewVideoDoubleClick,
 }) {
   const meta = PLATFORMS.find((p) => p.id === platform) || PLATFORMS[0];
   const handle = user?.first_name || user?.email?.split('@')[0] || 'You';
@@ -27,7 +30,12 @@ export function ComposerPreviewCard({
       )}
 
       {mediaAssets.length > 0 && mediaType !== 'text' && (
-        <PreviewMedia assets={mediaAssets} mediaType={mediaType} platform={platform} />
+        <PreviewMedia
+          assets={mediaAssets}
+          mediaType={mediaType}
+          platform={platform}
+          onPreviewVideoDoubleClick={onPreviewVideoDoubleClick}
+        />
       )}
 
       {platform === 'instagram' && content && (
@@ -68,21 +76,22 @@ function seekFirstFrame(e) {
 }
 
 /** Renders image or video for platform live preview (FB / IG / YT / LI / …). */
-function PreviewAssetVisual({ asset, className = '' }) {
+function PreviewAssetVisual({ asset, className = '', videoRef, showControls = false }) {
   if (!asset) return null;
-  const thumb = asset.thumbnail_url || '';
-  const fileUrl = asset.file_url || '';
+  const thumb = resolveMediaUrl(asset.thumbnail_url || '');
+  const fileUrl = resolveMediaUrl(asset.file_url || '');
 
   if (isVideoAsset(asset) && fileUrl) {
     return (
       <video
+        ref={videoRef}
         className={`composer-media-stage__video ${className}`.trim()}
         src={fileUrl}
         poster={thumb || undefined}
-        muted
+        muted={!showControls}
         playsInline
         preload="metadata"
-        controls={false}
+        controls={showControls}
         onLoadedData={seekFirstFrame}
       />
     );
@@ -102,7 +111,22 @@ function PreviewAssetVisual({ asset, className = '' }) {
   return null;
 }
 
-function PreviewMedia({ assets, mediaType, platform }) {
+function PreviewMedia({ assets, mediaType, platform, onPreviewVideoDoubleClick }) {
+  const videoRef = useRef(null);
+  const [showControls, setShowControls] = useState(false);
+
+  const handleVideoDoubleClick = (asset) => (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onPreviewVideoDoubleClick?.(asset)) return;
+    const el = videoRef.current;
+    if (!el) return;
+    setShowControls(true);
+    el.muted = false;
+    el.controls = true;
+    el.play().catch(() => {});
+  };
+
   const isSquare = platform === 'instagram';
   const primary = assets[0];
   const treatAsVideo = mediaType === 'video'
@@ -115,9 +139,27 @@ function PreviewMedia({ assets, mediaType, platform }) {
       ? 'composer-media-stage--reel'
       : 'composer-media-stage--widescreen';
     return (
-      <div className={`composer-media-stage ${ratioClass}`}>
-        <PreviewAssetVisual asset={a} />
-        <div className="composer-media-stage__play" aria-hidden="true">▶</div>
+      <div
+        className={`composer-media-stage ${ratioClass} composer-media-stage--interactive${showControls ? ' is-playing' : ''}`}
+        onDoubleClick={handleVideoDoubleClick(a)}
+        title="Double-click to play video"
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleVideoDoubleClick(a)(e);
+          }
+        }}
+      >
+        <PreviewAssetVisual
+          asset={a}
+          videoRef={videoRef}
+          showControls={showControls}
+        />
+        {!showControls ? (
+          <div className="composer-media-stage__play" aria-hidden="true">▶</div>
+        ) : null}
       </div>
     );
   }

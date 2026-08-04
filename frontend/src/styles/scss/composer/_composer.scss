@@ -1089,6 +1089,20 @@
   &--square { aspect-ratio: 1 / 1; }
   &--photo { aspect-ratio: 16 / 10; }
 
+  &--interactive {
+    cursor: pointer;
+
+    &.is-playing {
+      .composer-media-stage__video {
+        pointer-events: auto;
+      }
+
+      .composer-media-stage__play {
+        display: none;
+      }
+    }
+  }
+
   &__play {
     position: absolute;
     top: 50%;

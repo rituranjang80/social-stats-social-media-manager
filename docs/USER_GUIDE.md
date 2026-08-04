@@ -129,10 +129,11 @@ no per-page workspace chrome on the composer.
 
 ### Media Library + Video Studio
 **Media Library** (`/dashboard/analytics/media` or `/admin/analytics/media`)
-shows real image previews and the first frame of videos. Click tiles to
+shows real image previews and the first frame of videos (served from the API/gateway
+origin, not relative `/media` paths on the React port). Click tiles to
 multi-select for bulk delete. **Double-click a video** opens it in
-**Video Studio** (`…/analytics/video?asset_id=…`) for trim, resize, thumbnail,
-captions, and YouTube publish.
+**Video Studio** with the player ready; **double-click an image** opens the full file
+in a new tab.
 
 From the **composer**, **Media Library** opens a modal picker (same library
 body) so you can attach existing assets without leaving the draft. Drag the

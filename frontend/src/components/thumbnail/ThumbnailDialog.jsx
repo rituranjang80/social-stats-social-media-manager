@@ -17,7 +17,7 @@ import {
   validateThumbnailFile,
 } from '../youtube/validation';
 import { composerAPI, videoAPI } from '../../services/api';
-import { normalizeMediaAsset } from '../media';
+import { normalizeMediaAsset, resolveMediaUrl } from '../media/mediaUtils';
 
 /**
  * Modal thumbnail creator — reuses Video Studio extract API + client frame capture.
@@ -29,6 +29,7 @@ export default function ThumbnailDialog({
   videoAsset,
   clientId,
   onUseThumbnail,
+  autoPlayOnOpen = false,
 }) {
   const titleId = useId();
   const videoRef = useRef(null);
@@ -44,7 +45,7 @@ export default function ThumbnailDialog({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
-  const src = videoAsset?.file_url || videoAsset?.url || '';
+  const src = resolveMediaUrl(videoAsset?.file_url || videoAsset?.url || '');
 
   useEffect(() => {
     if (!open) {
@@ -56,6 +57,18 @@ export default function ThumbnailDialog({
       setCurrentTime(0);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (!open || !autoPlayOnOpen || !src) return undefined;
+    const v = videoRef.current;
+    if (!v) return undefined;
+    const start = () => {
+      v.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+    };
+    if (v.readyState >= 1) start();
+    else v.addEventListener('loadedmetadata', start, { once: true });
+    return () => v.removeEventListener('loadedmetadata', start);
+  }, [open, autoPlayOnOpen, src]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -353,4 +366,5 @@ ThumbnailDialog.propTypes = {
   videoAsset: PropTypes.object,
   clientId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onUseThumbnail: PropTypes.func.isRequired,
+  autoPlayOnOpen: PropTypes.bool,
 };

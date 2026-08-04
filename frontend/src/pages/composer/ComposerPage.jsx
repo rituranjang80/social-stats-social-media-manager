@@ -116,6 +116,7 @@ export default function ComposerPage() {
   const [youtubeSettings, setYoutubeSettings] = useState(createDefaultYoutubeSettings);
   const [youtubeErrors, setYoutubeErrors] = useState({});
   const [thumbnailOpen, setThumbnailOpen] = useState(false);
+  const [thumbnailAutoPlay, setThumbnailAutoPlay] = useState(false);
   const saveDraftRef = useRef(() => {});
   const formScrollRef = useRef(null);
 
@@ -455,6 +456,19 @@ export default function ComposerPage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  function handlePreviewVideoDoubleClick() {
+    if (!primaryVideoAsset) {
+      toast.error('Attach a video first');
+      return true;
+    }
+    if (showYoutubeSettings) {
+      setThumbnailAutoPlay(true);
+      setThumbnailOpen(true);
+      return true;
+    }
+    return false;
   }
 
   function validate({ forPublish = false } = {}) {
@@ -816,6 +830,7 @@ export default function ComposerPage() {
           mediaType={mediaType}
           user={user}
           firstComment={showFirstComment ? firstComment : ''}
+          onPreviewVideoDoubleClick={handlePreviewVideoDoubleClick}
         />
 
         {mediaPickerOpen ? (
@@ -838,7 +853,11 @@ export default function ComposerPage() {
           <Suspense fallback={null}>
             <ThumbnailDialog
               open={thumbnailOpen}
-              onClose={() => setThumbnailOpen(false)}
+              autoPlayOnOpen={thumbnailAutoPlay}
+              onClose={() => {
+                setThumbnailOpen(false);
+                setThumbnailAutoPlay(false);
+              }}
               videoAsset={primaryVideoAsset}
               clientId={workspaceId}
               onUseThumbnail={({ thumbnail_asset_id, thumbnail_url }) => {

@@ -20,6 +20,7 @@ import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
 import { videoAPI, composerAPI } from '../../services/api';
+import { normalizeMediaAsset } from '../../components/media/mediaUtils';
 
 const ASPECTS = [
   { id: '16:9', label: '16:9 · Landscape',  hint: 'YouTube, Facebook, LinkedIn feed' },
@@ -62,7 +63,7 @@ export default function VideoStudioPage() {
           return;
         }
         loadedAssetRef.current = raw;
-        setActive(asset);
+        setActive(normalizeMediaAsset(asset));
         setDerived([]);
         // Clear query so refresh/upload flows stay clean; asset stays loaded
         setSearchParams({}, { replace: true });
@@ -100,7 +101,9 @@ export default function VideoStudioPage() {
       }}>
         {/* ── Player + derived assets ─────────────────────────────── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {!active && !loadingAsset && <UploadCard onUploaded={(a) => setActive(a)} />}
+          {!active && !loadingAsset && (
+            <UploadCard onUploaded={(a) => setActive(normalizeMediaAsset(a))} />
+          )}
           {active && (
             <PlayerCard
               asset={active}
@@ -328,8 +331,11 @@ function PlayerCard({ asset, onClear }) {
                     minHeight: 320 }}>
         {asset.file_url ? (
           <video
+            key={asset.file_url}
             src={asset.file_url}
             controls
+            playsInline
+            preload="metadata"
             style={{ width: '100%', maxHeight: 480, objectFit: 'contain', display: 'block' }}
           />
         ) : (

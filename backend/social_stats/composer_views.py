@@ -346,7 +346,7 @@ class MediaAssetViewSet(TenantScopedMixin, viewsets.ModelViewSet):
             alt_text=request.data.get('alt_text', ''),
             tags=request.data.getlist('tags') if hasattr(request.data, 'getlist') else (request.data.get('tags') or []),
         )
-        return Response(MediaAssetSerializer(asset).data, status=201)
+        return Response(MediaAssetSerializer(asset, context={'request': request}).data, status=201)
 
     @action(detail=False, methods=['post'], parser_classes=[MultiPartParser, FormParser])
     def bulk_upload(self, request):
@@ -363,7 +363,7 @@ class MediaAssetViewSet(TenantScopedMixin, viewsets.ModelViewSet):
                 asset = media_service.upload_media(
                     f, client_id=client_id, uploaded_by_id=request.user.id, folder=folder,
                 )
-                out.append(MediaAssetSerializer(asset).data)
+                out.append(MediaAssetSerializer(asset, context={'request': request}).data)
             except Exception as e:
                 logger.exception('bulk_upload failed for %s', f.name)
                 errors.append({'file': f.name, 'error': str(e)})

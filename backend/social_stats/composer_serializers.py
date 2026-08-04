@@ -38,17 +38,26 @@ class MediaAssetSerializer(serializers.ModelSerializer):
             'is_used', 'created_at', 'filename', 'uuid',
         ]
 
+    def _absolute_media_url(self, url: str) -> str:
+        if not url:
+            return ''
+        from .media_service import absolute_media_url
+
+        return absolute_media_url(url)
+
     def get_file_url(self, obj):
         try:
-            return obj.file.url if obj.file else ''
+            rel = obj.file.url if obj.file else ''
         except Exception:
             return ''
+        return self._absolute_media_url(rel)
 
     def get_thumbnail_url(self, obj):
         try:
-            return obj.thumbnail.url if obj.thumbnail else ''
+            rel = obj.thumbnail.url if obj.thumbnail else ''
         except Exception:
             return ''
+        return self._absolute_media_url(rel)
 
     def get_filename(self, obj):
         try:

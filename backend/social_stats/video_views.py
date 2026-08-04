@@ -119,7 +119,7 @@ def upload_video(request):
             uploaded_by_id=request.user.id,
             folder=folder, alt_text=alt,
         )
-        return Response(MediaAssetSerializer(asset).data, status=201)
+        return Response(MediaAssetSerializer(asset, context={'request': request}).data, status=201)
 
     if src_url:
         return _import_from_url(client, request.user, src_url, folder, alt)
@@ -151,7 +151,7 @@ def _import_from_url(client, user, url: str, folder: str, alt: str):
         pseudo_file, client_id=client.id,
         uploaded_by_id=user.id, folder=folder, alt_text=alt,
     )
-    return Response(MediaAssetSerializer(asset).data, status=201)
+    return Response(MediaAssetSerializer(asset, context={'request': request}).data, status=201)
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -203,7 +203,7 @@ def trim_video(request):
                         mime='video/mp4',
                         duration=end - start,
                     )
-                return Response(MediaAssetSerializer(new_asset).data, status=201)
+                return Response(MediaAssetSerializer(new_asset, context={'request': request}).data, status=201)
             finally:
                 _safe_unlink(out_path)
     except Exception as e:
@@ -271,7 +271,7 @@ def resize_video(request):
                 # Persist new dimensions
                 new_asset.width, new_asset.height = new_w, new_h
                 new_asset.save(update_fields=['width', 'height'])
-                return Response(MediaAssetSerializer(new_asset).data, status=201)
+                return Response(MediaAssetSerializer(new_asset, context={'request': request}).data, status=201)
             finally:
                 _safe_unlink(out_path)
     except Exception as e:
@@ -335,7 +335,7 @@ def extract_thumbnail(request):
             )
             new_asset.width, new_asset.height = img.size
             new_asset.save(update_fields=['width', 'height'])
-            return Response(MediaAssetSerializer(new_asset).data, status=201)
+            return Response(MediaAssetSerializer(new_asset, context={'request': request}).data, status=201)
     except Exception as e:
         logger.exception('extract_thumbnail failed')
         return Response({'error': f'Thumbnail failed: {e}'}, status=500)

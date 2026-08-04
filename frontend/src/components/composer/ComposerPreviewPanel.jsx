@@ -36,6 +36,7 @@ export default function ComposerPreviewPanel({
   mediaType,
   user,
   firstComment,
+  onPreviewVideoDoubleClick,
 }) {
   const tabsId = useId();
   const tabsRef = useRef(null);
@@ -200,6 +201,7 @@ export default function ComposerPreviewPanel({
                     mediaType={mediaType}
                     user={user}
                     firstComment={firstComment}
+                    onPreviewVideoDoubleClick={onPreviewVideoDoubleClick}
                   />
                 ))}
               </div>

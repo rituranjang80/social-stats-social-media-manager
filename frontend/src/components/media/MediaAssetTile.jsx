@@ -3,7 +3,7 @@
  * ========================================================================== */
 import { Image as ImageIcon, Video, Folder, Play } from 'lucide-react';
 import {
-  isVideoAsset, fmtBytes, fmtDuration,
+  isVideoAsset, isImageAsset, fmtBytes, fmtDuration, resolveMediaUrl,
 } from './mediaUtils';
 
 export default function MediaAssetTile({
@@ -34,12 +34,20 @@ export default function MediaAssetTile({
       }}
       onDoubleClick={(e) => {
         e.preventDefault();
+        e.stopPropagation();
         if (disabled) return;
         if (mode === 'picker') {
           onActivate?.(asset);
           return;
         }
-        if (isVideo) onOpenVideo?.(asset);
+        if (isVideo) {
+          onOpenVideo?.(asset);
+          return;
+        }
+        if (isImageAsset(asset)) {
+          const href = resolveMediaUrl(asset.file_url || asset.thumbnail_url || '');
+          if (href) window.open(href, '_blank', 'noopener,noreferrer');
+        }
       }}
       onKeyDown={(e) => {
         if (disabled) return;
@@ -102,8 +110,8 @@ export default function MediaAssetTile({
 }
 
 function AssetPreview({ asset, isVideo }) {
-  const thumb = asset.thumbnail_url || '';
-  const fileUrl = asset.file_url || '';
+  const thumb = resolveMediaUrl(asset.thumbnail_url || '');
+  const fileUrl = resolveMediaUrl(asset.file_url || '');
 
   if (thumb) {
     return (

@@ -2,6 +2,28 @@
 
 ## [Unreleased]
 
+### Changed — Composer live preview video
+
+- **Double-click** the video in the right **Preview** panel (`#composer-preview`): with **YouTube** selected, opens **Custom Thumbnail** and starts playback (same as **Play** in that dialog); otherwise plays inline with controls.
+
+### Fixed — Media URLs missing gateway port (`http://localhost/media` → `:8000`)
+
+- API and UI now rewrite bare `http://localhost/media/...` to **`http://localhost:8000/media/...`**
+  when the app runs on port 3000 and the gateway is on 8000.
+- Nginx forwards **`Host: $http_host`** so new API responses include the correct port.
+
+### Fixed — Docker media previews (Media Library / Video Studio)
+
+- Gateway **proxies `/media/` to Django** so files under `data/media/` on the host match what the API serves (no stale nginx-only alias path).
+- **`BACKEND_PUBLIC_URL=http://localhost:8000`** for browser-facing media URLs (not `backend:8000`).
+- Frontend rewrites internal Docker hostnames; **`setupProxy.js`** proxies `/media` when using `npm start` on port 3000.
+
+### Fixed — Media Library & Video Studio previews
+
+- **`file_url` / `thumbnail_url`** from the API are now absolute URLs (gateway-friendly).
+- Frontend **`resolveMediaUrl`** maps any remaining `/media/...` paths using `REACT_APP_API_URL`.
+- Grid thumbnails/videos preview again; **double-click video** opens Video Studio with playback in the player panel.
+
 ### Fixed — Composer YouTube publish (`MissingSchema` on `/media/...`)
 
 - Relative media paths like `/media/media_assets/...` are resolved before publish:

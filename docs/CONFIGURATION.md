@@ -65,7 +65,8 @@ OAuth tokens and manual credentials are encrypted at rest using these keys.
 | `DB_NAME` / `DB_USER` / `DB_PASSWORD` / `DB_HOST` / `DB_PORT` | No | `postgres` / `5432` etc. | Alternative to `DATABASE_URL` — set individual Postgres connection parts. |
 | `SQLITE_PATH` | No | `backend/db.sqlite3` | When `DB_NAME` is unset, path to the SQLite file (Docker: `/data/db.sqlite3`). |
 | `MEDIA_ROOT` | No | `backend/media` | Filesystem root for user uploads (Docker bind-mount: `/data/media`). |
-| `BACKEND_PUBLIC_URL` | No | `http://localhost:8000` (dev) / `http://backend:8000` (Docker Compose) | Public base URL prepended to relative `/media/...` paths when Instagram/Facebook/LinkedIn need a fetchable URL. YouTube uploads prefer reading the file from `MEDIA_ROOT` inside Celery when the volume is shared. |
+| `BACKEND_PUBLIC_URL` | No | `http://localhost:8000` | Browser-facing origin for `/media/...` in API responses (Docker: use gateway port on the host, **not** `http://backend:8000`). |
+| `GATEWAY_HTTP_PORT` | No | `8000` | Used with `BACKEND_PUBLIC_URL` when unset. |
 | `STATIC_ROOT` | No | `backend/staticfiles` | Target for `collectstatic` (Docker: `/data/staticfiles`). |
 
 ## CORS (browser → API)
