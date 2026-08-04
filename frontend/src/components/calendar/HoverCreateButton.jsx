@@ -17,7 +17,7 @@ export default function HoverCreateButton({
       type="button"
       className="bb-cal-hover-create"
       aria-label={label || `Create post on ${dateStr}`}
-      title={label || 'Create post1'}
+      title={'Create post11111' || 'Create post111'}
       onClick={(e) => {
         e.stopPropagation();
         onClick?.(dateStr, e);

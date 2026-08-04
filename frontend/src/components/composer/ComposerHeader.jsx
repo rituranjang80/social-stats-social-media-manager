@@ -32,18 +32,18 @@ export default function ComposerHeader({
           <span aria-current="page">{title}</span>
         </nav>
         <h1 className="composer__title">{title} post</h1>
-        <p className="composer__subtitle">
+        {/* <p className="composer__subtitle">
           {workspaceLabel || 'Select a workspace to start composing'}
-        </p>
+        </p> */}
       </div>
 
       <div className="composer__header-actions">
-        {workspaceLabel ? (
+        {/* {workspaceLabel ? (
           <span className="composer__workspace-chip" title={workspaceLabel}>
             <Building2 size={13} aria-hidden="true" />
             <span>{workspaceLabel}</span>
           </span>
-        ) : null}
+        ) : null} */}
         <span
           className={`composer__status-chip${saving ? ' is-saving' : ''}`}
           role="status"

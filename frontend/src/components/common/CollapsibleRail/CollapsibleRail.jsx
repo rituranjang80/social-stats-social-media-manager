@@ -4,9 +4,9 @@
  * Syncs aria-expanded + html layout classes in the same tick as the click.
  * ========================================================================== */
 import { useEffect, useLayoutEffect, useId, useState, Suspense, useCallback } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from './CollapsibleRail.module.scss';
 
+import TEdgeToggle from '../../t/TEdgeToggle';
 import '../../../styles/base/_themes.scss';
 import '../../../styles/base/_reset.scss';
 
@@ -126,18 +126,16 @@ export default function CollapsibleRail({
         </div>
       </aside>
 
-      <button
-        type="button"
-        className={cx(styles.toggleBtn, isExpanded && styles.shifted)}
-        onClick={toggleRail}
-        aria-controls={labelId}
-        aria-expanded={isExpanded}
-        aria-label={isExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
-      >
-        {isExpanded
-          ? <ChevronLeft size={18} strokeWidth={2.5} aria-hidden="true" />
-          : <ChevronRight size={18} strokeWidth={2.5} aria-hidden="true" />}
-      </button>
+      <TEdgeToggle
+        side="left"
+        align="top"
+        expanded={isExpanded}
+        onToggle={toggleRail}
+        controlsId={labelId}
+        className={styles.shellEdgeToggle}
+        collapseLabel="Collapse sidebar"
+        expandLabel="Expand sidebar"
+      />
     </div>
   );
 }

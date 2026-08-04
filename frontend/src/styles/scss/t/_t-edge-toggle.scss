@@ -12,6 +12,8 @@ $edge-top-offset: 24px;
   transform: translateY(-50%);
   width: $edge-toggle-width;
   height: $edge-toggle-height;
+  min-height: unset;
+  min-width: unset;
   padding: 0;
   border: none;
   background: var(--rail-primary, #f97316);

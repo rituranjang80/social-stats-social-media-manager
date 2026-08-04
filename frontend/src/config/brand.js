@@ -5,12 +5,12 @@
 
 const trim = (v) => (v == null ? '' : String(v).trim());
 
-const DEFAULT_NAME = 'Social Stats';
-const DEFAULT_TITLE = 'Social Stats — The marketing OS for modern teams';
+const DEFAULT_NAME = 'Social Stats111';
+const DEFAULT_TITLE = 'Social Stats111 — The marketing OS for modern teams';
 const DEFAULT_DESCRIPTION =
   'Social Stats — the marketing OS for modern teams. Manage analytics, content, conversations, and ads across Facebook, Instagram, YouTube, LinkedIn, and Google Business in one place.';
 const DEFAULT_PRIMARY = '#00CCF5';
-const PUBLIC = process.env.PUBLIC_URL || '';
+const PUBLIC ='';// process.env.PUBLIC_URL || '';
 
 function publicUrl(path) {
   const p = trim(path);

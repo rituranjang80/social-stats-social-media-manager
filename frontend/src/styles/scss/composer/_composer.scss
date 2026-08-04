@@ -247,11 +247,39 @@
   &__form-scroll {
     flex: 1 1 auto;
     min-height: 0;
-    overflow-x: hidden;
+    overflow-x: auto;
     overflow-y: auto;
+    scrollbar-gutter: stable both-edges;
     -webkit-overflow-scrolling: touch;
-    @include panel-scroll;
     padding: 16px;
+    outline: none;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) var(--surface-sunken);
+
+    &::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--surface-sunken);
+      border-left: 1px solid var(--border-subtle);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--border-strong);
+      border-radius: 6px;
+      border: 2px solid var(--surface-sunken);
+
+      &:hover {
+        background: var(--text-tertiary);
+      }
+    }
+
+    &:focus-visible {
+      box-shadow: inset 0 0 0 2px var(--brand-primary-glow);
+    }
 
     @include respond-up($composer-bp-sm) {
       padding: 24px;
@@ -665,10 +693,27 @@
 
       .composer__preview-edge-toggle {
         display: flex;
-        // top / transform come from .t-edge-toggle.is-top-aligned
-        // right bound to same CSS var as rail width
+        top: 24px;
+        transform: none;
         right: var(--composer-preview-rail-width);
         z-index: 1001;
+        transition:
+          right 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+          width 0.2s ease,
+          height 0.2s ease,
+          min-height 0.2s ease;
+
+        &.is-collapsed {
+          width: 28px !important;
+          height: 32px !important;
+          min-height: 32px !important;
+        }
+
+        &.is-expanded {
+          width: 32px !important;
+          height: 48px !important;
+          min-height: 48px !important;
+        }
       }
 
       &.is-collapsed .composer__preview-edge-toggle {

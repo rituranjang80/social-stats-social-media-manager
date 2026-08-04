@@ -12,15 +12,15 @@ import TEdgeToggle from '../t/TEdgeToggle';
 export const COMPOSER_PREVIEW_STORAGE_KEY = 'socialstats.composer-preview-expanded';
 
 export function readComposerPreviewExpanded() {
-  if (typeof window === 'undefined') return true;
+  if (typeof window === 'undefined') return false;
   try {
     const raw = localStorage.getItem(COMPOSER_PREVIEW_STORAGE_KEY);
-    if (raw === '0') return false;
     if (raw === '1') return true;
+    if (raw === '0') return false;
   } catch {
     /* ignore */
   }
-  return true;
+  return false;
 }
 
 export default function ComposerPreviewPanel({

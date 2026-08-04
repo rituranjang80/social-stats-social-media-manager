@@ -117,6 +117,56 @@ export default function ComposerPage() {
   const [youtubeErrors, setYoutubeErrors] = useState({});
   const [thumbnailOpen, setThumbnailOpen] = useState(false);
   const saveDraftRef = useRef(() => {});
+  const formScrollRef = useRef(null);
+
+  const handleFormScrollKeyDown = (event) => {
+    const el = formScrollRef.current;
+    if (!el) return;
+    const target = event.target;
+    const tag = target?.tagName?.toLowerCase();
+    if (
+      tag === 'input'
+      || tag === 'textarea'
+      || tag === 'select'
+      || target?.isContentEditable
+    ) {
+      return;
+    }
+    const lineStep = 56;
+    const pageStep = Math.max(120, Math.floor(el.clientHeight * 0.85));
+    let handled = true;
+    switch (event.key) {
+      case 'ArrowDown':
+        el.scrollBy({ top: lineStep, behavior: 'smooth' });
+        break;
+      case 'ArrowUp':
+        el.scrollBy({ top: -lineStep, behavior: 'smooth' });
+        break;
+      case 'ArrowLeft':
+        el.scrollBy({ left: -lineStep, behavior: 'smooth' });
+        break;
+      case 'ArrowRight':
+        el.scrollBy({ left: lineStep, behavior: 'smooth' });
+        break;
+      case 'PageDown':
+        el.scrollBy({ top: pageStep, behavior: 'smooth' });
+        break;
+      case 'PageUp':
+        el.scrollBy({ top: -pageStep, behavior: 'smooth' });
+        break;
+      case 'Home':
+        if (event.ctrlKey) el.scrollTo({ top: 0, behavior: 'smooth' });
+        else handled = false;
+        break;
+      case 'End':
+        if (event.ctrlKey) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+        else handled = false;
+        break;
+      default:
+        handled = false;
+    }
+    if (handled) event.preventDefault();
+  };
 
   const showYoutubeSettings = targetPlatforms.includes('youtube');
   const primaryVideoAsset = useMemo(
@@ -507,7 +557,14 @@ export default function ComposerPage() {
 
       <div className="composer__body">
         <div className="composer__center">
-          <div className="composer__form-scroll">
+          <div
+            ref={formScrollRef}
+            className="composer__form-scroll"
+            tabIndex={0}
+            role="region"
+            aria-label="Composer form — use arrow keys to scroll when focused"
+            onKeyDown={handleFormScrollKeyDown}
+          >
             <div className="composer__stack composer__stack--t-cards">
               {/* {formError ? (
                 <div className="composer__form-error" role="alert">
@@ -643,12 +700,13 @@ export default function ComposerPage() {
                   {preflight ? (
                     <ComposerPreflight result={preflight} onClose={() => setPreflight(null)} />
                   ) : (
-                    <div className="composer__checklist" role="status">
-                      <strong>Publishing checklist</strong>
-                      <span>{targetPlatforms.length > 0 ? 'Channels selected' : 'Select at least one channel'}</span>
-                      <span>{content.trim() || mediaAssets.length > 0 ? 'Content added' : 'Add text or media'}</span>
-                      <span>Run Preflight before publishing for platform-specific checks</span>
-                    </div>
+                    null
+                    // <div className="composer__checklist" role="status">
+                    //   <strong>Publishing checklist</strong>
+                    //   <span>{targetPlatforms.length > 0 ? 'Channels selected' : 'Select at least one channel'}</span>
+                    //   <span>{content.trim() || mediaAssets.length > 0 ? 'Content added' : 'Add text or media'}</span>
+                    //   <span>Run Preflight before publishing for platform-specific checks</span>
+                    // </div>
                   )}
                 </div>
               </ComposerSection>

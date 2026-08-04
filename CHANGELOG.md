@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Changed — Composer preview & form scroll
+
+- Live preview rail **starts collapsed** on desktop by default (toggle remains visible).
+- Preview edge toggle grows taller when expanded for easier clicking.
+- Composer form area shows a **visible scrollbar**; click the form background and use **arrow / Page Up / Down** keys to scroll.
+
 ### Fixed — Google Sign-in redirect URI (OAuth policy error)
 
 Sign-in with Google now defaults to **`GOOGLE_REDIRECT_URI`**

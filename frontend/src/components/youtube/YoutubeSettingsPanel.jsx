@@ -245,12 +245,12 @@ export default function YoutubeSettingsPanel({
         />
       </Accordion>
 
-      <Accordion
+      {/* <Accordion
         id={`${baseId}-aud`}
         title="Audience"
         open={openSections.audience}
         onToggle={() => toggle('audience')}
-      >
+      > */}
         <AudienceSelector
           madeForKids={settings.made_for_kids}
           onMadeForKidsChange={(made_for_kids) => patch({
@@ -261,7 +261,7 @@ export default function YoutubeSettingsPanel({
           onAgeRestrictionChange={(age_restriction) => patch({ age_restriction })}
           error={errors.made_for_kids}
         />
-      </Accordion>
+      {/* </Accordion> */}
 
       <Accordion
         id={`${baseId}-lic`}

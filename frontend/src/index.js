@@ -208,8 +208,10 @@ style.textContent = `
   * { touch-action: manipulation; -webkit-touch-callout: none; }
   a, button, [role="button"] { touch-action: manipulation; }
 
-  /* Minimum tap targets (Apple HIG: 44px) */
-  button, a, [role="button"] {
+  /* Minimum tap targets (Apple HIG: 44px) — exclude slim rail edge toggles */
+  button:not(.t-edge-toggle),
+  a:not(.t-edge-toggle),
+  [role="button"]:not(.t-edge-toggle) {
     min-height: 44px;
     min-width: 44px;
   }
