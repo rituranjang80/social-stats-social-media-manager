@@ -112,6 +112,18 @@ gateway still proxies `/admin/` to Django, you’ll see a Django 404.
 - You must be signed in as **superadmin or staff** (`admin@demo.local` / `demo`
   after `demo_setup`). Client/end-user accounts are redirected away from `/admin`.
 
+### Composer publish failed (YouTube / Instagram / etc.)
+**Publish Now** returns success when the post is **queued**; actual API calls run in
+Celery. If a platform rejects the post, the post status becomes **failed** or **partial**
+and an **`ErrorLog`** row is created (`error_category=composer_publish`) with the
+platform and message. Staff can review at **`/admin/error-logs`**. Ensure **Redis +
+Celery worker** are running in Docker so publishes execute. Connect active credentials
+under **Connected channels** before publishing.
+
+If you see **`MissingSchema`** / invalid `/media/...` URL errors, set **`BACKEND_PUBLIC_URL`**
+(in Docker start `.env`, default `http://backend:8000`) and confirm **`MEDIA_ROOT`** is shared
+between `backend` and `celery_worker` (YouTube reads the video file from disk when possible).
+
 ### "OAuth redirect URI mismatch" when connecting an account
 The redirect URI registered in the platform's developer app must match the app's
 `*_REDIRECT_URI` **exactly** (scheme, host, port, path, trailing slash). The code

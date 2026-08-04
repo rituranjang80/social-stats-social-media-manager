@@ -147,10 +147,9 @@ class UnifiedPostViewSet(TenantScopedMixin, viewsets.ModelViewSet):
     def publish_now(self, request, pk=None):
         post = self.get_object()
         if post.status not in ('draft', 'scheduled', 'failed', 'partial', 'pending_approval'):
-            return Response(
-                {'detail': f'Cannot publish a post in status {post.status}'},
-                status=400,
-            )
+            from rest_framework.exceptions import ValidationError
+
+            raise ValidationError(f'Cannot publish a post in status {post.status}')
 
         # Marketplace gate (): if the actor is agency-side, must hold
         # the publish_posts permission; if it's flagged for approval, intercept.

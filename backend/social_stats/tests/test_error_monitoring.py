@@ -32,6 +32,26 @@ class SanitizationTests(TestCase):
 
 class ErrorLoggerTests(TestCase):
     @override_settings(ERROR_MONITORING={'ENABLED': True, 'ASYNC': False, 'DEDUP_SECONDS': 0})
+    def test_log_composer_publish_failure(self):
+        from social_stats.publishers import PublishError
+
+        exc = PublishError('IG broken', code='graph_error')
+        log_id = ErrorLogger.log_composer_publish_failure(
+            unified_post_id=42,
+            client_id=7,
+            platform='instagram',
+            error_code='graph_error',
+            message='IG broken',
+            exception=exc,
+            async_log=False,
+        )
+        self.assertIsNotNone(log_id)
+        row = ErrorLog.objects.get(pk=log_id)
+        self.assertEqual(row.error_category, 'composer_publish')
+        self.assertEqual(row.workspace_id, '7')
+        self.assertEqual(row.request_body.get('platform'), 'instagram')
+
+    @override_settings(ERROR_MONITORING={'ENABLED': True, 'ASYNC': False, 'DEDUP_SECONDS': 0})
     def test_log_exception_persists_row(self):
         exc = ValueError('boom')
         log_id = ErrorLogger.log_exception(exc, severity='ERROR', async_log=False)

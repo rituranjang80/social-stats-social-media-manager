@@ -65,6 +65,7 @@ OAuth tokens and manual credentials are encrypted at rest using these keys.
 | `DB_NAME` / `DB_USER` / `DB_PASSWORD` / `DB_HOST` / `DB_PORT` | No | `postgres` / `5432` etc. | Alternative to `DATABASE_URL` — set individual Postgres connection parts. |
 | `SQLITE_PATH` | No | `backend/db.sqlite3` | When `DB_NAME` is unset, path to the SQLite file (Docker: `/data/db.sqlite3`). |
 | `MEDIA_ROOT` | No | `backend/media` | Filesystem root for user uploads (Docker bind-mount: `/data/media`). |
+| `BACKEND_PUBLIC_URL` | No | `http://localhost:8000` (dev) / `http://backend:8000` (Docker Compose) | Public base URL prepended to relative `/media/...` paths when Instagram/Facebook/LinkedIn need a fetchable URL. YouTube uploads prefer reading the file from `MEDIA_ROOT` inside Celery when the volume is shared. |
 | `STATIC_ROOT` | No | `backend/staticfiles` | Target for `collectstatic` (Docker: `/data/staticfiles`). |
 
 ## CORS (browser → API)
@@ -109,6 +110,14 @@ from social_stats.error_monitoring import ErrorLogger
 
 ErrorLogger.log_exception(exc, request=request, severity='ERROR')
 ```
+
+**Composer publish failures** (YouTube, Instagram, Facebook, etc.): when **Publish Now** on
+`/admin/analytics/composer` queues a post and a platform API call fails in the background
+(`publish_to_platform` Celery task), each failure is written to `ErrorLog` with
+`error_category=composer_publish`, the workspace id, platform name, and post id in
+`request_body`. Staff review these at **Admin → Error logs** (`/admin/error-logs`) or Django admin.
+Immediate API errors (validation, permissions) still go through the DRF handler and include
+`error_id` in the JSON response when `ERROR_MONITORING` is enabled.
 
 API error responses include `error_id`, `timestamp`, and a safe `message` (no stack traces).
 

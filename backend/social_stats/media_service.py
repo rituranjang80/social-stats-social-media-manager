@@ -38,6 +38,8 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.uploadedfile import UploadedFile
 from django.utils.text import slugify
+from pathlib import Path
+from urllib.parse import urlparse
 from PIL import Image, ImageOps
 
 from .models import MediaAsset
@@ -271,6 +273,108 @@ def _s3_enabled() -> bool:
     return bool(getattr(settings, 'AWS_ACCESS_KEY_ID', None) and getattr(settings, 'AWS_S3_BUCKET', None))
 
 
+def backend_public_base_url() -> str:
+    """Base URL for locally served media (must be absolute for HTTP clients)."""
+    explicit = (getattr(settings, 'BACKEND_PUBLIC_URL', None) or '').strip()
+    if explicit:
+        return explicit.rstrip('/')
+    if getattr(settings, 'DEBUG', False):
+        return 'http://localhost:8000'
+    return 'http://localhost:8000'
+
+
+def absolute_media_url(url: str) -> str:
+    """Turn a relative `/media/...` path into an absolute http(s) URL."""
+    if not url:
+        return ''
+    u = str(url).strip()
+    if u.startswith(('http://', 'https://')):
+        return u
+    base = backend_public_base_url()
+    if u.startswith('/'):
+        return f'{base}{u}'
+    return f'{base}/{u.lstrip("/")}'
+
+
+def resolve_local_media_path(url: str) -> Optional[Path]:
+    """
+    Map a `/media/...` or absolute media URL to a file under MEDIA_ROOT when present.
+    Used by Celery workers that share the media volume with the API.
+    """
+    if not url:
+        return None
+    u = str(url).strip()
+    path_part = u
+    if u.startswith(('http://', 'https://')):
+        path_part = urlparse(u).path or ''
+    if not path_part.startswith('/'):
+        return None
+    media_prefix = (getattr(settings, 'MEDIA_URL', '/media/') or '/media/').rstrip('/')
+    if not path_part.startswith(media_prefix + '/') and path_part != media_prefix:
+        return None
+    rel = path_part[len(media_prefix):].lstrip('/')
+    if not rel:
+        return None
+    candidate = Path(settings.MEDIA_ROOT) / rel
+    if candidate.is_file():
+        return candidate
+    return None
+
+
+def _asset_for_client_url(client_id: int, url: str) -> Optional[MediaAsset]:
+    """Best-effort MediaAsset lookup from a stored URL or asset: token."""
+    if not url or not client_id:
+        return None
+    u = str(url).strip()
+    if u.startswith('asset:'):
+        try:
+            asset_id = int(u.split(':', 1)[1])
+        except (ValueError, IndexError):
+            return None
+        return MediaAsset.objects.filter(id=asset_id, client_id=client_id).first()
+    local = resolve_local_media_path(u)
+    if local:
+        rel = local.relative_to(Path(settings.MEDIA_ROOT)).as_posix()
+        found = MediaAsset.objects.filter(client_id=client_id, file=rel).first()
+        if found:
+            return found
+    abs_u = absolute_media_url(u)
+    for asset in MediaAsset.objects.filter(client_id=client_id).exclude(file='').iterator():
+        try:
+            if asset.file.url == u or absolute_media_url(asset.file.url) == abs_u:
+                return asset
+        except Exception:
+            continue
+    return None
+
+
+def resolve_media_url_for_publish(
+    url: str,
+    *,
+    client_id: int,
+    platform: str | None = None,
+) -> str:
+    """
+    Resolve composer media references for outbound publish.
+
+    - S3: presigned https URL
+    - Local + YouTube: prefer reading from MEDIA_ROOT on disk (Celery shares volume)
+    - Local + other platforms: absolute URL via BACKEND_PUBLIC_URL
+    """
+    if not url:
+        return ''
+    u = str(url).strip()
+    asset = _asset_for_client_url(client_id, u)
+    if asset:
+        u = presigned_url(asset) or u
+
+    local = resolve_local_media_path(u)
+    if local and (platform or '').lower() == 'youtube':
+        return str(local)
+
+    return absolute_media_url(u)
+
+
 def presigned_url(asset: MediaAsset, *, expires: int = 3600) -> str:
     """
     Return a signed URL the platform APIs can fetch the file from.
@@ -294,9 +398,9 @@ def presigned_url(asset: MediaAsset, *, expires: int = 3600) -> str:
             )
         except Exception:
             logger.exception('Failed to sign S3 URL for asset %s', asset.id)
-    # Local fallback — assumes Django is serving MEDIA_URL
+    # Local fallback — absolute URL so platform APIs / requests can fetch
     try:
-        return asset.file.url
+        return absolute_media_url(asset.file.url)
     except Exception:
         return ''
 

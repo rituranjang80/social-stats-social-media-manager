@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+### Fixed — Composer YouTube publish (`MissingSchema` on `/media/...`)
+
+- Relative media paths like `/media/media_assets/...` are resolved before publish:
+  **YouTube** reads the file from shared `MEDIA_ROOT` in Celery when present; other platforms get an
+  absolute URL via **`BACKEND_PUBLIC_URL`** (default `http://backend:8000` in Docker Compose).
+
+### Added — Composer publish → ErrorLog
+
+- Failed platform publishes (YouTube, Instagram, etc.) after **Publish Now** on the composer are
+  persisted to **`ErrorLog`** (`error_category=composer_publish`) with post id, workspace, and platform.
+- Synchronous publish API errors surface **`error_id`** in the toast when the backend returns one.
+
 ### Changed — Composer preview & form scroll
 
 - Live preview rail **starts collapsed** on desktop by default (toggle remains visible).

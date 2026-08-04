@@ -19,6 +19,7 @@ from django.utils import timezone
 from social_stats.models import (
     Client, PlatformCredential, UnifiedPost, PlatformPublishLog, Alert,
 )
+from social_stats.error_monitoring.models import ErrorLog
 from social_stats.publishers import (
     PublishResult, TokenExpiredError, PublishError,
 )
@@ -82,6 +83,7 @@ class OrchestratorTests(TestCase):
         ig_m.assert_called_once()
 
     # ── Partial: one success, one failed ─────────────────────────────────
+    @override_settings(ERROR_MONITORING={'ENABLED': True, 'ASYNC': False, 'DEDUP_SECONDS': 0})
     def test_partial_status_when_one_fails(self):
         post = self._make_post(media_type='image', media_urls=['https://x/img.jpg'])
         from social_stats.publishers.facebook import FacebookPublisher
@@ -100,6 +102,11 @@ class OrchestratorTests(TestCase):
         self.assertEqual(logs['facebook'].status, 'success')
         self.assertEqual(logs['instagram'].status, 'failed')
         self.assertEqual(logs['instagram'].error_code, 'graph_error')
+
+        err = ErrorLog.objects.filter(error_category='composer_publish', workspace_id=str(self.client_obj.id)).first()
+        self.assertIsNotNone(err)
+        self.assertIn('instagram', err.request_body.get('platform', ''))
+        self.assertIn('IG broken', err.exception_message)
 
     # ── Token expired: deactivates cred + writes Alert ───────────────────
     def test_token_expired_deactivates_cred_and_writes_alert(self):

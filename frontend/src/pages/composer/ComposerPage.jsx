@@ -449,7 +449,9 @@ export default function ComposerPage() {
         toast.success('Publishing — check status in a few seconds');
       }
     } catch (e) {
-      toast.error(e.response?.data?.detail || e.message || 'Publish failed');
+      const errId = e.errorId || e.response?.data?.error_id;
+      const detail = e.response?.data?.detail || e.message || 'Publish failed';
+      toast.error(errId ? `${detail} (error ${errId})` : detail);
     } finally {
       setSaving(false);
     }

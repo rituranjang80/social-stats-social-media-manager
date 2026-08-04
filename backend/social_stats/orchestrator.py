@@ -76,6 +76,12 @@ def publish_unified_post(self, unified_post_id: int):
         post.status = 'failed'
         post.save(update_fields=['status'])
         logger.warning('publish_unified_post: no target_platforms on post %s', unified_post_id)
+        _log_publish_failure(
+            post,
+            platform='',
+            code='no_targets',
+            message='Post has no target_platforms — nothing to publish',
+        )
         return
 
     post.status = 'publishing'
@@ -114,8 +120,12 @@ def publish_to_platform(self, unified_post_id: int, platform: str):
         client=post.client, platform=platform, is_active=True,
     ).first()
     if not cred:
-        _mark_failed(log, code='no_credential',
-                     message=f'No active {platform} credential — connect first')
+        _mark_failed(
+            log,
+            code='no_credential',
+            message=f'No active {platform} credential — connect first',
+            post=post,
+        )
         update_unified_post_status(post.id)
         return
 
@@ -136,7 +146,7 @@ def publish_to_platform(self, unified_post_id: int, platform: str):
         )
 
     # Resolve any internal MediaAsset IDs to public URLs (S3 presigned or local).
-    media_urls = _resolve_media_urls(post, media_urls)
+    media_urls = _resolve_media_urls(post, media_urls, platform=platform)
 
     publisher = get_publisher(platform)
 
@@ -147,7 +157,7 @@ def publish_to_platform(self, unified_post_id: int, platform: str):
         )
     except TokenExpiredError as e:
         # Mark credential dead + alert + persist
-        _mark_failed(log, code='token_expired', message=str(e))
+        _mark_failed(log, code='token_expired', message=str(e), post=post, exc=e)
         cred.is_active = False
         cred.save(update_fields=['is_active'])
         Alert.objects.create(
@@ -173,20 +183,30 @@ def publish_to_platform(self, unified_post_id: int, platform: str):
         try:
             raise self.retry(exc=e, countdown=wait)
         except self.MaxRetriesExceededError:
-            _mark_failed(log, code='rate_limited',
-                         message=f'Rate limit exceeded after {self.max_retries} retries')
+            _mark_failed(
+                log,
+                code='rate_limited',
+                message=f'Rate limit exceeded after {self.max_retries} retries',
+                post=post,
+                exc=e,
+            )
             update_unified_post_status(post.id)
         return
 
     except (PermissionDeniedError, MediaTooLargeError, PublishError) as e:
-        _mark_failed(log, code=getattr(e, 'code', 'publish_error') or 'publish_error',
-                     message=str(e)[:500])
+        _mark_failed(
+            log,
+            code=getattr(e, 'code', 'publish_error') or 'publish_error',
+            message=str(e)[:500],
+            post=post,
+            exc=e,
+        )
         update_unified_post_status(post.id)
         return
 
     except Exception as e:
         logger.exception('publish_to_platform unexpected error post=%s platform=%s', post.id, platform)
-        _mark_failed(log, code='unexpected', message=str(e)[:500])
+        _mark_failed(log, code='unexpected', message=str(e)[:500], post=post, exc=e)
         update_unified_post_status(post.id)
         return
 
@@ -282,35 +302,62 @@ def _dispatch_publish(publisher, credential, content, media_urls, media_type, *,
     raise PublishError(f'Unknown media_type: {media_type}', code='unknown_media_type')
 
 
-def _resolve_media_urls(post: UnifiedPost, media_urls: list) -> list:
+def _resolve_media_urls(post: UnifiedPost, media_urls: list, *, platform: str | None = None) -> list:
     """
-    Translate a mix of bare URLs and `asset:<id>` placeholders into final URLs.
-    Real apps will store everything as `asset:<id>` so the orchestrator can
-    swap to S3 presigned URLs at publish time. Bare URLs pass through unchanged.
+    Translate asset tokens and relative `/media/...` paths into URLs or local paths
+    publishers can fetch (YouTube may use a filesystem path when MEDIA_ROOT is shared).
     """
     out = []
     for u in media_urls or []:
-        if isinstance(u, str) and u.startswith('asset:'):
-            try:
-                asset_id = int(u.split(':', 1)[1])
-                asset = MediaAsset.objects.filter(
-                    id=asset_id, client=post.client,
-                ).first()
-                if asset:
-                    out.append(media_service.presigned_url(asset) or '')
-                    continue
-            except (ValueError, IndexError):
-                pass
-        out.append(u)
-    return [u for u in out if u]
+        resolved = media_service.resolve_media_url_for_publish(
+            u,
+            client_id=post.client_id,
+            platform=platform,
+        )
+        if resolved:
+            out.append(resolved)
+    return out
 
 
-def _mark_failed(log: PlatformPublishLog, *, code: str, message: str):
+def _mark_failed(
+    log: PlatformPublishLog,
+    *,
+    code: str,
+    message: str,
+    post: UnifiedPost | None = None,
+    exc: BaseException | None = None,
+):
     log.status = 'failed'
     log.error_code = (code or 'failed')[:80]
     log.error_message = (message or '')[:500]
     log.completed_at = timezone.now()
     log.save(update_fields=['status', 'error_code', 'error_message', 'completed_at'])
+    try:
+        parent = post or log.unified_post
+        _log_publish_failure(parent, log.platform, code, message, exc=exc)
+    except Exception:
+        logger.debug('ErrorLog persist skipped for publish failure', exc_info=True)
+
+
+def _log_publish_failure(
+    post: UnifiedPost,
+    platform: str,
+    code: str,
+    message: str,
+    *,
+    exc: BaseException | None = None,
+):
+    from .error_monitoring.services.error_logger import ErrorLogger
+
+    ErrorLogger.log_composer_publish_failure(
+        unified_post_id=post.id,
+        client_id=post.client_id,
+        platform=platform or 'unknown',
+        error_code=code or 'publish_error',
+        message=message or '',
+        created_by_id=getattr(post, 'created_by_id', None),
+        exception=exc,
+    )
 
 
 def update_unified_post_status(unified_post_id: int):
@@ -374,7 +421,10 @@ def update_unified_post_status(unified_post_id: int):
             from .events.publisher import EventPublisher
             # Pull a representative reason from the first failed publish_log.
             failed_log = post.publish_logs.filter(status='failed').first()
-            reason = (failed_log.error if failed_log and failed_log.error else 'all platforms failed')
+            reason = (
+                (failed_log.error_message if failed_log and failed_log.error_message else '')
+                or 'all platforms failed'
+            )
             EventPublisher.publish(
                 'post.failed',
                 client=post.client,

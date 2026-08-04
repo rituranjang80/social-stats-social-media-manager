@@ -144,6 +144,7 @@ class ErrorLogger:
         execution_time_ms: int | None = None,
         error_log_id: uuid.UUID | None = None,
         drf_context: dict[str, str] | None = None,
+        payload_overrides: dict[str, Any] | None = None,
         async_log: bool | None = None,
     ) -> uuid.UUID | None:
         if not _enabled():
@@ -161,6 +162,12 @@ class ErrorLogger:
             execution_time_ms=execution_time_ms,
             error_log_id=log_id,
         )
+        if drf_context and not request:
+            for key in ('view_name', 'serializer_name', 'api_name', 'model_name'):
+                if drf_context.get(key):
+                    payload[key] = str(drf_context[key])[:255]
+        if payload_overrides:
+            payload.update(payload_overrides)
 
         use_async = _async_enabled() if async_log is None else async_log
         if use_async:
@@ -177,3 +184,56 @@ class ErrorLogger:
     @staticmethod
     def log_payload(payload: dict[str, Any]) -> Optional[ErrorLog]:
         return persist_payload(payload)
+
+    @staticmethod
+    def log_composer_publish_failure(
+        *,
+        unified_post_id: int,
+        client_id: int,
+        platform: str,
+        error_code: str,
+        message: str,
+        created_by_id: int | None = None,
+        exception: BaseException | None = None,
+        async_log: bool | None = None,
+    ) -> uuid.UUID | None:
+        """Persist a failed YouTube/Instagram/etc. publish to ErrorLog (Celery path)."""
+        from ..sanitization import sanitize_body
+        from social_stats.publishers import PublishError
+
+        exc = exception or PublishError(message or 'Publish failed', code=error_code or 'publish_error')
+        overrides: dict[str, Any] = {
+            'workspace_id': str(client_id),
+            'error_category': 'composer_publish',
+            'request_path': f'/composer/publish/{unified_post_id}/{platform}',
+            'request_method': 'POST',
+            'request_body': sanitize_body({
+                'unified_post_id': unified_post_id,
+                'platform': platform,
+                'error_code': error_code,
+                'message': (message or '')[:2000],
+            }),
+        }
+        if created_by_id:
+            overrides['authenticated_user_id'] = created_by_id
+            try:
+                from django.contrib.auth.models import User
+
+                user = User.objects.filter(pk=created_by_id).only('username', 'email').first()
+                if user:
+                    overrides['username'] = user.username
+                    overrides['email'] = user.email or ''
+            except Exception:
+                pass
+
+        return ErrorLogger.log_exception(
+            exc,
+            severity='ERROR',
+            drf_context={
+                'api_name': 'publish_to_platform',
+                'view_name': 'social_stats.orchestrator.publish_to_platform',
+                'model_name': 'UnifiedPost',
+            },
+            payload_overrides=overrides,
+            async_log=async_log,
+        )

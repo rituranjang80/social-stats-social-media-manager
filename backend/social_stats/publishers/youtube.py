@@ -31,10 +31,14 @@ from __future__ import annotations
 
 import logging
 import os
+import shutil
 import tempfile
+from pathlib import Path
 from typing import Optional
 
 import requests
+
+from social_stats import media_service
 
 from .base import (
     BasePublisher, PublishResult, PublishError,
@@ -275,19 +279,36 @@ class YouTubePublisher(BasePublisher):
 
     def _stream_upload(self, upload_url: str, video_url: str, access_token: str) -> str:
         """Download video_url to a tempfile and PUT to YouTube's resumable URL."""
-        # `video_url` is expected to be a public URL (e.g., S3 presigned).
+        local_path = media_service.resolve_local_media_path(video_url)
+        if not local_path and video_url and not str(video_url).startswith(('http://', 'https://')):
+            candidate = Path(video_url)
+            if candidate.is_file():
+                local_path = candidate
+
         with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as fh:
             tmp_path = fh.name
             try:
-                with requests.get(video_url, stream=True, timeout=LONG_TIMEOUT) as src:
-                    if src.status_code != 200:
+                if local_path:
+                    shutil.copyfile(local_path, tmp_path)
+                else:
+                    fetch_url = media_service.absolute_media_url(video_url)
+                    try:
+                        src_ctx = requests.get(fetch_url, stream=True, timeout=LONG_TIMEOUT)
+                    except requests.exceptions.MissingSchema as exc:
                         raise PublishError(
-                            f'Failed to download video for upload (status {src.status_code})',
-                            code='media_unreachable',
-                        )
-                    for chunk in src.iter_content(chunk_size=1024 * 1024):
-                        if chunk:
-                            fh.write(chunk)
+                            'Video URL must be absolute (http/https) or a file on MEDIA_ROOT; '
+                            'set BACKEND_PUBLIC_URL for local /media paths.',
+                            code='invalid_media_url',
+                        ) from exc
+                    with src_ctx as src:
+                        if src.status_code != 200:
+                            raise PublishError(
+                                f'Failed to download video for upload (status {src.status_code})',
+                                code='media_unreachable',
+                            )
+                        for chunk in src.iter_content(chunk_size=1024 * 1024):
+                            if chunk:
+                                fh.write(chunk)
                 fh.flush()
                 size = os.path.getsize(tmp_path)
             finally:
@@ -325,14 +346,24 @@ class YouTubePublisher(BasePublisher):
 
     def _set_thumbnail(self, client: GoogleClient, video_id: str, thumb_url: str):
         """Download the thumbnail and POST to /thumbnails/set."""
+        local_path = media_service.resolve_local_media_path(thumb_url)
+        if not local_path and thumb_url and not str(thumb_url).startswith(('http://', 'https://')):
+            candidate = Path(thumb_url)
+            if candidate.is_file():
+                local_path = candidate
+
         with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as fh:
             tmp_path = fh.name
-            with requests.get(thumb_url, stream=True, timeout=LONG_TIMEOUT) as src:
-                if src.status_code != 200:
-                    raise PublishError(f'Thumbnail download failed (status {src.status_code})')
-                for chunk in src.iter_content(chunk_size=64 * 1024):
-                    if chunk:
-                        fh.write(chunk)
+            if local_path:
+                shutil.copyfile(local_path, tmp_path)
+            else:
+                fetch_url = media_service.absolute_media_url(thumb_url)
+                with requests.get(fetch_url, stream=True, timeout=LONG_TIMEOUT) as src:
+                    if src.status_code != 200:
+                        raise PublishError(f'Thumbnail download failed (status {src.status_code})')
+                    for chunk in src.iter_content(chunk_size=64 * 1024):
+                        if chunk:
+                            fh.write(chunk)
         try:
             with open(tmp_path, 'rb') as f:
                 client.post(THUMBS_URL,
