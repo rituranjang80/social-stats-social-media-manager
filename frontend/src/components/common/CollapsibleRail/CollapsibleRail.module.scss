@@ -3,17 +3,26 @@
 
 .collapsible-rail-root {
   position: relative;
+  pointer-events: none;
+
+  &.ds-feature-collapsible-rail {
+    pointer-events: none;
+  }
 }
 
 // Shell feature sidebar — same edge toggle as composer preview (TEdgeToggle)
 .shellEdgeToggle {
   &:global(.t-edge-toggle.t-edge-toggle--left) {
-    display: flex;
+    display: flex !important;
     position: fixed;
-    top: calc(var(--topbar-height, 56px) + 24px);
+    top: calc(var(--topbar-height, 56px) + 4px);
     transform: none;
     left: var(--collapsible-rail-left, 0);
     z-index: $rail-z-toggle;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    width: 12px;
+    height: 12px;
     transition: left 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 

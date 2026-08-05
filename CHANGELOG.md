@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed — Edge rail toggle (TEdgeToggle)
+
+- Restored normal icon size and removed misplaced `t1-collapsible-rail-root` on the button so the left sidebar and composer preview toggles are **clickable** and **top-aligned** below the top bar.
+
 ### Changed — Composer live preview video
 
 - **Double-click** the video in the right **Preview** panel (`#composer-preview`): with **YouTube** selected, opens **Custom Thumbnail** and starts playback (same as **Play** in that dialog); otherwise plays inline with controls.

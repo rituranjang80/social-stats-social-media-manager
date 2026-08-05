@@ -32,7 +32,7 @@ export default function ComposerActionFooter({
       )}
       right={(
         <div className="composer__publish-group">
-          <button
+          {/* <button
             type="button"
             className="composer-btn composer-btn--secondary"
             onClick={onPreflight}
@@ -40,7 +40,7 @@ export default function ComposerActionFooter({
           >
             <Eye size={16} strokeWidth={2} aria-hidden="true" />
             <span className="composer-btn__label">Preflight</span>
-          </button>
+          </button> */}
           {scheduleMode === 'schedule' ? (
             <button
               type="button"

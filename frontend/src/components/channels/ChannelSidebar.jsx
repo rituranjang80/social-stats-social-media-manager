@@ -24,15 +24,15 @@ export default function ChannelSidebar({
 }) {
   const classes = [
     'channel-sidebar-module',
-    'composer-connect',
-    compact ? 'channel-sidebar-module--compact' : '',
-    compact ? 'composer-connect--compact' : '',
-    className,
+    // 'composer-connect',
+    // compact ? 'channel-sidebar-module--compact' : '',
+    // compact ? 'composer-connect--compact' : '',
+    // className,
   ].filter(Boolean).join(' ');
 
   return (
     <section className={classes} aria-label={title}>
-      <div className="channel-sidebar-module__head">
+      {/* <div className="channel-sidebar-module__head">
         <div>
           <h3 className="module-title">{title}</h3>
           {subtitle ? (
@@ -75,7 +75,7 @@ export default function ChannelSidebar({
             disabled={!!channel.disabled}
           />
         ))}
-      </TGrid>
+      </TGrid> */}
 
       {settingsPath ? (
         <Link to={settingsPath} className="channel-sidebar-module__cta">

@@ -692,8 +692,10 @@
       }
 
       .composer__preview-edge-toggle {
-        display: flex;
-        top: 24px;
+        display: flex !important;
+        pointer-events: auto !important;
+        cursor: pointer !important;
+        top: calc(var(--topbar-height, 56px) + 24px);
         transform: none;
         right: var(--composer-preview-rail-width);
         z-index: 1001;

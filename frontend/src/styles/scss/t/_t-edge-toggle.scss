@@ -1,8 +1,8 @@
 @use '../variables' as *;
 @use '../mixins' as *;
 
-$edge-toggle-width: 28px !important;
-$edge-toggle-height: 26px !important;
+$edge-toggle-width: 28px;
+$edge-toggle-height: 32px;
 $edge-transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 $edge-top-offset: 24px;
 
@@ -12,8 +12,8 @@ $edge-top-offset: 24px;
   transform: translateY(-50%);
   width: $edge-toggle-width;
   height: $edge-toggle-height;
-  min-height: unset;
-  min-width: unset;
+  min-height: unset !important;
+  min-width: unset !important;
   padding: 0;
   border: none;
   background: var(--rail-primary, #f97316);
@@ -23,8 +23,20 @@ $edge-top-offset: 24px;
   display: none;
   align-items: center;
   justify-content: center;
+  overflow: visible;
+  pointer-events: auto;
   box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.12));
-  transition: right $edge-transition, left $edge-transition, background $t-transition;
+  transition:
+    right $edge-transition,
+    left $edge-transition,
+    background $t-transition,
+    width 0.2s ease,
+    height 0.2s ease;
+
+  svg {
+    flex-shrink: 0;
+    pointer-events: none;
+  }
 
   &:hover {
     filter: brightness(1.06);
@@ -35,14 +47,12 @@ $edge-top-offset: 24px;
     outline-offset: 2px;
   }
 
-  // Top-aligned — never combine with translateY(-50%)
   &.is-top-aligned {
     top: $edge-top-offset;
     transform: none;
   }
 
   &--left {
-    left: 0;
     border-radius: 0 8px 8px 0;
   }
 

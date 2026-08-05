@@ -26,12 +26,15 @@ export default function ComposerHeader({
       </button> */}
 
       <div className="composer__header-text">
-        <nav className="composer__breadcrumb" aria-label="Breadcrumb">
+        {/* <nav className="composer__breadcrumb" aria-label="Breadcrumb">
           <span>Publish</span>
           <span aria-hidden="true">/</span>
           <span aria-current="page">{title}</span>
-        </nav>
-        <h1 className="composer__title">{title} post</h1>
+        </nav> */}
+        {/* <h1 className="composer__title">{'  '+title} post</h1> */}
+        <h1 className="composer__title" style={{ paddingLeft: '20px' }}>
+  {title} post
+</h1>
         {/* <p className="composer__subtitle">
           {workspaceLabel || 'Select a workspace to start composing'}
         </p> */}
