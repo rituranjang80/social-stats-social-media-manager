@@ -4,7 +4,7 @@
 .ds-topbar {
   position: fixed;
   top: 0;
-  left: calc(var(--module-rail-width) + var(--feature-sidebar-width));
+  left: var(--feature-sidebar-width);
   right: 0;
   height: var(--topbar-height);
   z-index: 110;

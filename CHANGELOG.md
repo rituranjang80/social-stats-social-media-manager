@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed — Desktop navigation shell
+
+- Retired the **64px module rail** UI; **Modules** (Analytics, Messaging, Ads), feature sections, and **Account** actions now live in the **collapsible feature sidebar**. Layout uses sidebar width only (no extra left gutter).
+
 ### Fixed — Edge rail toggle (TEdgeToggle)
 
 - Restored normal icon size and removed misplaced `t1-collapsible-rail-root` on the button so the left sidebar and composer preview toggles are **clickable** and **top-aligned** below the top bar.

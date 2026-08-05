@@ -131,18 +131,18 @@ export default function ComposerConnectChannels({
     ? ``
     : '';
 
-  return (
-    <ChannelSidebar
-      compact={compact}
-      title="CHANNELS"
-      subtitle={subtitle}
-      channels={channels}
-      cols={4}
-      gap={10}
-      loading={loading}
-      error={error}
-      settingsPath={settingsPath}
-      onRefresh={load}
-    />
+  return (null
+    // <ChannelSidebar
+    //   compact={compact}
+    //   title="CHANNELS"
+    //   subtitle={subtitle}
+    //   channels={channels}
+    //   cols={4}
+    //   gap={10}
+    //   loading={loading}
+    //   error={error}
+    //   settingsPath={settingsPath}
+    //   onRefresh={load}
+    // />
   );
 }

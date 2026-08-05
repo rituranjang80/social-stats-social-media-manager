@@ -7,14 +7,13 @@
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { BarChart3, MessageCircle, Target, Menu, X, Search } from 'lucide-react';
+import { Menu, X, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRealtime } from '../../hooks/useRealtime';
 
-import ModuleRail from './ModuleRail';
-import FeatureSidebar, { getFeatureSidebarMeta } from './FeatureSidebar';
+import FeatureSidebar, { buildShellModules, getFeatureSidebarMeta } from './FeatureSidebar';
 import TopBar from './TopBar';
 import CommandPalette from './CommandPalette';
 import MobileNav from './MobileNav';
@@ -42,7 +41,6 @@ import '../../styles/base/_themes.scss';
  */
 export default function AppShell({ children, isAdmin }) {
   const location = useLocation();
-  const navigate = useNavigate();
   const { user, can } = useAuth();
   const { isMobile } = useBreakpoint();
   const reducedMotion = useReducedMotion();
@@ -96,25 +94,11 @@ export default function AppShell({ children, isAdmin }) {
   });
 
   // Build module list, filtered by role/perms
-  const modules = useMemo(() => {
-    const all = [
-      {
-        id: 'analytics', label: 'Analytics', icon: BarChart3,
-        enabled: true,  // always available
-      },
-      {
-        id: 'messaging', label: 'Messaging', icon: MessageCircle,
-        enabled: isAdmin || can?.('whatsapp.view'),
-      },
-      {
-        id: 'ads', label: 'Ads', icon: Target,
-        enabled: false, comingSoon: true,
-      },
-    ];
-    return all.filter((m) => m.enabled || m.comingSoon || isAdmin);
-  }, [isAdmin, can]);
+  const modules = useMemo(
+    () => buildShellModules({ isAdmin, can }),
+    [isAdmin, can],
+  );
 
-  const showRail    = !isMobile;
   const showSidebar = !isMobile;
   const sidebarMeta = useMemo(
     () => getFeatureSidebarMeta(currentModule),
@@ -125,14 +109,6 @@ export default function AppShell({ children, isAdmin }) {
   return (
     <div className="ds-app-shell">
       <SkipLink targetId="main-content" />
-
-      {showRail && (
-        <ModuleRail
-          currentModule={currentModule}
-          basePath={basePath}
-          modules={modules}
-        />
-      )}
 
       {showSidebar && (
         <CollapsibleRail
@@ -151,6 +127,7 @@ export default function AppShell({ children, isAdmin }) {
           <FeatureSidebar
             module={currentModule}
             basePath={basePath}
+            modules={modules}
             embedded
           />
         </CollapsibleRail>
@@ -267,7 +244,6 @@ function MobileTopBar({ basePath, onMenuOpen, onOpenPalette }) {
 }
 
 function MobileDrawer({ open, onClose, modules, currentModule, basePath }) {
-  const navigate = useNavigate();
   const drawerRef = useRef(null);
 
   // Esc to close + Tab focus trap (so the drawer behaves like a real dialog
@@ -336,45 +312,13 @@ function MobileDrawer({ open, onClose, modules, currentModule, basePath }) {
           </button>
         </header>
 
-        {/* Module switcher */}
-        <div style={{
-          padding: '10px 12px',
-          display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8,
-          borderBottom: '1px solid var(--border-subtle)',
-        }}>
-          {modules.map((m) => {
-            const Icon = m.icon;
-            const active = m.id === currentModule;
-            const disabled = !m.enabled || m.comingSoon;
-            return (
-              <button
-                key={m.id}
-                type="button"
-                disabled={disabled}
-                onClick={() => { if (!disabled) { navigate(`${basePath}/${m.id}`); onClose(); } }}
-                style={{
-                  padding: 12,
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: 'var(--radius-md)',
-                  background: active ? 'var(--brand-gradient)' : 'var(--surface-sunken)',
-                  color: active ? '#fff' : disabled ? 'var(--text-tertiary)' : 'var(--text-primary)',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                  fontSize: 12, fontWeight: 600,
-                  cursor: disabled ? 'not-allowed' : 'pointer',
-                  opacity: disabled ? 0.6 : 1,
-                  minHeight: 'unset',
-                }}
-              >
-                <Icon size={18} />
-                {m.label}
-                {m.comingSoon && <span style={{ fontSize: 9, opacity: 0.7 }}>SOON</span>}
-              </button>
-            );
-          })}
-        </div>
-
         <div className="sidebar-scroll" style={{ flex: 1, overflowY: 'auto' }}>
-          <FeatureSidebar module={currentModule} basePath={basePath} embedded />
+          <FeatureSidebar
+            module={currentModule}
+            basePath={basePath}
+            modules={modules}
+            embedded
+          />
         </div>
       </div>
     </>

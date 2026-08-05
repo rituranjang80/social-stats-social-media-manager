@@ -18,9 +18,9 @@
   --rail-text: var(--text-primary, #f5f5f5);
 }
 
-// Shell: CollapsibleRail sits beside ModuleRail and drives layout width
+// Shell: CollapsibleRail is flush left (module rail UI retired)
 .ds-feature-collapsible-rail {
-  --collapsible-rail-left: var(--module-rail-width, 64px);
+  --collapsible-rail-left: 0px;
   --collapsible-rail-expanded-width: var(--feature-sidebar-width-expanded, 240px);
   --collapsible-rail-collapsed-width: 0px;
   // Never let the wrapper steal clicks from TopBar / Switch Workspace

@@ -24,6 +24,11 @@ to start over.
 
 ## Modules
 
+On desktop, open the **collapsible left sidebar** (chevron on the left edge). **Modules**
+switches Analytics, Messaging, and Ads; below that are the current module’s pages and an
+**Account** section (notifications, settings, sign out). The old narrow **module rail**
+is no longer shown.
+
 ### Analytics dashboard
 Daily-metric ingestion across the 5 platforms feeds per-client dashboards and a
 time-series API. With demo data you'll see 90 days of charts; with real connected
