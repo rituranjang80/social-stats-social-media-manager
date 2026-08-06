@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Added — Top bar profile photo
+
+- When a user has a **profile photo** (Settings → Profile), the top bar account control shows the image with a ring and `object-fit: cover`; otherwise initials are unchanged. `/auth/me/` now exposes `avatar` (and `name`) from `UserProfile.avatar`.
+
+### Changed — Top bar chrome
+
+- Fixed **Sass build error** in `topbar.scss` (stray `}` from a bad merge).
+- Top bar uses a light **frosted** background, grouped **quick actions** (theme, notifications, What’s new), a divider, and a polished **account dropdown** (animation, separator before sign out, focus rings). Breadcrumb segments link again when navigable.
+
 ### Fixed — Docker could not load `frontend/.env`
 
 - **`paths.env`** for the in-repo start layout uses **`SOURCE_REL=..`** so Compose mounts the correct `frontend/` tree and **`frontend/.env`** branding vars apply.

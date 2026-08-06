@@ -264,12 +264,13 @@ def _silent_token_refresh(client_id):
 def me(request):
     from django.conf import settings as dj_settings
     user = request.user
-    data = UserSerializer(user).data
+    ser_ctx = {'request': request}
+    data = UserSerializer(user, context=ser_ctx).data
     try:
         from .permissions import PermissionChecker
         profile = user.profile
         ensure_client_profile(profile)
-        data = UserSerializer(user).data
+        data = UserSerializer(user, context=ser_ctx).data
         data['permissions'] = PermissionChecker.get_user_permissions(profile)
         data['onboarding_complete'] = profile.client.onboarding_complete if profile.client else False
         # Feature flags surfaced to the client app.

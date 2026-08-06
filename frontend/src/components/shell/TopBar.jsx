@@ -12,6 +12,7 @@ import { Search, Sparkles, ChevronRight } from 'lucide-react';
 import ThemeToggle from '../ui/ThemeToggle';
 import NotificationBell from '../ui/NotificationBell';
 import WorkspaceSwitcher from '../workspace/WorkspaceSwitcher';
+import TopBarAccountMenu from './TopBarAccountMenu';
 import useWorkspace from '../../hooks/useWorkspace';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -47,7 +48,7 @@ export default function TopBar({
             {i === crumbs.length - 1 ? (
               <span className="ds-topbar__crumb-current">{c.label}</span>
             ) : c.to ? (
-               ''
+              <Link to={c.to} className="ds-topbar__crumb-link">{c.label}</Link>
             ) : (
               <span className="ds-topbar__crumb-muted">{c.label}</span>
             )}
@@ -66,7 +67,7 @@ export default function TopBar({
       </div>
 
       <div className="ds-topbar__actions">
-        <button
+        {/* <button
           type="button"
           onClick={onOpenPalette}
           aria-label="Open command palette (Cmd+K)"
@@ -77,21 +78,17 @@ export default function TopBar({
           <kbd className="ds-topbar-search__kbd">
             {isMac ? '⌘' : 'Ctrl'}K
           </kbd>
-        </button>
+        </button> */}
 
-        <ThemeToggle size="sm" />
-        <NotificationBellWrapper />
+        <div className="ds-topbar__tools" role="group" aria-label="Quick actions">
+          <ThemeToggle size="sm" />
+          <NotificationBellWrapper />
+         
+        </div>
 
-        <Link
-          to="/changelog"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="ds-whats-new"
-          aria-label="What's new"
-        >
-          <Sparkles size={11} aria-hidden="true" />
-          New
-        </Link>
+        <span className="ds-topbar__divider" aria-hidden="true" />
+
+        <TopBarAccountMenu basePath={basePath} />
       </div>
     </header>
   );

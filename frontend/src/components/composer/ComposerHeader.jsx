@@ -47,14 +47,14 @@ export default function ComposerHeader({
             <span>{workspaceLabel}</span>
           </span>
         ) : null} */}
-        <span
+        {/* <span
           className={`composer__status-chip${saving ? ' is-saving' : ''}`}
           role="status"
           aria-live="polite"
         >
           <Save size={12} aria-hidden="true" />
           {saving ? 'Saving…' : status}
-        </span>
+        </span> */}
         <button
           type="button"
           className="composer-preview-toggle"

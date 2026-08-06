@@ -22,6 +22,7 @@ import SkipLink from '../ui/SkipLink';
 import ThemeToggle from '../ui/ThemeToggle';
 import WorkspaceSwitcher from '../workspace/WorkspaceSwitcher';
 import { CollapsibleRail, RailHeader } from '../common/CollapsibleRail';
+import { TopBarAccountMenuCompact } from './TopBarAccountMenu';
 import useBreakpoint from '../../hooks/useBreakpoint';
 import { useAuth } from '../../hooks/useAuth';
 import useWorkspace from '../../hooks/useWorkspace';
@@ -201,8 +202,6 @@ function MobileTopBar({ basePath, onMenuOpen, onOpenPalette }) {
     loading,
     switchWorkspace,
   } = useWorkspace({ user, autoHydrate: false });
-  const initial = ((user?.name || user?.email || 'U').trim()[0] || 'U').toUpperCase();
-  const hue = hashHue(user?.email || user?.name || '');
 
   return (
     <header className="ds-mobile-topbar" role="banner">
@@ -232,13 +231,7 @@ function MobileTopBar({ basePath, onMenuOpen, onOpenPalette }) {
 
       <ThemeToggle size="sm" />
 
-      <div
-        className="ds-mobile-topbar__avatar"
-        style={{ '--ds-avatar-hue': hue }}
-        aria-hidden="true"
-      >
-        {initial}
-      </div>
+      <TopBarAccountMenuCompact basePath={basePath} />
     </header>
   );
 }
@@ -330,12 +323,6 @@ function deriveModule(pathname, basePath) {
   const seg = rest.split('/').filter(Boolean)[0];
   if (seg === 'analytics' || seg === 'messaging' || seg === 'ads') return seg;
   return 'analytics';  // default
-}
-
-function hashHue(s) {
-  let h = 0;
-  for (let i = 0; i < (s || '').length; i++) h = s.charCodeAt(i) + ((h << 5) - h);
-  return Math.abs(h) % 360;
 }
 
 const iconBtn = {

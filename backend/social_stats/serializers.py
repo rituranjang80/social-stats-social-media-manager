@@ -15,14 +15,20 @@ class UserSerializer(serializers.ModelSerializer):
     role         = serializers.CharField(source='profile.role',         read_only=True)
     client_id    = serializers.IntegerField(source='profile.client_id', read_only=True)
     account_type = serializers.CharField(source='profile.account_type', read_only=True)
-    profile_image = serializers.ImageField(source='profile.profile_image', read_only=True)
+    avatar       = serializers.ImageField(source='profile.avatar', read_only=True)
+    profile_image = serializers.ImageField(source='profile.avatar', read_only=True)
+    name         = serializers.SerializerMethodField()
 
     class Meta:
         model  = User
         fields = [
-            'id', 'username', 'email', 'first_name', 'last_name',
-            'role', 'client_id', 'account_type', 'profile_image',
+            'id', 'username', 'email', 'first_name', 'last_name', 'name',
+            'role', 'client_id', 'account_type', 'avatar', 'profile_image',
         ]
+
+    def get_name(self, user):
+        full = f'{user.first_name or ""} {user.last_name or ""}'.strip()
+        return full or user.username or user.email or ''
 
 
 class ClientSerializer(serializers.ModelSerializer):

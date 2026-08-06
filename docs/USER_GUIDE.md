@@ -90,6 +90,11 @@ persisted in the browser, and applied to API requests automatically. Composer,
 dashboard, calendar, media, inbox, and settings all bind to that workspace —
 no per-page workspace chrome on the composer.
 
+Use the **account avatar** at the right of the top bar (chevron on desktop) for
+**Account information** (same page as sidebar **Account settings**) and **Sign out**.
+If you upload a **profile photo** under Settings → Profile, that image appears in
+the top bar and account menu on every page.
+
 **Compose features (in addition to caption + media + schedule):**
 - **Brightbean-aligned chrome** — Create/Edit header with back + Preview,
   workspace/status context, orange accents, stone surfaces, account-style

@@ -135,6 +135,7 @@ export default function UserSettingsPage() {
 // ── Profile Tab ───────────────────────────────────────────────────────────────
 
 function ProfileTab({ user, logout, navigate }) {
+  const { refreshUser } = useAuth();
   const [firstName, setFirstName] = useState('');
   const [lastName,  setLastName]  = useState('');
   const [avatar,    setAvatar]    = useState(null);
@@ -170,6 +171,7 @@ function ProfileTab({ user, logout, navigate }) {
     fd.append('last_name',  lastName);
     fd.append('remove_avatar', 'true');
     await profileAPI.update(fd);
+    await refreshUser?.();
   };
 
   const handleSave = async (e) => {
@@ -185,6 +187,9 @@ function ProfileTab({ user, logout, navigate }) {
       await profileAPI.update(fd);
       setSuccess('Profile updated successfully.');
       setAvatar(null);
+      await refreshUser?.();
+      const refreshed = await profileAPI.get();
+      setPreview(refreshed.data.avatar || null);
     } catch (err) {
       setError(err?.response?.data?.error || 'Failed to save. Please try again.');
     } finally { setSaving(false); }
