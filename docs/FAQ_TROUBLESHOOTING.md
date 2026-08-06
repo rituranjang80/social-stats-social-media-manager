@@ -29,8 +29,10 @@ often than the access token expires. See [CONFIGURATION.md](CONFIGURATION.md).
 By default, **20 minutes** of no activity triggers a **5-minute countdown** dialog
 with optional beep. Click **Continue working** to stay signed in, or adjust
 `REACT_APP_IDLE_TIMEOUT_MINUTES`, `REACT_APP_IDLE_WARNING_MINUTES`, and
-`REACT_APP_IDLE_SESSION_ENABLED` in `frontend/.env`. Restart the frontend after
-changes.
+`REACT_APP_IDLE_SESSION_ENABLED` in `frontend/.env`. If `REACT_APP_IDLE_*_SECONDS`
+is set, it overrides the matching `*_MINUTES` value. Restart the frontend after
+changes. The warning does not appear while the tab is hidden or when you are
+moving the mouse, typing, or clicking.
 
 ---
 

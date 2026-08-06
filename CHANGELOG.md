@@ -2,9 +2,10 @@
 
 ## [Unreleased]
 
-### Added — Configurable idle session sign-out
+### Fixed — Idle session warning while user is active
 
-- Signed-in users are **not** signed out while active. After configurable inactivity, a **warning dialog** appears with countdown, optional **beep**, and **Continue working** to reset the timer. Env changes require a **frontend restart** (`npm start` / rebuild). DevTools console logs `[idle-session]` timing when enabled in development.
+- Activity now includes **mouse movement** (throttled), **click/input/focus**, and any interaction **closes** the warning. Idle time **pauses** when the browser tab is hidden; the dialog only shows when the tab is visible.
+- Configurable idle sign-out (env vars, **Continue working**, JWT refresh while active). Restart frontend after `.env` changes; dev console logs `[idle-session]` timings.
 
 ### Changed — Desktop navigation shell
 

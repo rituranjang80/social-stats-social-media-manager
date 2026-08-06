@@ -37,6 +37,9 @@ const warningLeadMs = (() => {
   return min * 60 * 1000;
 })();
 
+const usesSecondsOverride = parseOptionalSeconds(process.env.REACT_APP_IDLE_TIMEOUT_SECONDS) != null
+  || parseOptionalSeconds(process.env.REACT_APP_IDLE_WARNING_SECONDS) != null;
+
 const beepEnabled = truthy(process.env.REACT_APP_IDLE_BEEP) ?? true;
 
 const tokenRefreshMinutes = parsePositiveInt(process.env.REACT_APP_IDLE_TOKEN_REFRESH_MINUTES, 10);
@@ -67,6 +70,10 @@ if (process.env.NODE_ENV === 'development' && enabled) {
     idleTimeoutMs: sessionIdleConfig.idleTimeoutMs,
     warningAtMs: sessionIdleConfig.warningAtMs,
     warningLeadMs: sessionIdleConfig.warningLeadMs,
+    usesSecondsOverride,
+    note: usesSecondsOverride
+      ? 'REACT_APP_IDLE_*_SECONDS override minutes — remove *_SECONDS to use MINUTES only'
+      : undefined,
   });
 }
 

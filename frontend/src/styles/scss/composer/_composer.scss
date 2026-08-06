@@ -244,6 +244,22 @@
     color: var(--text-secondary);
   }
 
+  .composer__preview-rail.is-collapsed .composer__preview-edge-toggle {
+  width: 15px;
+  height: 15px;
+  min-height: 15px;
+  top: 1px;
+  padding: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+svg.lucide.lucide-chevron-left {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+}
   &__form-scroll {
     flex: 1 1 auto;
     min-height: 0;
