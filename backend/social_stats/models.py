@@ -48,6 +48,8 @@ class Client(models.Model):
     gmb_url    = models.URLField(blank=True, help_text="Google My Business profile URL")
     logo       = models.ImageField(upload_to='logos/', blank=True, null=True)
     is_active  = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False, db_index=True)
+    last_invitation_sent_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     # Business Profile Fields
@@ -1345,6 +1347,7 @@ class ClientInvitation(models.Model):
     invited_at    = models.DateTimeField(auto_now_add=True)
     responded_at  = models.DateTimeField(null=True, blank=True)
     expires_at    = models.DateTimeField(null=True, blank=True)
+    token_used_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ['-invited_at']

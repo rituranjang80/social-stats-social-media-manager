@@ -329,13 +329,13 @@ class ClientViewSet(viewsets.ModelViewSet):
                 # AllClientsPage: only show properly onboarded clients
                 # (admin-created OR accepted invitation from this agency)
                 return Client.objects.filter(
+                    is_deleted=False,
+                ).filter(
                     Q(userprofile__isnull=True) |
                     Q(userprofile__is_self_registered=False) |
                     Q(userprofile__agency=self.request.user)
                 ).distinct().order_by('company')
-            # All other actions (trigger_sync, dashboard, settings, etc.)
-            # allow full access to every client
-            return Client.objects.all().order_by('company')
+            return Client.objects.filter(is_deleted=False).order_by('company')
         if profile.role == 'staff':
             return profile.assigned_clients.all()
         if profile.role == 'client' and profile.client:
@@ -619,7 +619,52 @@ class GoalViewSet(viewsets.ModelViewSet):
         if role not in ('superadmin', 'staff'):
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied()
-        instance.delete()
+        from .client_invitation_service import soft_delete_client
+        soft_delete_client(instance, actor=self.request.user, request=self.request)
+
+    @action(detail=True, methods=['post'], url_path='resend-invitation')
+    def resend_invitation(self, request, pk=None):
+        if not check_client_access(request, pk):
+            return Response({'error': 'Access denied'}, status=403)
+        try:
+            role = request.user.profile.role
+        except Exception:
+            role = None
+        if role not in ('superadmin', 'staff'):
+            return Response({'error': 'Forbidden'}, status=403)
+        client = self.get_object()
+        from .client_invitation_service import resend_invitation_for_client
+        inv, err, log_id = resend_invitation_for_client(
+            client=client, invited_by=request.user, request=request,
+        )
+        if not inv:
+            return Response({
+                'error': err or 'Could not send invitation email.',
+                'error_log_id': str(log_id) if log_id else None,
+            }, status=502)
+        return Response({
+            'status': 'sent',
+            'invitation_id': inv.id,
+            'last_invitation_sent_at': client.last_invitation_sent_at,
+        })
+
+    @action(detail=True, methods=['post'], url_path='activate')
+    def activate_client(self, request, pk=None):
+        if not check_client_access(request, pk):
+            return Response({'error': 'Access denied'}, status=403)
+        client = self.get_object()
+        from .client_invitation_service import set_client_active
+        set_client_active(client, active=True, actor=request.user, request=request)
+        return Response({'status': 'active', 'is_active': True})
+
+    @action(detail=True, methods=['post'], url_path='deactivate')
+    def deactivate_client(self, request, pk=None):
+        if not check_client_access(request, pk):
+            return Response({'error': 'Access denied'}, status=403)
+        client = self.get_object()
+        from .client_invitation_service import set_client_active
+        set_client_active(client, active=False, actor=request.user, request=request)
+        return Response({'status': 'inactive', 'is_active': False})
 
     @action(detail=False, methods=['get'], url_path='progress')
     def progress(self, request):

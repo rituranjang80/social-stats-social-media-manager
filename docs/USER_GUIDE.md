@@ -73,9 +73,21 @@ select-all, and clear-all (clear = All). Reference prototype:
 
 **Manage workspaces & team access** (other admin pages — not on the composer):
 
+### Client invitations
+
+1. Open **Clients** (`/admin/clients`), enter the client email, and **Send invitation**.
+2. The client receives a branded email with **Accept invitation** (`/accept-invitation/<token>`) and **Login** (`/login`). Passwords are **never** emailed.
+3. One click on **Accept invitation** signs them in and sends them to the dashboard; the token is **single-use** and expires after the configured period (default 7 days). **No temporary password** is emailed — the accept link is the secure sign-in method.
+4. If the link expired, they see **Invitation expired**; staff use **Resend** on that client row (or send a new invite from the form).
+5. Edit the HTML template under **Account settings → Welcome email template** (link on the Profile tab or **More settings**). Placeholders include `{{company_name}}`, `{{accept_invitation_url}}`, `{{login_url}}`, etc. Preview uses sample data.
+
+**Client row actions:** Open workspace, Sync, Edit, Resend invitation, Activate / Deactivate (invalidates sessions when deactivated), Delete (soft delete with confirmation).
+
 | Concept | URL |
 |---|---|
-| Workspaces + invitations | http://localhost:8000/admin/clients |
+| Workspaces + invitations | http://localhost:3000/admin/clients |
+| Welcome email template (staff) | http://localhost:3000/admin/account-settings/welcome-email-template |
+| Account settings (profile) | http://localhost:3000/admin/account-settings |
 | Members, RBAC, custom roles | http://localhost:8000/admin/management |
 | Per-workspace settings | http://localhost:8000/admin/client/`{clientId}`/settings |
 | Composer | http://localhost:8000/admin/analytics/composer |

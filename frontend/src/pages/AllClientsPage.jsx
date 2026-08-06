@@ -16,7 +16,7 @@ import {
   XCircle, RefreshCw, Building2, UserCheck, Zap,
 } from 'lucide-react';
 import PageHeader from '../components/layout/PageHeader';
-import ClientInvitationTemplatePanel from '../components/clients/ClientInvitationTemplatePanel';
+import ClientRowActions from '../components/clients/ClientRowActions';
 import { clientWorkspacePath } from '../utils/workspacePaths';
 import { BRAND_NAME } from '../config/branding';
 
@@ -170,8 +170,6 @@ export default function AllClientsPage({ onSelectClient }) {
         </div>
       </div>
 
-      <ClientInvitationTemplatePanel />
-
       {/* ── Invite panel ────────────────────────────────────────────────────── */}
       <div style={S.invitePanel}>
         <div style={S.invitePanelHeader}>
@@ -179,9 +177,14 @@ export default function AllClientsPage({ onSelectClient }) {
           <div>
             <h3 style={S.invitePanelTitle}>Invite a Client</h3>
             <p style={S.invitePanelSub}>
-              Sends a branded welcome email from {BRAND_NAME} with an invitation link (
-              {typeof window !== 'undefined' ? window.location.origin : 'your app URL'}
-              ). New clients receive a <strong>temporary password</strong> to sign in, then accept the invitation.
+              Sends a branded welcome email with a secure
+              {' '}
+              <strong>Accept invitation</strong>
+              {' '}
+              link (no password in email). Template:
+              {' '}
+              <Link to="/admin/account-settings/welcome-email-template">Welcome email template</Link>
+              .
             </p>
           </div>
         </div>
@@ -189,8 +192,8 @@ export default function AllClientsPage({ onSelectClient }) {
         {inviteResult === 'success' ? (
           <div style={S.successBanner}>
             <CheckCircle size={16} />
-            Invitation sent! The client will receive your saved email template with the app link
-            and sign-in details (new accounts get a temporary password). Status updates below when they accept or reject.
+            Invitation sent! The client will receive the welcome email with an accept link and login URL.
+            Status updates below when they accept or reject.
             <button onClick={() => setInviteResult('')} style={S.dismissBtn}>Send another</button>
           </div>
         ) : (
@@ -349,7 +352,7 @@ export default function AllClientsPage({ onSelectClient }) {
             <table style={S.table}>
               <thead>
                 <tr>
-                  {['Company', 'Contact', 'Email', 'Website', 'Actions'].map(h => (
+                  {['Company', 'Contact', 'Email', 'Status', 'Website', 'Actions'].map(h => (
                     <th key={h} style={S.th}>{h}</th>
                   ))}
                 </tr>
@@ -366,39 +369,27 @@ export default function AllClientsPage({ onSelectClient }) {
                     <td style={S.td}>{c.name}</td>
                     <td style={{ ...S.td, color: 'var(--text-secondary)' }}>{c.email}</td>
                     <td style={S.td}>
+                      <span style={{
+                        ...S.badge,
+                        color: c.is_active !== false ? '#16a34a' : '#dc2626',
+                        background: c.is_active !== false ? '#dcfce7' : '#fee2e2',
+                      }}
+                      >
+                        {c.is_active !== false ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td style={S.td}>
                       {c.website
                         ? <a href={c.website} target="_blank" rel="noreferrer" style={S.link}>{c.website}</a>
                         : <span style={{ color: 'var(--text-quaternary)' }}>—</span>}
                     </td>
                     <td style={S.td}>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button
-                          onClick={() => { onSelectClient?.(c); navigate(clientWorkspacePath('/admin', c)); }}
-                          style={S.dashBtn}
-                        >
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                            Dashboard <ChevronRight size={12} />
-                          </span>
-                        </button>
-                        <button
-                          onClick={() => { onSelectClient?.(c); navigate(clientWorkspacePath('/admin', c, 'settings')); }}
-                          style={S.settingsBtn}
-                        >
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                            <Settings size={12} /> Account
-                          </span>
-                        </button>
-                        <button
-                          onClick={() => handleSyncOne(c.id)}
-                          disabled={syncingId === c.id}
-                          style={S.syncBtn}
-                          title="Sync this client"
-                        >
-                          {syncingId === c.id
-                            ? <Loader2 size={12} style={{ animation: 'spin .8s linear infinite' }} />
-                            : <RefreshCw size={12} />}
-                        </button>
-                      </div>
+                      <ClientRowActions
+                        client={c}
+                        onChanged={refetchClients}
+                        onSync={handleSyncOne}
+                        syncingId={syncingId}
+                      />
                     </td>
                   </tr>
                 ))}
@@ -415,7 +406,7 @@ export default function AllClientsPage({ onSelectClient }) {
           <div style={S.steps}>
             {[
               { icon: <Send size={16} />, color: '#7c3aed', label: '1. Send Invitation', desc: 'Enter the client\'s email above and send an invitation.' },
-              { icon: <Mail size={16} />, color: '#0369a1', label: '2. Client Signs Up', desc: `The client receives an email, signs up on ${BRAND_NAME}, and verifies their account.` },
+              { icon: <Mail size={16} />, color: '#0369a1', label: '2. Client Accepts Invite', desc: 'They receive a welcome email with a secure Accept invitation link (no password in email).' },
               { icon: <Building2 size={16} />, color: '#d97706', label: '3. You Get Notified', desc: 'You\'ll receive an email when the client joins. Then send a dashboard access request.' },
               { icon: <CheckCircle size={16} />, color: '#16a34a', label: '4. Client Accepts', desc: 'Once they accept the access request, they appear in your clients list.' },
             ].map(s => (

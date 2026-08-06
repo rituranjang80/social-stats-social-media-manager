@@ -18,12 +18,15 @@ const api = axios.create({
 const WORKSPACE_SKIP_PATH_RE = /\/(auth|token|schema|docs|redoc)(\/|$)/i;
 /** Client catalogue used by the switcher — must return all accessible rows. */
 const WORKSPACE_SKIP_EXACT_RE = /^\/?clients\/?$/i;
+/** Public invitation token endpoints — never scope workspace or mutate body. */
+const WORKSPACE_SKIP_INVITATION_RE = /^\/invitations\/[0-9a-f-]{36}(\/accept\/)?\/?$/i;
 
 function shouldAttachWorkspace(config) {
   if (config?.skipWorkspace) return false;
   const url = String(config?.url || '').split('?')[0];
   if (WORKSPACE_SKIP_PATH_RE.test(url)) return false;
   if (WORKSPACE_SKIP_EXACT_RE.test(url.replace(/^\/api/, ''))) return false;
+  if (WORKSPACE_SKIP_INVITATION_RE.test(url)) return false;
   return true;
 }
 
@@ -40,8 +43,13 @@ function getActiveWorkspaceId() {
 
 // Attach JWT + active workspace (client_id) to every request
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  config.headers = config.headers || {};
+  if (!config.skipAuth) {
+    const token = localStorage.getItem('access_token');
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    delete config.headers.Authorization;
+  }
 
   if (!shouldAttachWorkspace(config)) return config;
 
@@ -79,7 +87,7 @@ api.interceptors.request.use((config) => {
 const PUBLIC_PATH_PREFIXES = [
   '/login', '/signup', '/auth/end-user', '/verify-email', '/forgot-password',
   '/reset-password', '/oauth/callback', '/auth/callback', '/invite/',
-  '/agency-invite/', '/invitation/', '/report/',
+  '/agency-invite/', '/invitation/', '/accept-invitation/', '/report/',
 ];
 
 function _redirectToLogin() {
@@ -362,6 +370,9 @@ export const clientsAPI = {
       : undefined
   ),
   delete:      (id)         => api.delete(`/clients/${id}/`),
+  resendInvitation: (id) => api.post(`/clients/${id}/resend-invitation/`),
+  activate:    (id)         => api.post(`/clients/${id}/activate/`),
+  deactivate:  (id)         => api.post(`/clients/${id}/deactivate/`),
   summary:     (id, params) => api.get(`/clients/${id}/summary/`, { params }),
   timeseries:  (id, params) => api.get(`/clients/${id}/timeseries/`, { params }),
   posts:       (id, params) => api.get(`/clients/${id}/posts/`, { params }),
@@ -502,9 +513,12 @@ export const socialAuthAPI = {
 // ── Invitations ───────────────────────────────────────────────────────────────
 export const invitationAPI = {
   send:       (data)         => api.post('/invitations/send/', data),
-  getTemplate: ()            => api.get('/invitations/email-template/'),
-  saveTemplate: (template)   => api.put('/invitations/email-template/', { template }),
-  getByToken: (token)        => api.get(`/invitations/token/${token}/`),
+  getWelcomeTemplate: ()    => api.get('/invitations/welcome-email-template/'),
+  saveWelcomeTemplate: (template) => api.put('/invitations/welcome-email-template/', { template }),
+  getTemplate: ()            => api.get('/invitations/welcome-email-template/'),
+  saveTemplate: (template)   => api.put('/invitations/welcome-email-template/', { template }),
+  getByToken: (token)        => api.get(`/invitations/token/${token}/`, { skipAuth: true, skipWorkspace: true }),
+  acceptMagic: (token)       => api.post(`/invitations/${token}/accept/`, {}, { skipAuth: true, skipWorkspace: true }),
   respond:    (token, action) => api.post(`/invitations/token/${token}/respond/`, { action }),
   mine:       ()             => api.get('/invitations/mine/'),
   cancel:     (id)           => api.delete(`/invitations/${id}/cancel/`),

@@ -1,0 +1,76 @@
+.welcome-email-page {
+  padding: 0 4px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  &--loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 240px;
+  }
+
+  &__spin {
+    animation: welcome-email-spin 0.8s linear infinite;
+    color: var(--text-tertiary);
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+
+    @media (max-width: 960px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  &__preview-subject {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0 0 12px;
+  }
+
+  &__preview-body {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    border: 1px dashed var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    background: var(--surface-sunken);
+    min-height: 200px;
+  }
+
+  &__hint {
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--text-tertiary);
+  }
+}
+
+@keyframes welcome-email-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

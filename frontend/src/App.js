@@ -44,6 +44,7 @@ const ROICalculatorPage    = lazy(() => import('./pages/ROICalculatorPage'));
 const AllClientsPage       = lazy(() => import('./pages/AllClientsPage'));
 const ManagementPage       = lazy(() => import('./pages/ManagementPage'));
 const UserSettingsPage     = lazy(() => import('./pages/UserSettingsPage'));
+const WelcomeEmailTemplatePage = lazy(() => import('./pages/settings/WelcomeEmailTemplatePage'));
 const ClientOnboardingPage = lazy(() => import('./pages/ClientOnboardingPage'));
 const PublicReportPage     = lazy(() => import('./pages/PublicReportPage'));
 const PrivacyPolicyPage    = lazy(() => import('./pages/PrivacyPolicyPage'));
@@ -51,6 +52,7 @@ const TermsOfServicePage   = lazy(() => import('./pages/TermsOfServicePage'));
 const DataDeletionPage     = lazy(() => import('./pages/DataDeletionPage'));
 const PendingDashboard     = lazy(() => import('./pages/PendingDashboard'));
 const InvitationPage       = lazy(() => import('./pages/InvitationPage'));
+const AcceptInvitationPage = lazy(() => import('./pages/AcceptInvitationPage'));
 const SignupPage           = lazy(() => import('./pages/SignupPage'));
 const VerifyEmailPage      = lazy(() => import('./pages/VerifyEmailPage'));
 const ResetPasswordPage    = lazy(() => import('./pages/ResetPasswordPage'));
@@ -157,6 +159,7 @@ function AdminLayout() {
           <Route path="clients"            element={<AllClientsPage />} />
           <Route path="management"         element={<ManagementPage />} />
           <Route path="account-settings"   element={<UserSettingsPage />} />
+          <Route path="account-settings/welcome-email-template" element={<WelcomeEmailTemplatePage />} />
           <Route path="trust"               element={<AdminTrustQueuePage />} />
           <Route path="error-logs"          element={<ErrorLogsPage />} />
 
@@ -377,6 +380,7 @@ export default function App() {
             <Route path="/agencies"          element={<AgenciesShowcasePage />} />
             <Route path="/agencies/:slug"    element={<AgencyShowcasePage />} />
             <Route path="/invitation/:token" element={<InvitationPage />} />
+            <Route path="/accept-invitation/:token" element={<AcceptInvitationPage />} />
             <Route path="/signup"            element={<SignupPage />} />
             <Route path="/auth/end-user/signup" element={<EndUserSignupPage />} />
             <Route path="/invite/:token" element={<ManageInvitePage />} />

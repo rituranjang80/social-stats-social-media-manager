@@ -653,6 +653,13 @@ BRAND_DESCRIPTION = (
     or os.environ.get('REACT_APP_BRAND_DESCRIPTION')
     or ''
 )
+BRAND_LOGO_URL = (
+    os.environ.get('BRAND_LOGO_URL')
+    or os.environ.get('REACT_APP_BRAND_LOGO_URL')
+    or ''
+)
+SUPPORT_EMAIL = os.environ.get('SUPPORT_EMAIL', '')
+SUPPORT_PHONE = os.environ.get('SUPPORT_PHONE', '')
 
 # ── Anthropic Claude API ──────────────────────────────
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')

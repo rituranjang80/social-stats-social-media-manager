@@ -2,12 +2,21 @@
 
 ## [Unreleased]
 
-### Added — Client invitation emails (`/admin/clients`)
+### Fixed — Accept invitation magic link auto-login
 
-- **Send Invitation** delivers a branded HTML email (defaults from `BRAND_*` / `REACT_APP_BRAND_*` and `FRONTEND_URL`) with **invite URL**, **login URL**, and a **temporary password** for newly provisioned client accounts.
-- Admins can **edit and save** the invitation template on the Clients page (`GET/PUT /api/invitations/email-template/`).
-- The Clients page **auto-refreshes** invitation status and connected clients every 12s (and on tab focus) when accept/reject happens elsewhere.
-- If invitation **email delivery fails**, the API returns **502**, nothing is left half-created, and a row is written to **ErrorLog** (`error_category`: `client_invitation_email`) — visible under **Admin → Error logs**.
+- **`POST /api/invitations/<token>/accept/`** no longer sends a stale browser JWT (avoids **401** before the public accept handler runs). Accept page stores tokens and uses a **full navigation** to `/dashboard` (fixes React Strict Mode leaving the page stuck on “Accepting…”). Audit/notification failures no longer block accept.
+
+### Added — Client invitation & welcome email
+
+- **Invitation emails** use a branded HTML wrapper (company logo + name from `BRAND_*` / `FRONTEND_URL`) and **separate URLs** for **Accept invitation** (`/accept-invitation/<token>`) and **Login** (`/login`). **No temporary passwords** are sent in email.
+- **Magic accept**: `GET /api/invitations/<token>/`, `POST /api/invitations/<token>/accept/` validates a single-use token, issues JWT, marks the invitation accepted, and expires the link after first use. Expired links show an **Invitation expired** page; staff can **Resend** from `/admin/clients`.
+- **Welcome email template** moved to **Admin → Account settings → Welcome email template** (`/admin/account-settings/welcome-email-template`) with rich editor, preview, save, and reset default (`GET/PUT /api/invitations/welcome-email-template/`). Removed from the Clients page.
+- **Client list actions** (Edit, Resend invitation, Activate/Deactivate, Delete with confirm, Open workspace, Sync). Soft delete via `Client.is_deleted`. Audit events: invitation sent/resent/accepted, client activated/deactivated/deleted.
+- Backend migration **`0069_client_invitation_welcome_email`**: `Client.is_deleted`, `Client.last_invitation_sent_at`, `ClientInvitation.token_used_at`. **`POST /api/clients/{id}/resend-invitation/`**, **`activate`**, **`deactivate`**.
+
+### Changed — Client invitation emails (supersedes prior Unreleased bullets)
+
+- Replaced temp-password provisioning in invitation mail with **secure token links** only. Email delivery failure still returns **502**, rolls back the pending invitation, and logs **`client_invitation_email`** to Error logs. The Clients page **auto-refreshes** invitation status every 12s (and on tab focus).
 
 ### Changed — Admin workspace switcher
 

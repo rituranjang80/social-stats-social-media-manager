@@ -772,6 +772,7 @@ export function CrossLinksSection({ user }) {
   const LINKS = [
     { to: `${base}/management`, label: 'Team & permissions',  description: 'Invite teammates, assign roles, override permissions.', staffOnly: true },
     { to: `${base}/clients`,    label: 'Workspaces (clients)', description: 'Manage every client account in your agency.',         staffOnly: true },
+    { to: `${base}/account-settings/welcome-email-template`, label: 'Welcome email template', description: 'Edit invitation / welcome email (HTML, placeholders).', staffOnly: true },
     { to: `${base}/analytics/audit-log`, label: 'Audit log',     description: 'Search every action across your account.',             staffOnly: true },
     { to: `${base}/error-logs`,    label: 'Error logs',    description: 'All backend exceptions saved in the database.',          staffOnly: true },
     { to: '/help',              label: 'Help center',          description: 'Setup guides, troubleshooting, FAQs.',                  staffOnly: false },

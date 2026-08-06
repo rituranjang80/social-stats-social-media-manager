@@ -17,8 +17,9 @@ import {
   User, Lock, Building2, Camera, Save, Loader2,
   Eye, EyeOff, CheckCircle, AlertTriangle, X,
   LogOut, Shield, Mail, Trash2,
-  Bell, Palette, Keyboard, Key, Database, Webhook, MoreHorizontal,
+  Bell, Palette, Keyboard, Key, Database, Webhook, MoreHorizontal, FileText,
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { profileAPI } from '../services/api';
 import { BRAND_NAME } from '../config/branding';
@@ -136,6 +137,7 @@ export default function UserSettingsPage() {
 
 function ProfileTab({ user, logout, navigate }) {
   const { refreshUser } = useAuth();
+  const isStaff = user?.role === 'superadmin' || user?.role === 'staff';
   const [firstName, setFirstName] = useState('');
   const [lastName,  setLastName]  = useState('');
   const [avatar,    setAvatar]    = useState(null);
@@ -254,6 +256,13 @@ function ProfileTab({ user, logout, navigate }) {
         <button type="submit" disabled={saving} style={s.saveBtn}>
           {saving ? <><Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} /> Saving...</> : <><Save size={15} /> Save Changes</>}
         </button>
+
+        {isStaff && (
+          <Link to="/admin/account-settings/welcome-email-template" style={s.welcomeTemplateLink}>
+            <FileText size={15} />
+            Welcome email template
+          </Link>
+        )}
       </form>
 
       {user?.role === 'client' && (
@@ -842,6 +851,11 @@ const s = {
     color: '#021418', fontSize: 14, fontWeight: 800,
     cursor: 'pointer', boxShadow: '0 6px 20px rgba(0,215,255,0.25)',
     marginTop: 4,
+  },
+  welcomeTemplateLink: {
+    display: 'inline-flex', alignItems: 'center', gap: 8,
+    marginTop: 14, fontSize: 14, fontWeight: 600,
+    color: CYAN, textDecoration: 'none',
   },
   infoCard: {
     display: 'flex', alignItems: 'flex-start', gap: 14,

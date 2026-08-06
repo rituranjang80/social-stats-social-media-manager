@@ -134,10 +134,9 @@ ErrorLogger.log_exception(exc, request=request, severity='ERROR')
 Immediate API errors (validation, permissions) still go through the DRF handler and include
 `error_id` in the JSON response when `ERROR_MONITORING` is enabled.
 
-**Client invitation emails** (`POST /api/invitations/send/` from `/admin/clients`): if SMTP fails or
-`send_mail` does not deliver, the API returns **502**, the pending invitation (and any auto-provisioned
-user) is rolled back, and a row is stored with `error_category=client_invitation_email`. Filter by that
-category or search `send_invitation` on **Error logs**.
+**Client invitation emails** (`POST /api/invitations/send/` from `/admin/clients`, `POST /api/clients/{id}/resend-invitation/`): messages use the **Welcome email template** (`GET/PUT /api/invitations/welcome-email-template/`). Branding comes from `BRAND_NAME`, `BRAND_LOGO_URL`, `FRONTEND_URL`, `SUPPORT_EMAIL`, and `SUPPORT_PHONE` (backend `.env`; mirror `REACT_APP_*` for the SPA). Accept links use `FRONTEND_URL/accept-invitation/<uuid>`. If SMTP fails or `send_mail` does not deliver, the API returns **502**, the pending invitation is rolled back, and a row is stored with `error_category=client_invitation_email`. Filter by that category on **Error logs**. Invitation tokens expire after **7 days** by default (`ClientInvitation.expires_at` on create).
+
+**Magic accept APIs** (public): `GET /api/invitations/<uuid:token>/`, `POST /api/invitations/<uuid:token>/accept/` — return JWT on success; no password in the request body.
 
 API error responses include `error_id`, `timestamp`, and a safe `message` (no stack traces).
 
