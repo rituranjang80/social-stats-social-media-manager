@@ -26,6 +26,7 @@ import '../../styles/scss/workspace-switcher.scss';
 export default function TopBar({
   basePath,
   module,
+  isAdmin = false,
   onOpenPalette,
 }) {
   const location = useLocation();
@@ -63,6 +64,8 @@ export default function TopBar({
           loading={loading}
           onSwitch={switchWorkspace}
           align="center"
+          isAdmin={isAdmin}
+          newWorkspaceTo={`${basePath}/clients`}
         />
       </div>
 

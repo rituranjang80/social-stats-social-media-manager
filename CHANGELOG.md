@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed — Admin workspace switcher
+
+- On **`/admin`** (staff / superadmin), **Switch workspace** in the top bar opens a **search** field, filterable workspace list, and **New workspace** → `/admin/clients` (existing Clients page unchanged). Non-admin shells keep the prior behavior (dropdown only when multiple workspaces exist).
+
 ### Added — Top bar profile photo
 
 - When a user has a **profile photo** (Settings → Profile), the top bar account control shows the image with a ring and `object-fit: cover`; otherwise initials are unchanged. `/auth/me/` now exposes `avatar` (and `name`) from `UserProfile.avatar`.

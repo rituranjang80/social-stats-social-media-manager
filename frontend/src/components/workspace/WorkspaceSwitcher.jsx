@@ -1,10 +1,27 @@
 /* ============================================================================
  * Global Switch Workspace — top-nav control for the active Client.
+ * Admin: searchable list + link to manage / create workspaces.
  * ========================================================================== */
-import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, Layers } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ChevronDown, Layers, Plus, Search } from 'lucide-react';
 
 import '../../styles/scss/workspace-switcher.scss';
+
+function matchesQuery(workspace, q) {
+  if (!q) return true;
+  const hay = [
+    workspace?.label,
+    workspace?.company,
+    workspace?.name,
+    workspace?.slug,
+    workspace?.id != null ? String(workspace.id) : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+  return hay.includes(q);
+}
 
 export default function WorkspaceSwitcher({
   workspace,
@@ -14,10 +31,22 @@ export default function WorkspaceSwitcher({
   disabled = false,
   compact = false,
   align = 'center',
+  isAdmin = false,
+  newWorkspaceTo = '/admin/clients',
 }) {
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
   const rootRef = useRef(null);
-  const canSwitch = !disabled && workspaces.length > 1;
+  const searchRef = useRef(null);
+
+  const canSwitch = isAdmin
+    ? !disabled && !loading
+    : !disabled && workspaces.length > 1;
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return workspaces.filter((w) => matchesQuery(w, q));
+  }, [workspaces, query]);
 
   useEffect(() => {
     function onDoc(e) {
@@ -34,7 +63,16 @@ export default function WorkspaceSwitcher({
     };
   }, []);
 
-  if (!workspace && !loading && workspaces.length === 0) {
+  useEffect(() => {
+    if (open && isAdmin) {
+      const t = setTimeout(() => searchRef.current?.focus?.(), 0);
+      return () => clearTimeout(t);
+    }
+    if (!open) setQuery('');
+    return undefined;
+  }, [open, isAdmin]);
+
+  if (!workspace && !loading && workspaces.length === 0 && !isAdmin) {
     return (
       <div
         className={`ws-switcher ws-switcher--empty ${compact ? 'ws-switcher--compact' : ''}`}
@@ -46,12 +84,17 @@ export default function WorkspaceSwitcher({
     );
   }
 
+  const openMenu = () => {
+    if (canSwitch) setOpen((v) => !v);
+  };
+
   return (
     <div
       className={[
         'ws-switcher',
         compact ? 'ws-switcher--compact' : '',
         align === 'left' ? 'ws-switcher--align-left' : '',
+        isAdmin ? 'ws-switcher--admin' : '',
         open ? 'is-open' : '',
       ].filter(Boolean).join(' ')}
       ref={rootRef}
@@ -62,8 +105,8 @@ export default function WorkspaceSwitcher({
         aria-expanded={open}
         aria-haspopup="listbox"
         aria-label="Switch workspace"
-        disabled={!canSwitch || loading}
-        onClick={() => canSwitch && setOpen((v) => !v)}
+        disabled={!canSwitch}
+        onClick={openMenu}
       >
         <span className="ws-switcher__avatar" aria-hidden="true">
           {workspace?.logo ? (
@@ -77,7 +120,7 @@ export default function WorkspaceSwitcher({
             {canSwitch ? 'Switch workspace' : 'Workspace'}
           </span>
           <span className="ws-switcher__name">
-            {loading ? 'Loading…' : (workspace?.label || 'Select workspace')}
+            {loading ? 'Loading…' : (workspace?.label || (isAdmin ? 'Select workspace' : 'Workspace'))}
           </span>
         </span>
         {canSwitch && (
@@ -87,28 +130,68 @@ export default function WorkspaceSwitcher({
 
       {open && canSwitch && (
         <div className="ws-switcher__menu" role="listbox" aria-label="Workspaces">
-          {workspaces.map((w) => {
-            const active = String(w.id) === String(workspace?.id);
-            return (
-              <button
-                key={w.id}
-                type="button"
-                role="option"
-                aria-selected={active}
-                className={`ws-switcher__option ${active ? 'is-active' : ''}`}
-                onClick={() => {
-                  setOpen(false);
-                  if (!active) onSwitch?.(w);
-                }}
+          {isAdmin && (
+            <div className="ws-switcher__search-wrap">
+              <Search size={14} className="ws-switcher__search-icon" aria-hidden="true" />
+              <input
+                ref={searchRef}
+                type="search"
+                className="ws-switcher__search"
+                placeholder="Search workspaces…"
+                value={query}
+                aria-label="Search workspaces"
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => e.stopPropagation()}
+              />
+            </div>
+          )}
+
+          <div className="ws-switcher__list">
+            {filtered.length === 0 ? (
+              <p className="ws-switcher__empty-hint" role="status">
+                {workspaces.length === 0
+                  ? 'No workspaces yet.'
+                  : 'No workspaces match your search.'}
+              </p>
+            ) : (
+              filtered.map((w) => {
+                const active = String(w.id) === String(workspace?.id);
+                return (
+                  <button
+                    key={w.id}
+                    type="button"
+                    role="option"
+                    aria-selected={active}
+                    className={`ws-switcher__option ${active ? 'is-active' : ''}`}
+                    onClick={() => {
+                      setOpen(false);
+                      if (!active) onSwitch?.(w);
+                    }}
+                  >
+                    <span className="ws-switcher__avatar" aria-hidden="true">
+                      {w.logo ? <img src={w.logo} alt="" /> : w.initial}
+                    </span>
+                    <span className="ws-switcher__option-name">{w.label}</span>
+                    {active && <span className="ws-switcher__badge">Current</span>}
+                  </button>
+                );
+              })
+            )}
+          </div>
+
+          {isAdmin && (
+            <>
+              <hr className="ws-switcher__sep" aria-hidden="true" />
+              <Link
+                to={newWorkspaceTo}
+                className="ws-switcher__new"
+                onClick={() => setOpen(false)}
               >
-                <span className="ws-switcher__avatar" aria-hidden="true">
-                  {w.logo ? <img src={w.logo} alt="" /> : w.initial}
-                </span>
-                <span className="ws-switcher__option-name">{w.label}</span>
-                {active && <span className="ws-switcher__badge">Current</span>}
-              </button>
-            );
-          })}
+                <Plus size={16} strokeWidth={2.5} aria-hidden="true" />
+                New workspace
+              </Link>
+            </>
+          )}
         </div>
       )}
     </div>

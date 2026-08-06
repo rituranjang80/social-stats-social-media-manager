@@ -149,6 +149,7 @@ export default function AppShell({ children, isAdmin }) {
         <TopBar
           basePath={basePath}
           module={currentModule}
+          isAdmin={isAdmin}
           onOpenPalette={() => setPaletteOpen(true)}
         />
       )}
@@ -156,6 +157,7 @@ export default function AppShell({ children, isAdmin }) {
       {isMobile && (
         <MobileTopBar
           basePath={basePath}
+          isAdmin={isAdmin}
           onMenuOpen={() => setMobileMenuOpen(true)}
           onOpenPalette={() => setPaletteOpen(true)}
         />
@@ -194,7 +196,7 @@ export default function AppShell({ children, isAdmin }) {
   );
 }
 
-function MobileTopBar({ basePath, onMenuOpen, onOpenPalette }) {
+function MobileTopBar({ basePath, isAdmin = false, onMenuOpen, onOpenPalette }) {
   const { user } = useAuth();
   const {
     workspace,
@@ -217,6 +219,8 @@ function MobileTopBar({ basePath, onMenuOpen, onOpenPalette }) {
           onSwitch={switchWorkspace}
           compact
           align="center"
+          isAdmin={isAdmin}
+          newWorkspaceTo={`${basePath}/clients`}
         />
       </div>
 

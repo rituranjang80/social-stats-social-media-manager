@@ -90,6 +90,13 @@ persisted in the browser, and applied to API requests automatically. Composer,
 dashboard, calendar, media, inbox, and settings all bind to that workspace —
 no per-page workspace chrome on the composer.
 
+**Admin / staff** (`/admin`): open **Switch workspace** to **search** clients
+and pick one, or choose **New workspace** at the bottom to open **Clients**
+(`/admin/clients`) — invite clients and manage workspaces there (unchanged).
+
+**Client / end-user** dashboards keep the simple switcher (no search or New
+workspace) when more than one workspace is available.
+
 Use the **account avatar** at the right of the top bar (chevron on desktop) for
 **Account information** (same page as sidebar **Account settings**) and **Sign out**.
 If you upload a **profile photo** under Settings → Profile, that image appears in
