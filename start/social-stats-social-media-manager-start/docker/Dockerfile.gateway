@@ -1,0 +1,7 @@
+FROM nginx:1.27-alpine
+
+RUN apk add --no-cache bash gettext
+
+COPY docker/nginx/templates/ /etc/nginx/social-stats-templates/
+COPY docker/nginx/entrypoint-gateway.sh /docker-entrypoint.d/40-social-stats-gateway.sh
+RUN chmod +x /docker-entrypoint.d/40-social-stats-gateway.sh

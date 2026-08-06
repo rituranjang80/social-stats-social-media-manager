@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: social-stats
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: social-stats-backend:local
+          imagePullPolicy: IfNotPresent
+          command: ["/entrypoint.sh"]
+          ports:
+            - containerPort: 8000
+            - containerPort: 5678
+          envFrom:
+            - configMapRef:
+                name: social-stats-config
+            - secretRef:
+                name: social-stats-secrets
+          env:
+            - name: ENABLE_DEBUGPY
+              value: "false"
+            - name: DEBUGPY_PORT
+              value: "5678"
+          volumeMounts:
+            - name: backend-source
+              mountPath: /app/backend
+            - name: entrypoint
+              mountPath: /entrypoint.sh
+              subPath: entrypoint-backend.sh
+              readOnly: true
+            - name: runtime-data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /api/health/services/
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 10
+      volumes:
+        - name: backend-source
+          hostPath:
+            path: REPLACE_SOURCE_BACKEND
+            type: Directory
+        - name: entrypoint
+          hostPath:
+            path: REPLACE_START_DOCKER
+            type: Directory
+        - name: runtime-data
+          hostPath:
+            path: REPLACE_DATA_DIR
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: social-stats
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 8000
+      targetPort: 8000

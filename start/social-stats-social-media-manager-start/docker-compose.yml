@@ -1,0 +1,197 @@
+# Base stack — build images once; bind-mount source for day-to-day coding.
+# Usage (from this folder):
+#   copy paths.env.example paths.env && copy .env.example .env
+#   docker compose up -d --build
+#   (or: docker compose --env-file paths.env --env-file .env up -d --build)
+# SOURCE_REL defaults to ../social-stats-social-media-manager when unset.
+
+name: ${COMPOSE_PROJECT_NAME:-social-stats}
+
+x-app-env: &app-env
+  env_file:
+    - paths.env
+    - .env
+
+x-backend-env: &backend-env
+  <<: *app-env
+  environment:
+    MEDIA_ROOT: ${MEDIA_ROOT:-/data/media}
+    STATIC_ROOT: ${STATIC_ROOT:-/data/staticfiles}
+    BACKEND_PUBLIC_URL: ${BACKEND_PUBLIC_URL:-http://localhost:8000}
+    GATEWAY_HTTP_PORT: ${GATEWAY_HTTP_PORT:-8000}
+    SQLITE_PATH: ${SQLITE_PATH:-/data/db.sqlite3}
+    DB_NAME: ${DB_NAME:-}
+    DB_USER: ${DB_USER:-socialstats}
+    DB_PASSWORD: ${DB_PASSWORD:-change-me-local}
+    DB_HOST: ${DB_HOST:-postgres}
+    DB_PORT: ${DB_PORT:-5432}
+    CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/0}
+    CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+    CHANNEL_LAYERS_REDIS_URL: ${CHANNEL_LAYERS_REDIS_URL:-redis://redis:6379/1}
+    APP_MODE: ${APP_MODE:-prod}
+    ENABLE_DEBUGPY: ${ENABLE_DEBUGPY:-false}
+    WAIT_FOR_DEBUGGER: ${WAIT_FOR_DEBUGGER:-false}
+    DEBUGPY_PORT: ${DEBUGPY_PORT:-5678}
+
+x-backend-build: &backend-build
+  context: ${START_REL:-.}
+  dockerfile: docker/Dockerfile.backend
+  additional_contexts:
+    backend: ${SOURCE_REL:-../social-stats-social-media-manager}/backend
+
+x-backup-env: &backup-env
+  <<: *app-env
+  environment:
+    BACKUP_IN_DOCKER: "true"
+    BACKUP_ENABLED: ${BACKUP_ENABLED:-true}
+    BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+    BACKUP_DESTINATIONS: ${BACKUP_DESTINATIONS:-/data/backups/archive}
+    BACKUP_STAGING_DIR: ${BACKUP_STAGING_DIR:-/data/backups/staging}
+    BACKUP_LABEL: ${BACKUP_LABEL:-social-stats}
+    BACKUP_COMPRESS: ${BACKUP_COMPRESS:-true}
+    BACKUP_VERIFY: ${BACKUP_VERIFY:-true}
+    BACKUP_INCLUDE_SQLITE: ${BACKUP_INCLUDE_SQLITE:-true}
+    BACKUP_INCLUDE_POSTGRES: ${BACKUP_INCLUDE_POSTGRES:-true}
+    BACKUP_INCLUDE_MEDIA: ${BACKUP_INCLUDE_MEDIA:-true}
+    BACKUP_INCLUDE_STATICFILES: ${BACKUP_INCLUDE_STATICFILES:-false}
+    BACKUP_EXTRA_PATHS: ${BACKUP_EXTRA_PATHS:-}
+    BACKUP_CRON: ${BACKUP_CRON:-0 2 * * *}
+    BACKUP_RUN_ON_START: ${BACKUP_RUN_ON_START:-false}
+    BACKUP_RUN_ONCE: ${BACKUP_RUN_ONCE:-false}
+    SQLITE_PATH: ${SQLITE_PATH:-/data/db.sqlite3}
+    MEDIA_ROOT: ${MEDIA_ROOT:-/data/media}
+    STATIC_ROOT: ${STATIC_ROOT:-/data/staticfiles}
+    DB_NAME: ${DB_NAME:-}
+    DB_USER: ${DB_USER:-socialstats}
+    DB_PASSWORD: ${DB_PASSWORD:-change-me-local}
+    DB_HOST: ${BACKUP_DB_HOST:-postgres}
+    DB_PORT: ${DB_PORT:-5432}
+
+x-backup-build: &backup-build
+  context: ${START_REL:-.}
+  dockerfile: docker/Dockerfile.backup
+  additional_contexts:
+    app: ${SOURCE_REL:-../social-stats-social-media-manager}
+
+services:
+  postgres:
+    <<: *app-env
+    image: postgres:16-alpine
+    profiles: ["postgres"]
+    environment:
+      POSTGRES_USER: ${DB_USER:-socialstats}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-change-me-local}
+      POSTGRES_DB: ${DB_NAME:-socialstats}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - ${DATA_REL:-./data}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-socialstats} -d ${DB_NAME:-socialstats}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    <<: *app-env
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    <<: *backend-env
+    build: *backend-build
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    volumes:
+      - ${SOURCE_REL:-../social-stats-social-media-manager}/backend:/app/backend
+      - ${START_REL:-.}/docker/entrypoint-backend.sh:/entrypoint.sh:ro
+      - ${DATA_REL:-./data}:/data
+    ports:
+      - "${BACKEND_DIRECT_PORT:-8001}:8000"
+      - "${DEBUGPY_PORT:-5678}:${DEBUGPY_PORT:-5678}"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/api/health/services/"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+  celery_worker:
+    <<: *backend-env
+    build: *backend-build
+    entrypoint: ["/bin/bash", "-c"]
+    command: ["celery -A dashboard worker -l info"]
+    volumes:
+      - ${SOURCE_REL:-../social-stats-social-media-manager}/backend:/app/backend
+      - ${DATA_REL:-./data}:/data
+    depends_on:
+      backend:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery_beat:
+    <<: *backend-env
+    build: *backend-build
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - >-
+        celery -A dashboard beat -l info
+        --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - ${SOURCE_REL:-../social-stats-social-media-manager}/backend:/app/backend
+      - ${DATA_REL:-./data}:/data
+    depends_on:
+      backend:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  gateway:
+    <<: *app-env
+    build:
+      context: ${START_REL:-.}
+      dockerfile: docker/Dockerfile.gateway
+    environment:
+      NGINX_MODE: ${NGINX_MODE:-prod}
+      BACKEND_UPSTREAM: backend:8000
+      FRONTEND_UPSTREAM: frontend:3000
+    ports:
+      - "${GATEWAY_HTTP_PORT:-8000}:80"
+    volumes:
+      - ${SOURCE_REL:-../social-stats-social-media-manager}/frontend:/var/www/frontend:ro
+      - ${DATA_REL:-./data}/media:/var/www/media:ro
+      - ${DATA_REL:-./data}/staticfiles:/var/www/staticfiles:ro
+      - ${START_REL:-.}/docker/nginx/templates:/etc/nginx/social-stats-templates:ro
+      - ${START_REL:-.}/docker/nginx/entrypoint-gateway.sh:/docker-entrypoint.d/40-social-stats-gateway.sh:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # Scheduled SQLite/Postgres + media backup (supercronic). Enable with profile "backup".
+  backup:
+    <<: *backup-env
+    profiles: ["backup"]
+    build: *backup-build
+    restart: unless-stopped
+    volumes:
+      - ${DATA_REL:-./data}:/data
+      - ${BACKUP_MOUNT_1_HOST:-./data/backups/mount1}:/backups/mount1
+      - ${BACKUP_MOUNT_2_HOST:-./data/backups/mount2}:/backups/mount2
+      - ${BACKUP_MOUNT_3_HOST:-./data/backups/mount3}:/backups/mount3
+      - ${BACKUP_MOUNT_4_HOST:-./data/backups/mount4}:/backups/mount4
+      - ${BACKUP_MOUNT_5_HOST:-./data/backups/mount5}:/backups/mount5
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  frontend_node_modules:

@@ -1,0 +1,5 @@
+    location / {
+        root /var/www/frontend/build;
+        try_files $uri $uri/ /index.html;
+    }
+}
