@@ -29,10 +29,18 @@ def _is_admin(user):
 
 
 class ROISettingsView(APIView):
-    """GET/PUT /api/roi/settings/<client_id>/"""
+    """GET/PUT /api/roi/settings/<client_id>/ — client_id may be public UUID or legacy pk."""
     permission_classes = [IsAuthenticated]
 
+    def _resolve(self, client_id):
+        from .client_ref import resolve_client_pk
+        return resolve_client_pk(client_id)
+
     def get(self, request, client_id):
+        pk = self._resolve(client_id)
+        if pk is None:
+            return Response({'detail': 'Client not found'}, status=status.HTTP_404_NOT_FOUND)
+        client_id = pk
         try:
             settings = ROISettings.objects.get(client_id=client_id)
             return Response(ROISettingsSerializer(settings).data)
@@ -59,8 +67,11 @@ class ROISettingsView(APIView):
     def put(self, request, client_id):
         if not _is_admin(request.user):
             return Response({'error': 'Only agency staff can update ROI settings.'}, status=403)
+        pk = self._resolve(client_id)
+        if pk is None:
+            return Response({'error': 'Client not found.'}, status=404)
         try:
-            client = Client.objects.get(id=client_id)
+            client = Client.objects.get(id=pk)
         except Client.DoesNotExist:
             return Response({'error': 'Client not found.'}, status=404)
 

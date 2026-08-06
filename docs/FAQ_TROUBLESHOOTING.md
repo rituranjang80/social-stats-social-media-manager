@@ -38,7 +38,28 @@ moving the mouse, typing, or clicking.
 
 ## Setup & runtime
 
-### Browser shows "CORS error" on `/api/*` (oauth/status, alerts, notifications, overview, …)
+### Django “tried these URL patterns” after workspace UUID / Connect accounts
+
+**Cause:** The UI now calls `/api/oauth/.../start/{workspace-public-id}/`. Older
+backends only registered `<int:client_id>` routes, so Django returns a debug 404
+listing all URL patterns.
+
+**Fix:** Pull latest backend code and **run migrations in Docker** (do not use
+host `python manage.py migrate` unless you use a local venv):
+
+```powershell
+cd C:\Project2\social-stats-social-media-manager-start   # or your start folder
+docker compose --env-file paths.env --env-file .env exec backend python manage.py migrate
+docker compose --env-file paths.env --env-file .env restart backend
+```
+
+Use the app at **`http://localhost:3000`** or the **gateway `http://localhost:8000`** —
+not the backend direct port **`8001`** for `/admin/...` pages (that port is API-only).
+
+Host Python without Django (`ModuleNotFoundError: No module named 'django'`) is
+expected; use Docker commands above.
+
+---
 The React app sends **`X-Client-Id`** and **`X-Workspace-Id`** on API calls (see
 `frontend/src/services/api.js`). Browsers **preflight** those headers; if Django
 does not allow them, the request fails and DevTools labels it a CORS error even

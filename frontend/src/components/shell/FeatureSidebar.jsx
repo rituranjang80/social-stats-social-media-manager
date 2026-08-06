@@ -29,6 +29,7 @@ import ComposerConnectChannels from '../composer/ComposerConnectChannels';
 import { useBadgeCount } from '../../stores/appStore';
 import { useAuth } from '../../hooks/useAuth';
 import useWorkspace from '../../hooks/useWorkspace';
+import { clientSettingsPath } from '../../utils/workspacePaths';
 
 function AnalyticsNavIcon({ size = 15, strokeWidth = 2.4 }) {
   if (brand.logoUrl) {
@@ -79,18 +80,16 @@ export default function FeatureSidebar({
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, can } = useAuth();
-  const { workspaceId } = useWorkspace({ user, autoHydrate: false });
+  const { workspace, workspaceId, workspaceRef } = useWorkspace({ user, autoHydrate: false });
 
   const navSet = NAV_SETS[module] || NAV_SETS.analytics;
   const showChannels = module === 'analytics';
   const shellModules = modules.length ? modules : buildShellModules({ isAdmin: basePath === '/admin', can });
 
-  const settingsPath = useMemo(() => {
-    if (basePath === '/admin' && workspaceId) {
-      return `/admin/client/${workspaceId}/settings`;
-    }
-    return `${basePath}/settings`;
-  }, [basePath, workspaceId]);
+  const settingsPath = useMemo(
+    () => clientSettingsPath(basePath, workspace),
+    [basePath, workspace],
+  );
 
   const body = (
     <div className={`sidebar-scroll${embedded ? ' sidebar-scroll--embedded' : ''}`}>
@@ -129,7 +128,7 @@ export default function FeatureSidebar({
             ))}
             {showChannels && section.title === 'Publish' ? (
               <ComposerConnectChannels
-                clientId={workspaceId}
+                clientId={workspaceRef || workspaceId}
                 settingsPath={settingsPath}
                 compact
               />

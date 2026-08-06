@@ -29,7 +29,10 @@ function shouldAttachWorkspace(config) {
 
 function getActiveWorkspaceId() {
   try {
-    return useAppStore.getState().currentClientId || null;
+    const state = useAppStore.getState();
+    const fromClient = state.currentClient?.publicId || state.currentClient?.public_id;
+    if (fromClient) return String(fromClient);
+    return state.currentClientId || null;
   } catch {
     return null;
   }

@@ -117,8 +117,8 @@ no per-page workspace chrome on the composer.
 - **Connect channels** — CHANNELS icon grid in the left Analytics sidebar
   (under **Publish**, inside `.sidebar-scroll`) for the **current** workspace.
   Post targets still use the composer platform pills. Driven by `PLATFORM_*` /
-  `CONNECT_PLATFORMS` in SocialMediaStart `.env`. Manage from
-  **Settings → Connect Accounts**.
+  `CONNECT_PLATFORMS` in SocialMediaStart `.env`.   Manage from
+  **Settings → Connect Accounts** (`/admin/client/{workspace-public-id}/settings` for the active workspace).
 - **First comment** — optional comment auto-posted after publish on Facebook,
   Instagram, and LinkedIn.
 - **Tags** — internal team-only labels (not caption hashtags); suggestions from

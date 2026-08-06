@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+### Fixed — Video / media upload with workspace UUID
+
+- **Video Studio** (`POST /api/video/upload/` and related video endpoints) and **AI** function views resolve `client_id` / `client` / `X-Client-Id` as **`public_id` UUID** or legacy integer (shared `resolve_request_client`). Fixes `Field 'id' expected a number but got '{uuid}'` on `/admin/analytics/video` and media flows that share the same headers.
+- **TenantScopedMixin** superadmin list filters resolve UUID `?client_id=` to internal pk (Media Library and composer media).
+
+### Fixed — API 404 after workspace UUID in URLs
+
+- OAuth connect, disconnect, ROI, GMB, and manual connect routes accept **`public_id` UUID** (not only integer paths). Fixes Django “tried these URL patterns” when opening `/api/oauth/.../start/{uuid}/`.
+
+### Added — Workspace `public_id` (UUID) in URLs
+
+- Each **Client** workspace has a stable **`public_id`** (migration `0067_client_public_id`). Admin routes use `/admin/client/{uuid}/settings` instead of sequential numeric ids. API `client_id` / `X-Client-Id` accept UUID or legacy integer.
+
+### Changed — Composer Connect accounts
+
+- **Connect accounts** on `/admin/analytics/composer` navigates to the **current workspace** Connect Accounts page (`/admin/client/{public_id}/settings`), not `/admin/settings`.
+
 ### Fixed — Idle session warning while user is active
 
 - Activity now includes **mouse movement** (throttled), **click/input/focus**, and any interaction **closes** the warning. Idle time **pauses** when the browser tab is hidden; the dialog only shows when the tab is visible.

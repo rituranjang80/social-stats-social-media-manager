@@ -232,9 +232,13 @@ def parse_dates(request):
 
 def check_client_access(request, client_id):
     """Returns True if user is allowed to access this client's data."""
+    from .client_ref import resolve_client_pk
+    pk = resolve_client_pk(client_id)
+    if pk is None:
+        return False
     try:
         profile = request.user.profile
-        return profile.can_access_client(client_id)
+        return profile.can_access_client(pk)
     except Exception:
         return False
 
@@ -336,6 +340,20 @@ class ClientViewSet(viewsets.ModelViewSet):
         if profile.role == 'client' and profile.client:
             return Client.objects.filter(id=profile.client_id)
         return Client.objects.none()
+
+    def get_object(self):
+        from rest_framework.exceptions import NotFound
+        from .client_ref import get_client_by_ref
+
+        ref = self.kwargs.get(self.lookup_field or 'pk')
+        client = get_client_by_ref(ref)
+        if not client:
+            raise NotFound()
+        queryset = self.filter_queryset(self.get_queryset())
+        if not queryset.filter(pk=client.pk).exists():
+            raise NotFound()
+        self.check_object_permissions(self.request, client)
+        return client
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
@@ -1214,6 +1232,11 @@ class PublicLookupView(APIView):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def gmb_info(request, client_id):
+    from .client_ref import resolve_client_pk
+    pk = resolve_client_pk(client_id)
+    if pk is None:
+        return Response({'error': 'Not found'}, status=404)
+    client_id = pk
     profile = request.user.profile
     # Only allow access to own client or staff/admin
     if profile.role == 'client' and profile.client_id != client_id:
@@ -1229,6 +1252,11 @@ def gmb_info(request, client_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def gmb_reviews(request, client_id):
+    from .client_ref import resolve_client_pk
+    pk = resolve_client_pk(client_id)
+    if pk is None:
+        return Response({'error': 'Not found'}, status=404)
+    client_id = pk
     profile = request.user.profile
     if profile.role == 'client' and profile.client_id != client_id:
         return Response({'error': 'Forbidden'}, status=403)

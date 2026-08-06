@@ -29,6 +29,7 @@ class ClientSerializer(serializers.ModelSerializer):
     logo = serializers.ImageField(required=False)
     profile_image = serializers.ImageField(required=False)
     competitors = serializers.SerializerMethodField()
+    public_id = serializers.UUIDField(read_only=True)
 
     class Meta:
         model = Client

@@ -61,6 +61,11 @@ def _has_client_access(request, client_id) -> bool:
 
 
 def _get_client(request, client_id):
+    from .client_ref import resolve_client_pk
+    pk = resolve_client_pk(client_id)
+    if pk is None:
+        return None, Response({'detail': 'Client not found'}, status=404)
+    client_id = pk
     if not _has_client_access(request, client_id):
         return None, Response({'detail': 'Access denied'}, status=403)
     try:

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { clientsAPI } from '../services/api';
 import { useAppStore, useCurrentClientId } from '../stores/appStore';
 import { queryClient } from '../services/queryClient';
+import { workspaceRouteRef } from '../utils/workspacePaths';
 
 function initialFrom(name = '') {
   const t = String(name || '').trim();
@@ -15,9 +16,11 @@ function initialFrom(name = '') {
 export function normalizeWorkspace(row) {
   if (!row) return null;
   const id = row.id;
+  const publicId = row.public_id || row.publicId || null;
   const label = row.company || row.name || row.label || `Workspace #${id}`;
   return {
     id,
+    publicId,
     label,
     company: row.company || row.name || label,
     name: row.name || row.company || label,
@@ -70,7 +73,10 @@ export default function useWorkspace({ user, autoHydrate = true } = {}) {
 
         const storeId = useAppStore.getState().currentClientId;
         const preferredId = storeId || fallbackId;
-        const match = rows.find((w) => String(w.id) === String(preferredId)) || rows[0] || null;
+        const match = rows.find((w) => (
+          String(w.id) === String(preferredId)
+          || (w.publicId && String(w.publicId) === String(preferredId))
+        )) || rows[0] || null;
         if (match && String(match.id) !== String(storeId)) {
           setCurrentClient(match);
         } else if (!match && storeId) {
@@ -111,6 +117,8 @@ export default function useWorkspace({ user, autoHydrate = true } = {}) {
     return null;
   }, [workspaces, workspaceId]);
 
+  const workspaceRef = workspaceRouteRef(workspace) || workspaceId;
+
   const switchWorkspace = useCallback(async (ws) => {
     if (!ws?.id) return;
     const normalized = typeof ws.label === 'string' ? ws : normalizeWorkspace(ws);
@@ -129,6 +137,7 @@ export default function useWorkspace({ user, autoHydrate = true } = {}) {
   return {
     loading,
     workspaceId,
+    workspaceRef,
     workspace,
     workspaces,
     switchWorkspace,

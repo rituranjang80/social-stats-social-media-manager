@@ -92,10 +92,10 @@ class TenantScopedMixin:
             or self.request.META.get('HTTP_X_CLIENT_ID')
             or self.request.META.get('HTTP_X_WORKSPACE_ID')
         )
-        try:
-            return int(raw) if raw not in (None, '') else None
-        except (TypeError, ValueError):
+        if raw in (None, ''):
             return None
+        from .client_ref import resolve_client_pk
+        return resolve_client_pk(raw)
 
     def resolved_client_id(self) -> Optional[int]:
         """Returns the client_id the current user is *allowed* to operate on."""
@@ -127,7 +127,7 @@ class TenantScopedMixin:
 
         f = self.client_field_name
         if profile.role == 'superadmin':
-            cid = self.request.query_params.get('client_id')
+            cid = self._requested_client_id()
             return qs.filter(**{f'{f}_id': cid}) if cid else qs
         if profile.role == 'staff':
             return qs.filter(**{f'{f}__in': profile.assigned_clients.all()})

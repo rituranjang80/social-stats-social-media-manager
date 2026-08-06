@@ -28,11 +28,19 @@ from drf_spectacular.utils import extend_schema, OpenApiResponse
 
 from .openapi import PARAM_GOOGLE_PLATFORM, PARAM_OAUTH_PLATFORM_PATH
 from .models import PlatformCredential, Client
-from django.contrib.auth.models import User
 from .marketplace_permissions import (
     resolve_acting_context, check_action, deny_response, approval_pending_response,
 )
 from .activity_logger import log_activity_for_request
+from .client_ref import resolve_client_pk
+
+
+def _resolve_oauth_client_id(client_id):
+    """UUID public_id or legacy int → internal Client.pk."""
+    pk = resolve_client_pk(client_id)
+    if pk is None:
+        return None
+    return pk
 
 # ── Consumer app (public_profile + email only) ────────────────────────────────
 # App ID is public (appears in OAuth URLs). Secret comes from env.
@@ -81,6 +89,10 @@ def facebook_oauth_start(request, client_id):
     This is the platform-connect flow (not social login).
     Redirect goes to facebook_oauth_callback which fetches pages + IG.
     """
+    pk = _resolve_oauth_client_id(client_id)
+    if pk is None:
+        return Response({'detail': 'Invalid workspace id.'}, status=400)
+    client_id = pk
     state = f"{client_id}:{secrets.token_urlsafe(16)}"
     request.session['oauth_state']     = state
     request.session['oauth_client_id'] = str(client_id)
@@ -416,6 +428,10 @@ def google_oauth_start(request, client_id):
     """Redirect to Google consent screen.
     Optional ?platform=youtube or ?platform=google_my_business for separate flows.
     """
+    pk = _resolve_oauth_client_id(client_id)
+    if pk is None:
+        return Response({'detail': 'Invalid workspace id.'}, status=400)
+    client_id = pk
     platform = request.GET.get('platform', 'all')  # youtube | google_my_business | all
     state = f"{client_id}:{platform}:{secrets.token_urlsafe(16)}"
     request.session['oauth_state'] = state
@@ -612,6 +628,10 @@ def google_oauth_callback(request):
 @permission_classes([AllowAny])
 def linkedin_oauth_start(request, client_id):
     """Redirect to LinkedIn consent screen."""
+    pk = _resolve_oauth_client_id(client_id)
+    if pk is None:
+        return Response({'detail': 'Invalid workspace id.'}, status=400)
+    client_id = pk
     state = f"{client_id}:{secrets.token_urlsafe(16)}"
     request.session['oauth_state'] = state
 
@@ -740,15 +760,21 @@ def _refresh_facebook_token(cred):
 )
 @api_view(['GET'])
 def oauth_status(request, client_id):
-    """Return connection status + env-driven connect catalog for Settings UI.
+    """Return connection status + env-driven connect catalog for Settings UI."""
+    from .client_ref import resolve_client_pk
 
-    Each catalog entry includes ``is_configured`` (app credentials in .env) and
-    ``connectable`` (Quick Connect handler available), matching SS connect page
-    semantics — not hardcoded "Coming soon" flags.
-    """
+    pk = resolve_client_pk(client_id)
+    if pk is None:
+        return Response({'detail': 'Invalid workspace id.'}, status=400)
+    try:
+        if not request.user.profile.can_access_client(pk):
+            return Response({'detail': 'Access denied.'}, status=403)
+    except Exception:
+        return Response({'detail': 'Access denied.'}, status=403)
+
     from .platform_catalog import build_connect_catalog, OAUTH_LIVE_KEYS
 
-    credentials = PlatformCredential.objects.filter(client_id=client_id)
+    credentials = PlatformCredential.objects.filter(client_id=pk)
     status_by_platform = {}
 
     # Live PlatformCredential keys used by this product today
@@ -819,6 +845,10 @@ def oauth_disconnect(request, client_id, platform):
     even on agency-managed workspaces. So owners and superadmins bypass the
     permission check; agency-side actors must hold disconnect_platforms.
     """
+    pk = _resolve_oauth_client_id(client_id)
+    if pk is None:
+        return Response({'error': 'workspace not found'}, status=404)
+    client_id = pk
     try:
         client = Client.objects.get(pk=client_id)
     except Client.DoesNotExist:

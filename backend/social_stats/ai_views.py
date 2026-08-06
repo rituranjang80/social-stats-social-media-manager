@@ -56,48 +56,15 @@ from .ai_helpers import (
     rate_limit_check, cache_key_for,
 )
 from .ai_context import build_client_ai_context
+from .client_ref import resolve_request_client as _resolved_client
 from .models import (
-    Client, BrandVoiceProfile, PostMetric, Message, Conversation,
+    BrandVoiceProfile, PostMetric, Message, Conversation,
 )
 
 logger = logging.getLogger(__name__)
 
 DAILY_LIMIT_DEFAULT = 30
 CACHE_TTL = 60 * 60   # 1 hour
-
-
-# ── Tenant resolver ──────────────────────────────────────────────────────────
-def _resolved_client(request):
-    """
-    Tenant guard. Returns (Client, None) on success, (None, Response) on error.
-    """
-    try:
-        profile = request.user.profile
-    except Exception:
-        return None, Response({'error': 'No profile'}, status=403)
-
-    raw = request.data.get('client_id') if hasattr(request, 'data') else None
-    raw = raw or request.query_params.get('client_id')
-
-    if profile.role == 'superadmin':
-        cid = raw or profile.client_id
-    elif profile.role == 'staff':
-        try:
-            cid = int(raw) if raw else None
-        except (TypeError, ValueError):
-            cid = None
-        if cid is None or not profile.assigned_clients.filter(id=cid).exists():
-            return None, Response({'error': 'client_id required'}, status=400)
-    else:
-        cid = profile.client_id
-
-    if not cid:
-        return None, Response({'error': 'client_id required'}, status=400)
-
-    try:
-        return Client.objects.get(id=cid), None
-    except Client.DoesNotExist:
-        return None, Response({'error': 'Client not found'}, status=404)
 
 
 def _ai_unavailable():

@@ -452,25 +452,25 @@ urlpatterns = [
     path('overview/',            OverviewView.as_view(), name='overview'),
 
     # OAuth — Facebook + Instagram
-    path('oauth/facebook/start/<int:client_id>/',      facebook_oauth_start,       name='fb_start'),
+    path('oauth/facebook/start/<str:client_id>/',      facebook_oauth_start,       name='fb_start'),
     path('oauth/facebook/consumer/callback/',          facebook_consumer_callback, name='fb_consumer_callback'),
     path('oauth/facebook/callback/',                   facebook_oauth_callback,    name='fb_callback'),
 
     # OAuth — Google (YouTube + GMB)
-    path('oauth/google/start/<int:client_id>/',    google_oauth_start,    name='google_start'),
+    path('oauth/google/start/<str:client_id>/',    google_oauth_start,    name='google_start'),
     path('oauth/google/callback/',                 google_oauth_callback, name='google_callback'),
 
     # OAuth — LinkedIn
-    path('oauth/linkedin/start/<int:client_id>/',  linkedin_oauth_start,    name='li_start'),
+    path('oauth/linkedin/start/<str:client_id>/',  linkedin_oauth_start,    name='li_start'),
     path('oauth/linkedin/callback/',               linkedin_oauth_callback, name='li_callback'),
 
     # OAuth status + disconnect + debug
-    path('oauth/status/<int:client_id>/',                       oauth_status,     name='oauth_status'),
-    path('oauth/disconnect/<int:client_id>/<str:platform>/',    oauth_disconnect, name='oauth_disconnect'),
+    path('oauth/status/<str:client_id>/',                       oauth_status,     name='oauth_status'),
+    path('oauth/disconnect/<str:client_id>/<str:platform>/',    oauth_disconnect, name='oauth_disconnect'),
     path('oauth/debug/',                                         oauth_debug,      name='oauth_debug'),
 
     # ROI Calculator
-    path('roi/settings/<int:client_id>/', ROISettingsView.as_view(),  name='roi_settings'),
+    path('roi/settings/<str:client_id>/', ROISettingsView.as_view(),  name='roi_settings'),
     path('roi/calculate/',                ROICalculateView.as_view(), name='roi_calculate'),
     path('roi/reports/',                  ROIReportView.as_view(),    name='roi_reports'),
     path('roi/live/',                     ROILiveView.as_view(),      name='roi_live'),
@@ -589,8 +589,8 @@ urlpatterns = [
     path('ai/v2/audit/',           ai_v2_usage_audit,      name='ai_v2_usage_audit'),
 
     # GMB Business Info & Reviews
-    path('gmb/info/<int:client_id>/',             gmb_info,    name='gmb_info'),
-    path('gmb/reviews/<int:client_id>/',          gmb_reviews, name='gmb_reviews'),
+    path('gmb/info/<str:client_id>/',             gmb_info,    name='gmb_info'),
+    path('gmb/reviews/<str:client_id>/',          gmb_reviews, name='gmb_reviews'),
 
     # WhatsApp module
     path('whatsapp/dashboard/',     WhatsAppDashboardView.as_view(),    name='wa_dashboard'),
@@ -629,11 +629,11 @@ urlpatterns = [
     path('inbox/stats/',            InboxStatsView.as_view(),           name='inbox_stats'),
 
     # Manual-token mode (per-client OAuth-app credentials)
-    path('manual/facebook/<int:client_id>/',  connect_facebook_manual,  name='manual_fb'),
-    path('manual/instagram/<int:client_id>/', connect_instagram_manual, name='manual_ig'),
-    path('manual/youtube/<int:client_id>/',   connect_youtube_manual,   name='manual_yt'),
-    path('manual/linkedin/<int:client_id>/',  connect_linkedin_manual,  name='manual_li'),
-    path('manual/gmb/<int:client_id>/',       connect_gmb_manual,       name='manual_gmb'),
+    path('manual/facebook/<str:client_id>/',  connect_facebook_manual,  name='manual_fb'),
+    path('manual/instagram/<str:client_id>/', connect_instagram_manual, name='manual_ig'),
+    path('manual/youtube/<str:client_id>/',   connect_youtube_manual,   name='manual_yt'),
+    path('manual/linkedin/<str:client_id>/',  connect_linkedin_manual,  name='manual_li'),
+    path('manual/gmb/<str:client_id>/',       connect_gmb_manual,       name='manual_gmb'),
     path('manual/test/<int:credential_id>/',  test_credential,          name='manual_test'),
     path('manual/instructions/<str:platform>/', get_setup_instructions, name='manual_instructions'),
 

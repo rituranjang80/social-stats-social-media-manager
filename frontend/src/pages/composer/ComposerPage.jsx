@@ -49,6 +49,7 @@ import { normalizeMediaAsset } from '../../components/media';
 import { composerAPI, captionAPI, hashtagAPI } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import useWorkspace from '../../hooks/useWorkspace';
+import { clientSettingsPath } from '../../utils/workspacePaths';
 import { useComposerPost } from '../../hooks/useComposer';
 import { readComposerPreviewExpanded } from '../../components/composer/ComposerPreviewPanel';
 
@@ -73,7 +74,12 @@ export default function ComposerPage() {
   const { data: existing, loading: loadingExisting } = useComposerPost(id);
   const basePath = location.pathname.startsWith('/admin') ? '/admin' : '/dashboard';
 
-  const { workspaceId, workspace, workspaces, switchWorkspace } = useWorkspace({ user, autoHydrate: true });
+  const { workspaceId, workspace, workspaceRef, workspaces, switchWorkspace } = useWorkspace({ user, autoHydrate: true });
+
+  const connectSettingsPath = useMemo(
+    () => clientSettingsPath(basePath, workspace),
+    [basePath, workspace],
+  );
 
   const clientParams = useMemo(
     () => (workspaceId ? { client_id: workspaceId } : undefined),
@@ -597,7 +603,7 @@ export default function ComposerPage() {
                 <div className="composer__section-grid">
                   <TCard label="Connected channels" aria-label="Publish to platforms">
                     <ChannelSelector
-                      clientId={workspaceId}
+                      clientId={workspaceRef || workspaceId}
                       workspaceLabel={workspace?.company || workspace?.name || workspace?.label || ''}
                       currentUser={user}
                       selected={targetPlatforms}
@@ -607,7 +613,7 @@ export default function ComposerPage() {
                           variant="secondary"
                           size="sm"
                           icon={PlugZap}
-                          onClick={() => navigate(`${basePath}/settings`)}
+                          onClick={() => navigate(connectSettingsPath)}
                         >
                           Connect accounts
                         </Button>
@@ -644,7 +650,7 @@ export default function ComposerPage() {
                       setReplaceAssetIndex(index);
                       setMediaPickerOpen(true);
                     }}
-                    clientId={workspaceId}
+                    clientId={workspaceRef || workspaceId}
                     platform={targetPlatforms?.[0] || 'instagram'}
                     onInsertAi={(text) => setContent((c) => (c ? `${c}\n\n${text}` : text))}
                     charUsed={content.length}
@@ -743,7 +749,7 @@ export default function ComposerPage() {
                     <ComposerTags
                       value={tags}
                       onChange={setTags}
-                      clientId={workspaceId}
+                      clientId={workspaceRef || workspaceId}
                       showLabel={false}
                     />
                   </TCard>
@@ -859,7 +865,7 @@ export default function ComposerPage() {
                 setThumbnailAutoPlay(false);
               }}
               videoAsset={primaryVideoAsset}
-              clientId={workspaceId}
+              clientId={workspaceRef || workspaceId}
               onUseThumbnail={({ thumbnail_asset_id, thumbnail_url }) => {
                 setYoutubeSettings((cur) => ({
                   ...cur,

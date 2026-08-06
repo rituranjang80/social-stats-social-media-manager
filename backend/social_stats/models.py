@@ -38,6 +38,7 @@ SYNC_STATUS = [
 
 # ── Client (Company) ──────────────────────────────────────────────────────────
 class Client(models.Model):
+    public_id  = models.UUIDField(default=uuid.uuid4, unique=True, editable=False, db_index=True)
     name       = models.CharField(max_length=200)
     company    = models.CharField(max_length=200)
     email      = models.EmailField(unique=True)
@@ -215,12 +216,16 @@ class UserProfile(models.Model):
         return f"{self.user.email} ({self.role})"
 
     def can_access_client(self, client_id):
+        from .client_ref import resolve_client_pk
+        pk = resolve_client_pk(client_id)
+        if pk is None:
+            return False
         if self.role == 'superadmin':
             return True
         if self.role == 'client':
-            return self.client_id == int(client_id)
+            return self.client_id == pk
         if self.role == 'staff':
-            return self.assigned_clients.filter(id=client_id).exists()
+            return self.assigned_clients.filter(id=pk).exists()
         return False
 
 

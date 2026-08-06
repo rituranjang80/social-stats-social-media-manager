@@ -16,6 +16,7 @@ import {
   XCircle, RefreshCw, Building2, UserCheck, Zap,
 } from 'lucide-react';
 import PageHeader from '../components/layout/PageHeader';
+import { clientWorkspacePath } from '../utils/workspacePaths';
 
 const STATUS_COLOR = {
   pending:   { text: '#d97706', bg: '#fef3c7', label: 'Pending' },
@@ -326,7 +327,7 @@ export default function AllClientsPage({ onSelectClient }) {
                     <td style={S.td}>
                       <div style={{ display: 'flex', gap: 8 }}>
                         <button
-                          onClick={() => { onSelectClient?.(c); navigate(`/admin/client/${c.id}`); }}
+                          onClick={() => { onSelectClient?.(c); navigate(clientWorkspacePath('/admin', c)); }}
                           style={S.dashBtn}
                         >
                           <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -334,7 +335,7 @@ export default function AllClientsPage({ onSelectClient }) {
                           </span>
                         </button>
                         <button
-                          onClick={() => { onSelectClient?.(c); navigate(`/admin/client/${c.id}/settings`); }}
+                          onClick={() => { onSelectClient?.(c); navigate(clientWorkspacePath('/admin', c, 'settings')); }}
                           style={S.settingsBtn}
                         >
                           <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>

@@ -41,38 +41,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from . import media_service
+from .client_ref import resolve_request_client as _resolved_client
 from .composer_serializers import MediaAssetSerializer
-from .models import Client, MediaAsset, PlatformCredential
+from .models import MediaAsset, PlatformCredential
 
 logger = logging.getLogger(__name__)
-
-
-# ── Tenant guard ─────────────────────────────────────────────────────────────
-def _resolved_client(request):
-    try:
-        profile = request.user.profile
-    except Exception:
-        return None, Response({'error': 'No profile'}, status=403)
-
-    raw = request.data.get('client_id') or request.query_params.get('client_id')
-    if profile.role == 'superadmin':
-        cid = raw or profile.client_id
-    elif profile.role == 'staff':
-        try:
-            cid = int(raw) if raw else None
-        except (TypeError, ValueError):
-            cid = None
-        if cid is None or not profile.assigned_clients.filter(id=cid).exists():
-            return None, Response({'error': 'client_id required'}, status=400)
-    else:
-        cid = profile.client_id
-
-    if not cid:
-        return None, Response({'error': 'client_id required'}, status=400)
-    try:
-        return Client.objects.get(id=cid), None
-    except Client.DoesNotExist:
-        return None, Response({'error': 'Client not found'}, status=404)
 
 
 def _resolved_asset(request, asset_id, client):

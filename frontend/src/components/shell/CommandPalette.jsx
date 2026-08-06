@@ -19,6 +19,7 @@ import {
 
 import { useClients } from '../../hooks/useData';
 import useUnifiedSearch from '../../hooks/useUnifiedSearch';
+import { clientWorkspacePath } from '../../utils/workspacePaths';
 
 const RECENTS_KEY = 'cmdk:recents';
 const RECENTS_MAX = 6;
@@ -180,7 +181,7 @@ export default function CommandPalette({ open, onOpenChange, basePath }) {
                 <Item
                   key={`client-${c.id}`}
                   item={{ id: `client-${c.id}`, label: c.company, hint: 'Switch to client', icon: Users2 }}
-                  onSelect={() => pick(`client-${c.id}`, () => navigate(`/admin/client/${c.id}`))}
+                  onSelect={() => pick(`client-${c.id}`, () => navigate(clientWorkspacePath('/admin', c)))}
                 />
               ))}
             </Group>
