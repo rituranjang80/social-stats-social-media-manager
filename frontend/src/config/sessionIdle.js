@@ -1,5 +1,7 @@
 /* ============================================================================
  * Idle session — client-side inactivity logout (configurable via REACT_APP_*).
+ * Minutes and optional *_SECONDS (seconds win when set) for fine-grained tests.
+ * Restart `npm start` / rebuild frontend after .env changes.
  * ========================================================================== */
 
 const truthy = (v) => {
@@ -13,31 +15,59 @@ const parsePositiveInt = (raw, fallback) => {
   return Number.isFinite(n) && n > 0 ? n : fallback;
 };
 
+const parseOptionalSeconds = (raw) => {
+  if (raw == null || String(raw).trim() === '') return null;
+  const n = parseInt(String(raw).trim(), 10);
+  return Number.isFinite(n) && n > 0 ? n : null;
+};
+
 const enabled = truthy(process.env.REACT_APP_IDLE_SESSION_ENABLED) ?? true;
 
-/** Total idle time before sign-out (minutes). */
-const idleTimeoutMinutes = parsePositiveInt(process.env.REACT_APP_IDLE_TIMEOUT_MINUTES, 20);
+const idleTimeoutMs = (() => {
+  const sec = parseOptionalSeconds(process.env.REACT_APP_IDLE_TIMEOUT_SECONDS);
+  if (sec != null) return sec * 1000;
+  const min = parsePositiveInt(process.env.REACT_APP_IDLE_TIMEOUT_MINUTES, 20);
+  return min * 60 * 1000;
+})();
 
-/** Show warning dialog this many minutes before sign-out. */
-const warningMinutes = parsePositiveInt(process.env.REACT_APP_IDLE_WARNING_MINUTES, 5);
+const warningLeadMs = (() => {
+  const sec = parseOptionalSeconds(process.env.REACT_APP_IDLE_WARNING_SECONDS);
+  if (sec != null) return sec * 1000;
+  const min = parsePositiveInt(process.env.REACT_APP_IDLE_WARNING_MINUTES, 5);
+  return min * 60 * 1000;
+})();
 
-/** Play a short beep when the warning opens (and each minute while open). */
 const beepEnabled = truthy(process.env.REACT_APP_IDLE_BEEP) ?? true;
 
-/** While the user is active, refresh JWT at most this often (minutes). */
 const tokenRefreshMinutes = parsePositiveInt(process.env.REACT_APP_IDLE_TOKEN_REFRESH_MINUTES, 10);
 
-const warningMinutesClamped = Math.min(warningMinutes, idleTimeoutMinutes - 1);
+/** At least 1s of warning window before hard logout. */
+const warningLeadClampedMs = Math.min(
+  Math.max(warningLeadMs, 1000),
+  Math.max(idleTimeoutMs - 1000, 1000),
+);
+
+const warningAtMs = Math.max(0, idleTimeoutMs - warningLeadClampedMs);
 
 export const sessionIdleConfig = Object.freeze({
   enabled,
-  idleTimeoutMs: idleTimeoutMinutes * 60 * 1000,
-  warningLeadMs: warningMinutesClamped * 60 * 1000,
-  warningAtMs: (idleTimeoutMinutes - warningMinutesClamped) * 60 * 1000,
+  idleTimeoutMs,
+  warningLeadMs: warningLeadClampedMs,
+  warningAtMs,
   beepEnabled,
   tokenRefreshMs: tokenRefreshMinutes * 60 * 1000,
-  idleTimeoutMinutes,
-  warningMinutes: warningMinutesClamped,
+  idleTimeoutMinutes: Math.ceil(idleTimeoutMs / 60000),
+  warningMinutes: Math.ceil(warningLeadClampedMs / 60000),
+  warningSeconds: Math.ceil(warningLeadClampedMs / 1000),
 });
+
+if (process.env.NODE_ENV === 'development' && enabled) {
+  // eslint-disable-next-line no-console
+  console.info('[idle-session]', {
+    idleTimeoutMs: sessionIdleConfig.idleTimeoutMs,
+    warningAtMs: sessionIdleConfig.warningAtMs,
+    warningLeadMs: sessionIdleConfig.warningLeadMs,
+  });
+}
 
 export default sessionIdleConfig;

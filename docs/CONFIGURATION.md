@@ -40,8 +40,10 @@ for Docker (passed to the frontend container). **Restart** the dev server after 
 | `REACT_APP_APPLE_TOUCH_ICON_URL` | No | `/apple-touch-icon.png` | iOS home-screen icon |
 | `REACT_APP_BRAND_PRIMARY_COLOR` | No | `#00CCF5` | Built-in mark background when `REACT_APP_BRAND_LOGO_URL` is empty |
 | `REACT_APP_IDLE_SESSION_ENABLED` | No | `true` | When `false`, disables client idle sign-out and the warning dialog |
-| `REACT_APP_IDLE_TIMEOUT_MINUTES` | No | `20` | Sign out after this many minutes **without** mouse/keyboard/scroll activity |
+| `REACT_APP_IDLE_TIMEOUT_MINUTES` | No | `20` | Sign out after this many minutes **without** mouse/keyboard activity |
 | `REACT_APP_IDLE_WARNING_MINUTES` | No | `5` | Show countdown dialog this many minutes before idle sign-out |
+| `REACT_APP_IDLE_TIMEOUT_SECONDS` | No | *(unset)* | When set, overrides `REACT_APP_IDLE_TIMEOUT_MINUTES` (useful for testing) |
+| `REACT_APP_IDLE_WARNING_SECONDS` | No | *(unset)* | When set, overrides `REACT_APP_IDLE_WARNING_MINUTES` |
 | `REACT_APP_IDLE_BEEP` | No | `true` | Short beep when the warning opens |
 | `REACT_APP_IDLE_TOKEN_REFRESH_MINUTES` | No | `10` | While you are active, refresh the JWT at most this often (keeps working sessions alive; set below backend `JWT_ACCESS_MIN`, default 15) |
 

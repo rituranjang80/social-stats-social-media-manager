@@ -1,9 +1,11 @@
 .idle-session-modal__overlay {
   backdrop-filter: blur(6px);
   background: rgba(15, 23, 42, 0.55) !important;
+  z-index: 10050 !important;
 }
 
 .idle-session-modal.ds-modal__dialog {
+  z-index: 10051;
   border: 1px solid var(--border-default);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.22);
   overflow: hidden;

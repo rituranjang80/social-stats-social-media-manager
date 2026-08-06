@@ -8,7 +8,8 @@ import axios from 'axios';
 import sessionIdleConfig from '../config/sessionIdle';
 import { playIdleBeep } from '../utils/idleBeep';
 
-const ACTIVITY_EVENTS = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click', 'wheel'];
+/** Deliberately omit scroll/wheel — they fire from layout/polling and block idle detection. */
+const ACTIVITY_EVENTS = ['mousedown', 'keydown', 'touchstart', 'pointerdown'];
 
 function formatCountdown(totalSeconds) {
   const s = Math.max(0, totalSeconds);
@@ -37,67 +38,64 @@ export function useIdleSession({ active, onLogout }) {
   const lastActivityRef = useRef(Date.now());
   const lastTokenRefreshRef = useRef(Date.now());
   const warningOpenRef = useRef(false);
-  const lastBeepMinuteRef = useRef(-1);
+  const lastBeepSecondRef = useRef(-1);
   const loggingOutRef = useRef(false);
+  const onLogoutRef = useRef(onLogout);
+  onLogoutRef.current = onLogout;
 
   const [warningOpen, setWarningOpen] = useState(false);
   const [remainingSeconds, setRemainingSeconds] = useState(0);
 
-  const bumpActivity = useCallback((fromWarningContinue = false) => {
-    const now = Date.now();
-    lastActivityRef.current = now;
-    if (fromWarningContinue || warningOpenRef.current) {
-      warningOpenRef.current = false;
-      setWarningOpen(false);
-      lastBeepMinuteRef.current = -1;
-    }
-  }, []);
-
   const continueWorking = useCallback(() => {
-    bumpActivity(true);
-  }, [bumpActivity]);
+    lastActivityRef.current = Date.now();
+    warningOpenRef.current = false;
+    lastBeepSecondRef.current = -1;
+    setWarningOpen(false);
+  }, []);
 
   const performLogout = useCallback(() => {
     if (loggingOutRef.current) return;
     loggingOutRef.current = true;
     warningOpenRef.current = false;
     setWarningOpen(false);
-    onLogout?.();
+    onLogoutRef.current?.();
     navigate('/login', { replace: true });
-  }, [navigate, onLogout]);
+  }, [navigate]);
 
   // Activity listeners + throttled JWT refresh while working
   useEffect(() => {
     if (!active || !cfg.enabled) return undefined;
 
+    loggingOutRef.current = false;
     lastActivityRef.current = Date.now();
     lastTokenRefreshRef.current = Date.now();
-    loggingOutRef.current = false;
 
-    let throttleTimer = null;
+    let throttleUntil = 0;
     const onActivity = () => {
       if (warningOpenRef.current) return;
-      if (throttleTimer) return;
-      throttleTimer = setTimeout(() => {
-        throttleTimer = null;
-      }, 1000);
-      lastActivityRef.current = Date.now();
+      const now = Date.now();
+      if (now < throttleUntil) return;
+      throttleUntil = now + 800;
+      lastActivityRef.current = now;
 
-      const sinceRefresh = Date.now() - lastTokenRefreshRef.current;
+      const sinceRefresh = now - lastTokenRefreshRef.current;
       if (sinceRefresh >= cfg.tokenRefreshMs) {
-        lastTokenRefreshRef.current = Date.now();
+        lastTokenRefreshRef.current = now;
         refreshAccessTokenSilently().catch(() => {});
       }
     };
 
-    ACTIVITY_EVENTS.forEach((ev) => window.addEventListener(ev, onActivity, { passive: true }));
+    ACTIVITY_EVENTS.forEach((ev) => {
+      window.addEventListener(ev, onActivity, { capture: true, passive: true });
+    });
     return () => {
-      ACTIVITY_EVENTS.forEach((ev) => window.removeEventListener(ev, onActivity));
-      if (throttleTimer) clearTimeout(throttleTimer);
+      ACTIVITY_EVENTS.forEach((ev) => {
+        window.removeEventListener(ev, onActivity, { capture: true });
+      });
     };
   }, [active, cfg.enabled, cfg.tokenRefreshMs]);
 
-  // Idle tick (1s)
+  // Idle tick (1s) — stable deps (no onLogout)
   useEffect(() => {
     if (!active || !cfg.enabled) return undefined;
 
@@ -116,26 +114,29 @@ export function useIdleSession({ active, onLogout }) {
         if (!warningOpenRef.current) {
           warningOpenRef.current = true;
           setWarningOpen(true);
+          lastBeepSecondRef.current = sec;
           if (cfg.beepEnabled) playIdleBeep();
-        } else if (cfg.beepEnabled && remainingSeconds > 0 && remainingSeconds % 60 === 0) {
-          const bucket = Math.floor(remainingSeconds / 60);
-          if (bucket !== lastBeepMinuteRef.current) {
-            lastBeepMinuteRef.current = bucket;
-            playIdleBeep();
-          }
+        } else if (cfg.beepEnabled && sec !== lastBeepSecondRef.current && sec > 0 && sec % 30 === 0) {
+          lastBeepSecondRef.current = sec;
+          playIdleBeep();
         }
-      } else {
-        if (warningOpenRef.current) {
-          warningOpenRef.current = false;
-          setWarningOpen(false);
-        }
+      } else if (warningOpenRef.current) {
+        warningOpenRef.current = false;
+        setWarningOpen(false);
       }
     };
 
     tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [active, cfg.enabled, cfg.idleTimeoutMs, cfg.warningAtMs, cfg.beepEnabled, performLogout]);
+    const id = window.setInterval(tick, 1000);
+    return () => window.clearInterval(id);
+  }, [
+    active,
+    cfg.enabled,
+    cfg.idleTimeoutMs,
+    cfg.warningAtMs,
+    cfg.beepEnabled,
+    performLogout,
+  ]);
 
   return {
     enabled: cfg.enabled && active,
@@ -143,8 +144,8 @@ export function useIdleSession({ active, onLogout }) {
     remainingSeconds,
     remainingLabel: formatCountdown(remainingSeconds),
     continueWorking,
-    idleTimeoutMinutes: cfg.idleTimeoutMinutes,
     warningMinutes: cfg.warningMinutes,
+    warningSeconds: cfg.warningSeconds,
   };
 }
 

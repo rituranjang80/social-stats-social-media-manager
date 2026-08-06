@@ -4,7 +4,7 @@
 
 ### Added — Configurable idle session sign-out
 
-- Signed-in users are **not** signed out while active. After **20 minutes** of no activity (configurable), a **warning dialog** appears with countdown, optional **beep**, and **Continue working** to reset the timer. JWTs refresh periodically during activity so short access-token lifetimes do not interrupt work.
+- Signed-in users are **not** signed out while active. After configurable inactivity, a **warning dialog** appears with countdown, optional **beep**, and **Continue working** to reset the timer. Env changes require a **frontend restart** (`npm start` / rebuild). DevTools console logs `[idle-session]` timing when enabled in development.
 
 ### Changed — Desktop navigation shell
 
