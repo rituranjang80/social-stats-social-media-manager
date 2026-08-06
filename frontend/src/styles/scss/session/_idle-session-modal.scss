@@ -1,0 +1,109 @@
+.idle-session-modal__overlay {
+  backdrop-filter: blur(6px);
+  background: rgba(15, 23, 42, 0.55) !important;
+}
+
+.idle-session-modal.ds-modal__dialog {
+  border: 1px solid var(--border-default);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 4px;
+    background: linear-gradient(90deg, var(--brand-primary), var(--warning));
+    pointer-events: none;
+  }
+}
+
+.idle-session-modal__body {
+  text-align: center;
+  padding: 8px 4px 4px;
+}
+
+.idle-session-modal__icon-wrap {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 12px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 14%, transparent);
+}
+
+.idle-session-modal__heading {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.idle-session-modal__text {
+  margin: 0 0 20px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.idle-session-modal__timer {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 16px;
+}
+
+.idle-session-modal__ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.idle-session-modal__ring-track {
+  fill: none;
+  stroke: var(--border-subtle);
+  stroke-width: 8;
+}
+
+.idle-session-modal__ring-progress {
+  fill: none;
+  stroke: var(--brand-primary);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 328;
+  transition: stroke-dashoffset 0.9s linear;
+}
+
+.idle-session-modal__time {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--text-primary);
+}
+
+.idle-session-modal__digits {
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.idle-session-modal__hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.idle-session-modal__actions {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}

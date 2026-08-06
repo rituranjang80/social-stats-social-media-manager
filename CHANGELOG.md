@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added — Configurable idle session sign-out
+
+- Signed-in users are **not** signed out while active. After **20 minutes** of no activity (configurable), a **warning dialog** appears with countdown, optional **beep**, and **Continue working** to reset the timer. JWTs refresh periodically during activity so short access-token lifetimes do not interrupt work.
+
 ### Changed — Desktop navigation shell
 
 - Retired the **64px module rail** UI; **Modules** (Analytics, Messaging, Ads), feature sections, and **Account** actions now live in the **collapsible feature sidebar**. Layout uses sidebar width only (no extra left gutter).

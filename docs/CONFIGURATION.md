@@ -39,6 +39,11 @@ for Docker (passed to the frontend container). **Restart** the dev server after 
 | `REACT_APP_FAVICON_URL` | No | `/icons/icon-192.png` | Favicon (under `frontend/public/`) |
 | `REACT_APP_APPLE_TOUCH_ICON_URL` | No | `/apple-touch-icon.png` | iOS home-screen icon |
 | `REACT_APP_BRAND_PRIMARY_COLOR` | No | `#00CCF5` | Built-in mark background when `REACT_APP_BRAND_LOGO_URL` is empty |
+| `REACT_APP_IDLE_SESSION_ENABLED` | No | `true` | When `false`, disables client idle sign-out and the warning dialog |
+| `REACT_APP_IDLE_TIMEOUT_MINUTES` | No | `20` | Sign out after this many minutes **without** mouse/keyboard/scroll activity |
+| `REACT_APP_IDLE_WARNING_MINUTES` | No | `5` | Show countdown dialog this many minutes before idle sign-out |
+| `REACT_APP_IDLE_BEEP` | No | `true` | Short beep when the warning opens |
+| `REACT_APP_IDLE_TOKEN_REFRESH_MINUTES` | No | `10` | While you are active, refresh the JWT at most this often (keeps working sessions alive; set below backend `JWT_ACCESS_MIN`, default 15) |
 
 Template: [`frontend/.env.example`](../frontend/.env.example).
 

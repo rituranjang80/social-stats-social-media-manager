@@ -17,6 +17,23 @@ alternative to tools like Hootsuite, Buffer, and Sprout Social. See
 
 ---
 
+## Auth & sessions
+
+### I get signed out while I am still working
+The app refreshes your JWT while you use the mouse or keyboard. If sign-out still
+happens unexpectedly, check backend **`JWT_ACCESS_MIN`** (default 15) and frontend
+**`REACT_APP_IDLE_TOKEN_REFRESH_MINUTES`** (default 10) — refresh should run more
+often than the access token expires. See [CONFIGURATION.md](CONFIGURATION.md).
+
+### I get signed out after leaving the desk
+By default, **20 minutes** of no activity triggers a **5-minute countdown** dialog
+with optional beep. Click **Continue working** to stay signed in, or adjust
+`REACT_APP_IDLE_TIMEOUT_MINUTES`, `REACT_APP_IDLE_WARNING_MINUTES`, and
+`REACT_APP_IDLE_SESSION_ENABLED` in `frontend/.env`. Restart the frontend after
+changes.
+
+---
+
 ## Setup & runtime
 
 ### Browser shows "CORS error" on `/api/*` (oauth/status, alerts, notifications, overview, …)

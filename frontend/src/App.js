@@ -24,6 +24,7 @@ import AppShell from './components/shell/AppShell';
 import CookieBanner from './components/legal/CookieBanner';
 import PageviewTracker from './components/PageviewTracker';
 import BrandHead from './components/BrandHead';
+import IdleSessionGuard from './components/session/IdleSessionGuard';
 
 // ── Modules (sub-routers) ──────────────────────────────────────────────────
 const AnalyticsModule = lazy(() => import('./modules/AnalyticsModule'));
@@ -337,6 +338,7 @@ export default function App() {
               invalidation + bumps zustand badge counts between polls.
               Renders nothing; safe to mount unconditionally. */}
           <RealtimeBridge />
+          <IdleSessionGuard />
           <Suspense fallback={<Loader />}>
           <Routes>
             <Route path="/"       element={<RootRedirect />} />
