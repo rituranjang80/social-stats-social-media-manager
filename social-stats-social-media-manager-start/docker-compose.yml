@@ -1,7 +1,9 @@
 # Base stack — build images once; bind-mount source for day-to-day coding.
 # Usage (from this folder):
 #   copy paths.env.example paths.env && copy .env.example .env
-#   docker compose --env-file paths.env --env-file .env up -d --build
+#   docker compose up -d --build
+#   (or: docker compose --env-file paths.env --env-file .env up -d --build)
+# SOURCE_REL defaults to ../social-stats-social-media-manager when unset.
 
 name: ${COMPOSE_PROJECT_NAME:-social-stats}
 
@@ -35,7 +37,41 @@ x-backend-build: &backend-build
   context: ${START_REL:-.}
   dockerfile: docker/Dockerfile.backend
   additional_contexts:
-    backend: ${SOURCE_REL}/backend
+    backend: ${SOURCE_REL:-..}/backend
+
+x-backup-env: &backup-env
+  <<: *app-env
+  environment:
+    BACKUP_IN_DOCKER: "true"
+    BACKUP_ENABLED: ${BACKUP_ENABLED:-true}
+    BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+    BACKUP_DESTINATIONS: ${BACKUP_DESTINATIONS:-/data/backups/archive}
+    BACKUP_STAGING_DIR: ${BACKUP_STAGING_DIR:-/data/backups/staging}
+    BACKUP_LABEL: ${BACKUP_LABEL:-social-stats}
+    BACKUP_COMPRESS: ${BACKUP_COMPRESS:-true}
+    BACKUP_VERIFY: ${BACKUP_VERIFY:-true}
+    BACKUP_INCLUDE_SQLITE: ${BACKUP_INCLUDE_SQLITE:-true}
+    BACKUP_INCLUDE_POSTGRES: ${BACKUP_INCLUDE_POSTGRES:-true}
+    BACKUP_INCLUDE_MEDIA: ${BACKUP_INCLUDE_MEDIA:-true}
+    BACKUP_INCLUDE_STATICFILES: ${BACKUP_INCLUDE_STATICFILES:-false}
+    BACKUP_EXTRA_PATHS: ${BACKUP_EXTRA_PATHS:-}
+    BACKUP_CRON: ${BACKUP_CRON:-0 2 * * *}
+    BACKUP_RUN_ON_START: ${BACKUP_RUN_ON_START:-false}
+    BACKUP_RUN_ONCE: ${BACKUP_RUN_ONCE:-false}
+    SQLITE_PATH: ${SQLITE_PATH:-/data/db.sqlite3}
+    MEDIA_ROOT: ${MEDIA_ROOT:-/data/media}
+    STATIC_ROOT: ${STATIC_ROOT:-/data/staticfiles}
+    DB_NAME: ${DB_NAME:-}
+    DB_USER: ${DB_USER:-socialstats}
+    DB_PASSWORD: ${DB_PASSWORD:-change-me-local}
+    DB_HOST: ${BACKUP_DB_HOST:-postgres}
+    DB_PORT: ${DB_PORT:-5432}
+
+x-backup-build: &backup-build
+  context: ${START_REL:-.}
+  dockerfile: docker/Dockerfile.backup
+  additional_contexts:
+    app: ${SOURCE_REL:-..}
 
 services:
   postgres:
@@ -70,9 +106,9 @@ services:
   backend:
     <<: *backend-env
     build: *backend-build
-    entrypoint: ["/entrypoint.sh"]
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
     volumes:
-      - ${SOURCE_REL}/backend:/app/backend
+      - ${SOURCE_REL:-..}/backend:/app/backend
       - ${START_REL:-.}/docker/entrypoint-backend.sh:/entrypoint.sh:ro
       - ${DATA_REL:-./data}:/data
     ports:
@@ -94,7 +130,7 @@ services:
     entrypoint: ["/bin/bash", "-c"]
     command: ["celery -A dashboard worker -l info"]
     volumes:
-      - ${SOURCE_REL}/backend:/app/backend
+      - ${SOURCE_REL:-..}/backend:/app/backend
       - ${DATA_REL:-./data}:/data
     depends_on:
       backend:
@@ -111,7 +147,7 @@ services:
         celery -A dashboard beat -l info
         --scheduler django_celery_beat.schedulers:DatabaseScheduler
     volumes:
-      - ${SOURCE_REL}/backend:/app/backend
+      - ${SOURCE_REL:-..}/backend:/app/backend
       - ${DATA_REL:-./data}:/data
     depends_on:
       backend:
@@ -131,11 +167,28 @@ services:
     ports:
       - "${GATEWAY_HTTP_PORT:-8000}:80"
     volumes:
-      - ${SOURCE_REL}/frontend:/var/www/frontend:ro
+      - ${SOURCE_REL:-..}/frontend:/var/www/frontend:ro
       - ${DATA_REL:-./data}/media:/var/www/media:ro
       - ${DATA_REL:-./data}/staticfiles:/var/www/staticfiles:ro
       - ${START_REL:-.}/docker/nginx/templates:/etc/nginx/social-stats-templates:ro
       - ${START_REL:-.}/docker/nginx/entrypoint-gateway.sh:/docker-entrypoint.d/40-social-stats-gateway.sh:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # Scheduled SQLite/Postgres + media backup (supercronic). Enable with profile "backup".
+  backup:
+    <<: *backup-env
+    profiles: ["backup"]
+    build: *backup-build
+    restart: unless-stopped
+    volumes:
+      - ${DATA_REL:-./data}:/data
+      - ${BACKUP_MOUNT_1_HOST:-./data/backups/mount1}:/backups/mount1
+      - ${BACKUP_MOUNT_2_HOST:-./data/backups/mount2}:/backups/mount2
+      - ${BACKUP_MOUNT_3_HOST:-./data/backups/mount3}:/backups/mount3
+      - ${BACKUP_MOUNT_4_HOST:-./data/backups/mount4}:/backups/mount4
+      - ${BACKUP_MOUNT_5_HOST:-./data/backups/mount5}:/backups/mount5
     depends_on:
       backend:
         condition: service_healthy

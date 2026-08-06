@@ -138,6 +138,20 @@ Immediate API errors (validation, permissions) still go through the DRF handler 
 
 **Magic accept APIs** (public): `GET /api/invitations/<uuid:token>/`, `POST /api/invitations/<uuid:token>/accept/` — return JWT on success; no password in the request body.
 
+## Scheduled backup (Docker — `social-stats-social-media-manager-start`)
+
+The **`backup`** Compose service (profile **`backup`**) runs **supercronic** on `BACKUP_CRON`, backs up **SQLite** or **Postgres**, **media**, optional static/extra paths, copies zip bundles to **multiple destinations** (`BACKUP_DESTINATIONS` = container paths; `BACKUP_MOUNT_1_HOST` … `_5` = host UNC / mapped drives), and prunes older than **`BACKUP_RETENTION_DAYS`**. Configure in **`social-stats-social-media-manager-start/.env`**. See **`social-stats-social-media-manager-start/docs/backup.md`**. Scripts: `run-backup-docker.ps1 -Once` / `-Up`.
+
+| Variable | Purpose |
+|---|---|
+| `BACKUP_DESTINATIONS` | `;`-separated paths inside container (e.g. `/backups/mount1;/data/backups/archive`) |
+| `BACKUP_MOUNT_N_HOST` | Host path bind-mounted to `/backups/mountN` |
+| `BACKUP_CRON` | Cron schedule (UTC) |
+| `BACKUP_DB_HOST` | Postgres hostname from backup container (default `postgres`) |
+
+Implementation: `scripts/backup/` (Python).
+
+
 API error responses include `error_id`, `timestamp`, and a safe `message` (no stack traces).
 
 ## Meta (Facebook + Instagram)

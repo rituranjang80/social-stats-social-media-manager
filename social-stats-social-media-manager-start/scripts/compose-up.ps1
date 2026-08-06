@@ -18,10 +18,24 @@ if (-not (Test-Path '.env')) {
     Write-Host 'Created .env from .env.example.'
 }
 
-$normalizeScript = Join-Path $StartRoot 'normalize-shell-lf.ps1'
-if (Test-Path $normalizeScript) {
-    & $normalizeScript -StartRoot (Get-Location)
+& (Join-Path $StartRoot 'normalize-shell-lf.ps1') -StartRoot (Get-Location)
+
+function Get-DotEnvValue {
+    param([string]$Name, [string]$FilePath)
+    if (-not (Test-Path $FilePath)) { return $null }
+    $line = Get-Content $FilePath -ErrorAction SilentlyContinue |
+        Where-Object { $_ -match "^\s*$([regex]::Escape($Name))\s*=" } |
+        Select-Object -First 1
+    if (-not $line) { return $null }
+    if ($line -match '=\s*(.*)$') {
+        return $Matches[1].Trim().Trim('"').Trim("'")
+    }
+    return $null
 }
+
+$envPath = Join-Path (Get-Location) '.env'
+$backupEnabled = Get-DotEnvValue -Name 'BACKUP_ENABLED' -FilePath $envPath
+$dbName = Get-DotEnvValue -Name 'DB_NAME' -FilePath $envPath
 
 $composeArgs = @(
     'compose',
@@ -29,6 +43,14 @@ $composeArgs = @(
     '--env-file', '.env',
     '-f', 'docker-compose.yml'
 )
+
+# Scheduled backup sidecar (profile backup) starts with the app when enabled in .env
+if ($null -eq $backupEnabled -or $backupEnabled -match '^(?i:true|1|yes|on)$') {
+    $composeArgs += '--profile', 'backup'
+}
+if ($dbName) {
+    $composeArgs += '--profile', 'postgres'
+}
 
 switch ($Mode) {
     'dev' { $composeArgs += '-f', 'docker-compose.dev.yml' }
@@ -48,19 +70,11 @@ if ($Build) { $upArgs += '--build' }
 & docker @composeArgs @upArgs
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-# CRA reads REACT_APP_* / frontend/.env only at dev-server start — recreate frontend in dev
-# so branding and other frontend env changes apply without a separate restart command.
-if ($Mode -eq 'dev' -or $Mode -eq 'debug-dev') {
-    Write-Host ''
-    Write-Host 'Refreshing frontend container (applies frontend/.env and REACT_APP_* branding)...'
-    & docker @composeArgs up -d --force-recreate --no-deps frontend
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-}
-
 Write-Host ''
 Write-Host 'Gateway:  http://localhost:8000'
 Write-Host 'Frontend: http://localhost:3000 (dev mode)'
 Write-Host 'Backend:  http://localhost:8001 (direct)'
 Write-Host 'Health:   http://localhost:8000/api/health/services/'
-Write-Host ''
-Write-Host 'After editing frontend/.env branding, run this script again (no separate restart needed).'
+if ($composeArgs -contains 'backup') {
+    Write-Host 'Backup:   scheduled container (profile backup) — logs: docker compose --env-file paths.env --env-file .env --profile backup logs -f backup'
+}

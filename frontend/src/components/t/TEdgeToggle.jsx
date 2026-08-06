@@ -4,7 +4,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import '../../styles/scss/t/_t-edge-toggle.scss';
-
+import '../../styles/scss/t/_t-collapsible-rail-root.scss';
 /**
  * @param {object} props
  * @param {'left'|'right'} [props.side]
@@ -42,6 +42,7 @@ export default function TEdgeToggle({
       className={[
         't-edge-toggle',
         `t-edge-toggle--${side}`,
+        't1-collapsible-rail-root',
         expanded ? 'is-expanded' : 'is-collapsed',
         align === 'top' ? 'is-top-aligned' : '',
         className,
@@ -51,7 +52,7 @@ export default function TEdgeToggle({
       aria-controls={controlsId}
       aria-label={label}
     >
-      <Icon size={18} strokeWidth={2.5} aria-hidden="true" />
+      <Icon size={180} strokeWidth={12.5} aria-hidden="true" />
     </button>
   );
 }

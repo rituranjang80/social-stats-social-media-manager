@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added — Docker scheduled backup (SQLite / Postgres + files)
+
+- **`scripts/backup/`** Python toolkit: online SQLite backup, `pg_dump`, media/static/extra paths, zip bundles, multi-destination copy, N-day retention.
+- **`social-stats-social-media-manager-start`**: Compose **`backup`** service (profile `backup`, **supercronic**), `Dockerfile.backup`, `run-backup-docker.ps1`, `docs/backup.md`, `BACKUP_*` / `BACKUP_MOUNT_*` in `.env.example`. **`compose-up.ps1`** enables profile **`backup`** when `BACKUP_ENABLED=true` so backup runs with the app.
+
 ### Fixed — Accept invitation magic link auto-login
 
 - **`POST /api/invitations/<token>/accept/`** no longer sends a stale browser JWT (avoids **401** before the public accept handler runs). Accept page stores tokens and uses a **full navigation** to `/dashboard` (fixes React Strict Mode leaving the page stuck on “Accepting…”). Audit/notification failures no longer block accept.
