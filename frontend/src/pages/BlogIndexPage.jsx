@@ -15,6 +15,7 @@ import Badge from '../components/ui/Badge';
 import Avatar from '../components/ui/Avatar';
 import Meta from '../components/Meta';
 import { track } from '../services/analytics';
+import { BRAND_NAME } from '../config/branding';
 
 import POSTS from './marketing/blogPosts';
 
@@ -55,7 +56,7 @@ export default function BlogIndexPage() {
     <MarketingLayout>
       <Meta
         title="Blog"
-        description="Product updates, agency playbooks, AI experiments, and design decisions from the team building Social Stats."
+        description={`Product updates, agency playbooks, AI experiments, and design decisions from the team building ${BRAND_NAME}.`}
       />
 
       {/* ╭──────────────╮
@@ -80,10 +81,10 @@ export default function BlogIndexPage() {
             fontWeight: 600,
             color: 'var(--text-primary)',
           }}>
-            The Social Stats journal.
+            The {BRAND_NAME} journal.
           </h1>
           <p style={{ margin: 0, fontSize: 16, lineHeight: 1.6, color: 'var(--text-secondary)' }}>
-            Product updates, agency playbooks, AI experiments, design decisions — written by the team building Social Stats.
+            Product updates, agency playbooks, AI experiments, design decisions — written by the team building {BRAND_NAME}.
           </p>
 
           {/* Search */}

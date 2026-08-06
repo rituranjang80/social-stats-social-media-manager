@@ -29,6 +29,7 @@ import AILoading from '../../components/ai/AILoading';
 import { aiV2API } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import toast from '../../components/ui/toast';
+import { BRAND_NAME } from '../../config/branding';
 
 const STATUS_VARIANT = {
   success:       { variant: 'success', icon: CheckCircle2 },
@@ -64,7 +65,7 @@ export default function AIAuditPage({ clientId: propClientId = null }) {
   return (
     <div className="app-page app-page--lg">
       <PageHeader
-        title="What did Social Stats do for me?"
+        title={`What did ${BRAND_NAME} do for me?`}
         subtitle="Every AI request on this client account — for transparency + compliance."
         actions={(
           <Button variant="ghost" size="sm" icon={RefreshCw} onClick={load}>Refresh</Button>
@@ -151,7 +152,7 @@ export default function AIAuditPage({ clientId: propClientId = null }) {
             <EmptyState
               icon={Sparkles}
               title="No AI activity yet"
-              description="As you use Social Stats features, every request shows up here."
+              description={`As you use ${BRAND_NAME} features, every request shows up here.`}
             />
           ) : (
             <div style={{ overflowX: 'auto' }}>

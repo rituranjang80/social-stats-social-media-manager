@@ -13,9 +13,11 @@ import './styles/tokens.css';
 import './styles/common.css';
 import './styles/base/_themes.scss';
 import { bootstrapTheme } from './hooks/useTheme';
+import { applyBrandingCssVariables } from './config/branding';
 
 // Apply persisted theme before React paints, to avoid flash of wrong theme.
 bootstrapTheme();
+applyBrandingCssVariables();
 
 // ── Google Fonts: Inter ──────────────────────────────────────────────────────
 const fontLink = document.createElement('link');
@@ -45,12 +47,12 @@ style.textContent = `
     --text-secondary: #475569;
     --text-muted:     #94a3b8;
 
-    /* Brand — Social Stats (Cyan + Black) */
-    --blue:          #00B8DA;
-    --blue-hover:    #009EC0;
-    --blue-light:    #E0F9FF;
-    --blue-glow:     rgba(0, 204, 245, 0.18);
-    --brand-cyan:    #00CCF5;
+    /* Brand accent — overridden at runtime from REACT_APP_BRAND_PRIMARY_COLOR */
+    --blue:          var(--brand-primary-hover);
+    --blue-hover:    var(--brand-primary-active);
+    --blue-light:    var(--brand-primary-soft);
+    --blue-glow:     var(--brand-primary-glow);
+    --brand-cyan:    var(--brand-primary);
     --brand-black:   #0D0D0D;
 
     /* Sidebar (dark) */

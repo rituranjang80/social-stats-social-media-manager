@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { Loader2, Search, FileText } from 'lucide-react';
 
 import PageHeader from '../../components/layout/PageHeader';
+import { BRAND_NAME } from '../../config/branding';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
@@ -44,7 +45,7 @@ export default function AuditLogPage() {
     <div style={{ paddingBottom: 32 }}>
       <PageHeader
         title="Audit log"
-        subtitle="Every write action Social Stats performed on your behalf"
+        subtitle={`Every write action ${BRAND_NAME} performed on your behalf`}
       />
 
       <div style={{ padding: '0 24px' }}>
@@ -83,7 +84,7 @@ export default function AuditLogPage() {
             <EmptyState
               icon={FileText}
               title="No audit entries yet"
-              description="Once Social Stats publishes a post, sends a reply, or fires an automation, it'll show up here."
+              description={`Once ${BRAND_NAME} publishes a post, sends a reply, or fires an automation, it'll show up here.`}
             />
           </Card>
         )}

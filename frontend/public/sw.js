@@ -1,4 +1,4 @@
-/* Social Stats Service Worker — caches app shell for offline + Add to Home Screen */
+/* Application service worker — caches app shell for offline + Add to Home Screen */
 const CACHE_NAME = 'socialstats-v3';
 const SHELL_ASSETS = ['/', '/index.html'];
 

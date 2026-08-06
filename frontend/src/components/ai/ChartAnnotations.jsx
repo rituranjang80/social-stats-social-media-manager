@@ -12,6 +12,7 @@ import { Sparkles, RefreshCw, Loader2 } from 'lucide-react';
 import Button from '../ui/Button';
 import { aiV2API } from '../../services/api';
 import toast from '../ui/toast';
+import { BRAND_NAME } from '../../config/branding';
 
 /**
  * ChartAnnotations — drop-in "What this data means" callout that sits
@@ -122,7 +123,7 @@ export default function ChartAnnotations({
               What this data means
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
-              From Social Stats
+              From {BRAND_NAME}
             </div>
           </div>
         </div>
@@ -142,7 +143,7 @@ export default function ChartAnnotations({
         <p style={{
           margin: 0, fontSize: 12, color: 'var(--text-tertiary)', lineHeight: 1.55,
         }}>
-          Click <strong style={{ color: 'var(--brand-primary-hover)' }}>Explain</strong> to have Social Stats translate this chart in plain English.
+          Click <strong style={{ color: 'var(--brand-primary-hover)' }}>Explain</strong> to have {BRAND_NAME} translate this chart in plain English.
         </p>
       )}
 

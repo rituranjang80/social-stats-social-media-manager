@@ -19,8 +19,9 @@ import ScrollReveal    from '../../components/marketing/ScrollReveal';
 import SamplePreviewBanner from '../../components/marketing/SamplePreviewBanner';
 import Button          from '../../components/ui/Button';
 import Meta            from '../../components/Meta';
+import { BRAND_NAME } from '../../config/branding';
 import JsonLd, {
-  buildLocalBusiness, buildBreadcrumbs, SITE_URL,
+  buildLocalBusiness, buildBreadcrumbs, getSiteUrl,
 } from '../../components/JsonLd';
 
 import { getAgency, AGENCY_LIST } from './agencyProfiles';
@@ -58,7 +59,7 @@ export default function AgencyShowcasePage() {
     <MarketingLayout>
       <Meta
         noSuffix
-        title={`${name} — Social Stats Partner Agency`}
+        title={`${name} — ${BRAND_NAME} Partner Agency`}
         description={tagline}
       />
       <JsonLd
@@ -71,9 +72,9 @@ export default function AgencyShowcasePage() {
       <JsonLd
         id="breadcrumbs"
         data={buildBreadcrumbs([
-          { name: 'Home',     url: `${SITE_URL}/` },
-          { name: 'Agencies', url: `${SITE_URL}/agencies` },
-          { name,             url: `${SITE_URL}/agencies/${slug}` },
+          { name: 'Home',     url: `${getSiteUrl()}/` },
+          { name: 'Agencies', url: `${getSiteUrl()}/agencies` },
+          { name,             url: `${getSiteUrl()}/agencies/${slug}` },
         ])}
       />
 
@@ -135,7 +136,7 @@ export default function AgencyShowcasePage() {
                     display: 'inline-flex', alignItems: 'center', gap: 4,
                     padding: '4px 10px',
                     fontSize: 11, fontWeight: 600,
-                    color: '#00CCF5',
+                    color: 'var(--brand-primary)',
                     background: 'rgba(0,204,245,0.10)',
                     border: '1px solid rgba(0,204,245,0.25)',
                     borderRadius: 'var(--radius-pill)',
@@ -553,7 +554,7 @@ export default function AgencyShowcasePage() {
             color: 'rgba(255,255,255,0.75)',
             lineHeight: 1.55,
           }}>
-            All Social Stats partner agencies use the same product you would. You stay in control of your data, permissions, and access.
+            {`All ${BRAND_NAME} partner agencies use the same product you would. You stay in control of your data, permissions, and access.`}
           </p>
 
           <div style={{

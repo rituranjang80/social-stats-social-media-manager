@@ -1,12 +1,10 @@
-/* ============================================================================
- *  Social Stats — Social Media Management & Marketing Platform
- *  Author    : Chandrabhan Shekhawat
- *  Company   : Gigai Kripa Services
- *  Website   : https://gigaikripaservices.com/
- *  Copyright (c) 2026 Chandrabhan Shekhawat / Gigai Kripa Services.
- *  Released under the MIT License — see LICENSE. Keep this notice.
- * ========================================================================== */
 import { useEffect } from 'react';
+import {
+  BRAND_NAME,
+  BRAND_DESCRIPTION,
+  DOCUMENT_TITLE,
+  pageTitleWithBrand,
+} from '../config/branding';
 
 /**
  * Meta — imperative document head manager. No extra dependency.
@@ -22,21 +20,18 @@ import { useEffect } from 'react';
  * tags. Untouched tags (favicon, theme-color etc.) stay where they are.
  *
  * Props:
- *   title:       page-specific title (gets " · Social Stats" suffix unless `noSuffix`)
+ *   title:       page-specific title (gets " · {BRAND_NAME}" suffix unless `noSuffix`)
  *   description: meta description / og:description / twitter:description
  *   image:       og:image / twitter:image (absolute URL)
  *   url:         canonical / og:url (defaults to current location.href)
  *   type:        og:type (default 'website'; use 'article' for blog posts)
- *   noSuffix:    bool — drop the " · Social Stats" suffix (use for the home page)
+ *   noSuffix:    bool — drop the site-name suffix (use for the home page)
  */
-const SITE_NAME = 'Social Stats';
-const DEFAULT_DESCRIPTION =
-  'Social Stats — the marketing OS for modern agencies. Manage analytics, messaging, and ads for every client from one beautiful dashboard.';
 const DEFAULT_IMAGE = '/og-image.png';
 
 export default function Meta({
   title,
-  description = DEFAULT_DESCRIPTION,
+  description = BRAND_DESCRIPTION,
   image = DEFAULT_IMAGE,
   url,
   type = 'website',
@@ -44,8 +39,8 @@ export default function Meta({
 }) {
   useEffect(() => {
     const fullTitle = title
-      ? (noSuffix ? title : `${title} · ${SITE_NAME}`)
-      : `${SITE_NAME} — The marketing OS for modern agencies`;
+      ? pageTitleWithBrand(title, { noSuffix })
+      : DOCUMENT_TITLE;
 
     document.title = fullTitle;
     setMetaName('description', description);
@@ -53,20 +48,17 @@ export default function Meta({
     const canonical = url || (typeof window !== 'undefined' ? window.location.href : '');
     setLink('canonical', canonical);
 
-    // Open Graph
-    setMetaProp('og:title',       fullTitle);
+    setMetaProp('og:title', fullTitle);
     setMetaProp('og:description', description);
-    setMetaProp('og:type',        type);
-    setMetaProp('og:url',         canonical);
-    setMetaProp('og:image',       absUrl(image));
-    setMetaProp('og:site_name',   SITE_NAME);
+    setMetaProp('og:type', type);
+    setMetaProp('og:url', canonical);
+    setMetaProp('og:image', absUrl(image));
+    setMetaProp('og:site_name', BRAND_NAME);
 
-    // Twitter
-    setMetaName('twitter:card',        'summary_large_image');
-    setMetaName('twitter:title',       fullTitle);
+    setMetaName('twitter:card', 'summary_large_image');
+    setMetaName('twitter:title', fullTitle);
     setMetaName('twitter:description', description);
-    setMetaName('twitter:image',       absUrl(image));
-    setMetaName('twitter:site',        '@socialstats');
+    setMetaName('twitter:image', absUrl(image));
   }, [title, description, image, url, type, noSuffix]);
 
   return null;

@@ -13,6 +13,7 @@ import Textarea from '../components/ui/Textarea';
 import Select from '../components/ui/Select';
 import Button from '../components/ui/Button';
 import toast from '../components/ui/toast';
+import { BRAND_NAME } from '../config/branding';
 
 const REQUEST_TYPES = [
   { value: 'access',    label: 'Right to access — what data do you hold about me?' },
@@ -28,17 +29,17 @@ export default function DPDPPage() {
       title="DPDP Compliance (India)"
       effectiveDate="2026-01-01"
       lastUpdated="2026-04-15"
-      intro="Social Stats is an India-headquartered company. This page explains how we comply with the Digital Personal Data Protection Act, 2023 (DPDP) for our Indian customers and users."
+      intro={`${BRAND_NAME} is an India-headquartered company. This page explains how we comply with the Digital Personal Data Protection Act, 2023 (DPDP) for our Indian customers and users.`}
       sections={[
         {
           id: 'role',
           title: '1. Our role under DPDP',
           body: (
             <>
-              <p>Under the DPDP Act 2023, Social Stats acts as:</p>
+              <p>Under the DPDP Act 2023, {BRAND_NAME} acts as:</p>
               <ul>
                 <li><strong>Data Fiduciary</strong> for your account data — we determine the purpose and means of processing.</li>
-                <li><strong>Data Processor</strong> for content you upload via Social Stats (we process on your behalf as a Data Fiduciary).</li>
+                <li><strong>Data Processor</strong> for content you upload via {BRAND_NAME} (we process on your behalf as a Data Fiduciary).</li>
               </ul>
             </>
           ),
@@ -128,7 +129,7 @@ export default function DPDPPage() {
                 Our Grievance Officer can be reached at:
               </p>
               <p style={{ background: 'var(--surface-sunken)', padding: 16, borderRadius: 'var(--radius-md)', fontSize: 14 }}>
-                <strong>Grievance Officer, Social Stats</strong><br />
+                <strong>Grievance Officer, {BRAND_NAME}</strong><br />
                 <a href="mailto:grievance@socialstats.app">grievance@socialstats.app</a><br />
                 For postal correspondence, write to the Grievance Officer at the
                 address shared in our reply to your email.

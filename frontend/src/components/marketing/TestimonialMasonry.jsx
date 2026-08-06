@@ -84,7 +84,7 @@ function Card({ item }) {
         ) : (
           <div style={{
             width: 36, height: 36, borderRadius: '50%',
-            background: 'linear-gradient(135deg, #00CCF5, #8b5cf6)',
+            background: 'linear-gradient(135deg, var(--brand-primary), #8b5cf6)',
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 13, fontWeight: 700, color: '#fff',
           }}>{(name || '?').slice(0, 1)}</div>

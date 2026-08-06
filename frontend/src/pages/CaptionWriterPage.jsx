@@ -10,6 +10,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useClients } from '../hooks/useData';
 import { captionAPI, hashtagAPI } from '../services/api';
+import { brandWritingLabel, brandResearchingHashtagsLabel } from '../config/branding';
 import {
   Copy, Edit2, CalendarDays, RefreshCw, Sparkles,
   Clock, Hash, CheckSquare, Square, ChevronDown, ChevronUp, Loader2,
@@ -762,7 +763,7 @@ export default function CaptionWriterPage({ defaultTab = 'caption' }) {
                 <div>
                   <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 20, textAlign: 'center' }}>
                     <Loader2 size={14} style={{ animation: 'spin .8s linear infinite', verticalAlign: 'middle', marginRight: 6 }} />
-                    Social Stats is writing your captions…
+                    {brandWritingLabel()}
                   </p>
                   {[1, 2, 3].map(i => (
                     <div key={i} style={{ border: '1px solid var(--border-default)', borderRadius: 16, padding: 18, marginBottom: 16 }}>
@@ -846,7 +847,7 @@ export default function CaptionWriterPage({ defaultTab = 'caption' }) {
                 <div>
                   <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 20, textAlign: 'center' }}>
                     <Loader2 size={14} style={{ animation: 'spin .8s linear infinite', verticalAlign: 'middle', marginRight: 6 }} />
-                    Social Stats is researching hashtags…
+                    {brandResearchingHashtagsLabel()}
                   </p>
                   {[1, 2, 3, 4].map(i => (
                     <div key={i} style={{ border: '1px solid var(--border-default)', borderRadius: 14, padding: 16, marginBottom: 12 }}>

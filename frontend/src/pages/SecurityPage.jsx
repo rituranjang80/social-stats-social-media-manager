@@ -12,6 +12,7 @@ import MarketingLayout from '../components/marketing/MarketingLayout';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Meta from '../components/Meta';
+import { BRAND_NAME } from '../config/branding';
 
 const COMMITMENTS = [
   {
@@ -81,7 +82,7 @@ export default function SecurityPage() {
             Security by design.
           </h1>
           <p style={{ margin: 0, fontSize: 18, lineHeight: 1.65, color: 'var(--text-secondary)' }}>
-            Social Stats is built on the same security primitives banks and hospitals rely on. We treat your data — and
+            {BRAND_NAME} is built on the same security primitives banks and hospitals rely on. We treat your data — and
             your customers' data — like it's our own.
           </p>
         </div>

@@ -7,6 +7,7 @@
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
 import LegalPageLayout from '../components/marketing/LegalPageLayout';
+import { BRAND_NAME } from '../config/branding';
 
 export default function TermsOfServicePage() {
   return (
@@ -15,7 +16,7 @@ export default function TermsOfServicePage() {
       title="Terms of Service"
       effectiveDate="2026-01-01"
       lastUpdated="2026-04-15"
-      intro="These Terms govern your use of Social Stats. They are deliberately written in plain English so you can read them all the way through. By signing up for an account, you agree to these terms."
+      intro={`These Terms govern your use of ${BRAND_NAME}. They are deliberately written in plain English so you can read them all the way through. By signing up for an account, you agree to these terms.`}
       sections={[
         {
           id: 'acceptance',
@@ -23,7 +24,7 @@ export default function TermsOfServicePage() {
           body: (
             <>
               <p>
-                By creating a Social Stats account, accessing the Social Stats web app, mobile apps, APIs, or any related
+                By creating a {BRAND_NAME} account, accessing the {BRAND_NAME} web app, mobile apps, APIs, or any related
                 services (collectively, the "<strong>Service</strong>"), you agree to be bound by these Terms of
                 Service ("<strong>Terms</strong>") and our <a href="/privacy">Privacy Policy</a>.
               </p>
@@ -54,7 +55,7 @@ export default function TermsOfServicePage() {
           title: '3. Pricing',
           body: (
             <>
-              <p>Social Stats is <strong>free and open source</strong> (MIT licensed). All features are
+              <p>{BRAND_NAME} is <strong>free and open source</strong> (MIT licensed). All features are
               available at no cost — there are no paid plans, subscriptions, or payment processing.</p>
               <ul>
                 <li><strong>No charges</strong> — the software is free to use and self-host.</li>
@@ -69,12 +70,12 @@ export default function TermsOfServicePage() {
           title: '4. Acceptable use',
           body: (
             <>
-              <p>Social Stats is a powerful tool, and powerful tools require responsible use. You agree NOT to:</p>
+              <p>{BRAND_NAME} is a powerful tool, and powerful tools require responsible use. You agree NOT to:</p>
               <ul>
                 <li>Send spam, mass unsolicited messages, or violate platform-specific (e.g. WhatsApp, Meta) policy.</li>
                 <li>Post or distribute content that is illegal, defamatory, hateful, harassing, sexually explicit involving minors, or that infringes intellectual property.</li>
                 <li>Reverse-engineer, decompile, or attempt to bypass our security or rate limits.</li>
-                <li>Use Social Stats to impersonate another person, brand, or organization without authority.</li>
+                <li>Use {BRAND_NAME} to impersonate another person, brand, or organization without authority.</li>
                 <li>Build a competing product by copying our APIs, UI, or proprietary algorithms.</li>
                 <li>Resell access without an Agency / Partner agreement signed with us.</li>
               </ul>
@@ -91,7 +92,7 @@ export default function TermsOfServicePage() {
           body: (
             <>
               <p>
-                You retain all rights to the content (posts, media, captions, audience lists) you upload to Social Stats.
+                You retain all rights to the content (posts, media, captions, audience lists) you upload to {BRAND_NAME}.
                 You grant us a worldwide, non-exclusive license to host, store, transmit, and process that content
                 solely for the purpose of providing the Service to you.
               </p>
@@ -115,8 +116,8 @@ export default function TermsOfServicePage() {
           body: (
             <>
               <p>
-                Social Stats connects to third-party platforms (Facebook, Instagram, YouTube, Google, LinkedIn, X, WhatsApp).
-                Your use of those platforms via Social Stats is also subject to their terms. We are not responsible for:
+                {BRAND_NAME} connects to third-party platforms (Facebook, Instagram, YouTube, Google, LinkedIn, X, WhatsApp).
+                Your use of those platforms via {BRAND_NAME} is also subject to their terms. We are not responsible for:
               </p>
               <ul>
                 <li>Outages, rate limits, or policy changes on third-party platforms.</li>
@@ -134,7 +135,7 @@ export default function TermsOfServicePage() {
           title: '7. Our intellectual property',
           body: (
             <p>
-              The Social Stats name, logo, software, designs, and documentation are our property and protected by
+              The {BRAND_NAME} name, logo, software, designs, and documentation are our property and protected by
               intellectual-property law. These Terms do not transfer any IP rights to you, except for the limited
               right to use the Service while your account is active.
             </p>
@@ -146,7 +147,7 @@ export default function TermsOfServicePage() {
           body: (
             <>
               <p>
-                We work hard to keep Social Stats running smoothly, but the Service is provided "<strong>as is</strong>" and
+                We work hard to keep {BRAND_NAME} running smoothly, but the Service is provided "<strong>as is</strong>" and
                 "<strong>as available</strong>", without warranties of any kind, express or implied, including
                 merchantability, fitness for a particular purpose, and non-infringement.
               </p>
@@ -178,7 +179,7 @@ export default function TermsOfServicePage() {
           title: '10. Indemnification',
           body: (
             <p>
-              You agree to indemnify and hold harmless Social Stats, its directors, employees, and affiliates from any claim
+              You agree to indemnify and hold harmless {BRAND_NAME}, its directors, employees, and affiliates from any claim
               or liability arising out of (a) your content, (b) your violation of these Terms, or (c) your violation of
               any law or third-party right.
             </p>

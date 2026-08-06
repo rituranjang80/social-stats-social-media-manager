@@ -19,6 +19,7 @@ services:
     env_file:
       - paths.env
       - .env
+      - ${SOURCE_REL}/frontend/.env
     build:
       context: ${START_REL:-.}
       dockerfile: docker/Dockerfile.frontend-dev

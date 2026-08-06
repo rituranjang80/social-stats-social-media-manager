@@ -22,6 +22,7 @@ import {
 
 import { botAPI, botTemplateAPI } from '../../services/api';
 import toast from '../../components/ui/toast';
+import { BRAND_NAME } from '../../config/branding';
 
 const FILTERS = [
   { key: 'all',    label: 'All' },
@@ -411,7 +412,7 @@ function CreateModal({ onClose, onCreated }) {
               borderRadius: 'var(--radius-sm)',
               display: 'flex', alignItems: 'center', gap: 6,
             }}>
-              <Sparkles size={12} /> Social Stats drafts the flow. You can edit every step in the visual editor.
+              <Sparkles size={12} /> {BRAND_NAME} drafts the flow. You can edit every step in the visual editor.
             </p>
             {aiWarning && (
               <p style={{

@@ -14,6 +14,7 @@ import { Sparkles } from 'lucide-react';
 import Logo from '../ui/Logo';
 import ThemeToggle from '../ui/ThemeToggle';
 import SkipLink from '../ui/SkipLink';
+import { BRAND_SHORT_NAME, BRAND_DESCRIPTION, DOCUMENT_TITLE } from '../../config/branding';
 
 /**
  * AuthLayout — split-screen wrapper for every auth page.
@@ -50,9 +51,9 @@ const DEFAULT_STATS = [
 
 export default function AuthLayout({
   children,
-  eyebrow = 'Marketing OS',
-  heroTitle = 'The marketing OS for modern agencies.',
-  heroSub = 'Manage analytics, messaging, and ads for every client — from one beautiful dashboard.',
+  eyebrow = BRAND_SHORT_NAME,
+  heroTitle = DOCUMENT_TITLE,
+  heroSub = BRAND_DESCRIPTION,
   testimonials = DEFAULT_TESTIMONIALS,
   stats = DEFAULT_STATS,
   footer,

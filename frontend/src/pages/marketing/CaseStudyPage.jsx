@@ -42,8 +42,9 @@ import MetricCounter   from '../../components/marketing/MetricCounter';
 import SamplePreviewBanner from '../../components/marketing/SamplePreviewBanner';
 import Button          from '../../components/ui/Button';
 import Meta            from '../../components/Meta';
-import JsonLd, { buildBreadcrumbs, SITE_URL } from '../../components/JsonLd';
+import JsonLd, { buildBreadcrumbs, getSiteUrl } from '../../components/JsonLd';
 
+import { titleWithBrandSuffix } from '../../config/branding';
 import STUDIES from './caseStudies';
 import ComingSoonPage from './ComingSoonPage';
 
@@ -59,15 +60,15 @@ export default function CaseStudyPage() {
     <MarketingLayout>
       <Meta
         noSuffix
-        title={`${company} — Social Stats Customer Story`}
+        title={titleWithBrandSuffix(`${company} Customer Story`)}
         description={tagline}
       />
       <JsonLd
         id="breadcrumbs"
         data={buildBreadcrumbs([
-          { name: 'Home',      url: `${SITE_URL}/` },
-          { name: 'Customers', url: `${SITE_URL}/customers` },
-          { name: company,     url: `${SITE_URL}/customers/${slug}` },
+          { name: 'Home',      url: `${getSiteUrl()}/` },
+          { name: 'Customers', url: `${getSiteUrl()}/customers` },
+          { name: company,     url: `${getSiteUrl()}/customers/${slug}` },
         ])}
       />
 

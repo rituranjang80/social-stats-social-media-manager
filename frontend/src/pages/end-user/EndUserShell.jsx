@@ -23,6 +23,7 @@ import {
 
 import { useAuth } from '../../hooks/useAuth';
 import { approvalAPI } from '../../services/api';
+import { BRAND_NAME } from '../../config/branding';
 
 const SECTIONS = [
   {
@@ -114,7 +115,7 @@ export default function EndUserShell() {
         }}>
           <Sparkles size={13} strokeWidth={2.4} />
         </span>
-        <strong style={{ fontSize: 14, color: 'var(--text-primary)' }}>Social Stats</strong>
+        <strong style={{ fontSize: 14, color: 'var(--text-primary)' }}>{BRAND_NAME}</strong>
       </header>
 
       {/* Backdrop */}
@@ -170,7 +171,7 @@ export default function EndUserShell() {
           </span>
           <div>
             <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
-              Social Stats
+              {BRAND_NAME}
             </div>
             <div style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>
               Personal account

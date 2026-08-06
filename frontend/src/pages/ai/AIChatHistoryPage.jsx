@@ -28,6 +28,7 @@ import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
 import { aiV2API } from '../../services/api';
 import toast from '../../components/ui/toast';
+import { BRAND_NAME } from '../../config/branding';
 
 export default function AIChatHistoryPage() {
   const [conversations, setConversations] = useState([]);
@@ -89,7 +90,7 @@ export default function AIChatHistoryPage() {
     <div className="app-page app-page--lg">
       <PageHeader
         title="Chat History"
-        subtitle="Past conversations with Social Stats"
+        subtitle={`Past conversations with ${BRAND_NAME}`}
         actions={(
           <Button
             size="sm" variant="ghost"
@@ -133,7 +134,7 @@ export default function AIChatHistoryPage() {
               <EmptyState
                 icon={MessageSquare}
                 title={showArchived ? 'No archived chats' : 'No conversations yet'}
-                description={showArchived ? null : 'Press ⌘J anywhere to start a chat with Social Stats.'}
+                description={showArchived ? null : `Press ⌘J anywhere to start a chat with ${BRAND_NAME}.`}
                 compact
               />
             ) : (

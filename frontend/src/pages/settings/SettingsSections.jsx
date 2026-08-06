@@ -28,6 +28,7 @@ import Switch from '../../components/ui/Switch';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import KeyboardShortcut from '../../components/ui/KeyboardShortcut';
+import { BRAND_NAME } from '../../config/branding';
 import EmptyState from '../../components/ui/EmptyState';
 import Input from '../../components/ui/Input';
 import toast from '../../components/ui/toast';
@@ -160,7 +161,7 @@ export function AppearanceSection() {
   return (
     <SectionContainer
       title="Appearance"
-      description="Customise how Social Stats looks and feels."
+      description={`Customise how ${BRAND_NAME} looks and feels.`}
     >
       <Card padding="md">
         <div style={{ marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>Theme</div>
@@ -408,7 +409,7 @@ export function APIKeysSection() {
       ) : keys.length === 0 ? (
         <Card padding="none">
           <EmptyState icon={Sparkles} title="No API keys yet"
-                      description="Generate your first key above to start integrating Social Stats with your other tools."
+                      description={`Generate your first key above to start integrating ${BRAND_NAME} with your other tools.`}
                       compact />
         </Card>
       ) : (

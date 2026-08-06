@@ -13,6 +13,7 @@ import Textarea from '../components/ui/Textarea';
 import Select from '../components/ui/Select';
 import Button from '../components/ui/Button';
 import toast from '../components/ui/toast';
+import { BRAND_NAME } from '../config/branding';
 
 const REQUEST_TYPES = [
   { value: 'access',       label: 'Right to access — what data do you hold about me?' },
@@ -30,14 +31,14 @@ export default function GDPRPage() {
       title="GDPR Compliance"
       effectiveDate="2026-01-01"
       lastUpdated="2026-04-15"
-      intro="If you're an EU/EEA resident or a customer with EU/EEA users, this page explains how Social Stats honours the General Data Protection Regulation (GDPR)."
+      intro={`If you're an EU/EEA resident or a customer with EU/EEA users, this page explains how ${BRAND_NAME} honours the General Data Protection Regulation (GDPR).`}
       sections={[
         {
           id: 'role',
           title: '1. Our role',
           body: (
             <>
-              <p>Under GDPR, Social Stats acts as:</p>
+              <p>Under GDPR, {BRAND_NAME} acts as:</p>
               <ul>
                 <li><strong>Data controller</strong> for your account data (your email, billing info, settings).</li>
                 <li><strong>Data processor</strong> for content you upload or sync (e.g., social-media posts and metrics).</li>
@@ -82,7 +83,7 @@ export default function GDPRPage() {
           title: '4. Sub-processors',
           body: (
             <>
-              <p>We use the following sub-processors to provide Social Stats:</p>
+              <p>We use the following sub-processors to provide {BRAND_NAME}:</p>
               <ul>
                 <li><strong>AWS (Frankfurt)</strong> — primary infrastructure, EU-region storage.</li>
                 <li><strong>Anthropic</strong> — AI features (zero data retention contractually).</li>

@@ -1,6 +1,10 @@
-/* Applies document title, favicon, and meta tags from brand config (.env). */
+/* Applies document title, favicon, manifest, and meta tags from branding (.env). */
 import { useEffect } from 'react';
-import { brand } from '../config/brand';
+import {
+  brand,
+  BRAND_PRIMARY_COLOR,
+  installBrandingWebManifest,
+} from '../config/branding';
 
 function upsertLink(rel, href, extra = {}) {
   if (!href) return;
@@ -32,8 +36,10 @@ export default function BrandHead() {
     document.title = brand.documentTitle;
     upsertMeta('description', brand.description);
     upsertMeta('apple-mobile-web-app-title', brand.shortName);
+    upsertMeta('theme-color', BRAND_PRIMARY_COLOR);
     upsertLink('icon', brand.faviconUrl, { type: 'image/png' });
     upsertLink('apple-touch-icon', brand.appleTouchIconUrl);
+    installBrandingWebManifest();
   }, []);
 
   return null;

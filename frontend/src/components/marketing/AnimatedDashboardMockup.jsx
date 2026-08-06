@@ -185,7 +185,7 @@ function SidebarBtn({ children, active }) {
       display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
       borderRadius: 'var(--radius-sm)',
       background: active ? 'rgba(0,204,245,0.18)' : 'transparent',
-      color: active ? '#00CCF5' : 'rgba(255,255,255,0.45)',
+      color: active ? 'var(--brand-primary)' : 'rgba(255,255,255,0.45)',
     }}>
       {children}
     </div>
@@ -194,7 +194,7 @@ function SidebarBtn({ children, active }) {
 
 function StatCard({ label, value, delta, tone, delay }) {
   const toneColors = {
-    cyan:   { bg: 'rgba(0,204,245,0.10)',  text: '#00CCF5' },
+    cyan:   { bg: 'rgba(0,204,245,0.10)',  text: 'var(--brand-primary)' },
     purple: { bg: 'rgba(139,92,246,0.10)', text: '#a78bfa' },
     green:  { bg: 'rgba(16,185,129,0.10)', text: '#10b981' },
   }[tone] || { bg: 'rgba(255,255,255,0.04)', text: '#fff' };

@@ -24,13 +24,14 @@ import MarketingLayout from '../components/marketing/MarketingLayout';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Meta from '../components/Meta';
+import { BRAND_NAME } from '../config/branding';
 
 
 export default function ForBusinessesPage() {
   return (
     <MarketingLayout>
       <Meta
-        title="Social Stats for businesses — take control of your social media"
+        title={`${BRAND_NAME} for businesses — take control of your social media`}
         description="Free forever for individuals and small businesses. Connect Instagram, Facebook, YouTube, LinkedIn and Google My Business in 5 minutes. Bring an agency on-board (or don't) — you stay in control."
       />
       <Hero />
@@ -145,7 +146,7 @@ function AgencyOptional() {
             Already work with an agency? They can join you for free.
           </h2>
           <p style={{ margin: '0 0 20px', fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.65 }}>
-            Invite them by email — they get an account on Social Stats at no cost. You set the permissions, mark sensitive actions
+            Invite them by email — they get an account on {BRAND_NAME} at no cost. You set the permissions, mark sensitive actions
             "ask me first", and revoke access in a single click. No more shared logins.
           </p>
           <Button as={Link} to="/agencies" variant="secondary" size="md" icon={Search}>

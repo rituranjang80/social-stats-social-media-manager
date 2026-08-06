@@ -28,6 +28,7 @@ import { Cookie, ChevronDown, ChevronUp } from 'lucide-react';
 
 import { privacyAPI } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
+import { BRAND_NAME } from '../../config/branding';
 
 
 export const COOKIE_POLICY_VERSION = '2024-11-01';
@@ -99,7 +100,7 @@ export default function CookieBanner() {
           <div style={{ flex: 1 }}>
             <div style={s.title}>We use cookies</div>
             <div style={s.subtitle}>
-              Essential cookies keep Social Stats working. Analytics + marketing cookies are
+              Essential cookies keep {BRAND_NAME} working. Analytics + marketing cookies are
               optional — you can change preferences any time in Settings → Data & Privacy.
             </div>
           </div>

@@ -70,7 +70,7 @@ export function ComposerPreview() {
       </div>
       <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>Auto-resized for IG · 220 chars</span>
-        <Send size={11} style={{ color: '#00CCF5' }} />
+        <Send size={11} style={{ color: 'var(--brand-primary)' }} />
       </div>
     </div>
   );
@@ -116,7 +116,7 @@ export function InboxPreview() {
           </div>
           <span style={{
             width: 8, height: 8, borderRadius: '50%',
-            background: '#00CCF5', flexShrink: 0,
+            background: 'var(--brand-primary)', flexShrink: 0,
           }} />
         </motion.div>
       ))}
@@ -377,7 +377,7 @@ const ruleTextStyle = {
 
 const kindStyle = (tone) => {
   const colors = {
-    cyan:   { color: '#00CCF5', bg: 'rgba(0,204,245,0.1)' },
+    cyan:   { color: 'var(--brand-primary)', bg: 'rgba(0,204,245,0.1)' },
     purple: { color: '#a78bfa', bg: 'rgba(139,92,246,0.1)' },
     green:  { color: '#34d399', bg: 'rgba(16,185,129,0.1)' },
   }[tone];

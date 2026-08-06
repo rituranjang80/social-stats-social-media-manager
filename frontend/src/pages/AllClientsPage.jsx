@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import PageHeader from '../components/layout/PageHeader';
 import { clientWorkspacePath } from '../utils/workspacePaths';
+import { BRAND_NAME } from '../config/branding';
 
 const STATUS_COLOR = {
   pending:   { text: '#d97706', bg: '#fef3c7', label: 'Pending' },
@@ -369,7 +370,7 @@ export default function AllClientsPage({ onSelectClient }) {
           <div style={S.steps}>
             {[
               { icon: <Send size={16} />, color: '#7c3aed', label: '1. Send Invitation', desc: 'Enter the client\'s email above and send an invitation.' },
-              { icon: <Mail size={16} />, color: '#0369a1', label: '2. Client Signs Up', desc: 'The client receives an email, signs up on Social Stats, and verifies their account.' },
+              { icon: <Mail size={16} />, color: '#0369a1', label: '2. Client Signs Up', desc: `The client receives an email, signs up on ${BRAND_NAME}, and verifies their account.` },
               { icon: <Building2 size={16} />, color: '#d97706', label: '3. You Get Notified', desc: 'You\'ll receive an email when the client joins. Then send a dashboard access request.' },
               { icon: <CheckCircle size={16} />, color: '#16a34a', label: '4. Client Accepts', desc: 'Once they accept the access request, they appear in your clients list.' },
             ].map(s => (

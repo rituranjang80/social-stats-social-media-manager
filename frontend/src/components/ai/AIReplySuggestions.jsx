@@ -13,6 +13,7 @@ import Button from '../ui/Button';
 import AILoading from './AILoading';
 import { aiV2API } from '../../services/api';
 import toast from '../ui/toast';
+import { BRAND_NAME } from '../../config/branding';
 
 /**
  * AIReplySuggestions — three AI-suggested reply chips that sit above any
@@ -111,7 +112,7 @@ export default function AIReplySuggestions({
         color: 'var(--text-tertiary)',
       }}>
         <Sparkles size={11} style={{ color: 'var(--brand-primary-hover)' }} />
-        Social Stats · suggested replies
+        {BRAND_NAME} · suggested replies
       </span>
       <button
         type="button"

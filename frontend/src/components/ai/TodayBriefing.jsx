@@ -17,6 +17,7 @@ import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 import { aiV2API } from '../../services/api';
 import toast from '../ui/toast';
+import { BRAND_NAME } from '../../config/branding';
 
 /**
  * TodayBriefing — top-of-dashboard widget that surfaces the most recent
@@ -70,7 +71,7 @@ export default function TodayBriefing({ clientId, basePath = '/dashboard' }) {
       const persisted = r.data?.persisted || 0;
       const note = r.data?.note;
       if (note) toast(note, { icon: 'ℹ️' });
-      else if (persisted) toast.success(`Social Stats surfaced ${persisted} new insight${persisted === 1 ? '' : 's'}`);
+      else if (persisted) toast.success(`${BRAND_NAME} surfaced ${persisted} new insight${persisted === 1 ? '' : 's'}`);
       load();
     } catch (e) {
       const msg = e?.response?.data?.error || 'AI is unavailable right now';
@@ -102,7 +103,7 @@ export default function TodayBriefing({ clientId, basePath = '/dashboard' }) {
               Today&apos;s briefing
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
-              From Social Stats · most recent insights
+              From {BRAND_NAME} · most recent insights
             </div>
           </div>
         </div>
@@ -133,7 +134,7 @@ export default function TodayBriefing({ clientId, basePath = '/dashboard' }) {
           padding: '12px 4px', fontSize: 13, color: 'var(--text-secondary)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
         }}>
-          <span>No insights yet — give Social Stats a moment to study your data.</span>
+          <span>{`No insights yet — give ${BRAND_NAME} a moment to study your data.`}</span>
           <Button size="xs" icon={Sparkles} onClick={refresh} loading={refreshing}>Generate</Button>
         </div>
       ) : (

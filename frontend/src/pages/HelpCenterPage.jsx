@@ -16,6 +16,7 @@ import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Input from '../components/ui/Input';
 import Meta from '../components/Meta';
+import { BRAND_NAME } from '../config/branding';
 
 const CATEGORIES = [
   { id: 'getting-started', icon: Rocket,    color: '#00CCF5', title: 'Getting started',     count: 12, body: 'Sign-up, workspace setup, inviting your team.' },
@@ -53,7 +54,7 @@ export default function HelpCenterPage() {
     <MarketingLayout>
       <Meta
         title="Help Center"
-        description="Setup guides, troubleshooting steps, FAQs, and answers to common questions about using Social Stats."
+        description={`Setup guides, troubleshooting steps, FAQs, and answers to common questions about using ${BRAND_NAME}.`}
       />
       {/* Hero with search */}
       <section style={{ padding: '128px 32px 56px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>

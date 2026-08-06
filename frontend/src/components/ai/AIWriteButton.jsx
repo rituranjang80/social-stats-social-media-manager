@@ -11,7 +11,7 @@ import { Sparkles, Loader2, X, Check, RefreshCw, Copy } from 'lucide-react';
 
 import Button from '../ui/Button';
 import { aiV2API } from '../../services/api';
-import toast from '../ui/toast';
+import { BRAND_NAME, brandWritingLabel } from '../../config/branding';
 
 /**
  * AIWriteButton — drop-in "✨ Write with AI" trigger that opens a small popover
@@ -182,7 +182,7 @@ export default function AIWriteButton({
               <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-primary)', fontWeight: 600, fontSize: 14 }}>
                   <Sparkles size={14} style={{ color: 'var(--brand-primary-hover)' }} />
-                  Write with Social Stats
+                  Write with {BRAND_NAME}
                 </div>
                 <Button variant="ghost" size="sm" iconOnly icon={X} aria-label="Close" onClick={() => setOpen(false)} />
               </header>
@@ -253,7 +253,7 @@ export default function AIWriteButton({
                 style={{ marginTop: 14 }}
                 icon={Sparkles}
               >
-                {loading ? 'Social Stats is writing…' : 'Generate'}
+                {loading ? brandWritingLabel() : 'Generate'}
               </Button>
               <p style={{ margin: '8px 0 0', fontSize: 11, color: 'var(--text-tertiary)', textAlign: 'center' }}>
                 Cmd+Enter to generate · Esc to close

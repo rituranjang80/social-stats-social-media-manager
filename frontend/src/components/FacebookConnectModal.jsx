@@ -5,39 +5,11 @@
  *  Website   : https://gigaikripaservices.com/
  *  Copyright (c) 2026 Chandrabhan Shekhawat / Gigai Kripa Services.
  *  Released under the MIT License — see LICENSE. Keep this notice.
+ *
+ * FacebookConnectModal — permissions consent before Facebook OAuth redirect.
  * ========================================================================== */
-/* =============================================================================
- * FacebookConnectModal
- * -----------------------------------------------------------------------------
- * Permissions consent modal shown BEFORE the Facebook OAuth redirect.
- *
- * Why this exists:
- *   Meta App Review (Developer Policy 1.6) requires an explicit, in-app
- *   "informed consent" step where the user can see and approve each scope
- *   the app will request. This modal makes that step visible in the
- *   submission screencast: required-vs-optional split, plain-English
- *   descriptions, technical scope names in tooltips, and a Continue button
- *   that stays disabled until the user has reviewed all required items.
- *
- * Two integration modes:
- *
- *   1. Controlled (used by ConnectedAccounts in this app):
- *        <FacebookConnectModal
- *          open={open}
- *          onClose={() => setOpen(false)}
- *          onContinue={(scope) => { window.location.href = oauthStartUrl; }}
- *        />
- *      Parent controls visibility. On Continue, the modal calls
- *      onContinue(scope, checkedMap) — parent handles the redirect.
- *
- *   2. Self-contained (uses Facebook JS SDK directly):
- *        <FacebookConnectModal
- *          appName="Social Stats"
- *          onConnect={(token, user) => { ... }}
- *        />
- *      Renders its own trigger, calls window.FB.login() on Continue.
- * ===========================================================================*/
 
+import { BRAND_NAME } from '../config/branding';
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { BrandMark } from './ui/BrandLogo';
 
@@ -118,7 +90,7 @@ export default function FacebookConnectModal({
   onContinue,
   onConnect,
   onError,
-  appName = 'our app',
+  appName = BRAND_NAME,
 }) {
   const isControlled = typeof controlledOpen === 'boolean';
 

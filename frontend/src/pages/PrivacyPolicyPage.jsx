@@ -7,6 +7,7 @@
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
 import LegalPageLayout from '../components/marketing/LegalPageLayout';
+import { BRAND_NAME } from '../config/branding';
 
 export default function PrivacyPolicyPage() {
   return (
@@ -15,7 +16,7 @@ export default function PrivacyPolicyPage() {
       title="Privacy Policy"
       effectiveDate="2026-01-01"
       lastUpdated="2026-04-15"
-      intro="Social Stats is built by people who hate dark patterns. This page explains, in plain English, what data we collect, why we need it, and how we keep it safe."
+      intro={`${BRAND_NAME} is built by people who hate dark patterns. This page explains, in plain English, what data we collect, why we need it, and how we keep it safe.`}
       sections={[
         {
           id: 'who',
@@ -23,13 +24,13 @@ export default function PrivacyPolicyPage() {
           body: (
             <>
               <p>
-                Social Stats is operated by Gigai Kripa Services, an early-stage product team
+                {BRAND_NAME} is operated by Gigai Kripa Services, an early-stage product team
                 building marketing tooling. For corporate / registration details, write to
                 <a href="mailto:privacy@socialstats.app"> privacy@socialstats.app</a>.
               </p>
               <p>
-                This policy applies to <strong>socialstats.app</strong>, the Social Stats web app, our mobile apps, and any
-                related services. For business customers (agencies, brands, creators), Social Stats is the
+                This policy applies to <strong>socialstats.app</strong>, the {BRAND_NAME} web app, our mobile apps, and any
+                related services. For business customers (agencies, brands, creators), {BRAND_NAME} is the
                 <strong> data processor</strong> for content and audience data they upload — they remain the data
                 controller for that data.
               </p>
@@ -43,7 +44,7 @@ export default function PrivacyPolicyPage() {
             <>
               <p>We collect only what we need to run the product. There are four buckets:</p>
               <h3>a. Account data</h3>
-              <p>Name, email, phone (optional), password hash, organization name, and role. Social Stats is free and open source — we do not process payments or store any card/billing details.</p>
+              <p>Name, email, phone (optional), password hash, organization name, and role. {BRAND_NAME} is free and open source — we do not process payments or store any card/billing details.</p>
               <h3>b. Connected-account data</h3>
               <p>When you connect Facebook, Instagram, YouTube, Google Business, LinkedIn, or WhatsApp, we receive OAuth tokens, your platform username and ID, and access to the data scopes you authorise. Tokens are encrypted (AES-256 / Fernet) at rest.</p>
               <h3>c. Content data</h3>
@@ -77,7 +78,7 @@ export default function PrivacyPolicyPage() {
           body: (
             <>
               <p>
-                Social Stats uses Anthropic's Claude API to power the AI Assistant, Composer drafts, brand-voice training,
+                {BRAND_NAME} uses Anthropic's Claude API to power the AI Assistant, Composer drafts, brand-voice training,
                 and analytics summaries. When you use these features:
               </p>
               <ul>

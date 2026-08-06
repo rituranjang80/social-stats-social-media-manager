@@ -1,7 +1,7 @@
 {
-  "short_name": "Social Stats",
-  "name": "Social Stats — Marketing OS",
-  "description": "AI-powered marketing platform for agencies and businesses.",
+  "short_name": "Application",
+  "name": "Application",
+  "description": "Social media management and marketing platform for agencies and businesses.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait-primary",

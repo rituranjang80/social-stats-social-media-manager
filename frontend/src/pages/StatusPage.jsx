@@ -11,6 +11,7 @@ import { CheckCircle2, AlertTriangle, XCircle, RefreshCw } from 'lucide-react';
 import MarketingLayout from '../components/marketing/MarketingLayout';
 import Badge from '../components/ui/Badge';
 import Meta from '../components/Meta';
+import { BRAND_NAME } from '../config/branding';
 
 /**
  * StatusPage — /status
@@ -98,7 +99,7 @@ const FALLBACK_SERVICES = [
   { id: 'google',   name: 'Google integration (YouTube + GMB)' },
   { id: 'linkedin', name: 'LinkedIn integration' },
   { id: 'pinbot',   name: 'WhatsApp (Pinbot.ai)' },
-  { id: 'ai',       name: 'Social Stats' },
+  { id: 'ai',       name: BRAND_NAME },
 ];
 
 export default function StatusPage() {
@@ -151,7 +152,7 @@ export default function StatusPage() {
     <MarketingLayout>
       <Meta
         title="System Status"
-        description="Live uptime, scheduled maintenance, and recent incidents for the Social Stats platform."
+        description={`Live uptime, scheduled maintenance, and recent incidents for the ${BRAND_NAME} platform.`}
       />
 
       {/* Hero / overall status */}
@@ -199,7 +200,7 @@ export default function StatusPage() {
             fontWeight: 600,
             color: 'var(--text-primary)',
           }}>
-            Social Stats System Status
+            {`${BRAND_NAME} System Status`}
           </h1>
           <p style={{ margin: 0, fontSize: 13, color: 'var(--text-tertiary)' }}>
             {lastChecked

@@ -6,7 +6,7 @@
  *  Copyright (c) 2026 Chandrabhan Shekhawat / Gigai Kripa Services.
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
-import { Sparkles, Database } from 'lucide-react';
+import { BRAND_NAME } from '../../config/branding';
 
 /**
  * AIBadge — universal "✨ AI-assisted" mark that goes wherever AI-generated
@@ -38,7 +38,7 @@ export default function AIBadge({
   const resolvedLabel = label ?? (cached ? 'AI · cached' : 'AI-assisted');
   const resolvedTitle = title ?? (cached
     ? 'This was served from the AI cache — no new generation cost was incurred'
-    : 'This content was generated with Social Stats assistance');
+    : `This content was generated with ${BRAND_NAME} assistance`);
   const Icon = cached ? Database : Sparkles;
   if (variant === 'dot') {
     return (

@@ -8,7 +8,7 @@
  * ========================================================================== */
 import { useMemo, useState } from 'react';
 import { Lightbulb, Zap } from 'lucide-react';
-import { oauthAPI } from '../../services/api';
+import { BRAND_NAME, BRAND_DESCRIPTION } from '../../config/branding';
 import { isPlatformConnected } from '../../constants/socialPlatforms';
 import { TSocialConnectCard, TPlatformCheck } from '../t';
 import FacebookConnectModal from '../FacebookConnectModal';
@@ -169,7 +169,7 @@ export default function ConnectedAccounts({
       </div>
 
       <FacebookConnectModal
-        appName="Social Stats"
+        appName={BRAND_NAME}
         open={fbConsentOpen}
         onClose={() => { setFbConsentOpen(false); setPendingFbCard(null); }}
         onContinue={handleFbConsentContinue}

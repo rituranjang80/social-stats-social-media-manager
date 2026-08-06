@@ -23,6 +23,7 @@ import { Plug, RefreshCw } from 'lucide-react';
 import ConnectedAccounts from '../../components/ui/ConnectedAccounts';
 import { endUserAPI, oauthAPI } from '../../services/api';
 import toast from '../../components/ui/toast';
+import { BRAND_NAME } from '../../config/branding';
 
 export default function MyConnectionsPage() {
   const [workspace, setWorkspace] = useState(null);
@@ -78,7 +79,7 @@ export default function MyConnectionsPage() {
             Connections
           </h1>
           <p style={{ margin: '4px 0 0', color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.55 }}>
-            Plug Social Stats into your social accounts to start tracking posts, engagement, and DMs.
+            {`Plug ${BRAND_NAME} into your social accounts to start tracking posts, engagement, and DMs.`}
             You can disconnect any platform at any time — even if an agency is managing your workspace.
           </p>
         </div>

@@ -7,6 +7,7 @@
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
 import { useEffect, useState } from 'react';
+import { titleWithBrandSuffix } from '../../config/branding';
 import MarketingLayout from './MarketingLayout';
 import Badge from '../ui/Badge';
 import Meta from '../Meta';
@@ -57,7 +58,7 @@ export default function LegalPageLayout({
     <MarketingLayout>
       <Meta
         title={title}
-        description={intro || `${title} — Social Stats legal and support documentation.`}
+        description={intro || `${titleWithBrandSuffix(`${title} legal and support documentation`)}`}
       />
 
       {/* Hero */}

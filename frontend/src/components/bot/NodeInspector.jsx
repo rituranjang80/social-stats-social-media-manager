@@ -22,6 +22,7 @@ import { Plus, Trash2, X, Wand2, Sparkles } from 'lucide-react';
 import { getNodeMeta } from './nodeCatalog';
 import VariableInserter from './VariableInserter';
 import { aiPersonaAPI } from '../../services/api';
+import { BRAND_NAME } from '../../config/branding';
 import toast from '../ui/toast';
 
 export default function NodeInspector({ node, onChange, onDelete, variables = [] }) {
@@ -938,7 +939,7 @@ function PersonaWizard({ onClose, onApply }) {
  margin: 0, fontSize: 11, color: 'var(--text-tertiary)',
  lineHeight: 1.5,
  }}>
- Social Stats drafts a system prompt suited to your business. You can edit it before applying.
+ {BRAND_NAME} drafts a system prompt suited to your business. You can edit it before applying.
  </p>
  </>
 ) : (

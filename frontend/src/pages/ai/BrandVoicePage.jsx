@@ -31,6 +31,7 @@ import Spinner from '../../components/ui/Spinner';
 import { aiV2API } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import toast from '../../components/ui/toast';
+import { BRAND_NAME, brandStudyingVoiceLabel } from '../../config/branding';
 
 const STATUS_VARIANT = {
   pending:  { variant: 'default', label: 'Not trained yet' },
@@ -162,7 +163,7 @@ export default function BrandVoicePage({ clientId: propClientId = null }) {
     <div className="app-page app-page--lg">
       <PageHeader
         title="Brand Voice"
-        subtitle="Train Social Stats on your past posts so every generation sounds like you"
+        subtitle={`Train ${BRAND_NAME} on your past posts so every generation sounds like you`}
         actions={(
           <Badge variant={statusInfo.variant} size="md" icon={trained ? CheckCircle : Sparkles}>
             {statusInfo.label}
@@ -251,7 +252,7 @@ export default function BrandVoicePage({ clientId: propClientId = null }) {
             size="lg" icon={Wand2} fullWidth loading={training}
             style={{ marginTop: 16 }}
           >
-            {training ? 'Social Stats is studying your voice…' : (trained ? 'Re-train brand voice' : 'Train brand voice')}
+            {training ? brandStudyingVoiceLabel() : (trained ? 'Re-train brand voice' : 'Train brand voice')}
           </Button>
 
           {profile?.training_status === 'failed' && profile.training_error && (

@@ -22,6 +22,8 @@
  *   reviews[], contact { website, email, phone }
  */
 
+import { BRAND_NAME, brandNativeLabel, brandStudioTitle } from '../../config/branding';
+
 const AGENCIES = {
   // ──────────────────────────────────────────────────────────────────────
   'bluewave-agency': {
@@ -35,7 +37,7 @@ const AGENCIES = {
     industries: ['SaaS', 'D2C', 'Fintech'],
     services: ['Social media', 'WhatsApp campaigns', 'Reporting', 'Strategy'],
     languages: ['English', 'Hindi'],
-    badges: ['Verified', 'Top 1%', 'Social Stats Native'],
+    badges: ['Verified', 'Top 1%', brandNativeLabel()],
     rating: { score: 4.9, count: 86 },
     pricing: { from: '₹40K/mo', model: 'Retainer' },
     hero: {
@@ -44,7 +46,7 @@ const AGENCIES = {
     },
     about: [
       'BlueWave is a 6-person agency based in Gurgaon that runs marketing for over 120 clients — primarily SaaS, D2C and fintech. Founded in 2021 by Rohit Mehta after a decade at larger agencies, BlueWave was built on a single idea: small teams, when properly tooled, can outperform 50-person shops.',
-      'BlueWave is a Social Stats Native partner — every client lives in their own multi-tenant workspace, every report is white-labelled, and every scheduled post is reviewed in-product. No PowerPoint exports. No spreadsheets to reconcile.',
+      `BlueWave is a ${brandNativeLabel()} partner — every client lives in their own multi-tenant workspace, every report is white-labelled, and every scheduled post is reviewed in-product. No PowerPoint exports. No spreadsheets to reconcile.`,
     ],
     metric: { value: '120+', label: 'clients managed' },
     stats: [
@@ -85,13 +87,13 @@ const AGENCIES = {
     industries: ['E-commerce', 'D2C', 'Beauty'],
     services: ['Performance creative', 'Meta ads', 'AI Composer', 'Analytics'],
     languages: ['English', 'Kannada', 'Hindi'],
-    badges: ['Verified', 'Social Stats Native'],
+    badges: ['Verified', 'Top 1%', brandNativeLabel()],
     rating: { score: 4.8, count: 142 },
     pricing: { from: '₹85K/mo', model: 'Retainer + perf bonus' },
     hero: { logoText: 'H', cover: ['#8b5cf6', '#6d28d9'] },
     about: [
       'Halcyon is a 14-person Bengaluru agency that specialises in performance creative — the high-volume, AI-assisted ad iteration that modern D2C brands rely on. Founded in 2020 by Aditya Rao, Halcyon ships ~600 creative variants per month per client.',
-      'They were one of the first agencies to onboard onto the Social Stats Studio. Today the entire creative pipeline — brief → draft → approval → publish → measure → iterate — runs in Social Stats.',
+      `They were one of the first agencies to onboard onto ${brandStudioTitle()}. Today the entire creative pipeline — brief → draft → approval → publish → measure → iterate — runs in ${BRAND_NAME}.`,
     ],
     metric: { value: '7x', label: 'creative throughput' },
     stats: [
@@ -138,7 +140,7 @@ const AGENCIES = {
     hero: { logoText: 'V', cover: ['#f472b6', '#db2777'] },
     about: [
       'Verve is a Mumbai-based content agency for premium D2C brands. Founded in 2019, they have a deep specialisation in brand-voice work — taking a brand from "competent posts" to "instantly recognisable from a single line of copy."',
-      'Verve trains its writers on a proprietary methodology and uses Social Stats\'s brand-voice profiles to ensure consistency at scale.',
+      `Verve trains its writers on a proprietary methodology and uses ${BRAND_NAME}'s brand-voice profiles to ensure consistency at scale.`,
     ],
     metric: { value: '24h', label: 'creative turnaround' },
     stats: [
@@ -151,7 +153,7 @@ const AGENCIES = {
       { title: 'Brand voice systems', body: 'Multi-month brand-voice audits, vocabulary lists, do/don\'t guides.' },
       { title: 'Content production',  body: '20-40 posts/mo per client. Photography + copy + scheduling.' },
       { title: 'Influencer mgmt',     body: 'Tier-1 to micro influencers. Negotiation, briefing, measurement.' },
-      { title: 'Approval workflows',  body: 'Multi-stakeholder approvals via Social Stats. Average 24-hour turnaround.' },
+      { title: 'Approval workflows',  body: `Multi-stakeholder approvals via ${BRAND_NAME}. Average 24-hour turnaround.` },
     ],
     portfolio: [
       { brand: 'Aurora Skincare', metric: '+450% reach',     note: 'Influencer + organic' },
@@ -183,7 +185,7 @@ const AGENCIES = {
     pricing: { from: '₹60K/mo', model: 'Retainer' },
     hero: { logoText: 'L', cover: ['#10b981', '#059669'] },
     about: [
-      'Lumen specialises in regulated industries — finance, insurance, and professional services where every post needs compliance review. They\'ve built an internal review queue inside Social Stats that lawyers, compliance officers, and the marketing team share.',
+      `Lumen specialises in regulated industries — finance, insurance, and professional services where every post needs compliance review. They've built an internal review queue inside ${BRAND_NAME} that lawyers, compliance officers, and the marketing team share.`,
       'If you need to ship a LinkedIn post in a regulated category and not get a fine for it, Lumen is the agency.',
     ],
     metric: { value: '3x', label: 'client retention' },
@@ -229,7 +231,7 @@ const AGENCIES = {
     pricing: { from: '₹25K/mo', model: 'Per-location pricing' },
     hero: { logoText: 'E', cover: ['#f59e0b', '#d97706'] },
     about: [
-      'Ember runs the social presence for restaurant chains, multi-clinic networks, and retail brands that need consistent presence across many physical locations. They use Social Stats\'s multi-tenant architecture to manage 100+ Google Business profiles + 100+ Instagram accounts from one workspace.',
+      `Ember runs the social presence for restaurant chains, multi-clinic networks, and retail brands that need consistent presence across many physical locations. They use ${BRAND_NAME}'s multi-tenant architecture to manage 100+ Google Business profiles + 100+ Instagram accounts from one workspace.`,
       'If you have more than 5 physical locations, Ember is built for you.',
     ],
     metric: { value: '+₹38L', label: 'monthly revenue lift' },
@@ -275,7 +277,7 @@ const AGENCIES = {
     pricing: { from: '₹250K/mo', model: 'MSA + retainer' },
     hero: { logoText: 'A', cover: ['#ef4444', '#dc2626'] },
     about: [
-      'Apex is the agency you call when stakes are high. Founded in 2015, they run enterprise social for Fortune 500 India entries — full MSAs, SLAs, security reviews, the works. They\'re SOC 2 audited and one of three Social Stats partners cleared for Tier-1 enterprise customers.',
+      `Apex is the agency you call when stakes are high. Founded in 2015, they run enterprise social for Fortune 500 India entries — full MSAs, SLAs, security reviews, the works. They're SOC 2 audited and one of three ${BRAND_NAME} partners cleared for Tier-1 enterprise customers.`,
       'If you need an agency your General Counsel will sign off on, Apex is the answer.',
     ],
     metric: { value: '99.9%', label: 'SLA uptime' },

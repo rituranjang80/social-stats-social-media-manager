@@ -28,6 +28,7 @@ import {
 import PermissionMatrix from '../../components/marketplace/PermissionMatrix';
 import { agencyInviteAPI } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
+import { BRAND_NAME } from '../../config/branding';
 import toast from '../../components/ui/toast';
 
 
@@ -118,7 +119,7 @@ export default function AgencyInviteResponsePage() {
         <div style={topbarStyle}>
           <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none', color: 'inherit' }}>
             <span style={brandMark}><Sparkles size={14} strokeWidth={2.4} /></span>
-            <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>Social Stats</span>
+            <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{BRAND_NAME}</span>
           </Link>
         </div>
 

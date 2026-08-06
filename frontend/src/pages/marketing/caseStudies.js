@@ -23,6 +23,8 @@
  *   cta — final CTA + back link
  */
 
+import { BRAND_NAME, brandNativeLabel, brandStudioTitle } from '../../config/branding';
+
 const STUDIES = {
   // ── 1. Acme Realty ────────────────────────────────────────────────
   'acme-realty': {
@@ -61,7 +63,7 @@ const STUDIES = {
     solution: {
       title: 'One inbox. Two-way WhatsApp. Auto-routing.',
       body: [
-        'Acme migrated all three channels into the Social Stats unified inbox. Incoming messages now route automatically to the right city agent based on the property mentioned. WhatsApp campaigns went out via the Composer, with brand-trained voice tuned to "warm, fast, and professional."',
+        `Acme migrated all three channels into the ${BRAND_NAME} unified inbox. Incoming messages now route automatically to the right city agent based on the property mentioned. WhatsApp campaigns went out via the Composer, with brand-trained voice tuned to "warm, fast, and professional."`,
         'The Reports module gives Priya a single view of "leads by source, by city, by agent" — refreshed live, white-labelled, sent to her CEO every Monday at 9am sharp.',
       ],
       bullets: [
@@ -74,7 +76,7 @@ const STUDIES = {
 
     results: {
       title: '4.2x leads. 60-second response time.',
-      body: 'In nine months on Social Stats, Acme grew enquiries from ~12,000/month to over 50,000 — without adding a single new lead-handling role. Response time is now sub-60 seconds across all channels.',
+      body: `In nine months on ${BRAND_NAME}, Acme grew enquiries from ~12,000/month to over 50,000 — without adding a single new lead-handling role. Response time is now sub-60 seconds across all channels.`,
       stats: [
         { value: 4.2,    suffix: 'x',  label: 'lead volume',          decimals: 1 },
         { value: 50000,  suffix: '+',  label: 'monthly enquiries' },
@@ -85,7 +87,7 @@ const STUDIES = {
 
     pulls: [
       {
-        quote: 'Social Stats is the only thing that scaled with us. We grew 4x and our team got smaller, not larger.',
+        quote: `${BRAND_NAME} is the only thing that scaled with us. We grew 4x and our team got smaller, not larger.`,
         person: 'Priya Sharma · Marketing Head',
       },
       {
@@ -132,7 +134,7 @@ const STUDIES = {
     solution: {
       title: 'WhatsApp reminders, smart automations, one master inbox',
       body: [
-        'Sunrise wired their appointment system into Social Stats with two automations: a 24-hour WhatsApp reminder, and a 2-hour confirm/reschedule prompt. Patients can confirm with a single tap or reschedule via a smart flow — without picking up the phone.',
+        `Sunrise wired their appointment system into ${BRAND_NAME} with two automations: a 24-hour WhatsApp reminder, and a 2-hour confirm/reschedule prompt. Patients can confirm with a single tap or reschedule via a smart flow — without picking up the phone.`,
         'All 12 clinics now share a unified inbox. The central operations team can see every conversation, every clinic, in real time. Analytics tracks no-show rate by clinic, by doctor, by day-of-week.',
       ],
       bullets: [
@@ -172,7 +174,7 @@ const STUDIES = {
     company: 'BlueWave Agency',
     industry: 'Agencies',
     accent: '#f472b6',
-    tagline: 'Six humans. 120 clients. One Social Stats tenant.',
+    tagline: `Six humans. 120 clients. One ${BRAND_NAME} tenant.`,
     hero: {
       metric: { value: 120, suffix: '+', label: 'clients managed concurrently' },
       portrait: {
@@ -203,7 +205,7 @@ const STUDIES = {
     solution: {
       title: 'One tenant per client. Brand assets baked in.',
       body: [
-        'Social Stats\'s multi-tenant architecture meant every BlueWave client got their own isolated workspace under the BlueWave parent account. White-label portals carry the client\'s logo and the agency\'s branding. The AI Assistant trained on each client\'s past content writes new posts in their exact voice.',
+        `${BRAND_NAME}'s multi-tenant architecture meant every BlueWave client got their own isolated workspace under the BlueWave parent account. White-label portals carry the client's logo and the agency's branding. The AI Assistant trained on each client's past content writes new posts in their exact voice.`,
         'Reports are generated and delivered automatically every Monday. The Composer plans a month ahead. Approvals happen in-product — no PowerPoint exports, no chasing emails.',
       ],
       bullets: [
@@ -227,11 +229,11 @@ const STUDIES = {
 
     pulls: [
       {
-        quote: 'We replaced four tools with Social Stats. Four. The savings funded the agency for a year.',
+        quote: `We replaced four tools with ${BRAND_NAME}. Four. The savings funded the agency for a year.`,
         person: 'Rohit Mehta · Founder & CEO',
       },
       {
-        quote: 'Clients ask which agency dashboard we built. It\'s just Social Stats in our colors.',
+        quote: `Clients ask which agency dashboard we built. It's just ${BRAND_NAME} in our colors.`,
         person: 'Karan Bhatia · Operations',
       },
     ],

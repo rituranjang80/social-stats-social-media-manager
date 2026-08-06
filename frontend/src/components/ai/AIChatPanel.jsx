@@ -16,6 +16,7 @@ import Button from '../ui/Button';
 import { aiV2API } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import toast from '../ui/toast';
+import { BRAND_NAME } from '../../config/branding';
 
 /**
  * AIChatPanel — slide-in right-side panel for Social Stats chat.
@@ -148,7 +149,7 @@ export default function AIChatPanel({ open, onClose, clientId }) {
         setConversations(list.data?.conversations || []);
       } catch {}
     } catch (e) {
-      const msg = e?.response?.data?.error || 'Social Stats is unavailable';
+      const msg = e?.response?.data?.error || `${BRAND_NAME} is unavailable`;
       toast.error(msg);
     } finally {
       setSending(false);
@@ -191,7 +192,7 @@ export default function AIChatPanel({ open, onClose, clientId }) {
 
       <aside
         role="dialog"
-        aria-label="Social Stats chat"
+        aria-label={`${BRAND_NAME} chat`}
         className="ai-chat-panel"
         style={{
           position: 'fixed',
@@ -223,7 +224,7 @@ export default function AIChatPanel({ open, onClose, clientId }) {
               }}>
                 <Sparkles size={13} strokeWidth={2.4} />
               </span>
-              Social Stats
+              {BRAND_NAME}
             </span>
           )}
           <div style={{ flex: 1 }} />
@@ -495,7 +496,7 @@ function EmptyChat({ onPick }) {
           <Sparkles size={22} strokeWidth={2} />
         </div>
         <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)' }}>
-          Hi, I&apos;m Social Stats
+          Hi, I&apos;m {BRAND_NAME}
         </div>
         <p style={{ margin: '6px auto 0', maxWidth: 280, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
           Ask me about your data, draft posts, reply to your inbox, or get a daily briefing.

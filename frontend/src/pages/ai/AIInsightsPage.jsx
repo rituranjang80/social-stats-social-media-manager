@@ -27,6 +27,7 @@ import EmptyState from '../../components/ui/EmptyState';
 import { aiV2API } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import toast from '../../components/ui/toast';
+import { BRAND_NAME } from '../../config/branding';
 
 const SEVERITY_VARIANT = {
   critical: 'danger',
@@ -119,7 +120,7 @@ export default function AIInsightsPage({ clientId: propClientId = null }) {
     <div className="app-page app-page--lg">
       <PageHeader
         title="AI Insights"
-        subtitle="Social Stats surfaces what matters from your data — refresh whenever you want fresh signal."
+        subtitle={`${BRAND_NAME} surfaces what matters from your data — refresh whenever you want fresh signal.`}
         actions={(
           <Button onClick={regenerate} icon={Sparkles} loading={generating}>
             {generating ? 'Generating…' : 'Generate fresh insights'}
@@ -178,7 +179,7 @@ export default function AIInsightsPage({ clientId: propClientId = null }) {
             icon={Sparkles}
             title="No insights yet"
             description={items.length === 0
-              ? 'Click “Generate fresh insights” to have Social Stats scan your last 30 days of data.'
+              ? `Click “Generate fresh insights” to have ${BRAND_NAME} scan your last 30 days of data.`
               : 'Nothing matches that filter.'}
             action={<Button onClick={regenerate} icon={Sparkles} loading={generating}>Generate now</Button>}
           />

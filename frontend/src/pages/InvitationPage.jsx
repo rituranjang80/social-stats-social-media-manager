@@ -17,6 +17,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Building2, CheckCircle, XCircle, Clock } from 'lucide-react';
 
 import AuthLayout from '../components/auth/AuthLayout';
+import { BRAND_NAME } from '../config/branding';
 import Button from '../components/ui/Button';
 import Spinner from '../components/ui/Spinner';
 import { invitationAPI } from '../services/api';
@@ -133,7 +134,7 @@ export default function InvitationPage() {
         <h1 style={titleStyle}>You've been invited</h1>
         <p style={subStyle}>
           <strong style={{ color: 'var(--text-primary)' }}>{inv.agency_name}</strong> wants to manage your
-          social media analytics on Social Stats.
+          social media analytics on {BRAND_NAME}.
         </p>
 
         <div
@@ -221,7 +222,7 @@ export default function InvitationPage() {
 
   return (
     <AuthLayout
-      heroTitle="Join your agency on Social Stats."
+      heroTitle={`Join your agency on ${BRAND_NAME}.`}
       heroSub="Accept the invitation to give your agency access to your social media analytics."
     >
       {content}

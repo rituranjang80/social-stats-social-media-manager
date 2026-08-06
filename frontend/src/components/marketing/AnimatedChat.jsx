@@ -9,6 +9,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useInView, useReducedMotion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
+import { BRAND_NAME } from '../../config/branding';
 
 /**
  * AnimatedChat — typewriter-style chat box that types out an assistant reply
@@ -80,7 +81,7 @@ export default function AnimatedChat({
       }}>
         <span style={{
           width: 24, height: 24,
-          background: 'linear-gradient(135deg, #00CCF5, #8b5cf6)',
+          background: 'linear-gradient(135deg, var(--brand-primary), #8b5cf6)',
           borderRadius: '50%',
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           color: '#fff',
@@ -92,7 +93,7 @@ export default function AnimatedChat({
           letterSpacing: '-0.01em',
           color: 'var(--text-primary)',
         }}>
-          Social Stats
+          {BRAND_NAME}
         </span>
         <span style={{
           marginLeft: 'auto',

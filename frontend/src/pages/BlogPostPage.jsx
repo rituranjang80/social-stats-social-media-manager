@@ -15,10 +15,11 @@ import Button from '../components/ui/Button';
 import Avatar from '../components/ui/Avatar';
 import Badge from '../components/ui/Badge';
 import Meta from '../components/Meta';
-import JsonLd, { buildArticle, buildBreadcrumbs, SITE_URL } from '../components/JsonLd';
+import JsonLd, { buildArticle, buildBreadcrumbs, getSiteUrl } from '../components/JsonLd';
 import toast from '../components/ui/toast';
 
 import POSTS, { getPost, getRelated } from './marketing/blogPosts';
+import { BRAND_NAME } from '../config/branding';
 
 /**
  * BlogPostPage — /blog/:slug
@@ -97,9 +98,9 @@ export default function BlogPostPage() {
       <JsonLd
         id="breadcrumbs"
         data={buildBreadcrumbs([
-          { name: 'Home',  url: `${SITE_URL}/` },
-          { name: 'Blog',  url: `${SITE_URL}/blog` },
-          { name: post.title, url: `${SITE_URL}/blog/${post.slug}` },
+          { name: 'Home',  url: `${getSiteUrl()}/` },
+          { name: 'Blog',  url: `${getSiteUrl()}/blog` },
+          { name: post.title, url: `${getSiteUrl()}/blog/${post.slug}` },
         ])}
       />
 
@@ -331,7 +332,7 @@ export default function BlogPostPage() {
             Free plan, no card. Most teams connect 4–6 platforms before they finish their morning coffee.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
-            <Button as={Link} to="/signup" size="md" iconRight={ArrowRight}>Try Social Stats free</Button>
+            <Button as={Link} to="/signup" size="md" iconRight={ArrowRight}>{`Try ${BRAND_NAME} free`}</Button>
             <Button as={Link} to="/blog" variant="ghost" size="md" icon={ArrowLeft}>All posts</Button>
           </div>
         </div>

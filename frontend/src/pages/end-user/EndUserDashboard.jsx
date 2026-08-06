@@ -20,6 +20,7 @@ import {
 
 import { endUserAPI } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
+import { welcomeToBrand, BRAND_NAME } from '../../config/branding';
 
 export default function EndUserDashboard() {
   const { user } = useAuth();
@@ -45,7 +46,7 @@ export default function EndUserDashboard() {
             Hi, {firstName} 👋
           </h1>
           <p style={{ margin: '4px 0 0', color: 'var(--text-secondary)', fontSize: 14 }}>
-            {workspace ? <>Here's what's happening with <strong style={{ color: 'var(--text-primary)' }}>{workspace.company || workspace.name}</strong>.</> : 'Welcome to Social Stats.'}
+            {workspace ? <>Here's what's happening with <strong style={{ color: 'var(--text-primary)' }}>{workspace.company || workspace.name}</strong>.</> : welcomeToBrand()}
           </p>
         </div>
         {workspace && (

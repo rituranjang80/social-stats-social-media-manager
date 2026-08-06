@@ -22,6 +22,7 @@ import {
 
 import { agencyAPI, authAPI, verificationAPI } from '../../services/api';
 import toast from '../../components/ui/toast';
+import { BRAND_NAME } from '../../config/branding';
 
 export default function AgencyMarketplaceProfilePage() {
   const [slug,    setSlug]    = useState(null);
@@ -118,7 +119,7 @@ export default function AgencyMarketplaceProfilePage() {
             Marketplace profile
           </h1>
           <p style={{ margin: '4px 0 0', color: 'var(--text-secondary)', fontSize: 14 }}>
-            How you appear to potential clients in the Social Stats marketplace.
+            How you appear to potential clients in the {BRAND_NAME} marketplace.
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>

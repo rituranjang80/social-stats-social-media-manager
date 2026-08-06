@@ -21,6 +21,7 @@ import { ArrowRight, ArrowLeft, Check, Sparkles } from 'lucide-react';
 
 import { endUserAPI } from '../../services/api';
 import toast from '../../components/ui/toast';
+import { BRAND_NAME, welcomeToBrand } from '../../config/branding';
 
 const INDUSTRY_OPTIONS = [
   { value: 'real_estate',  label: 'Real estate' },
@@ -55,7 +56,7 @@ export default function EndUserSignupPage() {
       if (!form.email.trim())     return toast.error('Email is required');
       if (form.password.length < 8) return toast.error('Password must be at least 8 characters');
     }
-    if (step === 2 && !form.industry) return toast.error('Pick an industry so we can tune Social Stats for you');
+    if (step === 2 && !form.industry) return toast.error(`Pick an industry so we can tune ${BRAND_NAME} for you`);
     setStep((s) => Math.min(3, s + 1));
   }
 
@@ -76,7 +77,7 @@ export default function EndUserSignupPage() {
       localStorage.setItem('access_token',  access);
       localStorage.setItem('refresh_token', refresh);
       localStorage.setItem('end_user_signup_workspace', JSON.stringify(workspace || {}));
-      toast.success(`Welcome to Social Stats, ${user?.first_name || ''}!`);
+      toast.success(welcomeToBrand(user?.first_name));
       // Trigger a fresh /me bootstrap by routing through /auth-callback so the
       // existing useAuth hook picks up the new session.
       navigate('/u');
@@ -112,7 +113,7 @@ export default function EndUserSignupPage() {
           </span>
           <div>
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>
-              Get started with Social Stats
+              {`Get started with ${BRAND_NAME}`}
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
               Free forever · no agency required

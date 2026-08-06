@@ -28,6 +28,7 @@ import WriteReviewModal  from '../../components/marketplace/WriteReviewModal';
 import { marketplaceAPI, reviewAPI } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import toast from '../../components/ui/toast';
+import { BRAND_NAME } from '../../config/branding';
 
 export default function AgencyProfilePage() {
   const { slug } = useParams();
@@ -213,7 +214,7 @@ export default function AgencyProfilePage() {
         <div style={trustBox}>
           <Sparkles size={16} style={{ color: 'var(--brand-primary-hover)' }} />
           <p style={{ margin: 0, fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
-            Social Stats keeps you in full control. Whichever agency you choose, you can pause access,
+            {BRAND_NAME} keeps you in full control. Whichever agency you choose, you can pause access,
             revoke permissions, or end the relationship at any time — and every action is logged for audit.
           </p>
         </div>

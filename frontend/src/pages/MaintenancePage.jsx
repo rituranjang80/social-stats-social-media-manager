@@ -12,6 +12,7 @@ import { Wrench, RefreshCw, Activity, Mail } from 'lucide-react';
 
 import Logo from '../components/ui/Logo';
 import Button from '../components/ui/Button';
+import { BRAND_NAME } from '../config/branding';
 
 /**
  * MaintenancePage — full-screen, no MarketingLayout chrome.
@@ -84,7 +85,7 @@ export default function MaintenancePage({ expectedReturn }) {
           letterSpacing: '-0.025em',
           color: 'var(--text-primary)',
         }}>
-          We're upgrading Social Stats.
+          We're upgrading {BRAND_NAME}.
         </h1>
         <p style={{ margin: '12px auto 24px', maxWidth: 380, fontSize: 15, lineHeight: 1.65, color: 'var(--text-secondary)' }}>
           We're making things faster and smoother. Sit tight — we'll be back shortly.

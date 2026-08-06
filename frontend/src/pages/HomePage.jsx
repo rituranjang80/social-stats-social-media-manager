@@ -57,6 +57,7 @@ import Button from '../components/ui/Button';
 import Meta   from '../components/Meta';
 import JsonLd, { buildOrganization, buildWebSite } from '../components/JsonLd';
 import { track } from '../services/analytics';
+import { BRAND_NAME, poweredByBrand } from '../config/branding';
 
 // ─────────────────────────────────────────────────────────────────────────────
 export default function HomePage() {
@@ -64,7 +65,7 @@ export default function HomePage() {
     <MarketingLayout>
       <Meta
         noSuffix
-        title="Social Stats — The AI marketing OS for modern agencies"
+        title={`${BRAND_NAME} — The AI platform for modern agencies`}
         description="Manage analytics, content, conversations, and ads for every client — across 5 platforms — in one place. AI-powered, built for modern teams."
       />
       <JsonLd id="organization" data={buildOrganization()} />
@@ -378,9 +379,9 @@ function ThreePillars() {
       <div style={{ maxWidth: 1180, margin: '0 auto' }}>
         <ScrollReveal>
           <SectionHeading
-            eyebrow="What is Social Stats"
+            eyebrow={`What is ${BRAND_NAME}`}
             title="One product, three superpowers"
-            subtitle="Stop juggling 5 different SaaS tools. Social Stats is the single dashboard that runs your client's marketing end-to-end."
+            subtitle={`Stop juggling 5 different SaaS tools. ${BRAND_NAME} is the single dashboard that runs your client's marketing end-to-end.`}
           />
         </ScrollReveal>
 
@@ -564,7 +565,7 @@ function UseCaseTabs() {
     <section style={{ padding: 'clamp(64px, 10vh, 120px) 24px', background: 'var(--surface-page)' }}>
       <div style={{ maxWidth: 1080, margin: '0 auto' }}>
         <ScrollReveal>
-          <SectionHeading eyebrow="Made for every kind of marketer" title="Whoever you are, Social Stats fits" />
+          <SectionHeading eyebrow="Made for every kind of marketer" title={`Whoever you are, ${BRAND_NAME} fits`} />
         </ScrollReveal>
 
         <ScrollReveal delay={0.1}>
@@ -736,7 +737,7 @@ function AIEverywhere() {
               fontSize: 11, fontWeight: 700,
               color: '#00CCF5', background: 'rgba(0,204,245,0.10)',
               borderRadius: 'var(--radius-pill)', letterSpacing: '0.06em',
-            }}>POWERED BY SOCIAL STATE AI</span>
+            }}>{poweredByBrand().toUpperCase()}</span>
             <h2 style={{
               margin: 0, fontSize: 'clamp(28px, 4vw, 40px)',
               fontWeight: 700, letterSpacing: '-0.02em',
@@ -747,7 +748,7 @@ function AIEverywhere() {
               fontSize: 16, lineHeight: 1.6,
               color: 'var(--text-secondary)', maxWidth: 480,
             }}>
-              Social Stats isn't an "AI feature". It's an AI-native product — Social Stats shows up wherever you're stuck.
+              {`${BRAND_NAME} isn't an "AI feature". It's an AI-native product — ${BRAND_NAME} shows up wherever you're stuck.`}
             </p>
             <ul style={{ margin: '24px 0 0', padding: 0, listStyle: 'none' }}>
               {features.map((f) => (
@@ -788,10 +789,10 @@ function AIEverywhere() {
 // Section 8 — COMPARISON
 // ─────────────────────────────────────────────────────────────────────────────
 function ComparisonSection() {
-  const columns = ['Social Stats', 'Hootsuite', 'Sprout Social', 'Buffer'];
+  const columns = [BRAND_NAME, 'Hootsuite', 'Sprout Social', 'Buffer'];
   const rows = [
     { feature: 'Multi-platform analytics',     cells: ['yes',          'yes',     'yes',     'partial'] },
-    { feature: 'Deep AI assistant',            cells: ['Social Stats',    'partial', 'partial', 'no'] },
+    { feature: 'Deep AI assistant',            cells: [BRAND_NAME,    'partial', 'partial', 'no'] },
     { feature: 'WhatsApp Business API',        cells: ['yes',          'no',      'no',      'no'] },
     { feature: 'Click-to-WhatsApp bots',       cells: ['yes',          'no',      'no',      'no'] },
     { feature: 'Visual bot builder',           cells: ['yes',          'no',      'no',      'no'] },
@@ -812,7 +813,7 @@ function ComparisonSection() {
         <ScrollReveal>
           <SectionHeading
             eyebrow="Honest comparison"
-            title="How Social Stats stacks up"
+            title={`How ${BRAND_NAME} stacks up`}
             subtitle="We're not for everyone. We're built for agencies + businesses serious about AI + WhatsApp."
           />
         </ScrollReveal>
@@ -836,7 +837,7 @@ function MarketplaceTeaser() {
   const steps = [
     { title: 'Browse verified agencies',  body: 'Search by industry, language, budget, and platform.' },
     { title: 'Match by fit',              body: 'See pricing ranges, specialities, and example workflows up front.' },
-    { title: 'Manage from one inbox',     body: 'Approvals, scheduled posts, and reporting flow through Social Stats.' },
+    { title: 'Manage from one inbox',     body: `Approvals, scheduled posts, and reporting flow through ${BRAND_NAME}.` },
   ];
   return (
     <section style={{ padding: 'clamp(64px, 10vh, 120px) 24px', background: 'var(--surface-page)' }}>

@@ -19,6 +19,7 @@ import MeshGradient    from '../../components/marketing/MeshGradient';
 import ScrollReveal    from '../../components/marketing/ScrollReveal';
 import Button          from '../../components/ui/Button';
 import Meta            from '../../components/Meta';
+import { BRAND_NAME, brandNativeLabel, titleWithBrandSuffix } from '../../config/branding';
 
 import {
   AGENCY_LIST, listIndustries, listServices,
@@ -68,8 +69,8 @@ export default function AgenciesShowcasePage() {
     <MarketingLayout>
       <Meta
         noSuffix
-        title="Partner Agencies — Social Stats"
-        description="Find a verified marketing agency built on Social Stats. 50+ partner agencies across India, vetted for compliance, capability, and customer outcomes."
+        title={titleWithBrandSuffix('Partner Agencies')}
+        description={`Find a verified marketing agency built on ${BRAND_NAME}. 50+ partner agencies across India, vetted for compliance, capability, and customer outcomes.`}
       />
 
       {/* ╭──────────────╮
@@ -88,7 +89,7 @@ export default function AgenciesShowcasePage() {
             display: 'inline-flex', alignItems: 'center', gap: 6,
             padding: '6px 14px', marginBottom: 20,
             fontSize: 12, fontWeight: 600,
-            color: '#00CCF5',
+            color: 'var(--brand-primary)',
             background: 'rgba(0,204,245,0.10)',
             border: '1px solid rgba(0,204,245,0.25)',
             borderRadius: 'var(--radius-pill)',
@@ -105,8 +106,8 @@ export default function AgenciesShowcasePage() {
             lineHeight: 1.05,
           }}>
             Find a marketing agency<br />
-            <span style={{ background: 'linear-gradient(135deg, #00CCF5, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              that already runs on Social Stats
+            <span style={{ background: 'linear-gradient(135deg, var(--brand-primary), #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              that already runs on {BRAND_NAME}
             </span>
           </h1>
 
@@ -174,7 +175,7 @@ export default function AgenciesShowcasePage() {
           fontSize: 13, color: 'rgba(255,255,255,0.65)',
         }}>
           <TrustItem icon={ShieldCheck} text="Every partner verified" />
-          <TrustItem icon={BadgeCheck}  text="Social Stats Native trained" />
+          <TrustItem icon={BadgeCheck}  text={`${brandNativeLabel()} trained`} />
           <TrustItem icon={Star}        text="4.8+ avg. customer rating" />
           <TrustItem icon={Users}       text="50,000+ campaigns delivered" />
         </div>
@@ -312,7 +313,7 @@ export default function AgenciesShowcasePage() {
                 display: 'inline-flex', alignItems: 'center', gap: 6,
                 padding: '4px 10px', marginBottom: 14,
                 fontSize: 11, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase',
-                color: '#00CCF5',
+                color: 'var(--brand-primary)',
                 background: 'rgba(0,204,245,0.10)',
                 border: '1px solid rgba(0,204,245,0.25)',
                 borderRadius: 'var(--radius-pill)',
@@ -327,7 +328,7 @@ export default function AgenciesShowcasePage() {
                 letterSpacing: '-0.02em',
                 lineHeight: 1.15,
               }}>
-                Run your agency on Social Stats.<br />
+                Run your agency on {BRAND_NAME}.<br />
                 Get listed here. Earn referral revenue.
               </h2>
               <p style={{
@@ -336,12 +337,12 @@ export default function AgenciesShowcasePage() {
                 color: 'rgba(255,255,255,0.75)',
                 lineHeight: 1.55,
               }}>
-                Agencies on the Social Stats Partner Program get listed in this directory, earn 30% on referred customers, and receive priority support.
+                {`Agencies on the ${BRAND_NAME} Partner Program get listed in this directory, earn 30% on referred customers, and receive priority support.`}
               </p>
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 <Button as={Link} to="/for-agencies" size="md"
                   style={{
-                    background: 'linear-gradient(135deg, #00CCF5, #00A8D8)',
+                    background: 'linear-gradient(135deg, var(--brand-primary), var(--brand-primary-hover))',
                     color: '#0a0e14', border: 'none',
                   }}>
                   Become a partner <ArrowRight size={14} />
@@ -376,7 +377,7 @@ export default function AgenciesShowcasePage() {
                   border: '1px solid rgba(255,255,255,0.08)',
                   textAlign: 'center',
                 }}>
-                  <div style={{ fontSize: 28, fontWeight: 700, color: '#00CCF5', letterSpacing: '-0.02em' }}>
+                  <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--brand-primary)', letterSpacing: '-0.02em' }}>
                     {s.value}
                   </div>
                   <div style={{ marginTop: 4, fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>
@@ -410,7 +411,7 @@ export default function AgenciesShowcasePage() {
             lineHeight: 1.1,
           }}>
             Or skip the agency<br />
-            <span style={{ background: 'linear-gradient(135deg, #00CCF5, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            <span style={{ background: 'linear-gradient(135deg, var(--brand-primary), #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               and run it in-house
             </span>
           </h2>
@@ -422,7 +423,7 @@ export default function AgenciesShowcasePage() {
             color: 'rgba(255,255,255,0.75)',
             lineHeight: 1.55,
           }}>
-            Social Stats is built so a 1-person team can do what a 5-person agency does. Start free and see for yourself.
+            {`${BRAND_NAME} is built so a 1-person team can do what a 5-person agency does. Start free and see for yourself.`}
           </p>
 
           <div style={{
@@ -431,7 +432,7 @@ export default function AgenciesShowcasePage() {
           }}>
             <Button as={Link} to="/signup" size="lg"
               style={{
-                background: 'linear-gradient(135deg, #00CCF5, #00A8D8)',
+                background: 'linear-gradient(135deg, var(--brand-primary), var(--brand-primary-hover))',
                 color: '#0a0e14', border: 'none',
               }}>
               Start free <ArrowRight size={15} />
@@ -455,7 +456,7 @@ export default function AgenciesShowcasePage() {
 function TrustItem({ icon: Icon, text }) {
   return (
     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-      <Icon size={14} color="#00CCF5" />
+      <Icon size={14} color="var(--brand-primary)" />
       {text}
     </div>
   );

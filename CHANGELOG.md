@@ -2,6 +2,35 @@
 
 ## [Unreleased]
 
+### Fixed — Docker could not load `frontend/.env`
+
+- **`paths.env`** for the in-repo start layout uses **`SOURCE_REL=..`** so Compose mounts the correct `frontend/` tree and **`frontend/.env`** branding vars apply.
+
+### Changed — Branding env refresh via `compose-up.ps1`
+
+- Dev **`scripts/compose-up.ps1`** (and root **`compose-up.ps1`**) force-recreates the **frontend** container so **`frontend/.env`** / **`REACT_APP_*`** apply without a separate `docker compose restart`. Docs point to **`.\compose-up.ps1`** after branding edits.
+
+### Fixed — Brand name still showing old product name in UI
+
+- Sidebar rail title (`RailHeader` **h2**) and login wordmark use **`BRAND_NAME`** from env (analytics module no longer snapshots `brand.name` at module load). Docker dev compose loads **`frontend/.env`** for the frontend service. **Restart the frontend** after editing `REACT_APP_BRAND_*`.
+
+### Fixed — AI assistant floating trigger
+
+- Restored missing **`AIChatPanel`** import in **`AIFloatingTrigger`** (fixes `ReferenceError: AIChatPanel is not defined`).
+
+### Fixed — Login page crash
+
+- Restored missing **`SkipLink`** import in **`AuthLayout`** (fixes `ReferenceError: SkipLink is not defined` on `/login`).
+
+### Added — Centralized frontend branding (`config/branding.js`)
+
+- All **`REACT_APP_BRAND_*`** values are read only in **`frontend/src/config/branding.js`** (legacy **`brand.js`** re-export). Components use **`BRAND_NAME`**, **`DOCUMENT_TITLE`**, **`BRAND_LOGO_URL`**, helpers, and runtime **`BrandHead`** / PWA manifest install for white-label deploys.
+
+### Changed — Frontend white-label branding
+
+- Replaced user-facing **Social Stats** / **Marketing OS** copy across `frontend/src` with `config/branding` helpers (`BRAND_NAME`, `titleWithBrandSuffix`, AI labels, etc.) so deploys can rebrand via `REACT_APP_BRAND_*` without code edits.
+- Marketing **inline `#00CCF5`** accents in `pages/marketing/*.jsx` and `components/marketing/*.jsx` now use **`var(--brand-primary)`** / **`var(--brand-primary-hover)`** where they represent the primary brand color.
+
 ### Fixed — Video / media upload with workspace UUID
 
 - **Video Studio** (`POST /api/video/upload/` and related video endpoints) and **AI** function views resolve `client_id` / `client` / `X-Client-Id` as **`public_id` UUID** or legacy integer (shared `resolve_request_client`). Fixes `Field 'id' expected a number but got '{uuid}'` on `/admin/analytics/video` and media flows that share the same headers.

@@ -12,12 +12,13 @@ import MarketingLayout from '../components/marketing/MarketingLayout';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Meta from '../components/Meta';
+import { BRAND_NAME } from '../config/branding';
 
 const RELEASES = [
   {
     version: 'v3.2.0',
     date: '2026-04-30',
-    title: 'Marketing OS visual refresh',
+    title: `${BRAND_NAME} visual refresh`,
     entries: [
       { tag: 'new', text: 'Brand-new design system: tokens, dark mode, full component library.' },
       { tag: 'new', text: 'Public site redesign — landing page, features, pricing, customers, about, contact.' },
@@ -48,7 +49,7 @@ const RELEASES = [
   {
     version: 'v3.0.0',
     date: '2026-02-14',
-    title: 'Unified Marketing OS launch',
+    title: `Unified ${BRAND_NAME} launch`,
     entries: [
       { tag: 'new', text: 'Composer: cross-platform publishing with per-platform overrides.' },
       { tag: 'new', text: 'Unified inbox with sentiment + AI reply suggestions.' },
@@ -79,7 +80,7 @@ export default function ChangelogPage() {
     <MarketingLayout>
       <Meta
         title="Changelog"
-        description="Every release, every fix. The latest features, improvements, and bug fixes shipped to Social Stats."
+        description={`Every release, every fix. The latest features, improvements, and bug fixes shipped to ${BRAND_NAME}.`}
       />
       {/* Hero */}
       <section style={{ padding: '128px 32px 56px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
@@ -101,7 +102,7 @@ export default function ChangelogPage() {
             fontWeight: 600,
             color: 'var(--text-primary)',
           }}>
-            What's new in Social Stats.
+            What's new in {BRAND_NAME}.
           </h1>
           <p style={{ margin: '0 auto', maxWidth: 560, fontSize: 16, lineHeight: 1.65, color: 'var(--text-secondary)' }}>
             Every release, every fix. Subscribe to <a href="mailto:hello@socialstats.app?subject=Subscribe%20to%20changelog" style={{ color: 'var(--text-link)', fontWeight: 500 }}>get it in your inbox</a> monthly.

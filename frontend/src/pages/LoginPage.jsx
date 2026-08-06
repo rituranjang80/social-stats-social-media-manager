@@ -16,6 +16,7 @@ import Input from '../components/ui/Input';
 import Checkbox from '../components/ui/Checkbox';
 import SocialPlatformIcon from '../components/ui/SocialPlatformIcon';
 import { useAuth } from '../hooks/useAuth';
+import { BRAND_NAME } from '../config/branding';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
@@ -170,7 +171,7 @@ export default function LoginPage() {
     <AuthLayout
       footer={
         <>
-          New to Social Stats?{' '}
+          {`New to ${BRAND_NAME}?`}{' '}
           <Link to="/signup" style={{ color: 'var(--text-link)', fontWeight: 600, textDecoration: 'none' }}>
             Create an account
           </Link>
@@ -201,7 +202,7 @@ export default function LoginPage() {
           <p style={{ margin: '6px 0 0', fontSize: 14, color: 'var(--text-secondary)' }}>
             {mfaStep
               ? `Enter the code from your authenticator app for ${email}.`
-              : 'Sign in to your Social Stats workspace.'}
+              : `Sign in to your ${BRAND_NAME} workspace.`}
           </p>
         </header>
 

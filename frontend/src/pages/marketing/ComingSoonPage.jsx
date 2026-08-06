@@ -13,6 +13,7 @@ import MarketingLayout from '../../components/marketing/MarketingLayout';
 import MeshGradient from '../../components/marketing/MeshGradient';
 import Button from '../../components/ui/Button';
 import Meta from '../../components/Meta';
+import { BRAND_NAME } from '../../config/branding';
 
 /**
  * ComingSoonPage — placeholder for /product/* and /solutions/* routes
@@ -31,7 +32,7 @@ const TITLES = {
   '/product/inbox':               { kind: 'product', title: 'Unified Inbox', blurb: 'Every conversation in one place.' },
   '/product/whatsapp':            { kind: 'product', title: 'WhatsApp Business', blurb: 'Campaigns + two-way chat at scale.' },
   '/product/bot-builder':         { kind: 'product', title: 'CTWA Bot Builder', blurb: 'Visual flow editor for ad funnels.' },
-  '/product/ai':                  { kind: 'product', title: 'AI Studio',     blurb: 'Social Stats in every corner.' },
+  '/product/ai':                  { kind: 'product', title: 'AI Studio',     blurb: `${BRAND_NAME} in every corner.` },
   '/product/ai-assistant':        { kind: 'product', title: 'AI Assistant',  blurb: 'Cmd+J — talk to your marketing data.' },
   '/product/reports':             { kind: 'product', title: 'Reports',       blurb: 'Reports that write themselves.' },
   '/product/automations':         { kind: 'product', title: 'Automations',   blurb: 'IF this happens, do that.' },
@@ -75,7 +76,7 @@ export default function ComingSoonPage() {
             display: 'inline-flex', alignItems: 'center', gap: 6,
             padding: '6px 14px', marginBottom: 24,
             fontSize: 12, fontWeight: 600,
-            color: '#00CCF5',
+            color: 'var(--brand-primary)',
             background: 'rgba(0,204,245,0.10)',
             border: '1px solid rgba(0,204,245,0.25)',
             borderRadius: 'var(--radius-pill)',

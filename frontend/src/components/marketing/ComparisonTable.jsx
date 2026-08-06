@@ -53,7 +53,7 @@ export default function ComparisonTable({ columns = [], rows = [], highlightInde
                   <span style={{
                     display: 'block', marginTop: 4,
                     fontSize: 10, fontWeight: 600,
-                    color: '#00CCF5', letterSpacing: '0.06em',
+                    color: 'var(--brand-primary)', letterSpacing: '0.06em',
                   }}>RECOMMENDED</span>
                 )}
               </th>

@@ -21,6 +21,7 @@ import ScrollReveal    from '../components/marketing/ScrollReveal';
 import Button          from '../components/ui/Button';
 import Meta            from '../components/Meta';
 import { track }       from '../services/analytics';
+import { BRAND_NAME, titleWithBrandSuffix } from '../config/branding';
 
 /**
  * IntegrationsPage — /integrations
@@ -126,8 +127,8 @@ export default function IntegrationsPage() {
     <MarketingLayout>
       <Meta
         noSuffix
-        title="Integrations — Social Stats"
-        description="40+ native integrations across social, messaging, analytics, CRM, commerce, AI and more. Plug Social Stats into your existing stack in minutes."
+        title={titleWithBrandSuffix('Integrations')}
+        description={`40+ native integrations across social, messaging, analytics, CRM, commerce, AI and more. Plug ${BRAND_NAME} into your existing stack in minutes.`}
       />
 
       {/* ╭──────────────╮
@@ -162,7 +163,7 @@ export default function IntegrationsPage() {
             color: '#fff',
             lineHeight: 1.05,
           }}>
-            Plug Social Stats into the<br />
+            Plug {BRAND_NAME} into the<br />
             <span style={{ background: 'linear-gradient(135deg, #00CCF5, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               tools you already use
             </span>

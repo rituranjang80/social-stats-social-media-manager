@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { clientsAPI } from '../services/api';
 import PageHeader from '../components/layout/PageHeader';
+import { BRAND_NAME } from '../config/branding';
 import ConnectedAccounts from '../components/ui/ConnectedAccounts';
 import CompetitorSection from '../components/ui/CompetitorSection';
 import { useOAuthStatus, useLookups } from '../hooks/useData';
@@ -946,7 +947,7 @@ export default function ClientOnboardingPage() {
     <div className="app-page app-page--content app-page--lg">
       <PageHeader
         title="Complete Your Profile"
-        subtitle="Set up your business profile to get the most out of Social Stats"
+        subtitle={`Set up your business profile to get the most out of ${BRAND_NAME}`}
       />
 
       {/* <div style={styles.heroShell}>

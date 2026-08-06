@@ -11,6 +11,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useClients, useLookups } from '../hooks/useData';
 import { postIdeasAPI } from '../services/api';
+import { BRAND_NAME } from '../config/branding';
 import SocialPlatformIcon from '../components/ui/SocialPlatformIcon';
 import PageHeader from '../components/layout/PageHeader';
 import {
@@ -635,7 +636,7 @@ function LoadingScreen({ steps, currentStep }) {
       <div style={styles.loadingCard}>
         <div style={styles.loadingSpinner} />
         <h2 style={styles.loadingTitle}>Building your content calendar…</h2>
-        <p style={styles.loadingSub}>Social Stats is crafting personalised post ideas for your business</p>
+        <p style={styles.loadingSub}>{`${BRAND_NAME} is crafting personalised post ideas for your business`}</p>
         <div style={styles.loadingSteps}>
           {steps.map((s, i) => (
             <div key={s} style={{

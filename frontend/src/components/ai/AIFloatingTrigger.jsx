@@ -9,8 +9,9 @@
 import { useEffect, useState } from 'react';
 import { Sparkles } from 'lucide-react';
 
-import AIChatPanel from './AIChatPanel';
+import { openBrandAssistantLabel, openBrandAssistantTitle } from '../../config/branding';
 import { useAuth } from '../../hooks/useAuth';
+import AIChatPanel from './AIChatPanel';
 
 /**
  * AIFloatingTrigger — bottom-right brand-gradient bubble + Cmd+J shortcut.
@@ -49,8 +50,8 @@ export default function AIFloatingTrigger() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          aria-label="Open Social Stats (Cmd+J)"
-          title="Social Stats (⌘J)"
+          aria-label={openBrandAssistantLabel()}
+          title={openBrandAssistantTitle()}
           style={{
             position: 'fixed',
             bottom: 'calc(20px + env(safe-area-inset-bottom))',

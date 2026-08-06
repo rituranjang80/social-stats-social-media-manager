@@ -7,6 +7,12 @@
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
 import { useEffect } from 'react';
+import {
+  BRAND_NAME,
+  absoluteBrandLogoUrl,
+  siteOrigin,
+  titleWithBrandSuffix,
+} from '../config/branding';
 
 /**
  * JsonLd — imperative <script type="application/ld+json"> manager.
@@ -46,30 +52,38 @@ export default function JsonLd({ id, data }) {
 }
 
 
-// ── shared site identity ──────────────────────────────────────────────
-const SITE = {
-  name: 'Social Stats',
-  url: 'https://socialstats.app',
-  logo: 'https://socialstats.app/logo512.png',
-  sameAs: [
-    'https://twitter.com/socialstats',
-    'https://www.linkedin.com/company/socialstats',
-    'https://github.com/socialstats',
-  ],
-};
+// ── shared site identity (runtime origin + .env brand) ─────────────────
+function siteBase() {
+  return siteOrigin() || (typeof window !== 'undefined' ? window.location.origin : '');
+}
 
-const ORG_NODE = {
-  '@type': 'Organization',
-  '@id': `${SITE.url}/#organization`,
-  name: SITE.name,
-  url: SITE.url,
-  logo: SITE.logo,
-  sameAs: SITE.sameAs,
-};
+function siteIdentity() {
+  const url = siteBase();
+  const logo = absoluteBrandLogoUrl() || (url ? `${url}/icons/icon-512.png` : '');
+  return {
+    name: BRAND_NAME,
+    url,
+    logo,
+    sameAs: [],
+  };
+}
+
+function orgNode() {
+  const SITE = siteIdentity();
+  return {
+    '@type': 'Organization',
+    '@id': `${SITE.url}/#organization`,
+    name: SITE.name,
+    url: SITE.url,
+    logo: SITE.logo,
+    sameAs: SITE.sameAs,
+  };
+}
 
 
 // ── builders ──────────────────────────────────────────────────────────
 export function buildOrganization() {
+  const ORG_NODE = orgNode();
   return {
     '@context': 'https://schema.org',
     ...ORG_NODE,
@@ -90,13 +104,15 @@ export function buildOrganization() {
 }
 
 export function buildWebSite() {
+  const SITE = siteIdentity();
+  const ORG_NODE = orgNode();
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     '@id': `${SITE.url}/#website`,
     url: SITE.url,
     name: SITE.name,
-    publisher: { '@id': `${SITE.url}/#organization` },
+    publisher: { '@id': ORG_NODE['@id'] },
     potentialAction: {
       '@type': 'SearchAction',
       target: { '@type': 'EntryPoint', urlTemplate: `${SITE.url}/blog?q={search_term_string}` },
@@ -120,6 +136,8 @@ export function buildBreadcrumbs(items) {
 }
 
 export function buildArticle({ title, description, slug, datePublished, dateModified, authorName, image }) {
+  const SITE = siteIdentity();
+  const ORG_NODE = orgNode();
   const url = `${SITE.url}/blog/${slug}`;
   return {
     '@context': 'https://schema.org',
@@ -137,10 +155,12 @@ export function buildArticle({ title, description, slug, datePublished, dateModi
 }
 
 export function buildSoftwareApplication({ name, description, image, ratingValue, ratingCount }) {
+  const SITE = siteIdentity();
+  const ORG_NODE = orgNode();
   return {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: name ? `Social Stats — ${name}` : 'Social Stats',
+    name: name ? titleWithBrandSuffix(name) : BRAND_NAME,
     description,
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web, iOS, Android',
@@ -178,6 +198,7 @@ export function buildFAQ(items) {
 }
 
 export function buildLocalBusiness({ name, slug, description, location, rating, founded }) {
+  const SITE = siteIdentity();
   const url = `${SITE.url}/agencies/${slug}`;
   return {
     '@context': 'https://schema.org',
@@ -203,4 +224,6 @@ export function buildLocalBusiness({ name, slug, description, location, rating, 
   };
 }
 
-export const SITE_URL = SITE.url;
+export function getSiteUrl() {
+  return siteIdentity().url;
+}

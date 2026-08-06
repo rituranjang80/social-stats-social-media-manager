@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 import Logo from '../ui/Logo';
-import { brand } from '../../config/brand';
+import { brand, BRAND_NAME, BRAND_DESCRIPTION } from '../../config/branding';
 import Button from '../ui/Button';
 import ThemeToggle from '../ui/ThemeToggle';
 import SkipLink from '../ui/SkipLink';
@@ -58,7 +58,7 @@ const PRODUCT_MENU = [
   { label: 'Inbox',         to: '/product/inbox',             icon: Inbox,        desc: 'Every conversation, one place' },
   { label: 'WhatsApp',      to: '/product/whatsapp',          icon: MessageCircle,desc: 'Campaigns + two-way chat' },
   { label: 'Bot Builder',   to: '/product/bot-builder',       icon: Bot,          desc: 'Visual CTWA flow editor' },
-  { label: 'AI Studio',     to: '/product/ai',                icon: Sparkles,     desc: 'Social Stats in every corner' },
+  { label: 'AI Studio',     to: '/product/ai',                icon: Sparkles,     desc: `${BRAND_NAME} in every corner` },
   { label: 'AI Assistant',  to: '/product/ai-assistant',      icon: MessagesSquare, desc: 'Cmd+J — talk to your data' },
   { label: 'Reports',       to: '/product/reports',           icon: FileText,     desc: 'Reports that write themselves' },
   { label: 'Automations',   to: '/product/automations',       icon: Zap,          desc: 'IF this, do that' },
@@ -697,7 +697,7 @@ function MarketingFooter() {
               color: 'var(--text-secondary)',
               maxWidth: 280,
             }}>
-              The AI marketing OS for modern agencies. Analytics, content, conversations, and ads — for every client, in one place.
+              {BRAND_DESCRIPTION}
             </p>
             <div style={{ display: 'flex', gap: 6 }}>
               <SocialIconLink href="https://github.com/socialstats"            label="GitHub"   icon={Github} />
@@ -765,7 +765,7 @@ function MarketingFooter() {
               display: 'inline-flex', alignItems: 'center', gap: 4,
               color: 'var(--text-tertiary)',
             }}>
-              <Sparkles size={11} /> Built with Social Stats
+              <Sparkles size={11} /> Built with {BRAND_NAME}
             </span>
           </div>
         </div>

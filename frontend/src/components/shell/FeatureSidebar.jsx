@@ -23,7 +23,7 @@ import {
   Briefcase, Store, LogOut,
 } from 'lucide-react';
 
-import brand from '../../config/brand';
+import brand, { BRAND_NAME } from '../../config/brand';
 import PermissionGate from '../ui/PermissionGate';
 import ComposerConnectChannels from '../composer/ComposerConnectChannels';
 import { useBadgeCount } from '../../stores/appStore';
@@ -190,7 +190,7 @@ export default function FeatureSidebar({
           {HeaderIcon ? <HeaderIcon size={15} strokeWidth={2.4} /> : null}
         </div>
         <div>
-          <div className="ds-feature-sidebar__label">{navSet.label || brand.name}</div>
+          <div className="ds-feature-sidebar__label">{navSet.label ?? BRAND_NAME}</div>
           {navSet.subtitle ? (
             <div className="ds-feature-sidebar__subtitle">{navSet.subtitle}</div>
           ) : null}
@@ -204,7 +204,7 @@ export default function FeatureSidebar({
 export function getFeatureSidebarMeta(module) {
   const navSet = NAV_SETS[module] || NAV_SETS.analytics;
   return {
-    label: navSet.label || brand.name,
+    label: navSet.label ?? BRAND_NAME,
     subtitle: navSet.subtitle,
     Icon: navSet.icon,
   };
@@ -384,7 +384,7 @@ const navItemBase = {
 
 const NAV_SETS = {
   analytics: {
-    label: brand.name,
+    label: undefined,
     subtitle: 'Analytics & content',
     icon: AnalyticsNavIcon,
     sections: [

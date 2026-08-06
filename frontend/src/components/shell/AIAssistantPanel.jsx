@@ -14,7 +14,7 @@ import {
 import toast from 'react-hot-toast';
 
 import Button from '../ui/Button';
-import { aiAPI } from '../../services/api';
+import { BRAND_NAME } from '../../config/branding';
 
 /**
  * Floating AI Assistant — bottom-right launcher + Cmd/Ctrl+J keyboard shortcut.
@@ -84,7 +84,7 @@ function FloatingLauncher({ onClick, active }) {
         position: 'fixed', bottom: 24, right: 24, zIndex: 80,
         width: 52, height: 52, borderRadius: 999,
         border: 'none', cursor: 'pointer', padding: 0,
-        background: 'linear-gradient(135deg, #00CCF5, #00A8D8)',
+        background: 'linear-gradient(135deg, var(--brand-primary), var(--brand-primary-hover))',
         color: '#fff',
         boxShadow: '0 6px 18px rgba(0, 168, 216, 0.35), 0 2px 6px rgba(0,0,0,0.1)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -136,14 +136,14 @@ function Panel({ tab, setTab, onClose }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{
               width: 28, height: 28, borderRadius: 'var(--radius-sm)',
-              background: 'linear-gradient(135deg, #00CCF5, #00A8D8)',
+              background: 'linear-gradient(135deg, var(--brand-primary), var(--brand-primary-hover))',
               color: '#fff',
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             }}>
               <Sparkles size={14} />
             </span>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 600 }}>Social Stats</div>
+              <div style={{ fontSize: 14, fontWeight: 600 }}>{BRAND_NAME}</div>
               <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
                 Cmd/Ctrl + J
               </div>

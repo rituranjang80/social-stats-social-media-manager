@@ -30,8 +30,9 @@ import CTASection         from '../../components/marketing/CTASection';
 import Button             from '../../components/ui/Button';
 import Meta               from '../../components/Meta';
 import JsonLd, {
-  buildSoftwareApplication, buildBreadcrumbs, SITE_URL,
+  buildSoftwareApplication, buildBreadcrumbs, getSiteUrl,
 } from '../../components/JsonLd';
+import { BRAND_NAME, titleWithBrandSuffix } from '../../config/branding';
 
 import { productPages, getProductPage } from './productPages';
 import ComingSoonPage from './ComingSoonPage';
@@ -47,7 +48,7 @@ export default function ProductPage() {
     <MarketingLayout>
       <Meta
         noSuffix
-        title={`${data.title} — Social Stats`}
+        title={titleWithBrandSuffix(data.title)}
         description={data.description}
       />
       <JsonLd
@@ -62,9 +63,9 @@ export default function ProductPage() {
       <JsonLd
         id="breadcrumbs"
         data={buildBreadcrumbs([
-          { name: 'Home',     url: `${SITE_URL}/` },
-          { name: 'Product',  url: `${SITE_URL}/product/${slug}` },
-          { name: data.title, url: `${SITE_URL}/product/${slug}` },
+          { name: 'Home',     url: `${getSiteUrl()}/` },
+          { name: 'Product',  url: `${getSiteUrl()}/product/${slug}` },
+          { name: data.title, url: `${getSiteUrl()}/product/${slug}` },
         ])}
       />
       <Hero data={data} />
@@ -113,7 +114,7 @@ function Hero({ data }) {
               display: 'inline-flex', alignItems: 'center', gap: 6,
               padding: '5px 12px',
               fontSize: 11, fontWeight: 700,
-              color: '#00CCF5',
+              color: 'var(--brand-primary)',
               background: 'rgba(0,204,245,0.10)',
               border: '1px solid rgba(0,204,245,0.25)',
               borderRadius: 'var(--radius-pill)',
@@ -160,7 +161,7 @@ function Hero({ data }) {
           >
             <Button as={Link} to="/signup" size="lg"
                     style={{
-                      background: 'linear-gradient(135deg, #00CCF5, #00A8D8)',
+                      background: 'linear-gradient(135deg, var(--brand-primary), var(--brand-primary-hover))',
                       color: '#0a0e14', border: 'none', fontWeight: 600,
                     }}>
               Start free <ArrowRight size={15} />
@@ -254,7 +255,7 @@ function FeatureStripe({ data, reverse }) {
                       padding: '7px 0',
                       fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.55,
                     }}>
-                      <Check size={14} style={{ color: '#00CCF5', flexShrink: 0, marginTop: 4 }}
+                      <Check size={14} style={{ color: 'var(--brand-primary)', flexShrink: 0, marginTop: 4 }}
                              strokeWidth={2.5} />
                       <span>{b}</span>
                     </li>
@@ -395,7 +396,7 @@ function CustomerQuote({ data }) {
           }}>
             <div style={{
               width: 40, height: 40, borderRadius: '50%',
-              background: data.gradient || 'linear-gradient(135deg, #00CCF5, #8b5cf6)',
+              background: data.gradient || 'linear-gradient(135deg, var(--brand-primary), #8b5cf6)',
             }} />
             <div style={{ textAlign: 'left' }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{data.author}</div>
@@ -416,7 +417,7 @@ function FinalCTA({ data }) {
   return (
     <section style={{ padding: 'clamp(56px, 9vh, 96px) 24px', background: 'var(--surface-page)' }}>
       <CTASection
-        title={data.ctaTitle || 'Try Social Stats free'}
+        title={data.ctaTitle || `Try ${BRAND_NAME} free`}
         subtitle={data.ctaSubtitle || 'Start in 2 minutes. No credit card. Cancel anytime.'}
         primary={{ to: '/signup', label: 'Start free' }}
         secondary={{ to: '/features', label: 'Explore features' }}

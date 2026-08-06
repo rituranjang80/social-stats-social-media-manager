@@ -41,7 +41,7 @@ OAuth and platform keys belong in the start folder `.env` — see
 
 ## Frontend branding (`.env`)
 
-Set `REACT_APP_BRAND_*` in the **start folder `.env`** (Docker) or `frontend/.env` (native `npm start`). Controls the product name, header logo (built-in SVG or `REACT_APP_BRAND_LOGO_URL`), favicon, and document title. Restart the frontend after changes.
+Set `REACT_APP_BRAND_*` in **`frontend/.env`** (recommended) or the start folder **`.env`**. Controls product name, logo, favicon, and document title. After changes, run **`.\compose-up.ps1`** from **`social-stats-social-media-manager-start`** (dev mode recreates the frontend automatically).
 
 | Variable | Purpose |
 |----------|---------|

@@ -7,6 +7,7 @@
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
 import { Sparkles } from 'lucide-react';
+import { brandThinkingLabel } from '../../config/branding';
 
 /**
  * AILoading — the canonical "Social Stats is thinking…" shimmer used by every
@@ -26,7 +27,7 @@ import { Sparkles } from 'lucide-react';
  */
 export default function AILoading({
   variant = 'shimmer',
-  label = 'Social Stats is thinking…',
+  label = brandThinkingLabel(),
   height = 18,
   width = '100%',
   style,

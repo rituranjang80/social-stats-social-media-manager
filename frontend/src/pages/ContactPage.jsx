@@ -20,6 +20,7 @@ import Input from '../components/ui/Input';
 import Textarea from '../components/ui/Textarea';
 import Select from '../components/ui/Select';
 import Meta from '../components/Meta';
+import { BRAND_NAME } from '../config/branding';
 
 const REASONS = [
   { value: 'sales',     label: 'Sales — pricing or demo' },
@@ -68,7 +69,7 @@ export default function ContactPage() {
     <MarketingLayout>
       <Meta
         title="Contact"
-        description="Sales, support, partnerships, press — get in touch with the Social Stats team. We typically reply within one business day."
+        description={`Sales, support, partnerships, press — get in touch with the ${BRAND_NAME} team. We typically reply within one business day.`}
       />
       {/* Hero */}
       <section style={{ padding: '128px 32px 56px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>

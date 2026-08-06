@@ -26,19 +26,23 @@ and the platform credentials only when you want to connect real accounts.
 
 ## Frontend branding (React `.env`)
 
-Set in **`frontend/.env`** for native `npm start`, or in **`social-stats-social-media-manager-start/.env`**
-for Docker (passed to the frontend container). **Restart** the dev server after changes.
+Set in **`frontend/.env`** for native `npm start`. For **Docker dev** (`docker-compose.dev.yml`), Compose loads **`frontend/.env`** into the frontend container in addition to `social-stats-social-media-manager-start/.env`.
 
-| Variable | Required | Default | What it does |
+**Important:** Create React App reads `REACT_APP_*` when the dev server **starts**. After branding changes, from **`social-stats-social-media-manager-start`** run **`.\compose-up.ps1`** (same as `.\scripts\compose-up.ps1`; dev mode recreates the frontend container automatically). Then hard-refresh the browser. Native `npm start` on the host: stop and start `npm start` in `frontend/`.
+
+| Variable | Required | Default (in `branding.js` only) | What it does |
 |---|---|---|---|
-| `REACT_APP_BRAND_NAME` | No | `Social Stats` | Product name in the header wordmark and aria labels |
-| `REACT_APP_BRAND_SHORT_NAME` | No | same as brand name | PWA / apple-mobile-web-app title |
-| `REACT_APP_DOCUMENT_TITLE` | No | `Social Stats — The marketing OS…` | Browser tab title |
-| `REACT_APP_BRAND_DESCRIPTION` | No | stock marketing blurb | `<meta name="description">` |
-| `REACT_APP_BRAND_LOGO_URL` | No | *(empty = built-in SVG mark)* | Image path or URL for the header icon (replaces the default SVG in `BrandLogo`) |
-| `REACT_APP_FAVICON_URL` | No | `/icons/icon-192.png` | Favicon (under `frontend/public/`) |
+| `REACT_APP_BRAND_NAME` | No | `Application` | Product name (header, AI labels, legal copy, notifications) |
+| `REACT_APP_BRAND_SHORT_NAME` | No | same as brand name | PWA short name / `apple-mobile-web-app-title` |
+| `REACT_APP_DOCUMENT_TITLE` | No | `Application` | Browser tab title (`index.html` + runtime `BrandHead`) |
+| `REACT_APP_BRAND_DESCRIPTION` | No | generic platform blurb | `<meta name="description">`, marketing footer, auth hero |
+| `REACT_APP_BRAND_LOGO_URL` | No | *(empty = built-in SVG mark)* | Header/sidebar logo image (path under `public/` or absolute URL) |
+| `REACT_APP_FAVICON_URL` | No | `/icons/icon-192.png` | Favicon |
 | `REACT_APP_APPLE_TOUCH_ICON_URL` | No | `/apple-touch-icon.png` | iOS home-screen icon |
-| `REACT_APP_BRAND_PRIMARY_COLOR` | No | `#00CCF5` | Built-in mark background when `REACT_APP_BRAND_LOGO_URL` is empty |
+| `REACT_APP_BRAND_PRIMARY_COLOR` | No | `#2563eb` | Primary accent; injected as `--brand-primary*` CSS variables at startup |
+
+**Code:** import branding only from [`frontend/src/config/branding.js`](../frontend/src/config/branding.js) (or the legacy [`brand.js`](../frontend/src/config/brand.js) re-export). Do not read `process.env.REACT_APP_BRAND_*` elsewhere. Runtime manifest and theme color are updated by `BrandHead` / `installBrandingWebManifest()`.
+
 | `REACT_APP_IDLE_SESSION_ENABLED` | No | `true` | When `false`, disables client idle sign-out and the warning dialog |
 | `REACT_APP_IDLE_TIMEOUT_MINUTES` | No | `20` | Sign out after this many minutes **without** mouse/keyboard activity |
 | `REACT_APP_IDLE_WARNING_MINUTES` | No | `5` | Show countdown dialog this many minutes before idle sign-out |

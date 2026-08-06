@@ -15,6 +15,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import toast from 'react-hot-toast';
 
 import PageHeader from '../../components/layout/PageHeader';
+import { BRAND_NAME } from '../../config/branding';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
@@ -302,7 +303,7 @@ function CompetitorDetail({ competitor, onChange }) {
       <Card padding="md">
         <Card.Header
           title="AI insights"
-          subtitle="Social Stats analyzes 30 days of snapshots + sample posts"
+          subtitle={`${BRAND_NAME} analyzes 30 days of snapshots + sample posts`}
           action={<Button icon={Sparkles} loading={loadingInsights} onClick={fetchInsights}>
             Generate
           </Button>}

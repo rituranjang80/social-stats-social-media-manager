@@ -26,6 +26,7 @@ import { ArrowLeft, ArrowRight, Send, X, Building2, Check } from 'lucide-react';
 import PermissionMatrix from './PermissionMatrix';
 import { agencyInviteAPI } from '../../services/api';
 import toast from '../ui/toast';
+import { BRAND_NAME } from '../../config/branding';
 
 // Server-side AGENCY_CLIENT_PERMISSIONS catalog.
 // Mirrors backend (). Used only for default seeding — the backend
@@ -191,8 +192,8 @@ export default function InviteAgencyModal({ open, onClose, targetAgency = null, 
                 style={inputStyle}
               />
               <p style={hintText}>
-                If the agency is already on Social Stats, use their slug. Otherwise, their email — we'll send them
-                an invitation to join Social Stats and accept your request.
+                If the agency is already on {BRAND_NAME}, use their slug. Otherwise, their email — we'll send them
+                an invitation to join {BRAND_NAME} and accept your request.
               </p>
             </div>
           )}

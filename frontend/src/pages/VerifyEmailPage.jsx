@@ -16,6 +16,7 @@ import { CheckCircle, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import AuthLayout from '../components/auth/AuthLayout';
+import { BRAND_NAME, welcomeToBrand } from '../config/branding';
 import Button from '../components/ui/Button';
 import Spinner from '../components/ui/Spinner';
 import { authAPI } from '../services/api';
@@ -57,9 +58,9 @@ export default function VerifyEmailPage() {
                                'Just a moment…'
       }
       heroSub={
-        status === 'success' ? 'Welcome to Social Stats. Let\'s get your workspace set up.' :
+        status === 'success' ? `${welcomeToBrand()}. Let's get your workspace set up.` :
         status === 'error'   ? 'Verification links expire after 24 hours. Resend a fresh one if needed.' :
-                               'We\'re activating your Social Stats account.'
+                               `We're activating your ${BRAND_NAME} account.`
       }
     >
       <div style={cardStyle}>

@@ -16,6 +16,7 @@ import { useAuth } from '../hooks/useAuth';
 import { soloAPI, invitationAPI } from '../services/api';
 import { Building2, UserCheck, Clock, CheckCircle, XCircle, Bell, LogOut, ChevronRight, Loader2 } from 'lucide-react';
 import { BrandLogoHorizontal } from '../components/ui/BrandLogo';
+import { BRAND_NAME } from '../config/branding';
 
 const CYAN  = '#00d7ff';
 const BG    = 'var(--surface-page)';
@@ -108,7 +109,7 @@ export default function PendingDashboard() {
           <div style={s.avatar}>{(user?.name || user?.email || 'U')[0].toUpperCase()}</div>
           <div>
             <h1 style={s.welcomeTitle}>Welcome{user?.name ? `, ${user.name}` : ''}!</h1>
-            <p style={s.welcomeSub}>Choose how you'd like to use Social Stats.</p>
+            <p style={s.welcomeSub}>{`Choose how you'd like to use ${BRAND_NAME}.`}</p>
           </div>
         </div>
 

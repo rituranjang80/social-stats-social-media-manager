@@ -23,13 +23,14 @@ import MarketingLayout from '../components/marketing/MarketingLayout';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Meta from '../components/Meta';
+import { BRAND_NAME } from '../config/branding';
 
 
 export default function ForAgenciesPage() {
   return (
     <MarketingLayout>
       <Meta
-        title="Social Stats for agencies — manage 100+ clients from one place"
+        title={`${BRAND_NAME} for agencies — manage 100+ clients from one place`}
         description="One dashboard for analytics, content, inbox, ads, and WhatsApp campaigns across every client. Marketplace listing brings inbound leads. Trust + permissions built into the foundation."
       />
       <Hero />
@@ -128,7 +129,7 @@ function MarketplaceExposure() {
             Inbound leads, not cold-emailing.
           </h2>
           <p style={{ margin: '0 0 20px', fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.65 }}>
-            List your agency in the Social Stats marketplace. Verified businesses search by industry, location, and rating —
+            {`List your agency in the ${BRAND_NAME} marketplace. Verified businesses search by industry, location, and rating —`}
             then send you a manage-request directly. Reviews come from clients with real, verified relationships.
           </p>
           <Button as={Link} to="/agencies" variant="secondary" size="md" icon={Building2}>
