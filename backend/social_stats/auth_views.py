@@ -10,6 +10,7 @@
 Email/password signup + email verification + password reset.
 Only for client role — agency/staff are manually managed.
 """
+import html
 import re
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
@@ -283,8 +284,12 @@ def password_reset_confirm(request):
 
 # ── Email helpers ─────────────────────────────────────────────────────────────
 
-def _email_html(title, greeting, body_html, cta_url, cta_label, expiry_note, frontend_url):
+def _email_html(title, greeting, body_html, cta_url, cta_label, expiry_note, frontend_url,
+                brand_name=None, brand_description=None):
     """Shared light-background email template matching app card style."""
+    brand_name = brand_name or getattr(settings, 'BRAND_NAME', 'Application')
+    brand_description = brand_description or getattr(settings, 'BRAND_DESCRIPTION', '')
+    footer_line = html.escape(brand_description) if brand_description else f'{html.escape(brand_name)}'
     return f"""<!DOCTYPE html>
 <html>
 <head>
@@ -308,11 +313,10 @@ def _email_html(title, greeting, body_html, cta_url, cta_label, expiry_note, fro
         <!-- Header -->
         <tr>
           <td style="padding:32px 40px 24px;text-align:center;background:#ffffff;">
-            <img src="{frontend_url}/favicon.png" alt="Social Stats" width="52" height="52"
+            <img src="{frontend_url}/favicon.png" alt="{html.escape(brand_name)}" width="52" height="52"
                  style="border-radius:14px;display:inline-block;
                         box-shadow:0 4px 16px rgba(0,215,255,0.25);margin-bottom:14px;" /><br>
-            <span style="font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-0.04em;">Social Stats</span>
-            <span style="font-size:22px;font-weight:800;color:#00b8d9;letter-spacing:-0.04em;">.ai</span>
+            <span style="font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-0.04em;">{html.escape(brand_name)}</span>
           </td>
         </tr>
 
@@ -363,7 +367,8 @@ def _email_html(title, greeting, body_html, cta_url, cta_label, expiry_note, fro
           <td style="background:linear-gradient(135deg,#f8fafc,#f0f9ff);padding:20px 40px;
                      text-align:center;border-top:1px solid rgba(0,215,255,0.1);">
             <p style="margin:0;font-size:12px;color:#94a3b8;">
-              &copy; 2026 <strong style="color:#64748b;">Social Stats.ai</strong> &mdash; Automation Intelligence Platform
+              &copy; 2026 <strong style="color:#64748b;">{html.escape(brand_name)}</strong>
+              {f' &mdash; {footer_line}' if footer_line else ''}
             </p>
           </td>
         </tr>

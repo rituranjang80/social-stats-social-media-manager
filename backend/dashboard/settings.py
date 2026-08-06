@@ -637,6 +637,23 @@ DEFAULT_FROM_EMAIL  = os.environ.get('DEFAULT_FROM_EMAIL', 'Social Stats <norepl
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
+# White-label (mirror frontend REACT_APP_BRAND_* for emails & server-rendered copy)
+BRAND_NAME = (
+    os.environ.get('BRAND_NAME')
+    or os.environ.get('REACT_APP_BRAND_NAME')
+    or 'Application'
+)
+BRAND_SHORT_NAME = (
+    os.environ.get('BRAND_SHORT_NAME')
+    or os.environ.get('REACT_APP_BRAND_SHORT_NAME')
+    or BRAND_NAME
+)
+BRAND_DESCRIPTION = (
+    os.environ.get('BRAND_DESCRIPTION')
+    or os.environ.get('REACT_APP_BRAND_DESCRIPTION')
+    or ''
+)
+
 # ── Anthropic Claude API ──────────────────────────────
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 

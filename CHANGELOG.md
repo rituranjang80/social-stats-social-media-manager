@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Added — Client invitation emails (`/admin/clients`)
+
+- **Send Invitation** delivers a branded HTML email (defaults from `BRAND_*` / `REACT_APP_BRAND_*` and `FRONTEND_URL`) with **invite URL**, **login URL**, and a **temporary password** for newly provisioned client accounts.
+- Admins can **edit and save** the invitation template on the Clients page (`GET/PUT /api/invitations/email-template/`).
+- The Clients page **auto-refreshes** invitation status and connected clients every 12s (and on tab focus) when accept/reject happens elsewhere.
+- If invitation **email delivery fails**, the API returns **502**, nothing is left half-created, and a row is written to **ErrorLog** (`error_category`: `client_invitation_email`) — visible under **Admin → Error logs**.
+
 ### Changed — Admin workspace switcher
 
 - On **`/admin`** (staff / superadmin), **Switch workspace** in the top bar opens a **search** field, filterable workspace list, and **New workspace** → `/admin/clients` (existing Clients page unchanged). Non-admin shells keep the prior behavior (dropdown only when multiple workspaces exist).

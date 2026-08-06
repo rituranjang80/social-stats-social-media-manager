@@ -23,6 +23,9 @@ and the platform credentials only when you want to connect real accounts.
 | `DEBUG` | No | `False` | `True` enables Django debug pages. **Keep `False` in production.** |
 | `ALLOWED_HOSTS` | **Yes (prod)** | `socialstats.app,www.socialstats.app` | Comma-separated hostnames Django will serve. For local dev add `localhost,127.0.0.1`. Requests to other hosts are rejected. |
 | `FRONTEND_URL` | **Yes** | `https://socialstats.app` | Base URL of the React app. Used to build links in emails and OAuth redirects back to the UI. For local dev set `http://localhost:3000`. |
+| `BRAND_NAME` | No | `REACT_APP_BRAND_NAME` → `Application` | Product name in **transactional emails** (client invitations, etc.). Set explicitly in `backend/.env` or mirror frontend `REACT_APP_BRAND_NAME`. |
+| `BRAND_SHORT_NAME` | No | `REACT_APP_BRAND_SHORT_NAME` → brand name | Short name in email footers. |
+| `BRAND_DESCRIPTION` | No | `REACT_APP_BRAND_DESCRIPTION` → empty | Tagline/blurb injected into invitation email templates. |
 
 ## Frontend branding (React `.env`)
 
@@ -130,6 +133,11 @@ ErrorLogger.log_exception(exc, request=request, severity='ERROR')
 `request_body`. Staff review these at **Admin → Error logs** (`/admin/error-logs`) or Django admin.
 Immediate API errors (validation, permissions) still go through the DRF handler and include
 `error_id` in the JSON response when `ERROR_MONITORING` is enabled.
+
+**Client invitation emails** (`POST /api/invitations/send/` from `/admin/clients`): if SMTP fails or
+`send_mail` does not deliver, the API returns **502**, the pending invitation (and any auto-provisioned
+user) is rolled back, and a row is stored with `error_category=client_invitation_email`. Filter by that
+category or search `send_invitation` on **Error logs**.
 
 API error responses include `error_id`, `timestamp`, and a safe `message` (no stack traces).
 

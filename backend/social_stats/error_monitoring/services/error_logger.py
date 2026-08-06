@@ -237,3 +237,63 @@ class ErrorLogger:
             payload_overrides=overrides,
             async_log=async_log,
         )
+
+    @staticmethod
+    def log_invitation_email_failure(
+        *,
+        message: str,
+        client_email: str,
+        invitation_id: int | None = None,
+        invited_by_id: int | None = None,
+        request: HttpRequest | None = None,
+        exception: BaseException | None = None,
+        async_log: bool = False,
+    ) -> uuid.UUID | None:
+        """Persist failed client invitation email delivery to ErrorLog."""
+        from ..sanitization import sanitize_body
+
+        class InvitationEmailDeliveryError(Exception):
+            pass
+
+        exc = exception or InvitationEmailDeliveryError(message or 'Invitation email was not sent.')
+        overrides: dict[str, Any] = {
+            'error_category': 'client_invitation_email',
+            'request_path': '/api/invitations/send/',
+            'request_method': 'POST',
+            'request_body': sanitize_body({
+                'client_email': client_email,
+                'invitation_id': invitation_id,
+            }),
+            'api_name': 'send_invitation',
+            'view_name': 'social_stats.invitation_views.send_invitation',
+            'model_name': 'ClientInvitation',
+            'suggestion': (
+                'Verify EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, '
+                'and DEFAULT_FROM_EMAIL in backend .env. Check spam filters and provider limits.'
+            ),
+        }
+        if invited_by_id:
+            overrides['authenticated_user_id'] = invited_by_id
+            try:
+                from django.contrib.auth.models import User
+
+                user = User.objects.filter(pk=invited_by_id).only('username', 'email').first()
+                if user:
+                    overrides['username'] = user.username
+                    overrides['email'] = user.email or ''
+            except Exception:
+                pass
+
+        return ErrorLogger.log_exception(
+            exc,
+            request=request,
+            severity='ERROR',
+            response_status_code=502,
+            drf_context={
+                'api_name': 'send_invitation',
+                'view_name': 'social_stats.invitation_views.send_invitation',
+                'model_name': 'ClientInvitation',
+            },
+            payload_overrides=overrides,
+            async_log=async_log,
+        )

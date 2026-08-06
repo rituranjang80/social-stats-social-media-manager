@@ -502,6 +502,8 @@ export const socialAuthAPI = {
 // ── Invitations ───────────────────────────────────────────────────────────────
 export const invitationAPI = {
   send:       (data)         => api.post('/invitations/send/', data),
+  getTemplate: ()            => api.get('/invitations/email-template/'),
+  saveTemplate: (template)   => api.put('/invitations/email-template/', { template }),
   getByToken: (token)        => api.get(`/invitations/token/${token}/`),
   respond:    (token, action) => api.post(`/invitations/token/${token}/respond/`, { action }),
   mine:       ()             => api.get('/invitations/mine/'),

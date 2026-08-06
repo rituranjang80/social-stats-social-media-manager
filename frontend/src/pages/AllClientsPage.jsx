@@ -7,7 +7,7 @@
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useClients } from '../hooks/useData';
 import { invitationAPI, clientsAPI } from '../services/api';
 import {
@@ -16,6 +16,7 @@ import {
   XCircle, RefreshCw, Building2, UserCheck, Zap,
 } from 'lucide-react';
 import PageHeader from '../components/layout/PageHeader';
+import ClientInvitationTemplatePanel from '../components/clients/ClientInvitationTemplatePanel';
 import { clientWorkspacePath } from '../utils/workspacePaths';
 import { BRAND_NAME } from '../config/branding';
 
@@ -29,7 +30,7 @@ const STATUS_COLOR = {
 
 export default function AllClientsPage({ onSelectClient }) {
   const navigate             = useNavigate();
-  const { clients } = useClients();
+  const { clients, refetch: refetchClients } = useClients();
   const [search, setSearch]  = useState('');
 
   // ── Sync state ───────────────────────────────────────────────────────────────
@@ -60,34 +61,61 @@ export default function AllClientsPage({ onSelectClient }) {
   const [inviteMsg,    setInviteMsg]    = useState('');
   const [inviting,     setInviting]     = useState(false);
   const [inviteResult, setInviteResult] = useState(''); // '' | 'success' | 'error:…'
+  const [lastEmailErrorLogId, setLastEmailErrorLogId] = useState(null);
 
   // ── Invitations list ─────────────────────────────────────────────────────────
   const [invitations,     setInvitations]     = useState([]);
   const [loadingInvList,  setLoadingInvList]  = useState(false);
   const [cancelingId,     setCancelingId]     = useState(null);
 
-  const fetchInvitations = useCallback(async () => {
-    setLoadingInvList(true);
+  const fetchInvitations = useCallback(async (silent = false) => {
+    if (!silent) setLoadingInvList(true);
     try {
       const res = await invitationAPI.mine();
       setInvitations(res.data);
     } catch { /* ignore */ }
-    finally { setLoadingInvList(false); }
+    finally {
+      if (!silent) setLoadingInvList(false);
+    }
   }, []);
 
   useEffect(() => { fetchInvitations(); }, [fetchInvitations]);
 
+  useEffect(() => {
+    const tick = () => {
+      fetchInvitations(true);
+      refetchClients();
+    };
+    const id = setInterval(tick, 12000);
+    const onVis = () => {
+      if (document.visibilityState === 'visible') tick();
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener('visibilitychange', onVis);
+    };
+  }, [fetchInvitations, refetchClients]);
+
   const handleInvite = async (e) => {
     e.preventDefault();
     if (!inviteEmail.trim()) return;
-    setInviting(true); setInviteResult('');
+    setInviting(true); setInviteResult(''); setLastEmailErrorLogId(null);
     try {
       await invitationAPI.send({ client_email: inviteEmail.trim().toLowerCase(), message: inviteMsg.trim() });
       setInviteResult('success');
       setInviteEmail(''); setInviteMsg('');
       fetchInvitations();
     } catch (err) {
-      setInviteResult('error:' + (err?.response?.data?.error || 'Failed to send invitation.'));
+      const data = err?.response?.data || {};
+      let msg = data.error || err?.response?.data?.error || 'Failed to send invitation.';
+      if (data.error_log_id) {
+        msg += ` (Error log ID: ${data.error_log_id})`;
+      }
+      setInviteResult(`error:${msg}`);
+      if (data.error_log_id) {
+        setLastEmailErrorLogId(data.error_log_id);
+      }
     } finally { setInviting(false); }
   };
 
@@ -142,20 +170,27 @@ export default function AllClientsPage({ onSelectClient }) {
         </div>
       </div>
 
+      <ClientInvitationTemplatePanel />
+
       {/* ── Invite panel ────────────────────────────────────────────────────── */}
       <div style={S.invitePanel}>
         <div style={S.invitePanelHeader}>
           <div style={S.invitePanelIcon}><Send size={16} style={{ color: '#7c3aed' }} /></div>
           <div>
             <h3 style={S.invitePanelTitle}>Invite a Client</h3>
-            <p style={S.invitePanelSub}>Send an invitation link. Once they sign up and verify their email, you'll receive a notification to send a dashboard access request.</p>
+            <p style={S.invitePanelSub}>
+              Sends a branded welcome email from {BRAND_NAME} with an invitation link (
+              {typeof window !== 'undefined' ? window.location.origin : 'your app URL'}
+              ). New clients receive a <strong>temporary password</strong> to sign in, then accept the invitation.
+            </p>
           </div>
         </div>
 
         {inviteResult === 'success' ? (
           <div style={S.successBanner}>
             <CheckCircle size={16} />
-            Invitation sent! The client will receive an email with the invite link. You'll be notified when they join.
+            Invitation sent! The client will receive your saved email template with the app link
+            and sign-in details (new accounts get a temporary password). Status updates below when they accept or reject.
             <button onClick={() => setInviteResult('')} style={S.dismissBtn}>Send another</button>
           </div>
         ) : (
@@ -185,7 +220,17 @@ export default function AllClientsPage({ onSelectClient }) {
             </div>
             {inviteResult.startsWith('error:') && (
               <div style={{ ...S.errorBanner, width: '100%' }}>
-                <XCircle size={14} /> {inviteResult.slice(6)}
+                <XCircle size={14} />
+                {' '}
+                {inviteResult.slice(6)}
+                {lastEmailErrorLogId && (
+                  <>
+                    {' '}
+                    <Link to="/admin/error-logs" style={{ color: 'var(--brand-primary-hover)', fontWeight: 600 }}>
+                      View error logs
+                    </Link>
+                  </>
+                )}
               </div>
             )}
           </form>
