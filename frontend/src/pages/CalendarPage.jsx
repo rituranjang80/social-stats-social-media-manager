@@ -32,7 +32,6 @@ import { CalendarUiProvider, useCalendarUi } from '../components/calendar/Calend
 import CalendarPostDetailDock from '../components/calendar/CalendarPostDetailDock';
 import PostDrawer from '../components/calendar/PostDrawer';
 import PostFormDrawer from '../components/calendar/PostFormDrawer';
-import UpcomingPosts from '../components/calendar/UpcomingPosts';
 import {
   computeStatsFromPosts,
   composerUrl,
@@ -44,6 +43,9 @@ import {
   shiftPeriod,
 } from '../components/calendar/utils';
 import { DEFAULT_COMPOSE_TIME } from '../components/calendar/constants';
+import { useCalendarPostStatuses } from '../hooks/useCalendarPostStatuses';
+import PublishListView from '../components/calendar/PublishListView';
+import { PUBLISH_LIST_TAB_IDS } from '../components/calendar/publishListConfig';
 
 import '../styles/scss/calendar.scss';
 
@@ -82,13 +84,15 @@ export default function CalendarPage({ clientId: propClientId }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, can } = useAuth();
   const isAdmin = user?.role === 'superadmin' || user?.role === 'staff';
+  const canApprove = isAdmin || can?.('composer.approve');
   const basePath = location.pathname.startsWith('/admin') ? '/admin' : '/dashboard';
 
   const { workspaceId, workspace } = useWorkspace({ user, autoHydrate: true });
   const clientId = propClientId || workspaceId || user?.client_id || null;
 
+  const queryTab = searchParams.get('tab');
   const queryView = searchParams.get('view');
   const queryMode = searchParams.get('mode');
   // Default: Calendar mode + Month view for the current month
@@ -97,12 +101,15 @@ export default function CalendarPage({ clientId: propClientId }) {
     : 'month';
   const initialMode = queryMode === 'list' ? 'list' : 'calendar';
 
+  const initialListTab = PUBLISH_LIST_TAB_IDS.includes(queryTab) ? queryTab : 'queue';
+
   const [currentDate, setCurrentDate] = useState(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
   });
   const [view, setView] = useState(initialView);
   const [mode, setMode] = useState(initialMode);
+  const [listTab, setListTab] = useState(initialListTab);
   const [statuses, setStatuses] = useState([]);
   const [channels, setChannels] = useState([]); // empty = All Channels
   const [tags, setTags] = useState([]); // empty = All Tags
@@ -116,6 +123,8 @@ export default function CalendarPage({ clientId: propClientId }) {
   const [formOpen, setFormOpen] = useState(false);
   const [formDate, setFormDate] = useState(null);
   const [editingPost, setEditingPost] = useState(null);
+
+  useCalendarPostStatuses();
 
   // Fetch full month once; channel/tag filters apply client-side (All = no restriction)
   const { postsByDate, loading: postsLoading, refetch: refetchPosts } =
@@ -141,7 +150,10 @@ export default function CalendarPage({ clientId: propClientId }) {
     if (queryMode === 'list' || queryMode === 'calendar') {
       setMode(queryMode);
     }
-  }, [queryView, queryMode, view]);
+    if (PUBLISH_LIST_TAB_IDS.includes(queryTab) && queryTab !== listTab) {
+      setListTab(queryTab);
+    }
+  }, [queryView, queryMode, view, queryTab, listTab]);
 
   const filteredPosts = useMemo(
     () => filterPosts(postsByDate, { statuses, channels, tags, search }),
@@ -308,11 +320,16 @@ export default function CalendarPage({ clientId: propClientId }) {
     setMode(nextMode);
     if (nextMode === 'list') {
       setView('agenda');
-      updateSearch({ mode: 'list', view: 'agenda' });
+      updateSearch({ mode: 'list', view: 'agenda', tab: listTab || 'queue' });
     } else {
       setView((v) => (v === 'agenda' ? 'month' : v));
-      updateSearch({ mode: 'calendar', view: view === 'agenda' ? 'month' : view });
+      updateSearch({ mode: 'calendar', view: view === 'agenda' ? 'month' : view, tab: null });
     }
+  }
+
+  function setListTabAndUrl(nextTab) {
+    setListTab(nextTab);
+    updateSearch({ mode: 'list', view: 'agenda', tab: nextTab });
   }
 
   if (!clientId) {
@@ -368,6 +385,7 @@ export default function CalendarPage({ clientId: propClientId }) {
         <CalendarToolbar
           view={activeView}
           onViewChange={setViewAndUrl}
+          listMode={mode === 'list'}
           currentDate={currentDate}
           onPrev={() => setCurrentDate((d) => shiftPeriod(activeView, d, -1))}
           onNext={() => setCurrentDate((d) => shiftPeriod(activeView, d, 1))}
@@ -435,25 +453,36 @@ export default function CalendarPage({ clientId: propClientId }) {
                 onEmptyCreate={() => goComposer(format(currentDate, 'yyyy-MM-dd'))}
               />
             )}
-            {activeView === 'agenda' && (
-              <>
-                {upcoming.length > 0 && mode === 'list' ? (
-                  <div className="bb-cal__agenda-group">
-                    <div className="bb-cal__agenda-date">Coming up</div>
-                    <UpcomingPosts posts={upcoming} />
-                  </div>
-                ) : null}
-                <AgendaView
-                  currentDate={currentDate}
-                  postsByDate={filteredPosts}
-                  onOpen={openPostDetail}
-                  onEdit={openFormForEdit}
-                  onDelete={handleDeletePost}
-                  isAdmin={isAdmin}
-                  scope={mode === 'list' ? 'all' : 'week'}
-                  onEmptyCreate={() => goComposer(format(new Date(), 'yyyy-MM-dd'))}
-                />
-              </>
+            {activeView === 'agenda' && mode === 'list' && (
+              <PublishListView
+                listTab={listTab}
+                onListTabChange={setListTabAndUrl}
+                postsByDate={filteredPosts}
+                basePath={basePath}
+                clientId={clientId}
+                canApprove={canApprove}
+                onRefresh={refetchPosts}
+                agendaProps={{
+                  currentDate,
+                  onOpen: openPostDetail,
+                  onEdit: openFormForEdit,
+                  onDelete: handleDeletePost,
+                  isAdmin,
+                  onEmptyCreate: () => goComposer(format(new Date(), 'yyyy-MM-dd')),
+                }}
+              />
+            )}
+            {activeView === 'agenda' && mode !== 'list' && (
+              <AgendaView
+                currentDate={currentDate}
+                postsByDate={filteredPosts}
+                onOpen={openPostDetail}
+                onEdit={openFormForEdit}
+                onDelete={handleDeletePost}
+                isAdmin={isAdmin}
+                scope="week"
+                onEmptyCreate={() => goComposer(format(new Date(), 'yyyy-MM-dd'))}
+              />
             )}
             {activeView === 'stats' && (
               <div className="bb-cal__body">

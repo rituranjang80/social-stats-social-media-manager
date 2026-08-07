@@ -3,6 +3,7 @@ import { format, parseISO } from 'date-fns';
 import SocialPlatformIcon from '../ui/SocialPlatformIcon';
 import EmptyCalendar from './EmptyCalendar';
 import { buildWeekDays } from './utils';
+import { postStatusFilterKey, statusLabelFor } from './statusTheme';
 
 export default function AgendaView({
   currentDate,
@@ -44,7 +45,9 @@ export default function AgendaView({
                 <div className="bb-cal__agenda-main">
                   <strong>{post.title || '(no title)'}</strong>
                   <p className="bb-cal__agenda-caption">{(post.caption || '').slice(0, 140)}</p>
-                  <span className={`bb-cal__card bb-cal__card--${post.status}`}>{post.status}</span>
+                  <span className={`bb-cal__status-chip bb-cal__card--${postStatusFilterKey(post.status)}`}>
+                    {statusLabelFor(post.status)}
+                  </span>
                 </div>
                 <div className="bb-cal__agenda-side">
                   <div>{timeStr}</div>

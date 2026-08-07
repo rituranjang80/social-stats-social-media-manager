@@ -447,7 +447,7 @@ export const roiAPI = {
 
 // ── Content Calendar ──────────────────────────────────
 export const calendarAPI = {
-  getPosts:     (params)   => api.get('/calendar/posts/',               { params }),
+  getPostStatuses: () => api.get('/calendar/post-statuses/'),
   getPost:      (id)       => api.get(`/calendar/posts/${id}/`),
   createPost:   (data)     => api.post('/calendar/posts/', data),
   updatePost:   (id, data) => api.put(`/calendar/posts/${id}/`, data),

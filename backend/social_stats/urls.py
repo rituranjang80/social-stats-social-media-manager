@@ -30,7 +30,7 @@ from .views import (
 from .roi_views import ROISettingsView, ROICalculateView, ROIReportView, ROILiveView
 from .calendar_views import (
     CalendarPostViewSet, CalendarNoteViewSet,
-    PostingScheduleViewSet, SuggestTimesView,
+    PostingScheduleViewSet, SuggestTimesView, CalendarPostStatusesView,
 )
 from .oauth_views import (
     facebook_oauth_start, facebook_oauth_callback, facebook_consumer_callback,
@@ -488,6 +488,7 @@ urlpatterns = [
 
     # Calendar
     path('calendar/suggest-times/', SuggestTimesView.as_view(), name='calendar_suggest_times'),
+    path('calendar/post-statuses/', CalendarPostStatusesView.as_view(), name='calendar_post_statuses'),
 
     # Access Management (superadmin only)
     path('management/staff/',                              StaffListView.as_view(),               name='mgmt_staff_list'),

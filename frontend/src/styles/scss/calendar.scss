@@ -180,6 +180,10 @@
     z-index: 6;
   }
 
+  &__toolbar-calendar {
+    display: contents;
+  }
+
   &__nav {
     display: flex;
     align-items: center;
@@ -1608,6 +1612,307 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* List mode + approvals (Brightbean Publish) */
+.bb-cal__toolbar--list {
+  .bb-cal__filters {
+    margin-left: 0;
+    flex: 1;
+    justify-content: flex-end;
+  }
+}
+
+.bb-cal__period--list {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  flex: 1;
+}
+
+.bb-cal-publish-list {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
+.bb-cal-publish-list__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0 10px 8px;
+  border-bottom: 1px solid var(--bb-cal-border);
+}
+
+.bb-cal-publish-list__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bb-cal-secondary);
+  cursor: pointer;
+  margin-bottom: -1px;
+
+  &.is-active {
+    color: var(--bb-cal-primary);
+    border-bottom-color: var(--bb-cal-primary);
+  }
+}
+
+.bb-cal-publish-list__tab-count {
+  min-width: 18px;
+  padding: 0 6px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--bb-cal-past);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--bb-cal-muted);
+}
+
+.bb-cal-publish-list__panel {
+  flex: 1;
+  min-height: 0;
+}
+
+.bb-cal__status-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: capitalize;
+  border: 1px solid var(--bb-cal-status-border, var(--bb-cal-border));
+  background: color-mix(in srgb, var(--bb-cal-status-bg, var(--bb-cal-past)) 70%, transparent);
+  color: var(--bb-cal-status-fg, var(--bb-cal-text));
+}
+
+.bb-cal-approvals {
+  padding: 10px 12px 80px;
+}
+
+.bb-cal-approvals__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.bb-cal-approvals__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bb-cal-secondary);
+  cursor: pointer;
+
+  &.is-active {
+    background: var(--bb-cal-primary);
+    color: #fff;
+
+    .bb-cal-approvals__pill-count {
+      color: rgba(255, 255, 255, 0.85);
+    }
+  }
+}
+
+.bb-cal-approvals__pill-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--bb-cal-muted);
+}
+
+.bb-cal-approvals__empty {
+  text-align: center;
+  padding: 48px 16px;
+}
+
+.bb-cal-approvals__empty-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 12px;
+  border-radius: 999px;
+  border: 2px solid var(--bb-cal-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bb-cal-muted);
+}
+
+.bb-cal-approvals__empty-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--bb-cal-secondary);
+}
+
+.bb-cal-approvals__empty-copy {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--bb-cal-muted);
+}
+
+.bb-cal-approvals__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bb-cal-approvals__card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--bb-cal-status-border, var(--bb-cal-border));
+  background: var(--bb-cal-surface);
+}
+
+.bb-cal-approvals__check {
+  padding-top: 4px;
+  input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--bb-cal-primary);
+  }
+}
+
+.bb-cal-approvals__card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.bb-cal-approvals__title {
+  font-size: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.bb-cal-approvals__status {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bb-cal-past);
+  color: var(--bb-cal-status-fg, var(--bb-cal-secondary));
+}
+
+.bb-cal-approvals__excerpt {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--bb-cal-secondary);
+  white-space: pre-wrap;
+}
+
+.bb-cal-approvals__meta {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--bb-cal-muted);
+}
+
+.bb-cal-approvals__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+}
+
+.bb-cal-approvals__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--bb-cal-border);
+  background: var(--bb-cal-surface);
+  color: var(--bb-cal-text);
+  cursor: pointer;
+  white-space: nowrap;
+
+  &--approve {
+    background: #10b981;
+    border-color: #10b981;
+    color: #fff;
+  }
+
+  &--reject {
+    background: #ef4444;
+    border-color: #ef4444;
+    color: #fff;
+  }
+
+  &--ghost {
+    background: transparent;
+  }
+}
+
+.bb-cal-approvals__bulk {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 85;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 16px;
+  background: #1c1917;
+  color: #fff;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.bb-cal-approvals__bulk-approve {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 999px;
+  background: #10b981;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bb-cal-approvals__bulk-reject {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bb-cal-approvals__bulk-clear {
+  border: none;
+  background: transparent;
+  color: #a8a29e;
+  cursor: pointer;
+  display: inline-flex;
+  padding: 4px;
 }
 [role="button"]:not(.t-edge-toggle) {
   background-color: var(--bb-cal-status-bg, #eff6ff);

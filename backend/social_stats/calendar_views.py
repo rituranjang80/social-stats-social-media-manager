@@ -21,6 +21,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import CalendarPost, CalendarNote, PostingSchedule, Client
+from .models import UNIFIED_POST_STATUS_CHOICES, CALENDAR_STATUS_CHOICES
 from .calendar_serializers import (
     CalendarPostSerializer, CalendarNoteSerializer, PostingScheduleSerializer
 )
@@ -426,4 +427,50 @@ class SuggestTimesView(APIView):
         return Response({
             'source':      'industry',
             'suggestions': defaults,
+        })
+
+
+# UI filter ids (Brightbean Publish) mapped to stored enum values from UnifiedPost + CalendarPost.
+CALENDAR_PUBLISH_STATUS_FILTERS = [
+    {'id': 'draft', 'label': 'Draft', 'match': ['draft']},
+    {'id': 'pending_review', 'label': 'Pending Review', 'match': ['pending_review', 'pending_approval']},
+    {'id': 'pending_client', 'label': 'Pending Client', 'match': ['pending_client']},
+    {'id': 'approved', 'label': 'Approved', 'match': ['approved']},
+    {'id': 'changes_requested', 'label': 'Changes Requested', 'match': ['changes_requested']},
+    {'id': 'rejected', 'label': 'Rejected', 'match': ['rejected', 'cancelled']},
+    {'id': 'scheduled', 'label': 'Scheduled', 'match': ['scheduled']},
+    {'id': 'publishing', 'label': 'Publishing', 'match': ['publishing', 'processing']},
+    {'id': 'published', 'label': 'Published', 'match': ['published', 'partial']},
+    {'id': 'failed', 'label': 'Failed', 'match': ['failed']},
+    {'id': 'on_hold', 'label': 'On Hold', 'match': ['on_hold', 'queued']},
+]
+
+
+class CalendarPostStatusesView(APIView):
+    """Publish calendar status filters + raw DB choice values for the workspace UI."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        db_values = {v for v, _ in UNIFIED_POST_STATUS_CHOICES}
+        db_values.update(v for v, _ in CALENDAR_STATUS_CHOICES)
+        filters = []
+        for row in CALENDAR_PUBLISH_STATUS_FILTERS:
+            if any(m in db_values for m in row['match']):
+                filters.append({
+                    'id': row['id'],
+                    'label': row['label'],
+                    'match': row['match'],
+                })
+        db_statuses = [
+            {'id': v, 'label': lbl, 'source': 'composer' if v in dict(UNIFIED_POST_STATUS_CHOICES) else 'calendar'}
+            for v, lbl in UNIFIED_POST_STATUS_CHOICES
+        ]
+        cal_only = [
+            {'id': v, 'label': lbl, 'source': 'calendar'}
+            for v, lbl in CALENDAR_STATUS_CHOICES
+            if v not in dict(UNIFIED_POST_STATUS_CHOICES)
+        ]
+        return Response({
+            'filters': filters,
+            'db_statuses': db_statuses + cal_only,
         })

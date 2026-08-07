@@ -70,6 +70,28 @@ export function flattenPosts(postsByDate = {}) {
   );
 }
 
+/** Re-group flat post rows by calendar date for list/agenda views. */
+export function groupPostsByDateForList(posts = []) {
+  const out = {};
+  (posts || []).forEach((p) => {
+    let dateStr = p._date;
+    if (!dateStr) {
+      const iso = calendarAnchorIso(p);
+      if (iso) {
+        try {
+          dateStr = format(parseISO(iso), 'yyyy-MM-dd');
+        } catch {
+          dateStr = null;
+        }
+      }
+    }
+    if (!dateStr) dateStr = format(new Date(), 'yyyy-MM-dd');
+    if (!out[dateStr]) out[dateStr] = [];
+    out[dateStr].push(p);
+  });
+  return out;
+}
+
 export function extractTagsFromPosts(posts = []) {
   const set = new Set();
   posts.forEach((p) => {

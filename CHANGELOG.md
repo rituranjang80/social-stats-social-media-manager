@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added — Publish list approvals (Brightbean)
+
+- **List mode** on **Analytics → Calendar** (`?mode=list&view=agenda`): **Queue**, **Drafts**, **Approvals**, and **Sent** tabs (URL `tab=queue|drafts|approvals|sent`). **Approvals** matches the Brightbean workflow: status pills, per-post **Approve** / **Reject**, bulk actions, and **Edit** in Composer.
+- **GET `/api/calendar/post-statuses/`** drives the toolbar status filter from **UnifiedPost** and **CalendarPost** DB choice values (with Brightbean-style filter labels).
+
 ### Fixed — App shell crash on load
 
 - Restored **`buildShellModules`** export in **`FeatureSidebar.jsx`** so **`AppShell`** can build the module list again (`TypeError: buildShellModules is not a function`).

@@ -28,19 +28,41 @@ export const CAL_STATUS_FILTERS = [
 
 const FILTER_BY_ID = Object.fromEntries(CAL_STATUS_FILTERS.map((f) => [f.id, f]));
 
+let activeStatusFilters = CAL_STATUS_FILTERS;
+
+/** Sync toolbar/legend filters after GET /api/calendar/post-statuses/. */
+export function setActiveStatusFilters(filters) {
+  activeStatusFilters = Array.isArray(filters) && filters.length
+    ? filters.map((f) => ({
+      id: f.id,
+      label: f.label,
+      match: f.match || [f.id],
+    }))
+    : CAL_STATUS_FILTERS;
+}
+
+export function getActiveStatusFilters() {
+  return activeStatusFilters;
+}
+
+function filterByIdMap() {
+  return Object.fromEntries(getActiveStatusFilters().map((f) => [f.id, f]));
+}
+
 /** Map API/post status string → filter id for styling & filtering. */
 export function postStatusFilterKey(rawStatus) {
   const s = String(rawStatus || 'draft').toLowerCase();
-  const direct = CAL_STATUS_FILTERS.find((f) => f.id === s);
+  const filters = getActiveStatusFilters();
+  const direct = filters.find((f) => f.id === s);
   if (direct) return direct.id;
-  const alias = CAL_STATUS_FILTERS.find((f) => (f.match || []).includes(s));
+  const alias = filters.find((f) => (f.match || []).includes(s));
   if (alias) return alias.id;
   return s;
 }
 
 export function statusLabelFor(rawStatus) {
   const key = postStatusFilterKey(rawStatus);
-  return FILTER_BY_ID[key]?.label || key.replace(/_/g, ' ');
+  return filterByIdMap()[key]?.label || FILTER_BY_ID[key]?.label || key.replace(/_/g, ' ');
 }
 
 export function statusMatchesFilter(rawStatus, selectedIds) {

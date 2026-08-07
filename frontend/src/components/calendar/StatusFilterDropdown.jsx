@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { ClipboardList } from 'lucide-react';
-import { CAL_STATUS_FILTERS } from './statusTheme';
+import { getActiveStatusFilters } from './statusTheme';
 import {
   isShowingAllStatuses,
   isStatusChecked,
@@ -19,13 +19,15 @@ export default function StatusFilterDropdown({ selected = [], onChange }) {
   const ref = useRef(null);
   const btnId = useId();
 
+  const statusFilters = getActiveStatusFilters();
+
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    if (!needle) return CAL_STATUS_FILTERS;
-    return CAL_STATUS_FILTERS.filter(
+    if (!needle) return statusFilters;
+    return statusFilters.filter(
       (f) => f.label.toLowerCase().includes(needle) || f.id.includes(needle),
     );
-  }, [q]);
+  }, [q, statusFilters]);
 
   useEffect(() => {
     if (!open) return undefined;
