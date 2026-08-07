@@ -6,6 +6,14 @@ import { buildChannelCards } from '../channels/ChannelSelector';
 import ChannelAvatar from '../channels/ChannelAvatar';
 import SocialIcon from '../channels/SocialIcon';
 import { getPlatformMeta } from '../../constants/socialPlatforms';
+import {
+  clearMultiSelectAll,
+  isMultiSelectChecked,
+  isShowingAllSelected,
+  multiSelectMasterProps,
+  multiSelectRowProps,
+  toggleMultiSelectItem,
+} from './multiSelectFilterState';
 
 import '../../styles/scss/channel-selector.scss';
 
@@ -57,6 +65,8 @@ export default function ConnectedChannelFilter({
     return Array.from(byId.values());
   }, [oauthChannels, fallbackPlatforms, workspaceLabel]);
 
+  const allChannelIds = useMemo(() => channels.map((c) => c.id), [channels]);
+
   const grouped = useMemo(() => {
     const map = new Map();
     channels.forEach((ch) => {
@@ -90,25 +100,12 @@ export default function ConnectedChannelFilter({
     return () => document.removeEventListener('mousedown', onDoc);
   }, [open]);
 
-  function toggle(id) {
-    const set = new Set(selected);
-    if (set.has(id)) set.delete(id);
-    else set.add(id);
-    onChange(Array.from(set));
-  }
-
-  function selectAll() {
-    onChange(channels.map((c) => c.id));
-  }
-
-  function clearAll() {
-    onChange([]);
-  }
-
-  const allSelected = selected.length === 0;
-  const label = allSelected
+  const allOn = isShowingAllSelected(selected, allChannelIds);
+  const label = allOn
     ? 'All Channels'
     : `${selected.length} channel${selected.length > 1 ? 's' : ''}`;
+
+  const masterLabelProps = multiSelectMasterProps(allOn, () => onChange(clearMultiSelectAll()));
 
   return (
     <div className="bb-cal__filter bb-cal-channel-filter" ref={ref}>
@@ -132,11 +129,12 @@ export default function ConnectedChannelFilter({
             placeholder="Search channels…"
             aria-label="Search channels"
           />
-          <label className="bb-cal__multi-all">
+          <label className="bb-cal__multi-all" {...masterLabelProps}>
             <input
               type="checkbox"
-              checked={allSelected}
-              onChange={() => clearAll()}
+              readOnly
+              tabIndex={-1}
+              checked={allOn}
             />
             All Channels
           </label>
@@ -150,11 +148,18 @@ export default function ConnectedChannelFilter({
             <div key={group.platform} className="bb-cal-channel-filter__group">
               <div className="bb-cal-channel-filter__group-label">{group.label}</div>
               {group.items.map((ch) => (
-                <label key={ch.id} className="bb-cal-channel-filter__row">
+                <label
+                  key={ch.id}
+                  className="bb-cal-channel-filter__row"
+                  {...multiSelectRowProps(() => onChange(
+                    toggleMultiSelectItem(ch.id, selected, allChannelIds),
+                  ))}
+                >
                   <input
                     type="checkbox"
-                    checked={!allSelected && selected.includes(ch.id)}
-                    onChange={() => toggle(ch.id)}
+                    readOnly
+                    tabIndex={-1}
+                    checked={isMultiSelectChecked(ch.id, selected, allChannelIds)}
                   />
                   <ChannelAvatar src={ch.avatarUrl} name={ch.avatarName || ch.name} size="sm" />
                   <SocialIcon platform={ch.platform} size={14} />
@@ -169,11 +174,16 @@ export default function ConnectedChannelFilter({
             </div>
           ))}
           <div className="bb-cal__multi-actions">
-            <button type="button" className="bb-cal__link-btn" onClick={selectAll} disabled={!channels.length}>
-              Select all
+            <button
+              type="button"
+              className="bb-cal__link-btn"
+              onClick={() => onChange(filteredGroups.flatMap((g) => g.items.map((i) => i.id)))}
+              disabled={!channels.length}
+            >
+              Select visible
             </button>
-            <button type="button" className="bb-cal__link-btn" onClick={clearAll}>
-              Clear all
+            <button type="button" className="bb-cal__link-btn" onClick={() => onChange(clearMultiSelectAll())}>
+              All Channels
             </button>
           </div>
         </div>

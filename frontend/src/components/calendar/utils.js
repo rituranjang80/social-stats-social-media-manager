@@ -13,6 +13,8 @@ import {
   startOfMonth,
   startOfWeek,
 } from 'date-fns';
+import { statusMatchesFilter } from './statusTheme';
+import { isShowingAllStatuses } from './statusFilterState';
 
 export function getMondayIndex(d) {
   return (getDay(d) + 6) % 7;
@@ -117,10 +119,11 @@ function postTagBlob(p) {
 }
 
 /**
- * Client-side filters. Empty `channels` / `tags` = All (no restriction).
+ * Client-side filters. Empty `statuses` / `channels` / `tags` = All (no restriction).
  */
 export function filterPosts(postsByDate, {
   status = '',
+  statuses = [],
   channels = [],
   tags = [],
   search = '',
@@ -132,7 +135,10 @@ export function filterPosts(postsByDate, {
 
   Object.entries(postsByDate || {}).forEach(([date, list]) => {
     const filtered = (list || []).filter((p) => {
-      if (status && p.status !== status) return false;
+      const statusList = (statuses?.length && !isShowingAllStatuses(statuses))
+        ? statuses
+        : (status ? [status] : []);
+      if (statusList.length && !statusMatchesFilter(p.status, statusList)) return false;
       if (channelSet.size) {
         const plats = postPlatforms(p);
         if (!plats.some((pl) => channelSet.has(pl))) return false;
@@ -159,6 +165,39 @@ export function filterPosts(postsByDate, {
   return out;
 }
 
+/** ISO timestamp used to place a post on the calendar grid. */
+export function calendarAnchorIso(post) {
+  return post?.scheduled_at || post?.published_at || post?.created_at || null;
+}
+
+/** Hour (0–23) for placing a post in week/day time grids. */
+export function postHourFromAnchor(post, fallbackHour = 9) {
+  const iso = calendarAnchorIso(post);
+  if (!iso) return fallbackHour;
+  try {
+    return parseISO(iso).getHours();
+  } catch {
+    return fallbackHour;
+  }
+}
+
+export function postsForHourSlot(posts, hour) {
+  return (posts || []).filter((p) => postHourFromAnchor(p) === hour);
+}
+
+/** Union of default business hours and hours that have posts in the visible days. */
+export function buildVisibleHours(postsByDate, dayDates, { min = 6, max = 22 } = {}) {
+  const hours = new Set();
+  for (let h = min; h <= max; h += 1) hours.add(h);
+  (dayDates || []).forEach((day) => {
+    const meta = dayMeta(day);
+    (postsByDate[meta.dateStr] || []).forEach((p) => {
+      hours.add(postHourFromAnchor(p));
+    });
+  });
+  return Array.from(hours).sort((a, b) => a - b);
+}
+
 /** Map a Composer UnifiedPost list row into calendar card shape. */
 export function mapComposerPostToCalendar(u) {
   const platforms = Array.isArray(u?.target_platforms) ? u.target_platforms.filter(Boolean) : [];
@@ -175,6 +214,7 @@ export function mapComposerPostToCalendar(u) {
     status: u.status || 'draft',
     scheduled_at: u.scheduled_at || null,
     published_at: u.published_at || null,
+    created_at: u.created_at || null,
     tags: Array.isArray(u.tags) ? u.tags : [],
     hashtags: '',
     media_urls: mediaUrls,
@@ -212,10 +252,8 @@ function inMonthYear(iso, month, year) {
 export function groupComposerPostsByDate(posts, month, year) {
   const out = {};
   (posts || []).forEach((raw) => {
-    const iso = raw.scheduled_at || raw.published_at;
-    if (!inMonthYear(iso, month, year)) return;
-    // Skip pure drafts with no schedule on the calendar
-    if (!raw.scheduled_at && !raw.published_at) return;
+    const iso = raw.scheduled_at || raw.published_at || raw.created_at;
+    if (!iso || !inMonthYear(iso, month, year)) return;
     const mapped = mapComposerPostToCalendar(raw);
     const key = dateKeyFromIso(iso);
     if (!key) return;
@@ -241,8 +279,8 @@ export function mergePostsByDate(...maps) {
   });
   Object.keys(out).forEach((date) => {
     out[date].sort((a, b) => {
-      const ta = a.scheduled_at || a.published_at || '';
-      const tb = b.scheduled_at || b.published_at || '';
+      const ta = calendarAnchorIso(a) || '';
+      const tb = calendarAnchorIso(b) || '';
       return String(ta).localeCompare(String(tb));
     });
   });

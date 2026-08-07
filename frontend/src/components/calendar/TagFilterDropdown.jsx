@@ -2,6 +2,14 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Hash } from 'lucide-react';
 import { composerAPI } from '../../services/api';
+import {
+  clearMultiSelectAll,
+  isMultiSelectChecked,
+  isShowingAllSelected,
+  multiSelectMasterProps,
+  multiSelectRowProps,
+  toggleMultiSelectItem,
+} from './multiSelectFilterState';
 
 /** Deterministic pastel hue from tag name (no hardcoded palette list of names). */
 function tagHue(name) {
@@ -72,23 +80,13 @@ export default function TagFilterDropdown({
     return () => document.removeEventListener('mousedown', onDoc);
   }, [open]);
 
-  function toggle(tag) {
-    const set = new Set(selected);
-    if (set.has(tag)) set.delete(tag);
-    else set.add(tag);
-    onChange(Array.from(set));
-  }
-
-  function selectAll() {
-    onChange([...filtered]);
-  }
-
   function clearAll() {
-    onChange([]);
+    onChange(clearMultiSelectAll());
   }
 
-  const allSelected = selected.length === 0;
-  const label = allSelected
+  const allOn = isShowingAllSelected(selected, options);
+  const masterProps = multiSelectMasterProps(allOn, clearAll);
+  const label = allOn
     ? 'All Tags'
     : `${selected.length} tag${selected.length > 1 ? 's' : ''}`;
 
@@ -114,11 +112,12 @@ export default function TagFilterDropdown({
             placeholder="Search tags…"
             aria-label="Search tags"
           />
-          <label className="bb-cal__multi-all">
+          <label className="bb-cal__multi-all" {...masterProps}>
             <input
               type="checkbox"
-              checked={allSelected}
-              onChange={() => clearAll()}
+              readOnly
+              tabIndex={-1}
+              checked={allOn}
             />
             All Tags
           </label>
@@ -131,11 +130,18 @@ export default function TagFilterDropdown({
           {filtered.map((tag) => {
             const bucket = Math.floor(tagHue(tag) / 30) % 12;
             return (
-              <label key={tag} className="bb-cal-tag-filter__row">
+              <label
+                key={tag}
+                className="bb-cal-tag-filter__row"
+                {...multiSelectRowProps(() => onChange(
+                  toggleMultiSelectItem(tag, selected, options),
+                ))}
+              >
                 <input
                   type="checkbox"
-                  checked={!allSelected && selected.includes(tag)}
-                  onChange={() => toggle(tag)}
+                  readOnly
+                  tabIndex={-1}
+                  checked={isMultiSelectChecked(tag, selected, options)}
                 />
                 <span
                   className="bb-cal-tag-filter__swatch"
@@ -150,13 +156,13 @@ export default function TagFilterDropdown({
             <button
               type="button"
               className="bb-cal__link-btn"
-              onClick={selectAll}
+              onClick={() => onChange([...filtered])}
               disabled={!filtered.length}
             >
-              Select all
+              Select visible
             </button>
             <button type="button" className="bb-cal__link-btn" onClick={clearAll}>
-              Clear all
+              All Tags
             </button>
           </div>
         </div>

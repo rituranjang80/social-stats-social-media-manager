@@ -1,11 +1,8 @@
 import { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import { format, parseISO } from 'date-fns';
-import CalendarCard from './CalendarCard';
-import EmptyCalendar from './EmptyCalendar';
-import { buildWeekDays, dayMeta, flattenPosts } from './utils';
-
-const HOURS = Array.from({ length: 12 }, (_, i) => i + 8);
+import { format } from 'date-fns';
+import CalendarTimeSlot from './CalendarTimeSlot';
+import { buildVisibleHours, buildWeekDays, dayMeta } from './utils';
 
 export default function WeekView({
   currentDate,
@@ -13,16 +10,16 @@ export default function WeekView({
   cardActions,
   onCreateAt,
   onDropPost,
-  onEmptyCreate,
 }) {
   const [dropKey, setDropKey] = useState(null);
   const days = useMemo(() => buildWeekDays(currentDate), [currentDate]);
-  const hasAny = flattenPosts(postsByDate).length > 0;
-
-  if (!hasAny) return <EmptyCalendar onCreate={onEmptyCreate} />;
+  const hours = useMemo(
+    () => buildVisibleHours(postsByDate, days),
+    [postsByDate, days],
+  );
 
   return (
-    <div className="bb-cal__body">
+    <div className="bb-cal__body bb-cal-week-view">
       <div className="bb-cal__week-header">
         <div className="bb-cal__time-col" />
         {days.map((day) => {
@@ -34,7 +31,7 @@ export default function WeekView({
           );
         })}
       </div>
-      {HOURS.map((hour) => {
+      {hours.map((hour) => {
         const timeStr = `${String(hour).padStart(2, '0')}:00`;
         return (
           <div key={`row-${hour}`} className="bb-cal__week-row">
@@ -42,19 +39,18 @@ export default function WeekView({
             {days.map((day) => {
               const meta = dayMeta(day);
               const key = `${meta.dateStr}|${timeStr}`;
-              const posts = (postsByDate[meta.dateStr] || []).filter((p) => {
-                const src = p.scheduled_at || p.published_at;
-                if (!src) return hour === 9;
-                try {
-                  return parseISO(src).getHours() === hour;
-                } catch {
-                  return false;
-                }
-              });
+              const dayPosts = postsByDate[meta.dateStr] || [];
               return (
-                <div
+                <CalendarTimeSlot
                   key={key}
-                  className={`bb-cal__slot${dropKey === key ? ' is-drop-target' : ''}`}
+                  dateStr={meta.dateStr}
+                  timeStr={timeStr}
+                  hour={hour}
+                  dayPosts={dayPosts}
+                  canSchedule={meta.canSchedule}
+                  isDropTarget={dropKey === key}
+                  cardActions={cardActions}
+                  onCreateAt={onCreateAt}
                   onDragOver={(e) => {
                     e.preventDefault();
                     setDropKey(key);
@@ -67,14 +63,7 @@ export default function WeekView({
                     const source = e.dataTransfer.getData('text/post-source') || 'calendar';
                     if (id) onDropPost?.(id, meta.dateStr, timeStr, source);
                   }}
-                  onDoubleClick={() => {
-                    if (!meta.past) onCreateAt?.(meta.dateStr, timeStr);
-                  }}
-                >
-                  {posts.map((post) => (
-                    <CalendarCard key={post.calendarKey || post.id} post={post} {...cardActions} />
-                  ))}
-                </div>
+                />
               );
             })}
           </div>

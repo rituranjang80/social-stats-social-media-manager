@@ -24,6 +24,7 @@ import {
   useUpcomingPosts,
 } from '../hooks/useCalendar';
 import CalendarToolbar from '../components/calendar/CalendarToolbar';
+import CalendarStatusLegend from '../components/calendar/CalendarStatusLegend';
 import CalendarStatistics from '../components/calendar/CalendarStatistics';
 import FloatingCreateButton from '../components/calendar/FloatingCreateButton';
 import PostDrawer from '../components/calendar/PostDrawer';
@@ -83,7 +84,7 @@ export default function CalendarPage({ clientId: propClientId }) {
   });
   const [view, setView] = useState(initialView);
   const [mode, setMode] = useState(initialMode);
-  const [status, setStatus] = useState('');
+  const [statuses, setStatuses] = useState([]);
   const [channels, setChannels] = useState([]); // empty = All Channels
   const [tags, setTags] = useState([]); // empty = All Tags
   const [search, setSearch] = useState('');
@@ -124,8 +125,8 @@ export default function CalendarPage({ clientId: propClientId }) {
   }, [queryView, queryMode, view]);
 
   const filteredPosts = useMemo(
-    () => filterPosts(postsByDate, { status, channels, tags, search }),
-    [postsByDate, status, channels, tags, search],
+    () => filterPosts(postsByDate, { statuses, channels, tags, search }),
+    [postsByDate, statuses, channels, tags, search],
   );
 
   const tagOptions = useMemo(
@@ -358,8 +359,8 @@ export default function CalendarPage({ clientId: propClientId }) {
               setCurrentDate(now);
             }
           }}
-          status={status}
-          onStatusChange={setStatus}
+          statuses={statuses}
+          onStatusesChange={setStatuses}
           channels={channels}
           onChannelsChange={setChannels}
           tags={tags}
@@ -373,8 +374,9 @@ export default function CalendarPage({ clientId: propClientId }) {
           currentUser={user}
         />
 
-        {/* <CalendarStatistics counts={localCounts} /> */}
+        <CalendarStatusLegend selected={statuses} onChange={setStatuses} />
 
+        <div className="bb-cal__content-scroll">
         {postsLoading ? (
           <div className="bb-cal__loading">
             <Loader2 size={18} className="bb-cal__spin" />
@@ -445,6 +447,7 @@ export default function CalendarPage({ clientId: propClientId }) {
             )}
           </Suspense>
         )}
+        </div>
       </div>
 
       {isAdmin ? (

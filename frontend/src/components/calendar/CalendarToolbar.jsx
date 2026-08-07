@@ -1,11 +1,12 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  ChevronDown, ChevronLeft, ChevronRight, ClipboardList, Search,
+  ChevronDown, ChevronLeft, ChevronRight, Search,
 } from 'lucide-react';
-import { CAL_STATUS_OPTIONS, CAL_VIEWS } from './constants';
+import { CAL_VIEWS } from './constants';
 import ConnectedChannelFilter from './ConnectedChannelFilter';
 import TagFilterDropdown from './TagFilterDropdown';
+import StatusFilterDropdown from './StatusFilterDropdown';
 import { periodLabel } from './utils';
 
 export default function CalendarToolbar({
@@ -16,6 +17,8 @@ export default function CalendarToolbar({
   onNext,
   onToday,
   status,
+  statuses,
+  onStatusesChange,
   onStatusChange,
   channels,
   onChannelsChange,
@@ -94,19 +97,15 @@ export default function CalendarToolbar({
       </div>
 
       <div className="bb-cal__filters">
-        <div className="bb-cal__filter">
-          <ClipboardList className="bb-cal__filter-icon" aria-hidden />
-          <select
-            className="bb-cal__select"
-            value={status}
-            onChange={(e) => onStatusChange(e.target.value)}
-            aria-label="Status filter"
-          >
-            {CAL_STATUS_OPTIONS.map((o) => (
-              <option key={o.id || 'all'} value={o.id}>{o.label}</option>
-            ))}
-          </select>
-        </div>
+        <StatusFilterDropdown
+          selected={statuses ?? (status ? [status] : [])}
+          onChange={(next) => {
+            onStatusesChange?.(next);
+            if (!onStatusesChange && onStatusChange) {
+              onStatusChange(next[0] || '');
+            }
+          }}
+        />
 
         <ConnectedChannelFilter
           clientId={clientId}
@@ -147,7 +146,9 @@ CalendarToolbar.propTypes = {
   onNext: PropTypes.func.isRequired,
   onToday: PropTypes.func.isRequired,
   status: PropTypes.string,
-  onStatusChange: PropTypes.func.isRequired,
+  statuses: PropTypes.arrayOf(PropTypes.string),
+  onStatusesChange: PropTypes.func,
+  onStatusChange: PropTypes.func,
   channels: PropTypes.arrayOf(PropTypes.string),
   onChannelsChange: PropTypes.func.isRequired,
   tags: PropTypes.arrayOf(PropTypes.string),

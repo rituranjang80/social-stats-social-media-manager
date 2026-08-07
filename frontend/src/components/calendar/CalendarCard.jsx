@@ -4,6 +4,8 @@ import {
   Copy, Eye, BarChart2, Pencil, Trash2, ExternalLink,
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import { postStatusFilterKey, statusLabelFor } from './statusTheme';
+import { calendarAnchorIso } from './utils';
 
 function safeTime(iso) {
   if (!iso) return '';
@@ -51,10 +53,12 @@ export default function CalendarCard({
   draggable = true,
   onDragStart,
   onDragEnd,
+  compact = false,
 }) {
-  const status = post.status || 'draft';
+  const statusKey = postStatusFilterKey(post.status);
+  const statusHuman = statusLabelFor(post.status);
   const label = post.title || post.caption || post.content || '(untitled)';
-  const timeSrc = post.scheduled_at || post.published_at;
+  const timeSrc = calendarAnchorIso(post);
   const timeStr = safeTime(timeSrc);
   const platforms = Array.isArray(post.platforms) && post.platforms.length
     ? post.platforms
@@ -62,11 +66,22 @@ export default function CalendarCard({
   const thumb = thumbUrl(post);
   const tags = tagList(post);
   const account = post.account_name || post.page_name || '';
+  const tooltip = [
+    label,
+    statusHuman,
+    timeStr,
+    platforms.length ? platforms.join(', ') : '',
+  ].filter(Boolean).join(' · ');
 
   return (
     <div
-      className={`bb-cal__card bb-cal__card--rich bb-cal__card--${status}`}
-      draggable={draggable && status !== 'published'}
+      className={[
+        'bb-cal__card',
+        compact ? 'bb-cal__card--compact' : 'bb-cal__card--rich',
+        `bb-cal__card--${statusKey}`,
+      ].join(' ')}
+      title={tooltip}
+      draggable={draggable && statusKey !== 'published'}
       onDragStart={(e) => {
         e.stopPropagation();
         e.dataTransfer.setData('text/post-id', String(post.id));
@@ -91,25 +106,26 @@ export default function CalendarCard({
           onOpen?.(post);
         }
       }}
-      aria-label={`${label}, ${status}${timeStr ? `, ${timeStr}` : ''}`}
+      aria-label={`${label}, ${statusHuman}${timeStr ? `, ${timeStr}` : ''}`}
     >
-      {thumb ? (
+      {!compact && thumb ? (
         <img className="bb-cal__card-thumb" src={thumb} alt="" loading="lazy" />
-      ) : (
+      ) : null}
+      {!compact && !thumb ? (
         <span className="bb-cal__card-dot" aria-hidden />
-      )}
+      ) : null}
       <span className="bb-cal__card-platforms" aria-hidden>
-        {platforms.slice(0, 3).map((pl) => (
-          <SocialPlatformIcon key={pl} platform={pl} size={12} />
+        {platforms.slice(0, 2).map((pl) => (
+          <SocialPlatformIcon key={pl} platform={pl} size={compact ? 14 : 12} />
         ))}
       </span>
       <span className="bb-cal__card-meta">
         <span className="bb-cal__card-label">{label}</span>
-        {account ? <span className="bb-cal__card-account">{account}</span> : null}
+        {!compact && account ? <span className="bb-cal__card-account">{account}</span> : null}
       </span>
       {timeStr ? <span className="bb-cal__card-time">{timeStr}</span> : null}
-      <span className="bb-cal__card-status">{status}</span>
-      {tags.length ? (
+      <span className="bb-cal__card-status sr-only">{statusHuman}</span>
+      {!compact && tags.length ? (
         <span className="bb-cal__card-tags">
           {tags.map((t) => (
             <span key={t} className="bb-cal__card-tag">#{t}</span>
@@ -148,7 +164,7 @@ export default function CalendarCard({
             <ExternalLink size={12} />
           </button>
         ) : null}
-        {onDelete && status !== 'published' ? (
+        {onDelete && statusKey !== 'published' ? (
           <button type="button" className="bb-cal__card-action" title="Delete" aria-label="Delete"
             onClick={(e) => { e.stopPropagation(); onDelete(post); }}>
             <Trash2 size={12} />
@@ -171,4 +187,5 @@ CalendarCard.propTypes = {
   draggable: PropTypes.bool,
   onDragStart: PropTypes.func,
   onDragEnd: PropTypes.func,
+  compact: PropTypes.bool,
 };

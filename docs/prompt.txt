@@ -73,4 +73,11 @@ please see the datails of .env file
 
 
 
-on page 
+on page http://localhost:3000/admin/analytics/calendar
+on xpath //*[@id="main-content"]/div/div/div[1]/div[2]/div[3]/div[1]/select
+there must be this items All Posts — all, Draft, Pending Review, Pending Client, Approved, Changes Requested, Rejected, Scheduled, Publishing, Published, Failed, On Hold,
+with check box and search able user can select multiple items that show on the callender 
+in the below of xpath //*[@id="main-content"]/div/div/div[1]/div[3] all item text like ( Draft, Pending Review, Pending Client, Approved, Changes Requested, Rejected, Scheduled, Publishing, Published, Failed, On Hold,) must be show with different font color same font color must be use on calender xpath //*[@id="main-content"]/div/div/div[1]/div[3] on calender show the on social media icon,title,time
+decrease the calender size these item must be visible all item text like ( Draft, Pending Review, Pending Client, Approved, Changes Requested, Rejected, Scheduled, Publishing, Published, Failed, On Hold,)  while calender scroll
+
+

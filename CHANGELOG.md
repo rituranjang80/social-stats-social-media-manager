@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+- **Analytics → Calendar**: composer **drafts without a schedule** appear on the day they were **created** (`created_at`). The status legend uses **checkboxes** (including **All Posts**) to filter what shows on the grid; layout margins are tighter so the month view scrolls with less empty space.
+
+- **Week / Day** views place posts in the correct **time slot** (including drafts on `created_at`), use the same **compact chips** and **hover tooltips** as month view, and show a hover **+** on each slot to create a post at that date/time.
+
+### Changed — Content calendar (Publish)
+
+- **Analytics → Calendar** (`/admin/analytics/calendar`): status filter is a **searchable multi-select** (checkboxes) with All Posts, Draft, Pending Review, Pending Client, Approved, Changes Requested, Rejected, Scheduled, Publishing, Published, Failed, and On Hold. A **color legend** stays visible while the grid scrolls; month cells show **platform icon**, **title**, and **time** tinted by status.
+
 ### Added — Global Interactive Dialog
 
 - **`DialogHost`** (in `App.js`) and **`frontend/src/services/dialog.js`**: call **`showDialog`**, **`confirmDialog`**, **`alertDialog`**, or **`promptDialog`** from any screen instead of `window.alert`, `confirm`, or `prompt`. Typed themes (info, success, error, warning, delete, publish, etc.), backdrop blur, focus trap, Esc/Enter, and mobile sheet layout. Styles live in **`styles/scss/ui/_interactive-dialog.scss`** (theme variables only).

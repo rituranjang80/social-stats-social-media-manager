@@ -74,7 +74,7 @@ export default function CalendarDateCell({
 
       <div className="bb-cal-date-cell__posts">
         {visible.map((post) => (
-          <CalendarCard key={post.calendarKey || post.id} post={post} {...cardActions} />
+          <CalendarCard key={post.calendarKey || post.id} post={post} compact {...cardActions} />
         ))}
         {extra > 0 ? (
           <button

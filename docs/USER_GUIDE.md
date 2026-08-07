@@ -88,14 +88,16 @@ live-preview tabs.
 ### Content calendar (Publish)
 **Route:** `/dashboard/analytics/calendar` or `/admin/analytics/calendar`.
 BrightBean-style Publish UI: List ↔ Calendar toggle, month/week/day/agenda
-views, status / **connected-channel** / tag / search filters, summary counts,
-drag-and-drop reschedule, hover **+** on date cells (opens Composer with that
-date), and a floating **+** to compose. Bound to the global Switch Workspace.
-Defaults: current workspace, current month, **All Channels** + **All Tags**
-(shows every scheduled/published post for the workspace — Composer unified
-posts and legacy calendar posts). Channel and tag multi-selects support search,
-select-all, and clear-all (clear = All). Reference prototype:
-`/Brightbean/NewPost.html`.
+views, **searchable multi-select status** (All Posts, Draft, Pending Review,
+Pending Client, Approved, Changes Requested, Rejected, Scheduled, Publishing,
+Published, Failed, On Hold), a **checkbox legend** (All Posts + each status) to
+filter the grid, **connected-channel** / tag / search filters, a
+**color legend** (same colors as events), compact month cells with **platform
+icon**, **title**, and **time** (drafts without a schedule appear on their
+**created** date). Drag-and-drop reschedule, hover **+** on date cells, and a
+floating **+** to compose. The legend stays visible while the grid scrolls in a
+compact layout. Defaults: current month, **All Posts**, **All Channels**, **All
+Tags**. Reference prototype: `/Brightbean/NewPost.html`.
 
 **Manage workspaces & team access** (other admin pages — not on the composer):
 

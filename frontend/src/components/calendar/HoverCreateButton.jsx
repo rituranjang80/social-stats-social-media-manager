@@ -6,21 +6,32 @@ import { Plus } from 'lucide-react';
  */
 export default function HoverCreateButton({
   dateStr,
+  timeStr,
   onClick,
   disabled = false,
   label,
+  slotCorner = false,
+  pinnedTop = false,
+  dayHoverTop = false,
 }) {
   if (disabled) return null;
+
+  const cls = [
+    'bb-cal-hover-create',
+    slotCorner ? 'bb-cal-hover-create--slot' : '',
+    pinnedTop ? 'bb-cal-hover-create--pinned' : '',
+    dayHoverTop ? 'bb-cal-hover-create--day-top' : '',
+  ].filter(Boolean).join(' ');
 
   return (
     <button
       type="button"
-      className="bb-cal-hover-create"
-      aria-label={label || `Create post on ${dateStr}`}
-      title={'Create post11111' || 'Create post111'}
+      className={cls}
+      aria-label={label || `Create post on ${dateStr}${timeStr ? ` at ${timeStr}` : ''}`}
+      title="Create post"
       onClick={(e) => {
         e.stopPropagation();
-        onClick?.(dateStr, e);
+        onClick?.(dateStr, timeStr, e);
       }}
     >
       <Plus size={14} strokeWidth={2.5} aria-hidden />
@@ -33,4 +44,8 @@ HoverCreateButton.propTypes = {
   onClick: PropTypes.func,
   disabled: PropTypes.bool,
   label: PropTypes.string,
+  timeStr: PropTypes.string,
+  slotCorner: PropTypes.bool,
+  pinnedTop: PropTypes.bool,
+  dayHoverTop: PropTypes.bool,
 };

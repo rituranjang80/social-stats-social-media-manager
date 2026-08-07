@@ -1,4 +1,7 @@
 /* Calendar module — status/views catalogs */
+import { CAL_STATUS_FILTERS } from './statusTheme';
+
+export { CAL_STATUS_FILTERS };
 
 export const CAL_VIEWS = [
   { id: 'month', label: 'Month' },
@@ -13,13 +16,10 @@ export const CAL_MODES = [
   { id: 'list', label: 'List' },
 ];
 
+/** @deprecated use CAL_STATUS_FILTERS — kept for any legacy imports */
 export const CAL_STATUS_OPTIONS = [
   { id: '', label: 'All Posts' },
-  { id: 'draft', label: 'Draft' },
-  { id: 'scheduled', label: 'Scheduled' },
-  { id: 'published', label: 'Published' },
-  { id: 'failed', label: 'Failed' },
-  { id: 'publishing', label: 'Processing' },
+  ...CAL_STATUS_FILTERS.map((f) => ({ id: f.id, label: f.label })),
 ];
 
 /** Channel filter — catalog ids shown in Brightbean-style multi-select */
