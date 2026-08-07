@@ -8,6 +8,7 @@
  * ========================================================================== */
 import { useState, useEffect, useCallback } from 'react';
 import { managementAPI } from '../services/api';
+import { confirmDialog } from '../services/dialog';
 import {
   Users, UserCog, Shield, ChevronDown, ChevronRight,
   Plus, Trash2, X, RefreshCw, Eye,
@@ -540,7 +541,13 @@ function StaffTab() {
   useEffect(() => { load(); }, [load]);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Deactivate this staff member?')) return;
+    if (!await confirmDialog({
+      type: 'warning',
+      title: 'Deactivate staff member',
+      message: 'Deactivate this staff member?',
+      confirmLabel: 'Deactivate',
+      danger: true,
+    })) return;
     setDeleting(id);
     try {
       await managementAPI.deleteStaff(id);

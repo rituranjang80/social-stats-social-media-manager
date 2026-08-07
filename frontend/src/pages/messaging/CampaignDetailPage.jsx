@@ -21,6 +21,7 @@ import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import DataTable from '../../components/ui/DataTable';
 import { whatsappAPI } from '../../services/api';
+import { confirmDialog } from '../../services/dialog';
 
 const STATUS_VARIANT = {
   draft: 'default', scheduled: 'info', running: 'success', completed: 'info',
@@ -99,8 +100,16 @@ export default function CampaignDetailPage() {
             {!['completed', 'canceled'].includes(campaign.status) && (
               <Button variant="secondary" icon={X}
                       onClick={async () => {
-                        if (window.confirm('Cancel this campaign?')) {
-                          await whatsappAPI.campaigns.cancel(campaign.id); load();
+                        const ok = await confirmDialog({
+                          type: 'warning',
+                          title: 'Cancel campaign',
+                          message: 'Cancel this campaign?',
+                          confirmLabel: 'Cancel campaign',
+                          danger: true,
+                        });
+                        if (ok) {
+                          await whatsappAPI.campaigns.cancel(campaign.id);
+                          load();
                         }
                       }}>
                 Cancel

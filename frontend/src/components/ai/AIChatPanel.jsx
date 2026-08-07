@@ -14,6 +14,7 @@ import {
 
 import Button from '../ui/Button';
 import { aiV2API } from '../../services/api';
+import { confirmDialog } from '../../services/dialog';
 import { useAuth } from '../../hooks/useAuth';
 import toast from '../ui/toast';
 import { BRAND_NAME } from '../../config/branding';
@@ -157,7 +158,13 @@ export default function AIChatPanel({ open, onClose, clientId }) {
   }
 
   async function deleteConversation(id) {
-    if (!window.confirm('Delete this conversation?')) return;
+    if (!await confirmDialog({
+      type: 'delete',
+      title: 'Delete conversation',
+      message: 'Delete this conversation?',
+      confirmLabel: 'Delete',
+      danger: true,
+    })) return;
     try {
       await aiV2API.chatDeleteConversation(id);
       setConversations((cs) => cs.filter((c) => c.id !== id));

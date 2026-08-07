@@ -21,6 +21,7 @@ import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
 import { automationsAPI } from '../../services/api';
+import { confirmDialog } from '../../services/dialog';
 
 const TRIGGER_OPTIONS = [
   { id: 'new_comment',         label: 'New comment',           icon: MessageSquare,
@@ -70,7 +71,13 @@ export default function AutomationsPage() {
     catch { toast.error('Toggle failed'); }
   }
   async function destroy(rule) {
-    if (!window.confirm(`Delete "${rule.name}"?`)) return;
+    if (!await confirmDialog({
+      type: 'delete',
+      title: 'Delete rule',
+      message: `Delete "${rule.name}"?`,
+      confirmLabel: 'Delete',
+      danger: true,
+    })) return;
     try { await automationsAPI.delete(rule.id); load(); toast.success('Deleted'); }
     catch { toast.error('Delete failed'); }
   }

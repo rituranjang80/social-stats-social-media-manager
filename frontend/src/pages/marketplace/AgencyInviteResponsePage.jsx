@@ -27,6 +27,7 @@ import {
 
 import PermissionMatrix from '../../components/marketplace/PermissionMatrix';
 import { agencyInviteAPI } from '../../services/api';
+import { confirmDialog } from '../../services/dialog';
 import { useAuth } from '../../hooks/useAuth';
 import { BRAND_NAME } from '../../config/branding';
 import toast from '../../components/ui/toast';
@@ -79,7 +80,13 @@ export default function AgencyInviteResponsePage() {
       navigate(`/login?next=/agency-invite/${token}`);
       return;
     }
-    if (!window.confirm('Decline this invitation?')) return;
+    if (!await confirmDialog({
+      type: 'warning',
+      title: 'Decline invitation',
+      message: 'Decline this invitation?',
+      confirmLabel: 'Decline',
+      danger: true,
+    })) return;
     setBusy(true);
     try {
       await agencyInviteAPI.decline(token);

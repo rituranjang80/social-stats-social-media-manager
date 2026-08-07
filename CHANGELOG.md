@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added — Global Interactive Dialog
+
+- **`DialogHost`** (in `App.js`) and **`frontend/src/services/dialog.js`**: call **`showDialog`**, **`confirmDialog`**, **`alertDialog`**, or **`promptDialog`** from any screen instead of `window.alert`, `confirm`, or `prompt`. Typed themes (info, success, error, warning, delete, publish, etc.), backdrop blur, focus trap, Esc/Enter, and mobile sheet layout. Styles live in **`styles/scss/ui/_interactive-dialog.scss`** (theme variables only).
+- **Analytics → Queues**: deleting a queue uses the delete confirmation dialog; API and behavior unchanged.
+
 ### Fixed — Admin composer approval queue (500)
 
 - **`GET /api/composer/approvals/`** no longer crashes when the frontend sends the workspace **public UUID** as `client_id` (admin API interceptor). Count is computed **before** slicing the queryset. Tenant scoping now matches **TenantScopedMixin** (staff assigned clients, agency-managed workspaces, superadmin optional workspace filter).

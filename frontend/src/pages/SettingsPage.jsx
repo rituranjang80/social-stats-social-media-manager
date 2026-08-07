@@ -11,6 +11,7 @@ import { useSearchParams, useLocation  } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useOAuthStatus, useLookups } from '../hooks/useData';
 import { clientsAPI } from '../services/api';
+import { alertDialog } from '../services/dialog';
 import ConnectedAccounts from '../components/ui/ConnectedAccounts';
 import CompetitorSection from '../components/ui/CompetitorSection';
 import PageHeader from '../components/layout/PageHeader';
@@ -381,10 +382,18 @@ export default function SettingsPage({ clientId: propClientId }) {
       });
 
       await clientsAPI.update(clientId, submitData);
-      alert('Profile updated successfully!');
+      await alertDialog({
+        type: 'success',
+        title: 'Profile updated',
+        message: 'Your profile was saved successfully.',
+      });
     } catch (error) {
       console.error('Failed to update profile:', error);
-      alert('Failed to update profile. Please try again.');
+      await alertDialog({
+        type: 'error',
+        title: 'Update failed',
+        message: 'Failed to update profile. Please try again.',
+      });
     } finally {
       setSaving(false);
     }

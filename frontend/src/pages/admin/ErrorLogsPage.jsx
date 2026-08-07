@@ -14,6 +14,7 @@ import Button from '../../components/ui/Button';
 import EmptyState from '../../components/ui/EmptyState';
 import toast from '../../components/ui/toast';
 import { errorMonitoringAPI } from '../../services/api';
+import { confirmDialog } from '../../services/dialog';
 
 const SEVERITY_VARIANT = {
   INFO: 'default',
@@ -108,7 +109,13 @@ export default function ErrorLogsPage() {
 
   async function removeLog() {
     if (!detail?.id) return;
-    if (!window.confirm('Delete this error log permanently?')) return;
+    if (!await confirmDialog({
+      type: 'delete',
+      title: 'Delete error log',
+      message: 'Delete this error log permanently?',
+      confirmLabel: 'Delete',
+      danger: true,
+    })) return;
     try {
       await errorMonitoringAPI.delete(detail.id);
       toast.success('Deleted');

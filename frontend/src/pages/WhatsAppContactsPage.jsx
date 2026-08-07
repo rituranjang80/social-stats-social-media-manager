@@ -15,6 +15,7 @@ import {
 import PageHeader from '../components/layout/PageHeader';
 import { useWhatsAppContacts, useWhatsAppLists } from '../hooks/useWhatsApp';
 import { whatsappAPI } from '../services/api';
+import { confirmDialog } from '../services/dialog';
 
 const COLORS = {
   primary: '#00CCF5', primaryD: '#00A8D8',
@@ -228,7 +229,14 @@ export default function WhatsAppContactsPage() {
 }
 
 async function deleteContact(id, refetch) {
-  if (!window.confirm('Delete this contact?')) return;
+  const ok = await confirmDialog({
+    type: 'delete',
+    title: 'Delete contact',
+    message: 'Delete this contact?',
+    confirmLabel: 'Delete',
+    danger: true,
+  });
+  if (!ok) return;
   await whatsappAPI.contacts.delete(id);
   refetch();
 }

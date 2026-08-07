@@ -14,6 +14,7 @@ import {
 import PageHeader from '../components/layout/PageHeader';
 import { useWhatsAppCampaigns, useWhatsAppTemplates, useWhatsAppLists } from '../hooks/useWhatsApp';
 import { whatsappAPI } from '../services/api';
+import { confirmDialog, alertDialog } from '../services/dialog';
 
 const COLORS = {
   primary: '#00CCF5', primaryD: '#00A8D8',
@@ -119,7 +120,11 @@ function CampaignActions({ c, onChange }) {
       await whatsappAPI.campaigns.launch(c.id);
       onChange();
     } catch (e) {
-      alert(e.response?.data?.error || e.message);
+      await alertDialog({
+        type: 'error',
+        title: 'Launch failed',
+        message: e.response?.data?.error || e.message || 'Could not launch campaign.',
+      });
     }
   }
   return (
@@ -138,7 +143,16 @@ function CampaignActions({ c, onChange }) {
         </button>
       )}
       {!['completed', 'canceled'].includes(c.status) && (
-        <button onClick={async () => { if (window.confirm('Cancel this campaign?')) { await whatsappAPI.campaigns.cancel(c.id); onChange(); } }}
+        <button onClick={async () => {
+          const ok = await confirmDialog({
+            type: 'warning',
+            title: 'Cancel campaign',
+            message: 'Cancel this campaign?',
+            confirmLabel: 'Cancel campaign',
+            danger: true,
+          });
+          if (ok) { await whatsappAPI.campaigns.cancel(c.id); onChange(); }
+        }}
                 style={{ ...btnSecondary, color: COLORS.danger, borderColor: '#fecaca' }}>
           <X size={12} />
         </button>

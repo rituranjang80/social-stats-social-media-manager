@@ -16,6 +16,7 @@ import { RealtimeProvider } from './hooks/useRealtime';
 import { Toaster } from 'react-hot-toast';
 import { lazy, Suspense } from 'react';
 import ErrorBoundary from './components/ui/ErrorBoundary';
+import DialogHost from './components/ui/DialogHost';
 
 import { BrandLogoStacked } from './components/ui/BrandLogo';
 
@@ -467,6 +468,7 @@ export default function App() {
           />
 
           <CookieBanner />
+          <DialogHost />
         </RealtimeProvider>
         </QueryClientProvider>
         </AuthProvider>

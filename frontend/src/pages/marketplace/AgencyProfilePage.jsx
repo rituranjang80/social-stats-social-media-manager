@@ -26,6 +26,7 @@ import {
 import InviteAgencyModal from '../../components/marketplace/InviteAgencyModal';
 import WriteReviewModal  from '../../components/marketplace/WriteReviewModal';
 import { marketplaceAPI, reviewAPI } from '../../services/api';
+import { confirmDialog } from '../../services/dialog';
 import { useAuth } from '../../hooks/useAuth';
 import toast from '../../components/ui/toast';
 import { BRAND_NAME } from '../../config/branding';
@@ -63,7 +64,13 @@ export default function AgencyProfilePage() {
   }
 
   async function deleteReview(id) {
-    if (!window.confirm('Delete this review?')) return;
+    if (!await confirmDialog({
+      type: 'delete',
+      title: 'Delete review',
+      message: 'Delete this review?',
+      confirmLabel: 'Delete',
+      danger: true,
+    })) return;
     try {
       await reviewAPI.delete(id);
       toast.success('Review deleted');

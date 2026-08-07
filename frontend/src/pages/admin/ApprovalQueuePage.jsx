@@ -17,6 +17,7 @@ import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import EmptyState from '../../components/ui/EmptyState';
 import { notificationsAPI, composerAPI } from '../../services/api';
+import { confirmDialog } from '../../services/dialog';
 
 export default function ApprovalQueuePage() {
   const [queue, setQueue] = useState([]);
@@ -41,7 +42,14 @@ export default function ApprovalQueuePage() {
   }
 
   async function reject(post) {
-    if (!window.confirm(`Reject "${post.title || post.content.slice(0, 30)}…"? This will cancel the post.`)) return;
+    const ok = await confirmDialog({
+      type: 'warning',
+      title: 'Reject post',
+      message: `Reject "${post.title || post.content.slice(0, 30)}…"? This will cancel the post.`,
+      confirmLabel: 'Reject',
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await composerAPI.posts.cancel(post.id);
       toast.success('Rejected and canceled');

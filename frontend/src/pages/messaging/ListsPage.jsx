@@ -15,6 +15,7 @@ import Button from '../../components/ui/Button';
 import EmptyState from '../../components/ui/EmptyState';
 import Badge from '../../components/ui/Badge';
 import { useWhatsAppLists } from '../../hooks/useWhatsApp';
+import { confirmDialog } from '../../services/dialog';
 import { whatsappAPI } from '../../services/api';
 
 export default function ListsPage() {
@@ -107,7 +108,14 @@ function ListCard({ list, onChange }) {
           aria-label="Delete list"
           onClick={async (e) => {
             e.preventDefault(); e.stopPropagation();
-            if (window.confirm(`Delete "${list.name}"?`)) {
+            const ok = await confirmDialog({
+              type: 'delete',
+              title: 'Delete list',
+              message: `Delete "${list.name}"?`,
+              confirmLabel: 'Delete',
+              danger: true,
+            });
+            if (ok) {
               await whatsappAPI.lists.delete(list.id);
               onChange();
             }

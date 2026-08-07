@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 
 import { mfaAPI, sessionsAPI } from '../../services/api';
+import { confirmDialog, promptDialog } from '../../services/dialog';
 import toast from '../../components/ui/toast';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
@@ -80,8 +81,14 @@ export function MFAManager() {
   }
 
   async function regenerateBackupCodes() {
-    const code = window.prompt('Enter your current 6-digit code to regenerate backup codes:');
-    if (!code) return;
+    const code = await promptDialog({
+      title: 'Regenerate backup codes',
+      message: 'Enter your current 6-digit authenticator code',
+      inputLabel: '6-digit code',
+      inputType: 'text',
+      confirmLabel: 'Continue',
+    });
+    if (code === null) return;
     try {
       const r = await mfaAPI.regenerateBackupCodes(code.trim());
       setBackupCodes(r.data.backup_codes || []);
@@ -302,7 +309,13 @@ export function ActiveSessionsList() {
   useEffect(() => { load(); }, []);
 
   async function revoke(id) {
-    if (!window.confirm('Revoke this session? The device will be signed out immediately.')) return;
+    if (!await confirmDialog({
+      type: 'warning',
+      title: 'Revoke session',
+      message: 'Revoke this session? The device will be signed out immediately.',
+      confirmLabel: 'Revoke',
+      danger: true,
+    })) return;
     try {
       await sessionsAPI.revoke(id);
       toast.success('Session revoked');
@@ -311,7 +324,13 @@ export function ActiveSessionsList() {
   }
 
   async function revokeAll() {
-    if (!window.confirm('Sign out of every other device? This cannot be undone.')) return;
+    if (!await confirmDialog({
+      type: 'warning',
+      title: 'Sign out other devices',
+      message: 'Sign out of every other device? This cannot be undone.',
+      confirmLabel: 'Sign out all',
+      danger: true,
+    })) return;
     try {
       const r = await sessionsAPI.revokeAll();
       toast.success(`${r.data.revoked} session(s) revoked`);

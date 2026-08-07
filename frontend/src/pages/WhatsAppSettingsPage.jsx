@@ -12,6 +12,7 @@ import { CheckCircle2, AlertCircle, Copy, Loader2, Trash2 } from 'lucide-react';
 import PageHeader from '../components/layout/PageHeader';
 import { useWhatsAppAccount } from '../hooks/useWhatsApp';
 import { whatsappAPI } from '../services/api';
+import { confirmDialog } from '../services/dialog';
 
 const COLORS = {
   primary: '#00CCF5', primaryD: '#00A8D8',
@@ -90,7 +91,14 @@ export default function WhatsAppSettingsPage() {
 
   async function disconnect() {
     if (!account) return;
-    if (!window.confirm('Disconnect WhatsApp? Your contacts and templates will remain, but no messages can be sent or received until reconnected.')) return;
+    const ok = await confirmDialog({
+      type: 'warning',
+      title: 'Disconnect WhatsApp',
+      message: 'Your contacts and templates will remain, but no messages can be sent or received until reconnected.',
+      confirmLabel: 'Disconnect',
+      danger: true,
+    });
+    if (!ok) return;
     await whatsappAPI.account.delete(account.id);
     await refetch();
     setForm({ waba_id: '', phone_number_id: '', phone_number: '', display_name: '', api_key: '' });

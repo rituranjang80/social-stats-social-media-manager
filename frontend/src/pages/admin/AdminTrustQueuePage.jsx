@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 
 import { verificationAPI, disputeAPI } from '../../services/api';
+import { promptDialog } from '../../services/dialog';
 import toast from '../../components/ui/toast';
 
 
@@ -91,7 +92,15 @@ function Verifications() {
   useEffect(load, []);
 
   async function decide(id, approve) {
-    const note = window.prompt(approve ? 'Approval note (optional)' : 'Reason for rejection (visible to the agency)');
+    const note = await promptDialog({
+      type: approve ? 'success' : 'warning',
+      title: approve ? 'Approve verification' : 'Reject verification',
+      message: approve ? 'Approval note (optional)' : 'Reason for rejection (visible to the agency)',
+      inputLabel: 'Note',
+      multiline: true,
+      defaultValue: '',
+      confirmLabel: approve ? 'Approve' : 'Reject',
+    });
     if (note === null) return;
     setBusy(true);
     try {
@@ -187,15 +196,29 @@ function Disputes() {
   useEffect(load, [statusFilter]);
 
   async function resolve(d) {
-    const action = window.prompt('Action: paused / terminated / warned / dismissed / escalated');
-    if (!action) return;
-    if (!['paused', 'terminated', 'warned', 'dismissed', 'escalated'].includes(action)) {
+    const action = await promptDialog({
+      title: 'Resolve dispute',
+      message: 'Enter action: paused, terminated, warned, dismissed, or escalated',
+      inputLabel: 'Action',
+      defaultValue: '',
+      confirmLabel: 'Next',
+    });
+    if (action === null || !action.trim()) return;
+    if (!['paused', 'terminated', 'warned', 'dismissed', 'escalated'].includes(action.trim())) {
       toast.error('Unknown action');
       return;
     }
-    const resolution = window.prompt('Resolution note (visible to both sides)') || '';
+    const resolution = await promptDialog({
+      title: 'Resolution note',
+      message: 'Visible to both sides',
+      inputLabel: 'Note',
+      multiline: true,
+      defaultValue: '',
+      confirmLabel: 'Resolve',
+    }) || '';
+    if (resolution === null) return;
     try {
-      await disputeAPI.resolve(d.id, { status: 'resolved', action, resolution });
+      await disputeAPI.resolve(d.id, { status: 'resolved', action: action.trim(), resolution });
       toast.success('Resolved');
       load();
     } catch (e) {

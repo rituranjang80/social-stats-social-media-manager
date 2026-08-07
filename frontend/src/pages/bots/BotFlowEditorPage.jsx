@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 
 import { botAPI } from '../../services/api';
+import { confirmDialog } from '../../services/dialog';
 import toast from '../../components/ui/toast';
 import CanvasNode from '../../components/bot/CanvasNode';
 import NodeInspector from '../../components/bot/NodeInspector';
@@ -205,7 +206,13 @@ function Editor() {
   }
   function deleteSelected() {
     if (!selectedId) return;
-    if (!window.confirm('Delete this node?')) return;
+    if (!await confirmDialog({
+      type: 'delete',
+      title: 'Delete node',
+      message: 'Delete this node?',
+      confirmLabel: 'Delete',
+      danger: true,
+    })) return;
     snapshot();
     setNodes((ns) => ns.filter((n) => n.id !== selectedId));
     setEdges((es) => es.filter((e) => e.source !== selectedId && e.target !== selectedId));

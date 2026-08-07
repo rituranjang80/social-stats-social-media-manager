@@ -27,6 +27,7 @@ import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
 import { aiV2API } from '../../services/api';
+import { confirmDialog } from '../../services/dialog';
 import toast from '../../components/ui/toast';
 import { BRAND_NAME } from '../../config/branding';
 
@@ -75,7 +76,13 @@ export default function AIChatHistoryPage() {
   }
 
   async function deleteConv(id) {
-    if (!window.confirm('Delete this conversation? This cannot be undone.')) return;
+    if (!await confirmDialog({
+      type: 'delete',
+      title: 'Delete conversation',
+      message: 'Delete this conversation? This cannot be undone.',
+      confirmLabel: 'Delete',
+      danger: true,
+    })) return;
     try {
       await aiV2API.chatDeleteConversation(id);
       toast.success('Deleted');

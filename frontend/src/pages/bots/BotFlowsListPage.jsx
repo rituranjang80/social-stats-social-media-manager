@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 
 import { botAPI, botTemplateAPI } from '../../services/api';
+import { confirmDialog } from '../../services/dialog';
 import toast from '../../components/ui/toast';
 import { BRAND_NAME } from '../../config/branding';
 
@@ -68,7 +69,13 @@ export default function BotFlowsListPage() {
     } catch { toast.error('Could not duplicate'); }
   }
   async function destroy(id) {
-    if (!window.confirm('Delete this flow? This cannot be undone.')) return;
+    if (!await confirmDialog({
+      type: 'delete',
+      title: 'Delete flow',
+      message: 'Delete this flow? This cannot be undone.',
+      confirmLabel: 'Delete',
+      danger: true,
+    })) return;
     try {
       await botAPI.delete(id);
       setFlows((fs) => fs.filter((f) => f.id !== id));

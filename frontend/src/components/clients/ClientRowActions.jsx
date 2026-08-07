@@ -7,6 +7,7 @@ import {
 import Button from '../ui/Button';
 import toast from '../ui/toast';
 import { clientsAPI } from '../../services/api';
+import { confirmDialog } from '../../services/dialog';
 import { clientWorkspacePath } from '../../utils/workspacePaths';
 
 import '../../styles/scss/pages/_client-row-actions.scss';
@@ -32,10 +33,15 @@ export default function ClientRowActions({ client, onChanged, onSync, syncingId 
     }
   };
 
-  const onDelete = () => {
-    if (!window.confirm(`Remove workspace "${client.company}"? This soft-deletes the client and disables login.`)) {
-      return;
-    }
+  const onDelete = async () => {
+    const ok = await confirmDialog({
+      type: 'delete',
+      title: 'Remove workspace',
+      message: `Remove workspace "${client.company}"? This soft-deletes the client and disables login.`,
+      confirmLabel: 'Remove',
+      danger: true,
+    });
+    if (!ok) return;
     run('delete', () => clientsAPI.delete(client.id), 'Client removed');
   };
 

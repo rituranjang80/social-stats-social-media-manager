@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 
 import { activityAPI } from '../../services/api';
+import { confirmDialog, promptDialog } from '../../services/dialog';
 import toast from '../../components/ui/toast';
 
 const ACTOR_PILL = {
@@ -60,7 +61,13 @@ export default function ActivityLogPage() {
   useEffect(() => { reload(); /* eslint-disable-next-line */ }, [filters]);
 
   async function flag(id) {
-    const reason = window.prompt('What\'s wrong with this action? (optional)');
+    const reason = await promptDialog({
+      title: 'Flag action',
+      message: 'What\'s wrong with this action?',
+      inputLabel: 'Reason (optional)',
+      defaultValue: '',
+      confirmLabel: 'Flag',
+    });
     if (reason === null) return;
     try {
       await activityAPI.flag(id, reason);
@@ -72,7 +79,14 @@ export default function ActivityLogPage() {
   }
 
   async function revert(id) {
-    if (!window.confirm('Revert this action? Where supported, the post will be removed from connected platforms.')) return;
+    const ok = await confirmDialog({
+      type: 'warning',
+      title: 'Revert action',
+      message: 'Revert this action? Where supported, the post will be removed from connected platforms.',
+      confirmLabel: 'Revert',
+      danger: true,
+    });
+    if (!ok) return;
     try {
       const r = await activityAPI.revert(id);
       toast.success(r.data?.message || 'Reverted');

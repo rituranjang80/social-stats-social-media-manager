@@ -19,6 +19,7 @@ import EmptyState from '../../components/ui/EmptyState';
 import Badge from '../../components/ui/Badge';
 import { usePostQueues } from '../../hooks/useComposer';
 import { composerAPI } from '../../services/api';
+import { confirmDialog } from '../../services/dialog';
 import QueueScheduleEditor, { describeSchedule } from '../../components/composer/QueueScheduleEditor';
 
 const STRATEGIES = [
@@ -101,7 +102,14 @@ function QueueRow({ queue, active, onClick, onChange }) {
   }
   async function destroy(e) {
     e.stopPropagation();
-    if (!window.confirm(`Delete queue "${queue.name}"?`)) return;
+    const ok = await confirmDialog({
+      type: 'delete',
+      title: 'Delete queue',
+      message: `Delete queue "${queue.name}"? Items in this queue will be removed.`,
+      confirmLabel: 'Delete',
+      danger: true,
+    });
+    if (!ok) return;
     try { await composerAPI.queues.delete(queue.id); onChange(); }
     catch { toast.error('Delete failed'); }
   }

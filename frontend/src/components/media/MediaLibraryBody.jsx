@@ -13,6 +13,7 @@ import Card from '../ui/Card';
 import EmptyState from '../ui/EmptyState';
 import { useMediaAssets } from '../../hooks/useComposer';
 import { composerAPI } from '../../services/api';
+import { confirmDialog } from '../../services/dialog';
 import MediaAssetTile from './MediaAssetTile';
 import { normalizeMediaAsset } from './mediaUtils';
 
@@ -168,7 +169,13 @@ export default function MediaLibraryBody({
 
   async function bulkDelete() {
     if (mode !== 'manage' || !selected.size) return;
-    if (!window.confirm(`Delete ${selected.size} item${selected.size === 1 ? '' : 's'}?`)) return;
+    if (!await confirmDialog({
+      type: 'delete',
+      title: 'Delete media',
+      message: `Delete ${selected.size} item${selected.size === 1 ? '' : 's'}?`,
+      confirmLabel: 'Delete',
+      danger: true,
+    })) return;
     try {
       await Promise.all([...selected].map((id) => composerAPI.media.delete(id)));
       setSelected(new Set());

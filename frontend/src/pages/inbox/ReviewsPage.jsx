@@ -19,6 +19,7 @@ import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
 import { useReviews } from '../../hooks/useInbox';
 import { inboxAPI } from '../../services/api';
+import { confirmDialog } from '../../services/dialog';
 
 const STATUS_FILTERS = [
   { id: '',        label: 'All' },
@@ -147,7 +148,13 @@ function ReviewCard({ review, onChange }) {
   }
 
   async function flag() {
-    if (!window.confirm('Flag this review as inappropriate?')) return;
+    if (!await confirmDialog({
+      type: 'warning',
+      title: 'Flag review',
+      message: 'Flag this review as inappropriate?',
+      confirmLabel: 'Flag',
+      danger: true,
+    })) return;
     try {
       await inboxAPI.reviews.flag(review.id);
       toast.success('Review flagged');

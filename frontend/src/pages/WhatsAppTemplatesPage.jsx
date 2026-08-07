@@ -12,6 +12,7 @@ import { Plus, RefreshCw, Trash2, FileType, Loader2, AlertCircle, Send } from 'l
 import PageHeader from '../components/layout/PageHeader';
 import { useWhatsAppTemplates } from '../hooks/useWhatsApp';
 import { whatsappAPI } from '../services/api';
+import { confirmDialog } from '../services/dialog';
 import { safeHtml } from '../utils/sanitize';
 
 const COLORS = {
@@ -120,7 +121,14 @@ function TemplateCard({ t, onChange }) {
           </button>
           <button
             onClick={async () => {
-              if (window.confirm('Delete this template?')) {
+              const ok = await confirmDialog({
+                type: 'delete',
+                title: 'Delete template',
+                message: 'Delete this template?',
+                confirmLabel: 'Delete',
+                danger: true,
+              });
+              if (ok) {
                 await whatsappAPI.templates.delete(t.id);
                 onChange();
               }

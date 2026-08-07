@@ -13,6 +13,12 @@ from `demo_setup` (all password `demo`).
 
 Sign in via `/login` — one-click buttons pick the account for you.
 
+### Confirmations and alerts (Interactive Dialog)
+
+The app uses a single **Interactive Dialog** for confirmations, errors, and text prompts (not browser `alert` / `confirm` / `prompt`). Examples: **delete queue** on **Analytics → Queues**, revoke API keys, account deletion reason, MFA backup-code regeneration.
+
+Developers: import helpers from `frontend/src/services/dialog.js` — `confirmDialog({ title, message, type: 'delete', danger: true })`, `alertDialog({ type: 'success', title, message })`, `promptDialog({ message, inputLabel, multiline })`, or `showDialog({ content, buttons, size, closeOnOverlay })`. `DialogHost` must stay mounted in `App.js`.
+
 If the account has **two-factor authentication (MFA)** enabled, after email and
 password you will see a second screen for the 6-digit authenticator code (or a
 one-time backup code). Codes expire after about five minutes; use **Back to sign in**

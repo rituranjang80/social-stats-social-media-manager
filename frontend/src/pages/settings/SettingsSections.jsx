@@ -33,6 +33,7 @@ import EmptyState from '../../components/ui/EmptyState';
 import Input from '../../components/ui/Input';
 import toast from '../../components/ui/toast';
 import { apiKeysAPI, privacyAPI } from '../../services/api';
+import { confirmDialog, promptDialog } from '../../services/dialog';
 
 // ─────────────────────────────────────────────────────────────────────────
 // 1. Notifications — per-channel × per-event matrix
@@ -341,7 +342,13 @@ export function APIKeysSection() {
   }
 
   async function revoke(id) {
-    if (!window.confirm('Revoke this key? Any application using it will stop working.')) return;
+    if (!await confirmDialog({
+      type: 'warning',
+      title: 'Revoke API key',
+      message: 'Revoke this key? Any application using it will stop working.',
+      confirmLabel: 'Revoke',
+      danger: true,
+    })) return;
     try {
       await apiKeysAPI.revoke(id);
       toast.success('Key revoked');
@@ -522,7 +529,16 @@ export function DataPrivacySection() {
   }
 
   async function deleteAccount() {
-    const reason = window.prompt('Tell us why (optional). Your account will be permanently deleted in 30 days unless canceled.');
+    const reason = await promptDialog({
+      type: 'danger',
+      title: 'Delete account',
+      message: 'Your account will be permanently deleted in 30 days unless canceled.',
+      inputLabel: 'Tell us why (optional)',
+      multiline: true,
+      defaultValue: '',
+      confirmLabel: 'Schedule deletion',
+      danger: true,
+    });
     if (reason === null) return;
     try {
       const r = await privacyAPI.deleteAccount(reason || '');

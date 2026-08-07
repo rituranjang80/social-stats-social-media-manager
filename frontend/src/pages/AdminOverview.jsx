@@ -15,6 +15,7 @@ import StatCard from '../components/ui/StatCard';
 import { PLATFORMS, fmt } from '../services/platforms';
 import { Users, Eye, MousePointer2, TrendingUp, Target, Plus, Trash2, ChevronDown, ChevronUp, Bell, CheckCheck, AlertCircle, TrendingDown, Zap, Trophy, ExternalLink, Play, Link2, Copy, Lock } from 'lucide-react';
 import { goalsAPI, topPostsAPI, sharedReportsAPI, roiAPI } from '../services/api';
+import { confirmDialog } from '../services/dialog';
 import SocialPlatformIcon from '../components/ui/SocialPlatformIcon';
 
 const METRICS = [
@@ -103,7 +104,7 @@ function GoalManager() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this goal?')) return;
+    if (!await confirmDialog({ type: 'delete', title: 'Delete goal', message: 'Delete this goal?', confirmLabel: 'Delete', danger: true })) return;
     try {
       await goalsAPI.delete(id);
       refetch();

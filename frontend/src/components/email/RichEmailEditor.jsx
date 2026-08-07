@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 
 import styles from './RichEmailEditor.module.scss';
+import { promptDialog } from '../../services/dialog';
 
 const DEFAULT_VARS = [
   '{{company_name}}',
@@ -98,12 +99,24 @@ export default function RichEmailEditor({
         <span className={styles.sep} aria-hidden="true" />
         <button type="button" className={styles.toolBtn} onClick={() => exec('insertUnorderedList')} aria-label="Bullet list"><List size={15} /></button>
         <button type="button" className={styles.toolBtn} onClick={() => exec('insertOrderedList')} aria-label="Numbered list"><ListOrdered size={15} /></button>
-        <button type="button" className={styles.toolBtn} onClick={() => {
-          const url = window.prompt('Link URL');
+        <button type="button" className={styles.toolBtn} onClick={async () => {
+          const url = await promptDialog({
+            title: 'Insert link',
+            message: 'Enter the URL for this link',
+            inputLabel: 'Link URL',
+            placeholder: 'https://',
+            confirmLabel: 'Insert',
+          });
           if (url) exec('createLink', url);
         }} aria-label="Insert link"><Link2 size={15} /></button>
-        <button type="button" className={styles.toolBtn} onClick={() => {
-          const url = window.prompt('Image URL');
+        <button type="button" className={styles.toolBtn} onClick={async () => {
+          const url = await promptDialog({
+            title: 'Insert image',
+            message: 'Enter the image URL',
+            inputLabel: 'Image URL',
+            placeholder: 'https://',
+            confirmLabel: 'Insert',
+          });
           if (url) exec('insertImage', url);
         }} aria-label="Insert image"><Image size={15} /></button>
         <button

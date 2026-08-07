@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 
 import { botConversationAPI } from '../../services/api';
+import { confirmDialog } from '../../services/dialog';
 import toast from '../../components/ui/toast';
 
 const STATUS_META = {
@@ -63,7 +64,13 @@ export default function BotConversationDetailPage() {
     }
   }
   async function end() {
-    if (!window.confirm('Force-end this conversation?')) return;
+    if (!await confirmDialog({
+      type: 'warning',
+      title: 'End conversation',
+      message: 'Force-end this conversation?',
+      confirmLabel: 'End',
+      danger: true,
+    })) return;
     try {
       await botConversationAPI.end(id);
       toast.success('Conversation ended');

@@ -12,6 +12,8 @@ import { BRAND_NAME, BRAND_DESCRIPTION } from '../../config/branding';
 import { isPlatformConnected } from '../../constants/socialPlatforms';
 import { TSocialConnectCard, TPlatformCheck } from '../t';
 import FacebookConnectModal from '../FacebookConnectModal';
+import { oauthAPI } from '../../services/api';
+import { alertDialog, confirmDialog } from '../../services/dialog';
 import '../../styles/scss/settings-connect.scss';
 
 function startConnectUrl(clientId, card) {
@@ -66,17 +68,22 @@ export default function ConnectedAccounts({
     return { connected, configured, total: cards.length };
   }, [cards]);
 
-  const handleConnect = (card) => {
+  const handleConnect = async (card) => {
     if (!clientId) {
-      window.alert('Your client workspace is still being prepared. Please refresh the page and try again.');
+      await alertDialog({
+        type: 'warning',
+        title: 'Workspace not ready',
+        message: 'Your client workspace is still being prepared. Please refresh the page and try again.',
+      });
       return;
     }
     if (!card.is_configured) return;
     if (!card.connectable) {
-      window.alert(
-        `${card.label} app credentials are set, but Quick Connect for this channel is not wired yet. `
-        + 'Add keys in SocialMediaStart/.env or use Manual Setup where available.',
-      );
+      await alertDialog({
+        type: 'info',
+        title: `${card.label} not available`,
+        message: `${card.label} app credentials are set, but Quick Connect for this channel is not wired yet. Add keys in SocialMediaStart/.env or use Manual Setup where available.`,
+      });
       return;
     }
     if (card.oauth_provider === 'facebook') {
@@ -94,7 +101,14 @@ export default function ConnectedAccounts({
 
   const handleDisconnect = async (card) => {
     const key = card.credential_key || card.id;
-    if (!window.confirm(`Disconnect ${card.label}? Sync will stop.`)) return;
+    const ok = await confirmDialog({
+      type: 'warning',
+      title: `Disconnect ${card.label}?`,
+      message: 'Sync will stop for this channel until you connect again.',
+      confirmLabel: 'Disconnect',
+      danger: true,
+    });
+    if (!ok) return;
     setLoading((l) => ({ ...l, [card.id]: true }));
     try {
       await oauthAPI.disconnect(clientId, key);

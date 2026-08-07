@@ -21,6 +21,7 @@ import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
 import { competitorAPI } from '../../services/api';
+import { confirmDialog } from '../../services/dialog';
 
 const PLATFORMS = ['facebook', 'instagram', 'youtube', 'linkedin', 'google_my_business'];
 
@@ -152,7 +153,13 @@ function CompetitorDetail({ competitor, onChange }) {
   }
 
   async function destroy() {
-    if (!window.confirm(`Delete "${competitor.name}"?`)) return;
+    if (!await confirmDialog({
+      type: 'delete',
+      title: 'Delete competitor',
+      message: `Delete "${competitor.name}"?`,
+      confirmLabel: 'Delete',
+      danger: true,
+    })) return;
     try { await competitorAPI.delete(competitor.id); onChange?.(); }
     catch { toast.error('Delete failed'); }
   }
