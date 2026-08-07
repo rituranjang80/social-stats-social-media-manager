@@ -28,7 +28,7 @@ export default function ComposerScheduleCard({
 
   return (
     <div className="composer-schedule">
-      <div className="composer-schedule__block" aria-labelledby="composer-media-type-label">
+      {/* <div className="composer-schedule__block" aria-labelledby="composer-media-type-label">
         <h3 id="composer-media-type-label" className="composer__section-label">
           Media type
         </h3>
@@ -43,7 +43,7 @@ export default function ComposerScheduleCard({
             </TPill>
           ))}
         </div>
-      </div>
+      </div> */}
 
       <div className="composer-schedule__block" aria-labelledby="composer-when-label">
         <h3 id="composer-when-label" className="composer__section-label">

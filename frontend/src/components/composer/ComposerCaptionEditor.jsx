@@ -76,9 +76,15 @@ export default function ComposerCaptionEditor({
             onRemove={onRemoveAsset}
             onReplace={onReplaceAsset}
           />
-        </div>
+        {/* </div>
 
-        <div className="composer__caption-meta">
+        <div className="composer__caption-meta"> */}
+        <TDropzone
+            onFiles={onDropFiles}
+            className="composer-dropzone"
+            label="Add images or videos"
+            uploading={uploading}
+          >
           {onOpenMediaLibrary ? (
             <button
               type="button"
@@ -91,6 +97,7 @@ export default function ComposerCaptionEditor({
           ) : (
             <span />
           )}
+          </TDropzone>
           <span
             className={`composer__char-count${over ? ' is-over' : ''}`}
             aria-live="polite"

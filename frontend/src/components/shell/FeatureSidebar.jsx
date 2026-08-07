@@ -393,7 +393,7 @@ const NAV_SETS = {
         items: [
           { label: 'Composer', icon: PenSquare, path: '/composer', permission: 'composer.view' },
           { label: 'Calendar', icon: CalendarDays, path: '/calendar', permission: 'calendar.view' },
-    //      { label: 'Queues', icon: Layers, path: '/queues', permission: 'composer.view' },
+          { label: 'Queues', icon: Layers, path: '/queues', permission: 'composer.view' },
           { label: 'Media Library', icon: Images, path: '/media', permission: 'composer.view' },
           { label: 'Video Studio', icon: Film, path: '/video', permission: 'video.view' },
         ],

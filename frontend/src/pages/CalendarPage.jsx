@@ -373,7 +373,7 @@ export default function CalendarPage({ clientId: propClientId }) {
           currentUser={user}
         />
 
-        <CalendarStatistics counts={localCounts} />
+        {/* <CalendarStatistics counts={localCounts} /> */}
 
         {postsLoading ? (
           <div className="bb-cal__loading">

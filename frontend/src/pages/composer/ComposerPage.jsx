@@ -664,17 +664,20 @@ export default function ComposerPage() {
 
                 </div>
               </ComposerSection>
- <ComposerFirstComment
+
+              <ComposerSection
+                title="Settings"
+                // description="Choose when to publish and review platform-specific settings."
+                icon={CalendarClock}
+              >
+                <div className="composer__section-grid">
+                 <ComposerFirstComment
                     value={firstComment}
                     onChange={setFirstComment}
                     visible={showFirstComment}
-                    gridSpan={4}
+                    gridSpan={12}
                   />
-              <ComposerSection
-                title="Publishing"
-                description="Choose when to publish and review platform-specific settings."
-                icon={CalendarClock}
-              >
+                  </div>
                 <div className="composer__section-grid">
                   <TCard label="Schedule">
                     <ComposerScheduleCard
@@ -689,6 +692,37 @@ export default function ComposerPage() {
                       onOpenQueues={() => navigate(`${basePath}/analytics/queues`)}
                     />
                   </TCard>
+                   <div className="composer__section-grid">
+                  <TCard
+                    label="Tags"
+                    gridSpan={6}
+                    meta={<span className="composer-badge">Internal team only</span>}
+                  >
+                    <ComposerTags
+                      value={tags}
+                      onChange={setTags}
+                      clientId={workspaceRef || workspaceId}
+                      showLabel={false}
+                    />
+                  </TCard>
+
+                  <TCard
+                    label="Notes"
+                    gridSpan={6}
+                    meta={<span className="composer-badge">Internal team only</span>}
+                  >
+                    <TTextArea
+                      id="composer-internal-notes"
+                      size="sm"
+                      rows={3}
+                      value={internalNotes}
+                      onChange={(e) => setInternalNotes(e.target.value)}
+                      placeholder="Add context for teammates…"
+                      aria-label="Internal team notes"
+                    />
+                  </TCard>
+                </div>
+
 
                   {showYoutubeSettings ? (
                     <TCard label="YouTube" aria-label="YouTube Settings">
@@ -731,54 +765,8 @@ export default function ComposerPage() {
                     // </div>
                   )}
                 </div>
-              </ComposerSection>
-
-              <ComposerSection
-                title="Team details"
-                description="Internal labels and notes are never published."
-                icon={Users}
-                collapsible
-                defaultOpen={false}
-              >
-                <div className="composer__section-grid">
-                  <TCard
-                    label="Tags"
-                    gridSpan={6}
-                    meta={<span className="composer-badge">Internal team only</span>}
-                  >
-                    <ComposerTags
-                      value={tags}
-                      onChange={setTags}
-                      clientId={workspaceRef || workspaceId}
-                      showLabel={false}
-                    />
-                  </TCard>
-
-                  <TCard
-                    label="Notes"
-                    gridSpan={6}
-                    meta={<span className="composer-badge">Internal team only</span>}
-                  >
-                    <TTextArea
-                      id="composer-internal-notes"
-                      size="sm"
-                      rows={3}
-                      value={internalNotes}
-                      onChange={(e) => setInternalNotes(e.target.value)}
-                      placeholder="Add context for teammates…"
-                      aria-label="Internal team notes"
-                    />
-                  </TCard>
-                </div>
-              </ComposerSection>
-
-              <ComposerSection
-                title="Assist"
-                description="Generate a starting point or add relevant hashtags."
-                icon={Sparkles}
-                collapsible
-                defaultOpen={false}
-              >
+              
+                            
                 <div className="composer__ai-row">
                   <Button
                     variant="secondary"

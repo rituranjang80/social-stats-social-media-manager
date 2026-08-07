@@ -204,7 +204,7 @@ function Editor() {
       : n));
     setDirty(true);
   }
-  function deleteSelected() {
+  async function deleteSelected() {
     if (!selectedId) return;
     if (!await confirmDialog({
       type: 'delete',

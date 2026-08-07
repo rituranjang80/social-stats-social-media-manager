@@ -92,6 +92,7 @@
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     gap: var(--composer-space-2);
+    margin-bottom:7px;
 
     > * {
       grid-column: span 12;

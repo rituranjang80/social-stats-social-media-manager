@@ -1,0 +1,76 @@
+I want all the item or menu in  xpath //*[@id="root"]/div[1]/aside it we show on xpath //*[@id=":r1:-rail-label"]/div/div
+please see the reference file is frontend\src\components\shell\FeatureSidebar.jsx and hide the code of nothing code remove if require the comment commented code also note deleted all functionality working correctely
+
+
+
+
+still many place show the Social Stats i want to change post4u
+
+like 
+ "http://localhost:3000/login
+http://localhost:3000/admin/analytics/analytics
+xpath //*[@id=":r7:-rail-label"]/header/div/div/h2
+
+but we find in code Social Stats it not show anywhere 
+
+
+we also require drop down menu in xpath "//*[@id="root"]/div[1]/header/div[2]/a" for Account information xpath (//*[@id=":r1:-rail-label"]/div/div/div[3]/div[2]/a[2]) and signout //*[@id=":r1:-rail-label"]/div/div/div[3]/div[2]/button
+
+all the option only for admin
+top menu all menu in xpath  "//*[@id="root"]/div[1]/header/div[1]/div" (Switch workspace) there must be search option for select workspace and last add new option New workspace
+if any one click on this http://localhost:3000/admin/clients 
+all the functionality working fine so it continue must be work
+
+
+in page 
+http://localhost:3000/admin/clients on button xpath
+//*[@id="main-content"]/div/div/div[3]/form/div[3] when we click it send the real template  of  welcome & invitation  send to email client, with tempory password client if client approved  can we login with detail see our functionality temple must be contain redirect url for application
+template must be .env file for getting value
+REACT_APP_BRAND_NAME=Post4U
+REACT_APP_BRAND_SHORT_NAME=Post4U
+REACT_APP_DOCUMENT_TITLE=Post4U — The marketing OS for modern teams
+REACT_APP_BRAND_DESCRIPTION=Post4U — the marketing OS for modern teams. Manage analytics, content, conversations, and ads across Facebook, Instagram, YouTube, 
+
+Admin can modified the template and save it  
+all the value must be change of page 
+http://localhost:3000/admin/clients
+whenever user accept or reject invention  
+
+
+a email is receipt but i not not contain the tempory password It should contain the accept inviention
+ url if user click on it the client must be login without password
+so there are two url 
+first is login http://localhost:3000/login
+and second is accept inviention
+and template not on page
+http://localhost:3000/admin/clients and xpath is //*[@id="main-content"]/div/div/div[3]
+it should be on page 
+http://localhost:3000/admin/account-settings  and below the link  //*[@id="main-content"]/div/div/div[2]/div[1]/div[2]/button[3] add link welcome  template as  click on link the other page open
+with template open in rich text editor
+
+one the page
+http://localhost:3000/admin/clients
+on client list xpath //*[@id="main-content"]/div/div/div[6] there must be option client delete,active inactive and resend inviention mail
+
+
+
+getting error 
+Compiled with problems:
+×
+ERROR in ./src/pages/AcceptInvitationPage.jsx 17:0-57
+Module not found: Error: You attempted to import ../../styles/scss/pages/_accept-invitation.scss which falls outside of the project src/ directory. Relative imports outside of src/ are not supported.
+You can either move it inside src/, or add a symlink to it from project's node_modules/.
+
+the email generate following link
+http://localhost:3000/accept-invitation/2ec6329a-a29e-4f62-8c3b-9d7420818f3f 
+after i click on this link automatic login is not working
+and also email not send the tempory password
+
+
+i am using database sqllite,postgres etc, file system for file save if any reason my system is crash so we require the backup database, and file system in other N number of pc share able folder or map drive, it can be last N days back up database sqllite,postgres etc , of file  all must be configurable 
+please see the datails of .env file 
+
+
+
+
+on page 
