@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <!-- Google Tag Manager -->
+    <script>(function (w, d, s, l, i) {
+      w[l] = w[l] || [];
+      w[l].push({
+        'gtm.start':
+          new Date().getTime(), event: 'gtm.js'
+      });
+      var f = d.getElementsByTagName(s)[0],
+        j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+      j.async = true;
+      j.src =
+        'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+      f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-W4MMVW8');</script>
+    <!-- End Google Tag Manager -->
+    <link id="favicon" rel="icon" href="/favicons/favicon.ico">
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="57x57"
+      href="/favicons/apple-touch-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="114x114"
+      href="/favicons/apple-touch-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="72x72"
+      href="/favicons/apple-touch-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="144x144"
+      href="/favicons/apple-touch-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="60x60"
+      href="/favicons/apple-touch-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="120x120"
+      href="/favicons/apple-touch-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="76x76"
+      href="/favicons/apple-touch-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="152x152"
+      href="/favicons/apple-touch-icon-152x152.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="/favicons/favicon-196x196.png"
+      sizes="196x196"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="/favicons/favicon-96x96.png"
+      sizes="96x96"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="/favicons/favicon-32x32.png"
+      sizes="32x32"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="/favicons/favicon-16x16.png"
+      sizes="16x16"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="/favicons/favicon-128.png"
+      sizes="128x128"
+    />
+    <meta name="application-name" content="&nbsp;" />
+    <meta name="msapplication-TileColor" content="#FFFFFF" />
+    <meta
+      name="msapplication-TileImage"
+      content="/favicons/mstile-144x144.png"
+    />
+    <meta
+      name="msapplication-square70x70logo"
+      content="/favicons/mstile-70x70.png"
+    />
+    <meta
+      name="msapplication-square150x150logo"
+      content="/favicons/mstile-150x150.png"
+    />
+    <meta
+      name="msapplication-wide310x150logo"
+      content="/favicons/mstile-310x150.png"
+    />
+    <meta
+      name="msapplication-square310x310logo"
+      content="/favicons/mstile-310x310.png"
+    />
+
+    <!-- Lock global cascade-layer precedence before any CSS chunks load. -->
+    <style>
+      @layer theme, properties, base, components, utilities;
+    </style>
+
+    <!-- Preconnect/DNS-prefetch hints for critical third-party origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://storage.googleapis.com">
+    <link rel="dns-prefetch" href="https://cdn.paddle.com">
+    <link rel="dns-prefetch" href="https://beacon-v2.helpscout.net">
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://connect.facebook.net">
+    <link rel="dns-prefetch" href="https://assets.customer.io">
+    <link rel="dns-prefetch" href="https://widget.frill.co">
+
+    <!-- Google Fonts - async loaded with display=swap to avoid render blocking -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;500;600&family=Jomhuria:wght@400;500;600&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;500;600&family=Jomhuria:wght@400;500;600&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap"></noscript>
+
+    <script>
+        (function() {
+            function initWhiteLabel() {
+                const isWhiteLabelDomain = !window.location.hostname.includes('.contentstudio.io') && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('contentstudio.local');
+                window.isWhiteLabelDomain = isWhiteLabelDomain;
+
+                if (!isWhiteLabelDomain) {
+                    document.title = 'ContentStudio - Unified Social Media Management Platform';
+                    return;
+                }
+
+                document.title = 'App Loading';
+
+                // Prevent search engines from indexing white-label instances
+                var noindexMeta = document.createElement('meta');
+                noindexMeta.name = 'robots';
+                noindexMeta.content = 'noindex, nofollow';
+                document.head.appendChild(noindexMeta);
+
+                function updateAllIcons(iconUrl) {
+                    const url = iconUrl + '?v=' + new Date().getTime();
+                    document.querySelectorAll("link[rel='icon'], link[rel='shortcut icon'], link[rel='apple-touch-icon'], link[rel='apple-touch-icon-precomposed']").forEach(function(link) {
+                        link.href = url;
+                    });
+                    if (!document.querySelector("link[rel='icon']")) {
+                        const newLink = document.createElement('link');
+                        newLink.rel = 'icon';
+                        newLink.href = url;
+                        document.head.appendChild(newLink);
+                    }
+                }
+
+                try {
+                    const whiteLabelData = localStorage.getItem('whiteLabelSettings');
+                    if (whiteLabelData) {
+                        const settings = JSON.parse(whiteLabelData);
+                        if (settings.businessName) {
+                            document.title = settings.businessName;
+                        }
+                        if (settings.favicon) {
+                            updateAllIcons(settings.favicon);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error applying white label settings:", error);
+                }
+            }
+
+            initWhiteLabel();
+        })();
+    </script>
+
+
+  <script type="module" crossorigin src="/js/index.Cr82vz4I.js"></script>
+  <link rel="modulepreload" crossorigin href="/js/rolldown-runtime.yx2seOWD.js">
+  <link rel="modulepreload" crossorigin href="/js/calendar-vendor.Da_h0gS-.js">
+  <link rel="modulepreload" crossorigin href="/js/dnd-vendor.CioYvf7s.js">
+  <link rel="modulepreload" crossorigin href="/js/vendors.CZ-rARbL.js">
+  <link rel="modulepreload" crossorigin href="/js/api-utils.C1nrBdyr.js">
+  <link rel="modulepreload" crossorigin href="/js/http-common.D6WEFBcE.js">
+  <link rel="modulepreload" crossorigin href="/js/ui-vendor.DPp-zPdo.js">
+  <link rel="modulepreload" crossorigin href="/js/client.BlTlb90W.js">
+  <link rel="modulepreload" crossorigin href="/js/api-utils.iJqfz4Cp.js">
+  <link rel="modulepreload" crossorigin href="/js/api-utils.bTPxrxDx.js">
+  <link rel="modulepreload" crossorigin href="/js/auth.CjrW24fB.js">
+  <link rel="modulepreload" crossorigin href="/js/api-utils.CrYpO3go.js">
+  <link rel="modulepreload" crossorigin href="/js/keys.D0KzJiyJ.js">
+  <link rel="modulepreload" crossorigin href="/js/htmlRenderer.Bgr38mU1.js">
+  <link rel="modulepreload" crossorigin href="/js/useAlertStore.DZXUxhgj.js">
+  <link rel="modulepreload" crossorigin href="/js/useWorkspaceStore.DtHT4xiG.js">
+  <link rel="modulepreload" crossorigin href="/js/event-bus.C1sj5BJn.js">
+  <link rel="modulepreload" crossorigin href="/js/safe-redirect.Aq6eBbZC.js">
+  <link rel="stylesheet" crossorigin href="/css/vendors.DviMo7nG.css">
+  <link rel="stylesheet" crossorigin href="/css/ui-vendor.CBYA2lkS.css">
+  <link rel="stylesheet" crossorigin href="/css/htmlRenderer.DKW4Sqrg.css">
+  <link rel="stylesheet" crossorigin href="/css/index.Bi4k0G-q.css">
+</head>
+<style>
+    .loading-logo {
+        position: fixed;
+        height: 100%;
+        width: 100%;
+        text-align: center;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+    }
+
+    .logo-img {
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+     @keyframes bounce {
+         0%, 100% {
+             transform: translateY(-25%);
+             animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+         }
+         50% {
+             transform: translateY(0);
+             animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+         }
+     }
+</style>
+<body style="background-color: #f4f7fa;">
+<!-- Google Tag Manager (noscript) -->
+<noscript>
+    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W4MMVW8"
+            height="0" width="0" style="display:none;visibility:hidden"></iframe>
+</noscript>
+<!-- End Google Tag Manager (noscript) -->
+<!-- Meta Pixel noscript (must be in body) -->
+<noscript>
+    <img height="1" width="1" style="display:none"
+         src="https://www.facebook.com/tr?id=277632452644288&ev=PageView&noscript=1"/>
+</noscript>
+<!-- End Meta Pixel noscript -->
+<div id="fb-root"></div>
+<noscript>
+    <strong>We're sorry but ui doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+</noscript>
+<div id="app">
+    <div id="logo-container" class="loading-logo flex justify-center items-center">
+    </div>
+</div>
+<script>
+    // Update loading gif
+    (function() {
+        const logoContainer = document.getElementById('logo-container');
+        if (!logoContainer) return;
+
+        const loaderImage = document.createElement('img');
+        loaderImage.id = 'loader-image';
+        loaderImage.style.width = '50px'; // Default width
+        loaderImage.alt = 'Loading...';   // Default alt text
+
+        // Load white label settings if available
+        const whiteLabelData = localStorage.getItem('whiteLabelSettings');
+        const settings = whiteLabelData ? JSON.parse(whiteLabelData) : null;
+
+        if (window.isWhiteLabelDomain && settings?.brandLogo) {
+            loaderImage.src = settings.brandLogo;
+            loaderImage.alt = settings.businessName || loaderImage.alt;
+            loaderImage.style.animation = 'bounce 1s infinite';
+        } else {
+            loaderImage.src = window.isWhiteLabelDomain ? '/default-loader.gif' : "/logo-animation.gif";
+            loaderImage.alt = window.isWhiteLabelDomain ? loaderImage.alt : 'ContentStudio';
+        }
+
+        // Append the loader image to the logo container
+        logoContainer.appendChild(loaderImage);
+    })();
+</script>
+
+
+<script defer src="/js/pubsub.js"></script>
+
+<!--First promoter Code -->
+<script>(function(w){w.fpr=w.fpr||function(){w.fpr.q = w.fpr.q||[];w.fpr.q[arguments[0]=='set'?'unshift':'push'](arguments);};})(window);
+fpr("init", {cid:"9rheh19i"});
+fpr("click");
+</script>
+<script defer src="https://cdn.firstpromoter.com/fpr.js"></script>
+
+<script defer src="https://cdn.headwayapp.co/widget.js"></script>
+<script defer src="https://sdk.canva.com/designbutton/v2/api.js"></script>
+
+<!-- Meta Pixel Code -->
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '277632452644288');
+  fbq('track', 'PageView');
+</script>
+
+<!-- Customer.io - moved from head to reduce render blocking -->
+<script>
+  var _cio = _cio || [];
+  (function () {
+    var a, b, c;
+    a = function (f) {
+      return function () {
+        _cio.push([f].concat(Array.prototype.slice.call(arguments, 0)))
+      }
+    };
+    b = ["load", "identify",
+      "sidentify", "track", "page"];
+    for (c = 0; c < b.length; c++) {
+      _cio[b[c]] = a(b[c])
+    }
+    ;
+    var t = document.createElement('script'),
+      s = document.getElementsByTagName('script')[0];
+    t.defer = true;
+    t.id = 'cio-tracker';
+    t.setAttribute('data-site-id', '0cdaae1a2bbfd5d0591e');
+    t.src = 'https://assets.customer.io/assets/track.js';
+    s.parentNode.insertBefore(t, s);
+  })();
+</script>
+
+<!-- HelpScout Beacon - deferred via requestIdleCallback -->
+<script>
+  window.Beacon = window.Beacon || function (t, n, a) {
+    window.Beacon.readyQueue = window.Beacon.readyQueue || [];
+    window.Beacon.readyQueue.push({method: t, options: n, data: a});
+  };
+  try {
+    window.Beacon('init', '626c24ec-ce12-4b02-888b-58f6e82c07f7');
+  } catch (e) {
+    console.error('Helpscout widget failed to load', e);
+  }
+  (function() {
+    function loadBeacon() {
+      var e = document.getElementsByTagName("script")[0], n = document.createElement("script");
+      n.type = "text/javascript"; n.defer = true; n.src = "https://beacon-v2.helpscout.net";
+      e.parentNode.insertBefore(n, e);
+    }
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(loadBeacon, { timeout: 4000 });
+    } else {
+      setTimeout(loadBeacon, 3000);
+    }
+  })();
+</script>
+
+<!-- Frill widget - deferred via requestIdleCallback -->
+<script>
+  (function(t,r){
+    if(!t.Frill){var o=0,i={};t.Frill=function(e,p){var n,l=o++,c=new Promise(function(v,d){i[l]={params:[e,p],resolve:function(f){n=f,v(f)},reject:d}});return c.destroy=function(){delete i[l],n&&n.destroy()},c};t.Frill.q=i}
+    function s(){var a=r.getElementsByTagName("script")[0],e=r.createElement("script");e.type="text/javascript",e.async=!0,e.src="https://widget.frill.co/v2/container.js",a.parentNode.insertBefore(e,a)}
+    if('requestIdleCallback' in window){requestIdleCallback(s,{timeout:5000})}else{setTimeout(s,4000)}
+  })(window,document);
+</script>
+
+<!-- Vite entry point -->
+</body>
+</html>

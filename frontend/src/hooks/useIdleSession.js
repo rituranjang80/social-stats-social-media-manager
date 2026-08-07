@@ -1,6 +1,5 @@
 /* ============================================================================
  * Tracks user activity; warns before idle logout; refreshes JWT while active.
- * Popup only when the tab is visible/focused and there is no real user activity.
  * ========================================================================== */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -9,19 +8,13 @@ import axios from 'axios';
 import sessionIdleConfig from '../config/sessionIdle';
 import { playIdleBeep } from '../utils/idleBeep';
 
-/** Immediate activity — clicks, keys, taps. */
-const DIRECT_ACTIVITY_EVENTS = ['mousedown', 'keydown', 'touchstart', 'pointerdown', 'click', 'input'];
+const ACTIVITY_EVENTS = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click', 'wheel'];
 
 function formatCountdown(totalSeconds) {
   const s = Math.max(0, totalSeconds);
   const m = Math.floor(s / 60);
   const r = s % 60;
   return `${m}:${String(r).padStart(2, '0')}`;
-}
-
-function isTabEngaged() {
-  if (typeof document === 'undefined') return true;
-  return !document.hidden && document.visibilityState === 'visible';
 }
 
 async function refreshAccessTokenSilently() {
@@ -44,128 +37,72 @@ export function useIdleSession({ active, onLogout }) {
   const lastActivityRef = useRef(Date.now());
   const lastTokenRefreshRef = useRef(Date.now());
   const warningOpenRef = useRef(false);
-  const lastBeepSecondRef = useRef(-1);
+  const lastBeepMinuteRef = useRef(-1);
   const loggingOutRef = useRef(false);
-  const hiddenAtRef = useRef(null);
-  const onLogoutRef = useRef(onLogout);
-  onLogoutRef.current = onLogout;
 
   const [warningOpen, setWarningOpen] = useState(false);
   const [remainingSeconds, setRemainingSeconds] = useState(0);
 
-  const dismissWarning = useCallback(() => {
-    if (!warningOpenRef.current) return;
-    warningOpenRef.current = false;
-    lastBeepSecondRef.current = -1;
-    setWarningOpen(false);
-  }, []);
-
-  const recordActivity = useCallback((opts = {}) => {
-    const { refreshToken = true } = opts;
+  const bumpActivity = useCallback((fromWarningContinue = false) => {
     const now = Date.now();
     lastActivityRef.current = now;
-    dismissWarning();
-
-    if (!refreshToken) return;
-    const sinceRefresh = now - lastTokenRefreshRef.current;
-    if (sinceRefresh >= cfg.tokenRefreshMs) {
-      lastTokenRefreshRef.current = now;
-      refreshAccessTokenSilently().catch(() => {});
+    if (fromWarningContinue || warningOpenRef.current) {
+      warningOpenRef.current = false;
+      setWarningOpen(false);
+      lastBeepMinuteRef.current = -1;
     }
-  }, [cfg.tokenRefreshMs, dismissWarning]);
+  }, []);
 
   const continueWorking = useCallback(() => {
-    recordActivity();
-  }, [recordActivity]);
+    bumpActivity(true);
+  }, [bumpActivity]);
 
   const performLogout = useCallback(() => {
     if (loggingOutRef.current) return;
     loggingOutRef.current = true;
-    dismissWarning();
-    onLogoutRef.current?.();
+    warningOpenRef.current = false;
+    setWarningOpen(false);
+    onLogout?.();
     navigate('/login', { replace: true });
-  }, [navigate, dismissWarning]);
+  }, [navigate, onLogout]);
 
-  const getIdleMs = useCallback(() => {
-    const now = Date.now();
-    if (hiddenAtRef.current != null) {
-      return hiddenAtRef.current - lastActivityRef.current;
-    }
-    return now - lastActivityRef.current;
-  }, []);
-
-  // Activity listeners
+  // Activity listeners + throttled JWT refresh while working
   useEffect(() => {
     if (!active || !cfg.enabled) return undefined;
 
-    loggingOutRef.current = false;
     lastActivityRef.current = Date.now();
     lastTokenRefreshRef.current = Date.now();
-    hiddenAtRef.current = null;
+    loggingOutRef.current = false;
 
-    let directThrottleUntil = 0;
-    let moveThrottleUntil = 0;
+    let throttleTimer = null;
+    const onActivity = () => {
+      if (warningOpenRef.current) return;
+      if (throttleTimer) return;
+      throttleTimer = setTimeout(() => {
+        throttleTimer = null;
+      }, 1000);
+      lastActivityRef.current = Date.now();
 
-    const onDirectActivity = () => {
-      const now = Date.now();
-      if (now < directThrottleUntil) return;
-      directThrottleUntil = now + 400;
-      recordActivity();
-    };
-
-    const onMouseMove = () => {
-      const now = Date.now();
-      if (now < moveThrottleUntil) return;
-      moveThrottleUntil = now + 2500;
-      recordActivity({ refreshToken: false });
-    };
-
-    const onFocusIn = () => {
-      recordActivity({ refreshToken: false });
-    };
-
-    const onVisibility = () => {
-      if (document.hidden) {
-        hiddenAtRef.current = Date.now();
-        dismissWarning();
-        return;
+      const sinceRefresh = Date.now() - lastTokenRefreshRef.current;
+      if (sinceRefresh >= cfg.tokenRefreshMs) {
+        lastTokenRefreshRef.current = Date.now();
+        refreshAccessTokenSilently().catch(() => {});
       }
-      if (hiddenAtRef.current != null) {
-        const hiddenFor = Date.now() - hiddenAtRef.current;
-        lastActivityRef.current += hiddenFor;
-        hiddenAtRef.current = null;
-      }
-      recordActivity({ refreshToken: false });
     };
 
-    DIRECT_ACTIVITY_EVENTS.forEach((ev) => {
-      window.addEventListener(ev, onDirectActivity, { capture: true, passive: true });
-    });
-    window.addEventListener('mousemove', onMouseMove, { capture: true, passive: true });
-    window.addEventListener('focusin', onFocusIn, { capture: true, passive: true });
-    document.addEventListener('visibilitychange', onVisibility);
-
+    ACTIVITY_EVENTS.forEach((ev) => window.addEventListener(ev, onActivity, { passive: true }));
     return () => {
-      DIRECT_ACTIVITY_EVENTS.forEach((ev) => {
-        window.removeEventListener(ev, onDirectActivity, { capture: true });
-      });
-      window.removeEventListener('mousemove', onMouseMove, { capture: true });
-      window.removeEventListener('focusin', onFocusIn, { capture: true });
-      document.removeEventListener('visibilitychange', onVisibility);
+      ACTIVITY_EVENTS.forEach((ev) => window.removeEventListener(ev, onActivity));
+      if (throttleTimer) clearTimeout(throttleTimer);
     };
-  }, [active, cfg.enabled, recordActivity, dismissWarning]);
+  }, [active, cfg.enabled, cfg.tokenRefreshMs]);
 
   // Idle tick (1s)
   useEffect(() => {
     if (!active || !cfg.enabled) return undefined;
 
     const tick = () => {
-      if (!isTabEngaged()) {
-        dismissWarning();
-        return;
-      }
-
-      const idleMs = getIdleMs();
+      const idleMs = Date.now() - lastActivityRef.current;
       const remainingMs = cfg.idleTimeoutMs - idleMs;
 
       if (remainingMs <= 0) {
@@ -179,30 +116,26 @@ export function useIdleSession({ active, onLogout }) {
         if (!warningOpenRef.current) {
           warningOpenRef.current = true;
           setWarningOpen(true);
-          lastBeepSecondRef.current = sec;
           if (cfg.beepEnabled) playIdleBeep();
-        } else if (cfg.beepEnabled && sec !== lastBeepSecondRef.current && sec > 0 && sec % 30 === 0) {
-          lastBeepSecondRef.current = sec;
-          playIdleBeep();
+        } else if (cfg.beepEnabled && remainingSeconds > 0 && remainingSeconds % 60 === 0) {
+          const bucket = Math.floor(remainingSeconds / 60);
+          if (bucket !== lastBeepMinuteRef.current) {
+            lastBeepMinuteRef.current = bucket;
+            playIdleBeep();
+          }
         }
       } else {
-        dismissWarning();
+        if (warningOpenRef.current) {
+          warningOpenRef.current = false;
+          setWarningOpen(false);
+        }
       }
     };
 
     tick();
-    const id = window.setInterval(tick, 1000);
-    return () => window.clearInterval(id);
-  }, [
-    active,
-    cfg.enabled,
-    cfg.idleTimeoutMs,
-    cfg.warningAtMs,
-    cfg.beepEnabled,
-    performLogout,
-    getIdleMs,
-    dismissWarning,
-  ]);
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [active, cfg.enabled, cfg.idleTimeoutMs, cfg.warningAtMs, cfg.beepEnabled, performLogout]);
 
   return {
     enabled: cfg.enabled && active,
@@ -210,8 +143,8 @@ export function useIdleSession({ active, onLogout }) {
     remainingSeconds,
     remainingLabel: formatCountdown(remainingSeconds),
     continueWorking,
+    idleTimeoutMinutes: cfg.idleTimeoutMinutes,
     warningMinutes: cfg.warningMinutes,
-    warningSeconds: cfg.warningSeconds,
   };
 }
 

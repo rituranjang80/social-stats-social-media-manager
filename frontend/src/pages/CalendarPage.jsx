@@ -9,6 +9,7 @@
 import {
   lazy, Suspense, useCallback, useEffect, useMemo, useState,
 } from 'react';
+import PropTypes from 'prop-types';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { format } from 'date-fns';
 import { Calendar as CalIcon, List, Loader2 } from 'lucide-react';
@@ -27,6 +28,8 @@ import CalendarToolbar from '../components/calendar/CalendarToolbar';
 import CalendarStatusLegend from '../components/calendar/CalendarStatusLegend';
 import CalendarStatistics from '../components/calendar/CalendarStatistics';
 import FloatingCreateButton from '../components/calendar/FloatingCreateButton';
+import { CalendarUiProvider, useCalendarUi } from '../components/calendar/CalendarUiContext';
+import CalendarPostDetailDock from '../components/calendar/CalendarPostDetailDock';
 import PostDrawer from '../components/calendar/PostDrawer';
 import PostFormDrawer from '../components/calendar/PostFormDrawer';
 import UpcomingPosts from '../components/calendar/UpcomingPosts';
@@ -58,6 +61,22 @@ function ViewFallback() {
     </div>
   );
 }
+
+function CalendarPinnedDock({ cardActions }) {
+  const ui = useCalendarUi();
+  if (!ui?.pinnedPosts?.length) return null;
+  return (
+    <CalendarPostDetailDock
+      posts={ui.pinnedPosts}
+      cardActions={cardActions}
+      onUnpin={(post) => ui.setPostPinned(post, false)}
+    />
+  );
+}
+
+CalendarPinnedDock.propTypes = {
+  cardActions: PropTypes.object,
+};
 
 export default function CalendarPage({ clientId: propClientId }) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -317,6 +336,7 @@ export default function CalendarPage({ clientId: propClientId }) {
   const activeView = mode === 'list' ? 'agenda' : view;
 
   return (
+    <CalendarUiProvider>
     <div className="bb-cal">
       <div className="bb-cal__shell">
         <div className="bb-cal__title-row">
@@ -374,7 +394,7 @@ export default function CalendarPage({ clientId: propClientId }) {
           currentUser={user}
         />
 
-        <CalendarStatusLegend selected={statuses} onChange={setStatuses} />
+        {/* <CalendarStatusLegend selected={statuses} onChange={setStatuses} /> */}
 
         <div className="bb-cal__content-scroll">
         {postsLoading ? (
@@ -456,6 +476,8 @@ export default function CalendarPage({ clientId: propClientId }) {
         />
       ) : null}
 
+      <CalendarPinnedDock cardActions={cardActions} />
+
       <PostDrawer
         post={detailPost}
         isOpen={detailOpen}
@@ -475,5 +497,6 @@ export default function CalendarPage({ clientId: propClientId }) {
         readOnly={!isAdmin}
       />
     </div>
+    </CalendarUiProvider>
   );
 }

@@ -81,3 +81,47 @@ in the below of xpath //*[@id="main-content"]/div/div/div[1]/div[3] all item tex
 decrease the calender size these item must be visible all item text like ( Draft, Pending Review, Pending Client, Approved, Changes Requested, Rejected, Scheduled, Publishing, Published, Failed, On Hold,)  while calender scroll
 
 
+I save the many post as draft but it not show on calender must be show on calendr calender must be scroll xpath "//*[@id="main-content"]/div/div/div[1]/div[4]/div" left and right margin ,calender must show near not use extra space (social media icon,title,time)
+the xpath //*[@id="main-content"]/div/div/div[1]/div[3] all item must include the chekck box so easily show on the calender UI may be perfect
+
+check and unchek not proper working 
+
+//*[@id="main-content"]/div/div/div[1]/div[2]/div[3]/div[1]/div/label[1]/input
+//*[@id="main-content"]/div/div/div[1]/div[2]/div[3]/div[2]/div/label/input
+
+//*[@id="main-content"]/div/div/div[1]/div[3]/div/label[1]/input
+
+
+if we change the value of xpath //*[@id=":r27:"] week or Day it must show the all post on same date and time with tools tips that already work on month view
+also add a button for add a post //*[@id="main-content"]/div/div/div[1]/div[4]/div/div[2]/div[12]/div[1]/button in week and day  that is already working on Month view 
+
+check and uncheck not proper working for All Channels, All Post below are xpath
+
+//*[@id="main-content"]/div/div/div[1]/div[2]/div[3]/div[1]/div/label[1]/input
+//*[@id="main-content"]/div/div/div[1]/div[2]/div[3]/div[2]/div/label/input
+
+//*[@id="main-content"]/div/div/div[1]/div[3]/div/label[1]/input
+
+on Day view we require toll-tips and  add a post //*[@id="main-content"]/div/div/div[1]/div[4]/div/div[2]/div[12]/div[1]/button on mouse hover near by current content top please resolve issue
+
+
+width: 15px !important;
+    height: 15px !important;
+    top: 1px;
+
+
+in page 
+http://localhost:3000/admin/analytics/composer
+xpath //*[@id=":r4r:-content"]/div/section[1]/div/div/div/button whenever i click on button it must be redirect to http://localhost:3000/admin/client/4/settings
+we require all of workspace or other ID must be guid so nobody misused the the ID
+
+
+on page http://localhost:3000/admin/analytics/queues on pop-up //*[@id="main-content"]/div/div/div[3]/div
+on input box //*[@id="main-content"]/div/div/div[3]/div/div/div[2]/label[2]/input
+
+the functionality is display not user friendly it cron job
+Schedule (cron)
+0 10 * * 1-5
+e.g. 0 10 * * 1-5 = 10am Mon–Fri
+please create the user friendly change the UI for end user easily understand
+

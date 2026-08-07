@@ -1,11 +1,10 @@
 import PropTypes from 'prop-types';
 import SocialPlatformIcon from '../ui/SocialPlatformIcon';
-import {
-  Copy, Eye, BarChart2, Pencil, Trash2, ExternalLink,
-} from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { postStatusFilterKey, statusLabelFor } from './statusTheme';
 import { calendarAnchorIso } from './utils';
+import { useCalendarUi } from './CalendarUiContext';
+import CalendarCardActions from './CalendarCardActions';
 
 function safeTime(iso) {
   if (!iso) return '';
@@ -54,7 +53,11 @@ export default function CalendarCard({
   onDragStart,
   onDragEnd,
   compact = false,
+  showPinCheckbox = true,
 }) {
+  const ui = useCalendarUi();
+  const pinEnabled = showPinCheckbox && ui;
+  const pinned = pinEnabled && ui.isPostPinned(post);
   const statusKey = postStatusFilterKey(post.status);
   const statusHuman = statusLabelFor(post.status);
   const label = post.title || post.caption || post.content || '(untitled)';
@@ -79,8 +82,9 @@ export default function CalendarCard({
         'bb-cal__card',
         compact ? 'bb-cal__card--compact' : 'bb-cal__card--rich',
         `bb-cal__card--${statusKey}`,
+        pinned ? 'is-pinned' : '',
       ].join(' ')}
-      title={tooltip}
+      title={pinned ? undefined : tooltip}
       draggable={draggable && statusKey !== 'published'}
       onDragStart={(e) => {
         e.stopPropagation();
@@ -108,6 +112,23 @@ export default function CalendarCard({
       }}
       aria-label={`${label}, ${statusHuman}${timeStr ? `, ${timeStr}` : ''}`}
     >
+      {pinEnabled ? (
+        <span
+          className="bb-cal__card-pin"
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+        >
+          <input
+            type="checkbox"
+            className="bb-cal__card-pin-input"
+            checked={pinned}
+            aria-label={`Show actions for ${label}`}
+            onChange={(e) => {
+              ui.setPostPinned(post, e.target.checked);
+            }}
+          />
+        </span>
+      ) : null}
       {!compact && thumb ? (
         <img className="bb-cal__card-thumb" src={thumb} alt="" loading="lazy" />
       ) : null}
@@ -133,44 +154,16 @@ export default function CalendarCard({
         </span>
       ) : null}
 
-      <div className="bb-cal__card-actions" role="toolbar" aria-label="Post actions">
-        {onEdit ? (
-          <button type="button" className="bb-cal__card-action" title="Edit" aria-label="Edit"
-            onClick={(e) => { e.stopPropagation(); onEdit(post); }}>
-            <Pencil size={12} />
-          </button>
-        ) : null}
-        {onDuplicate ? (
-          <button type="button" className="bb-cal__card-action" title="Duplicate" aria-label="Duplicate"
-            onClick={(e) => { e.stopPropagation(); onDuplicate(post); }}>
-            <Copy size={12} />
-          </button>
-        ) : null}
-        {onPreview || onOpen ? (
-          <button type="button" className="bb-cal__card-action" title="Preview" aria-label="Preview"
-            onClick={(e) => { e.stopPropagation(); (onPreview || onOpen)(post); }}>
-            <Eye size={12} />
-          </button>
-        ) : null}
-        {onAnalytics ? (
-          <button type="button" className="bb-cal__card-action" title="View analytics" aria-label="View analytics"
-            onClick={(e) => { e.stopPropagation(); onAnalytics(post); }}>
-            <BarChart2 size={12} />
-          </button>
-        ) : null}
-        {onComposer ? (
-          <button type="button" className="bb-cal__card-action" title="Open Composer" aria-label="Open Composer"
-            onClick={(e) => { e.stopPropagation(); onComposer(post); }}>
-            <ExternalLink size={12} />
-          </button>
-        ) : null}
-        {onDelete && statusKey !== 'published' ? (
-          <button type="button" className="bb-cal__card-action" title="Delete" aria-label="Delete"
-            onClick={(e) => { e.stopPropagation(); onDelete(post); }}>
-            <Trash2 size={12} />
-          </button>
-        ) : null}
-      </div>
+      <CalendarCardActions
+        post={post}
+        onOpen={onOpen}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        onDuplicate={onDuplicate}
+        onPreview={onPreview}
+        onAnalytics={onAnalytics}
+        onComposer={onComposer}
+      />
     </div>
   );
 }
@@ -188,4 +181,5 @@ CalendarCard.propTypes = {
   onDragStart: PropTypes.func,
   onDragEnd: PropTypes.func,
   compact: PropTypes.bool,
+  showPinCheckbox: PropTypes.bool,
 };

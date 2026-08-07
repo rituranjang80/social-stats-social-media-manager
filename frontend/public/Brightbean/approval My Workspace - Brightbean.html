@@ -1,0 +1,2288 @@
+<!DOCTYPE html>
+<!-- saved from url=(0106)https://studio.brightbean.xyz/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/?mode=list&tab=queue -->
+<html lang="en" style=""><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publish - My Workspace - Brightbean</title>
+    <link rel="icon" href="https://studio.brightbean.xyz/static/favicon/favicon.d50284013639.ico" sizes="any">
+    <link rel="icon" type="image/svg+xml" href="https://studio.brightbean.xyz/static/favicon/favicon.062e82683d98.svg">
+    <link rel="icon" type="image/png" sizes="96x96" href="https://studio.brightbean.xyz/static/favicon/favicon-96x96.86b1a03866a1.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://studio.brightbean.xyz/static/favicon/apple-touch-icon.bdd075b8cd03.png">
+    <link rel="manifest" href="https://studio.brightbean.xyz/static/favicon/site.ce35236e49ba.webmanifest">
+    <link rel="stylesheet" href="./approval My Workspace - Brightbean_files/styles.db5d8b7adefa.css">
+    <link rel="stylesheet" href="./approval My Workspace - Brightbean_files/flatpickr.min.css">
+    <script nonce="">
+        // Set sidebar state class on <html> before first paint to prevent flash
+        if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            document.documentElement.classList.add('sidebar-is-collapsed');
+        }
+    </script>
+    <style>
+        [x-cloak] { display: none !important; }
+        /* Initial sidebar width - applied before Alpine loads */
+        .sidebar-initial { width: 240px; }
+        html.sidebar-is-collapsed .sidebar-initial { width: 60px; }
+        html.sidebar-is-collapsed .sidebar-initial .sidebar-nav-item { justify-content: center; padding: 8px; gap: 0; }
+        html.sidebar-is-collapsed .sidebar-initial .sidebar-nav-label,
+        html.sidebar-is-collapsed .sidebar-initial .sidebar-section-label,
+        html.sidebar-is-collapsed .sidebar-initial .sidebar-section-label-wrap,
+        html.sidebar-is-collapsed .sidebar-initial .sidebar-badge { display: none; }
+        html.sidebar-is-collapsed .sidebar-initial .sidebar-new-label,
+        html.sidebar-is-collapsed .sidebar-initial .sidebar-connect-channels { display: none; }
+        /* Collapsed child overrides before Alpine */
+        html.sidebar-is-collapsed .sidebar-initial .sidebar-ws-btn { justify-content: center; padding-left: 0; padding-right: 0; gap: 0; }
+        html.sidebar-is-collapsed .sidebar-initial .sidebar-new-wrap { padding-left: 0.5rem; padding-right: 0.5rem; }
+        html.sidebar-is-collapsed .sidebar-initial .sidebar-nav { padding-left: 0.5rem; padding-right: 0.5rem; }
+        html.sidebar-is-collapsed .sidebar-initial .sidebar-org-footer { padding: 0.5rem; }
+        html.sidebar-is-collapsed .sidebar-initial .sidebar-org-expanded { display: none; }
+        html.sidebar-is-collapsed .sidebar-initial .sidebar-org-collapsed { display: flex !important; }
+
+        /* Mobile: hide sidebar off-screen before Alpine loads */
+        @media (max-width: 1023px) {
+            .sidebar-initial {
+                position: fixed;
+                top: 0; bottom: 0; left: 0;
+                transform: translateX(-100%);
+                z-index: 40;
+                width: 240px !important;
+            }
+            /* On mobile, never show collapsed state pre-Alpine */
+            html.sidebar-is-collapsed .sidebar-initial { width: 240px !important; }
+        }
+
+        /* Idea modal styles (shared with create_landing) */
+        .idea-modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 200;
+        }
+        .idea-modal {
+            background: white; border-radius: 16px; width: 100%; max-width: 640px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            display: flex; flex-direction: column; max-height: calc(100vh - 80px); position: relative;
+            margin: 0 1rem;
+        }
+        @media (max-width: 640px) {
+            .idea-modal {
+                margin: 0; border-radius: 0; max-height: 100vh; height: 100vh;
+            }
+            .idea-modal-overlay {
+                align-items: stretch;
+            }
+        }
+        .idea-modal-close {
+            position: absolute; top: 16px; right: 16px; width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            border: none; background: none; border-radius: 6px;
+            color: var(--text-tertiary); cursor: pointer; transition: color 150ms, background 150ms; z-index: 1;
+        }
+        .idea-modal-close:hover { color: var(--text-primary); background: var(--neutral-100); }
+        .idea-modal-header {
+            display: flex; align-items: center; justify-content: space-between; padding: 20px 50px 16px 24px;
+        }
+        .idea-modal-body { flex: 1; overflow-y: auto; padding: 0 24px 16px; }
+        .idea-modal-footer {
+            padding: 16px 24px; border-top: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+        }
+        .idea-modal-body input.idea-title-input {
+            width: 100%; font-size: 1.25rem; font-weight: 700; color: var(--text-primary);
+            border: none; outline: none; padding: 0; margin-bottom: 12px; background: transparent;
+        }
+        .idea-modal-body input.idea-title-input::placeholder { color: var(--neutral-300); }
+        .idea-modal-body textarea.idea-desc-input {
+            width: 100%; min-height: 160px; font-size: 0.875rem; color: var(--text-primary);
+            border: none; outline: none; padding: 0; resize: none; background: transparent; line-height: 1.7;
+        }
+        .idea-modal-body textarea.idea-desc-input::placeholder { color: var(--neutral-300); }
+        .idea-pill-btn {
+            display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
+            border: 1px solid var(--border); border-radius: 9999px; font-size: 0.8125rem;
+            font-weight: 500; color: var(--text-primary); background: var(--surface-0);
+            cursor: pointer; transition: background 150ms; white-space: nowrap;
+        }
+        .idea-pill-btn:hover { background: var(--neutral-50); }
+        .idea-pill-dropdown {
+            position: absolute; top: calc(100% + 6px); right: 0; background: white;
+            border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); border: 1px solid var(--border);
+            min-width: 180px; max-height: 240px; overflow-y: auto; z-index: 210; padding: 4px;
+        }
+        .idea-pill-dropdown label, .idea-pill-dropdown button {
+            display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 10px;
+            font-size: 0.8125rem; border-radius: 6px; cursor: pointer; transition: background 100ms;
+            border: none; background: none; color: var(--text-primary); text-align: left;
+        }
+        .idea-pill-dropdown label:hover, .idea-pill-dropdown button:hover { background: var(--neutral-50); }
+        .idea-media-zone {
+            border: 2px dashed var(--border); border-radius: 12px; padding: 24px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+            color: var(--text-tertiary); font-size: 0.8125rem; max-width: 150px; margin-top: 16px;
+            cursor: pointer;
+            transition: border-color 150ms, background 150ms;
+        }
+        .idea-media-zone.drag-over { border-color: var(--primary); background: rgba(var(--primary-rgb, 249, 115, 22), 0.05); }
+        .idea-media-strip-layout {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .idea-media-zone.idea-media-zone-tile {
+            margin-top: 0;
+            width: 130px;
+            max-width: 130px;
+            min-height: 130px;
+            height: 130px;
+            padding: 14px 10px;
+        }
+        .idea-media-existing-card {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            width: 130px;
+            height: 130px;
+            background: var(--neutral-100);
+        }
+        .idea-media-existing-card img,
+        .idea-media-existing-card video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .idea-media-existing-card .remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 38px;
+            height: 38px;
+            border: 2px solid #fff;
+            border-radius: 9999px;
+            background: rgba(38, 38, 38, 0.78);
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: background 150ms;
+        }
+        .idea-media-existing-card .remove-btn:hover { background: rgba(23, 23, 23, 0.9); }
+        @media (max-width: 640px) {
+            .idea-media-strip-layout {
+                gap: 10px;
+            }
+        }
+        .idea-selected-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+        .idea-selected-tags .idea-tag-chip {
+            display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 9999px;
+            font-size: 0.6875rem; font-weight: 600;
+            background: var(--primary-soft, #FFF7ED); color: var(--primary, #C2410C); border: 1px solid var(--primary-muted, #FED7AA);
+        }
+        .idea-selected-tags .idea-tag-chip button {
+            display: flex; align-items: center; justify-content: center;
+            width: 12px; height: 12px; border: none; background: none; cursor: pointer; color: inherit; padding: 0;
+        }
+        .emoji-picker-popup {
+            position: absolute; bottom: calc(100% + 8px); left: 0; background: white;
+            border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); border: 1px solid var(--border);
+            width: 280px; z-index: 220; overflow: hidden;
+        }
+        .emoji-picker-search { padding: 8px 8px 4px; }
+        .emoji-picker-grid {
+            display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px;
+            padding: 4px 8px 8px; max-height: 200px; overflow-y: auto;
+        }
+        .emoji-picker-item {
+            width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; border: none; background: none; border-radius: 6px; cursor: pointer; transition: background 100ms;
+        }
+        .emoji-picker-item:hover { background: var(--neutral-100); }
+    </style>
+    
+<style>
+    /* Fix parent overflow clipping the calendar */
+    main:has(#publish-body) > div { overflow: visible !important; }
+
+    /* Calendar-specific styles */
+    .cal-day {
+        min-height: 80px;
+        border-right: 1px solid #E7E5E4;
+        border-bottom: 1px solid #E7E5E4;
+        padding: 6px;
+        transition: background 150ms ease;
+        background: white;
+    }
+    @media (min-width: 768px) {
+        .cal-day { min-height: 130px; padding: 8px; }
+    }
+    .cal-day:hover { background: #FAFAF9; }
+    .cal-day.past { background: #F5F5F4; }
+    .cal-day.past:hover { background: #EEEEEC; }
+    .cal-day.today { background: #FFF7ED; }
+    .cal-day.other-month { opacity: 0.4; }
+    .cal-day .day-num {
+        font-size: 13px; font-weight: 600;
+        width: 28px; height: 28px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 4px;
+        color: #44403C;
+    }
+    .cal-day.past .day-num { color: #78716C; }
+    .cal-day.today .day-num {
+        background: #F97316; color: white;
+    }
+
+    .post-chip {
+        display: flex; align-items: center; gap: 4px;
+        padding: 3px 6px; border-radius: 6px;
+        font-size: 11px; font-weight: 500;
+        margin-bottom: 2px; cursor: pointer;
+        transition: all 150ms ease;
+        text-decoration: none;
+        max-width: 100%; overflow: hidden;
+    }
+    .post-chip:hover { transform: translateX(1px); }
+    .post-chip .chip-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Status colors */
+    .status-draft      { background: #F5F5F4; color: #57534E; border: 1px solid #E7E5E4; }
+    .status-draft .chip-dot { background: #A8A29E; }
+    .status-pending_review, .status-pending_client { background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA; }
+    .status-pending_review .chip-dot, .status-pending_client .chip-dot { background: #F97316; }
+    .status-scheduled  { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
+    .status-scheduled .chip-dot { background: #3B82F6; }
+    .status-published  { background: #F0FDF4; color: #15803D; border: 1px solid #BBF7D0; }
+    .status-published .chip-dot { background: #22C55E; }
+    .status-approved   { background: #F0FDFA; color: #0F766E; border: 1px solid #99F6E4; }
+    .status-approved .chip-dot { background: #14B8A6; }
+    .status-changes_requested { background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA; }
+    .status-changes_requested .chip-dot { background: #F97316; }
+    .status-rejected   { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
+    .status-rejected .chip-dot { background: #EF4444; }
+    .status-publishing { background: #EEF2FF; color: #4338CA; border: 1px solid #C7D2FE; }
+    .status-publishing .chip-dot { background: #6366F1; }
+    .status-partially_published { background: #FEFCE8; color: #A16207; border: 1px solid #FEF08A; }
+    .status-partially_published .chip-dot { background: #EAB308; }
+    .status-failed     { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
+    .status-failed .chip-dot { background: #EF4444; }
+    .status-on_hold    { background: #F5F3FF; color: #6D28D9; border: 1px solid #DDD6FE; }
+    .status-on_hold .chip-dot { background: #7C3AED; }
+
+    /* View switcher */
+    .view-btn {
+        padding: 6px 14px; border-radius: 9999px;
+        font-size: 12px; font-weight: 600;
+        color: #78716C; border: none; background: transparent;
+        cursor: pointer; transition: all 150ms ease;
+    }
+    .view-btn:hover { color: #1C1917; background: #F5F5F4; }
+    .view-btn.active { color: #C2410C; background: #FFF7ED; border: 1px solid #FDBA74; box-shadow: 0 1px 2px rgba(194, 65, 12, 0.08); }
+
+    /* Filter chips */
+    .filter-chip {
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 4px 10px; border-radius: 9999px;
+        font-size: 11px; font-weight: 600;
+        background: #FFF7ED; color: #C2410C;
+        border: 1px solid #FED7AA;
+    }
+    .filter-chip button {
+        width: 14px; height: 14px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        background: transparent; border: none; cursor: pointer;
+        color: #EA580C; font-size: 10px;
+    }
+    .filter-chip button:hover { background: #FFEDD5; }
+
+    /* Publish tab styles */
+    .publish-tab {
+        padding: 10px 16px; border-radius: 0;
+        font-size: 13px; font-weight: 600;
+        color: #78716C; background: transparent;
+        border: none; cursor: pointer;
+        transition: all 150ms ease;
+        position: relative;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+    }
+    .publish-tab:hover { color: #1C1917; border-bottom-color: #D6D3D1; }
+    .publish-tab.active { color: #C2410C; border-bottom-color: #F97316; }
+
+    /* Hide scrollbar on filter containers */
+    .cal-filters-scroll::-webkit-scrollbar { display: none; }
+
+    /* Filter dropdowns (shared by list and calendar modes) */
+    .publish-filter-select,
+    .cal-filter-select {
+        padding: 6px 28px 6px 10px; border-radius: 8px;
+        font-size: 12px; font-weight: 600;
+        color: #57534E; background: white;
+        border: 1px solid #E7E5E4;
+        cursor: pointer; transition: all 150ms ease;
+        appearance: none;
+        white-space: nowrap;
+        flex-shrink: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2378716C' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+    }
+    .publish-filter-select.has-icon,
+    .cal-filter-select.has-icon { padding-left: 28px; }
+    .publish-filter-select:hover,
+    .cal-filter-select:hover { border-color: #D6D3D1; }
+    .publish-filter-select:focus,
+    .cal-filter-select:focus { outline: none; border-color: #F97316; box-shadow: 0 0 0 2px rgba(249,115,22,0.15); }
+    .publish-filter-icon,
+    .cal-filter-icon {
+        position: absolute; left: 9px; top: 50%; transform: translateY(-50%);
+        width: 14px; height: 14px; color: #78716C; pointer-events: none;
+    }
+
+    /* Platform icon badges */
+    .pi-facebook   { background: #1877F2; }
+    .pi-instagram  { background: linear-gradient(135deg, #F58529, #DD2A7B, #8134AF); }
+    .pi-linkedin   { background: #0A66C2; }
+    .pi-linkedin_personal { background: #0A66C2; }
+    .pi-linkedin_company  { background: #0A66C2; }
+    .pi-tiktok     { background: #010101; }
+    .pi-youtube    { background: #FF0000; }
+    .pi-pinterest  { background: #E60023; }
+    .pi-threads    { background: #000000; }
+    .pi-bluesky    { background: #0085FF; }
+    .pi-google_business { background: #4285F4; }
+    .pi-mastodon   { background: #6364FF; }
+
+    /* Add-post button on calendar cells - default (has posts): small top-right */
+    .cal-add-btn {
+        display: none;
+        position: absolute; top: 6px; right: 6px;
+        width: 22px; height: 22px; border-radius: 50%;
+        background: #F97316; color: white; border: none;
+        align-items: center; justify-content: center;
+        cursor: pointer; font-size: 14px; line-height: 1;
+        box-shadow: 0 2px 6px rgba(249,115,22,0.35);
+        transition: transform 100ms ease, background 100ms ease;
+        z-index: 5;
+    }
+    .cal-add-btn:hover { background: #EA580C; transform: scale(1.1); }
+    .cal-add-cell { position: relative; }
+    .cal-add-cell.has-posts:hover .cal-add-btn { display: flex; }
+
+    /* Empty cells: larger centered button */
+    .cal-add-cell:not(.has-posts) .cal-add-btn {
+        top: 50%; left: 50%; right: auto;
+        transform: translate(-50%, -50%);
+        width: 32px; height: 32px;
+        background: #F97316; color: white;
+        box-shadow: 0 2px 6px rgba(249,115,22,0.35);
+        border: none;
+    }
+    .cal-add-cell:not(.has-posts) .cal-add-btn svg { width: 16px; height: 16px; }
+    .cal-add-cell:not(.has-posts):hover .cal-add-btn {
+        display: flex;
+    }
+    .cal-add-cell:not(.has-posts) .cal-add-btn:hover {
+        background: #EA580C;
+        transform: translate(-50%, -50%) scale(1.1);
+        box-shadow: 0 6px 20px rgba(249,115,22,0.35);
+    }
+
+    /* Day/week grids (non-month cells): hide add button entirely when cell has posts */
+    .cal-add-cell.has-posts:not(.cal-day) .cal-add-btn,
+    .cal-add-cell.has-posts:not(.cal-day):hover .cal-add-btn { display: none; }
+
+    /* Inline variant (day/week grid): flow in normal layout, no translate centering */
+    .cal-add-cell:not(.has-posts) .cal-add-btn.cal-add-btn--inline,
+    .cal-add-cell:not(.has-posts) .cal-add-btn.cal-add-btn--inline:hover {
+        top: auto; left: auto; right: auto;
+        transform: none;
+    }
+    .cal-add-cell:not(.has-posts) .cal-add-btn.cal-add-btn--inline:hover {
+        transform: scale(1.1);
+    }
+
+    .calendar-channel-slot {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        max-width: 100%;
+        min-height: 24px;
+        padding: 3px 5px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        border: 1px dashed #E7E5E4;
+        background: #FFFFFF;
+        color: #78716C;
+    }
+    .calendar-channel-slot--week {
+        width: 100%;
+        font-size: 10px;
+        gap: 4px;
+    }
+    .calendar-channel-slot.is-past-open {
+        opacity: 0.45;
+        background: #FAFAF9;
+    }
+    .calendar-slot-platform-icon {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        border-radius: 9999px;
+        background: #F5F5F4;
+        color: #78716C;
+    }
+    .calendar-slot-add {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        border-radius: 9999px;
+        background: #FFEDD5;
+        color: #C2410C;
+    }
+    .calendar-slot-add:hover {
+        background: #FED7AA;
+        transform: scale(1.05);
+    }
+    .calendar-post-slot-check {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        border-radius: 9999px;
+        background: rgba(255,255,255,0.72);
+        color: #15803D;
+        margin-left: auto;
+    }
+
+    /* Drag-and-drop (SortableJS) feedback */
+    .post-chip.is-draggable { cursor: grab; }
+    .post-chip.is-draggable:active { cursor: grabbing; }
+    /* Hide the source-cell placeholder entirely: for a day-granularity calendar
+       the only feedback that matters is which day cell is targeted, so we don't
+       want a translucent chip trailing into every cell the cursor passes. Only
+       the cursor-following drag clone stays visible. */
+    .chip-ghost { display: none !important; }
+    /* Highlight the day cell currently under the drag (toggled in onMove). */
+    .cal-drop.cal-drop-active { background: #FFF7ED; box-shadow: inset 0 0 0 2px #F97316; }
+    /* While dragging, suppress the per-cell "+" add buttons that would otherwise
+       flicker under the cursor as it crosses cells. */
+    body.cal-dragging .cal-add-btn { display: none !important; }
+
+    /* Bulk-selection checkbox (chips + list rows). Hover-reveal on chips; always
+       shown once checked or when a selection is active. */
+    .cal-select-box {
+        width: 15px; height: 15px; flex-shrink: 0; border: 1.5px solid #A8A29E;
+        border-radius: 4px; background: #fff; cursor: pointer; color: #fff;
+        display: inline-flex; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity 120ms ease, background 120ms ease;
+    }
+    .post-chip:hover .cal-select-box,
+    .cal-select-box.is-checked,
+    body.has-selection .cal-select-box { opacity: 1; }
+    .cal-select-box.is-checked { background: #F97316; border-color: #F97316; }
+    .cal-select-box:hover { border-color: #F97316; }
+    /* In list rows the checkbox is always visible (there's room). */
+    .row-select-box { opacity: 1; }
+    /* The shared toast host and the selection bar both sit bottom-centre. Lift
+       the toasts clear while a selection is active, so a rejected bulk action
+       doesn't render its own explanation on top of the bar it came from. */
+    body.has-selection #bb-toast-host { bottom: 5rem; }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Play slideUp only on HTMX-swapped tab content, not initial server render */
+    .tab-slide-in { animation: slideUp 200ms cubic-bezier(0.16,1,0.3,1) both; }
+</style>
+
+<style>      .htmx-indicator{opacity:0}      .htmx-request .htmx-indicator{opacity:1; transition: opacity 200ms ease-in;}      .htmx-request.htmx-indicator{opacity:1; transition: opacity 200ms ease-in;}      </style></head>
+<body class="text-gray-900 min-h-screen" style="background: var(--surface-page);"><iframe id="contentstudio_main_frame10101" src="./approval My Workspace - Brightbean_files/app.html" style="   border: none !important;height: 100% !important; width: 100% !important;
+    position: fixed !important;z-index: 2147483647 !important;top: 0px !important;
+    left: 0px !important;max-width: 100% !important;max-height: 100% !important;
+    padding: 0px !important;background:rgba(77, 74, 74, 0.7)!important;display:none!important;"></iframe>
+    <input type="hidden" name="csrfmiddlewaretoken" value="O2Im65MFvJdaDmqhbXFy0ANoR3cMYiS1H3pHcXpSnCXYuSoX2K2yHrRNFU4WDJqQ">
+    <script nonce="">
+        document.body.addEventListener('htmx:configRequest', function(event) {
+            event.detail.headers['X-CSRFToken'] = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        });
+    </script>
+
+    
+    <div x-data="{ show: false, message: &#39;&#39;, timer: null }" x-show="show" x-transition.opacity="" @htmx-error.window="message = $event.detail.message; show = true; clearTimeout(timer); timer = setTimeout(() =&gt; show = false, 6000)" class="fixed top-4 right-4 z-[100] max-w-sm" role="alert" aria-live="assertive" style="display: none;">
+        <div class="flex items-start gap-3 rounded-lg px-4 py-3 shadow-lg" style="background: #FEF2F2; border: 1px solid #FCA5A5; color: #991B1B;">
+            <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <p class="text-sm flex-1" x-text="message"></p>
+            <button type="button" @click="show = false" class="flex-shrink-0 cursor-pointer" style="color: #DC2626;" aria-label="Dismiss">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
+    <script nonce="">
+        document.body.addEventListener('htmx:responseError', function(event) {
+            var elt = event.detail.elt;
+            // Contexts that manage their own error UI opt out entirely.
+            if (elt && elt.closest('[data-no-error-toast]')) return;
+            // Extract plain text from the response without executing or loading it.
+            var responseText = (event.detail.xhr && event.detail.xhr.responseText) || '';
+            var body = new DOMParser().parseFromString(responseText, 'text/html').body;
+            var message = (body.textContent || '').trim() || 'Something went wrong. Please try again.';
+            // Inline opt-in: write into the form's declared container instead of the toast.
+            var inline = elt && elt.closest('[data-inline-error]');
+            if (inline) {
+                var target = document.querySelector(inline.getAttribute('data-inline-error'));
+                if (target) { target.textContent = message; return; }
+            }
+            window.dispatchEvent(new CustomEvent('htmx-error', { detail: { message: message } }));
+        });
+    </script>
+    
+    <div class="flex h-screen overflow-hidden" style="background: var(--surface-page);" x-data="{ sidebarCollapsed: localStorage.getItem(&#39;sidebarCollapsed&#39;) === &#39;true&#39;, mobileMenuOpen: false }" x-effect="localStorage.setItem(&#39;sidebarCollapsed&#39;, sidebarCollapsed)" @keydown.escape.window="mobileMenuOpen = false">
+
+        <!-- Mobile backdrop overlay -->
+        <div x-show="mobileMenuOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="mobileMenuOpen = false" class="fixed inset-0 bg-black/30 z-30 lg:hidden" style="display: none;"></div>
+
+        <!-- Sidebar -->
+        <aside class="flex flex-col flex-shrink-0 fixed inset-y-0 left-0 z-40 w-60 bg-white transition-transform duration-200 lg:relative lg:z-auto lg:translate-x-0 lg:bg-transparent transition-all lg:w-[60px] sidebar-collapsed -translate-x-full" :class="[
+                   sidebarCollapsed ? &#39;lg:w-[60px] sidebar-collapsed&#39; : &#39;lg:w-60&#39;,
+                   mobileMenuOpen ? &#39;translate-x-0&#39; : &#39;-translate-x-full lg:translate-x-0&#39;
+               ]" x-init="$el.classList.remove(&#39;sidebar-initial&#39;); document.documentElement.classList.remove(&#39;sidebar-is-collapsed&#39;); $nextTick(() =&gt; $el.classList.add(&#39;transition-all&#39;, &#39;duration-200&#39;))" @click="if (window.innerWidth &lt; 1024 &amp;&amp; $event.target.closest(&#39;a&#39;)) { mobileMenuOpen = false }">
+
+            <!-- Workspace switcher (top of sidebar) -->
+            <div class="relative border-b border-stone-100" x-data="{ wsOpen: false }">
+                <button @click="wsOpen = !wsOpen" class="sidebar-ws-btn w-full flex items-center gap-2.5 px-4 py-3.5 text-left hover:bg-black/[0.04] transition-colors cursor-pointer rounded-br-lg justify-center px-0" :class="sidebarCollapsed ? &#39;justify-center px-0&#39; : &#39;gap-2.5 px-4&#39;">
+                    
+                    
+                    
+                    <div class="sidebar-logo-mark flex-shrink-0">M</div>
+                    
+                    <span class="flex-1 font-bold text-[0.9375rem] tracking-tight text-stone-900 truncate" x-show="!sidebarCollapsed" style="display: none;">My Workspace</span>
+                    
+                    
+                    <svg class="w-4 h-4 text-stone-400 flex-shrink-0 transition-transform" :class="wsOpen &amp;&amp; &#39;rotate-180&#39;" x-show="!sidebarCollapsed" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+
+                <!-- Workspace dropdown -->
+                <div x-show="wsOpen" @click.away="wsOpen = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="absolute left-2 right-2 top-full mt-1 bg-white rounded-xl shadow-lg ring-1 ring-stone-200 py-1 z-50" style="display: none;">
+                    
+                    <a href="https://studio.brightbean.xyz/workspace/f125caea-c9f2-44ca-8575-c9877971208c/calendar/" class="flex items-center gap-2.5 px-3 py-2 text-sm rounded-md hover:bg-black/[0.04] transition-colors text-stone-700">
+                        
+                        <div class="w-7 h-7 rounded-md flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0" style="background: var(--primary);">
+                            A
+                        </div>
+                        
+                        <span class="truncate">a</span>
+                        
+                    </a>
+                    
+                    <a href="https://studio.brightbean.xyz/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/" class="flex items-center gap-2.5 px-3 py-2 text-sm rounded-md hover:bg-black/[0.04] transition-colors bg-stone-50 font-semibold text-stone-900">
+                        
+                        <div class="w-7 h-7 rounded-md flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0" style="background: var(--primary);">
+                            M
+                        </div>
+                        
+                        <span class="truncate">My Workspace</span>
+                        
+                        <svg class="w-4 h-4 text-stone-400 ml-auto flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                        
+                    </a>
+                    
+                    
+                    <div class="border-t border-stone-100 mt-1 pt-1">
+                        <button @click="wsOpen = false; $dispatch(&#39;open-create-ws&#39;)" class="flex items-center gap-2.5 px-3 py-2 text-sm text-stone-600 rounded-md hover:bg-black/[0.04] transition-colors w-full cursor-pointer">
+                            <div class="w-7 h-7 rounded-md flex items-center justify-center border border-dashed border-stone-300 flex-shrink-0">
+                                <svg class="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>
+                            </div>
+                            <span>Create workspace</span>
+                        </button>
+                    </div>
+                    
+                    
+                    <div class="border-t border-stone-100 mt-1 pt-1">
+                        <a href="https://studio.brightbean.xyz/workspaces/8789fb73-a29d-4921-8abe-c6c4b4a94e26/settings/" class="flex items-center gap-2.5 px-3 py-2 text-sm text-stone-600 rounded-md hover:bg-black/[0.04] transition-colors w-full cursor-pointer">
+                            <div class="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.32 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"></path></svg>
+                            </div>
+                            <span>Workspace settings</span>
+                        </a>
+                    </div>
+                    
+                </div>
+
+            </div>
+
+            <!-- + New CTA -->
+            
+            <div class="sidebar-new-wrap px-3 pt-2 pb-1 px-2" :class="sidebarCollapsed &amp;&amp; &#39;px-2&#39;" x-data="sidebarNewMenu()">
+                <div class="relative">
+                    <button @click="newMenuOpen = !newMenuOpen" class="btn-brand w-full flex items-center justify-center gap-1.5 text-sm py-2 cursor-pointer" :style="sidebarCollapsed ? &#39;padding-left:1.15rem;padding-right:1.15rem&#39; : &#39;&#39;" style="padding-left:1.15rem;padding-right:1.15rem">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        <span class="sidebar-new-label" x-show="!sidebarCollapsed" style="display: none;">New</span>
+                    </button>
+
+                    <!-- Dropdown -->
+                    <div x-show="newMenuOpen" @click.away="newMenuOpen = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute left-0 right-0 top-full mt-2 bg-white rounded-xl shadow-lg ring-1 ring-stone-200 z-50 overflow-hidden py-1.5 px-1.5" style="display: none;">
+                        <a href="https://studio.brightbean.xyz/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/compose/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-stone-50 transition-colors">
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            </div>
+                            <div>
+                                <div class="text-sm font-semibold text-stone-800">Post</div>
+                                <div class="text-xs text-stone-500">Publish content to a channel</div>
+                            </div>
+                        </a>
+                        <button type="button" @click="openCreateModal()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-stone-50 transition-colors cursor-pointer">
+                            <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                            </div>
+                            <div class="text-left">
+                                <div class="text-sm font-semibold text-stone-800">Idea</div>
+                                <div class="text-xs text-stone-500">Capture a content idea</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Create Idea Modal -->
+                <template x-teleport="body" data-teleport-template="true"></template>
+            </div>
+            
+
+            <!-- Navigation -->
+            <nav class="sidebar-nav flex-1 overflow-y-auto py-2 px-3 px-2" :class="sidebarCollapsed ? &#39;px-2&#39; : &#39;px-3&#39;">
+                
+                
+                <a href="https://studio.brightbean.xyz/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/" class="mb-1 sidebar-nav-item active">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span class="sidebar-nav-label">Publish</span>
+                </a>
+                <a href="https://studio.brightbean.xyz/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/create/" class="mb-1 sidebar-nav-item ">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 00-4 12.73V16a1 1 0 001 1h6a1 1 0 001-1v-1.27A7 7 0 0012 2z"></path><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M10 8.5c0 1.5 2 2.5 2 4"></path><path d="M14 8.5c0 1.5-2 2.5-2 4"></path></svg>
+                    <span class="sidebar-nav-label">Create Idea</span>
+                </a>                
+                <a href="https://studio.brightbean.xyz/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/inbox/" class="mb-1 sidebar-nav-item ">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg>
+                    <span class="sidebar-nav-label">Social Inbox</span>
+                    
+                </a>
+                
+
+                <a href="https://studio.brightbean.xyz/notifications/" class="mb-1 sidebar-nav-item ">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 01-3.46 0"></path></svg>
+                    <span class="sidebar-nav-label">Notifications</span>
+                </a>
+
+                
+                
+                <a href="https://studio.brightbean.xyz/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/analytics/" class="mb-1 sidebar-nav-item ">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M7 12l4-4 4 4 6-6"></path></svg>
+                    <span class="sidebar-nav-label">Analytics</span>
+                </a>
+                
+                
+
+                
+                
+                <a href="https://studio.brightbean.xyz/orgs/43fedb9d-c64d-4ffc-a941-9988a38aba7e/intelligence/" class="mb-1 sidebar-nav-item ">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polygon points="16.24 7.76 13.41 13.41 7.76 16.24 10.59 10.59 16.24 7.76"></polygon></svg>
+                    <span class="sidebar-nav-label">Intelligence</span>
+                </a>
+                
+
+                
+                
+                <!-- Channels -->
+                <div class="group flex items-center justify-between mt-3.5 sidebar-section-label-wrap">
+                    <div class="sidebar-section-label" style="padding-top:0">Channels</div>
+                    <a href="https://studio.brightbean.xyz/social-accounts/8789fb73-a29d-4921-8abe-c6c4b4a94e26/connect/" class="opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded text-stone-400 hover:text-stone-600 transition-all mr-2 sidebar-nav-label" title="Connect a channel">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </a>
+                </div>
+                
+                <a href="https://studio.brightbean.xyz/social-accounts/8789fb73-a29d-4921-8abe-c6c4b4a94e26/" class="sidebar-nav-item" title="1 upcoming post in the queue for Rituranjan Gupta">
+                    <div class="relative flex-shrink-0">
+                        
+                        <img src="./approval My Workspace - Brightbean_files/1684914718474" alt="" class="w-7 h-7 rounded-full object-cover">
+                        
+                        <div class="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-white rounded-full flex items-center justify-center">
+                            
+
+
+<svg width="16" height="16" viewBox="0 0 24 24" fill="#0A66C2" stroke="none"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"></path></svg>
+
+
+
+                        </div>
+                    </div>
+                    <span class="sidebar-nav-label truncate">Rituranjan Gupta</span>
+                    <span class="sidebar-badge">1</span>
+                </a>
+                
+                
+
+                
+                <div class="sidebar-nav-item flex items-center gap-2">
+                    <div class="relative flex-shrink-0 opacity-60">
+                        
+                        <img src="./approval My Workspace - Brightbean_files/unnamed.jpg" alt="" class="w-7 h-7 rounded-full object-cover grayscale" x-data="" @error="$el.style.display=&#39;none&#39;;$el.nextElementSibling.style.display=&#39;flex&#39;">
+                        <div class="w-7 h-7 rounded-full bg-stone-200 items-center justify-center text-[11px] font-semibold text-stone-500" style="display:none">R</div>
+                        
+                        <div class="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-white rounded-full flex items-center justify-center">
+                            
+
+
+<svg width="16" height="16" viewBox="0 0 24 24" fill="#FF0000" stroke="none"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg>
+
+
+
+                        </div>
+                    </div>
+                    <span class="sidebar-nav-label truncate flex-1 text-stone-400 opacity-60">Rituranjan Gupta</span>
+                    <form method="post" action="https://studio.brightbean.xyz/social-accounts/8789fb73-a29d-4921-8abe-c6c4b4a94e26/4509a879-75ab-4641-9c60-13a46eeb491a/reconnect/" class="sidebar-nav-label">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="O2Im65MFvJdaDmqhbXFy0ANoR3cMYiS1H3pHcXpSnCXYuSoX2K2yHrRNFU4WDJqQ">
+                        <button type="submit" class="inline-flex items-center px-2 py-0.5 text-[11px] font-semibold text-orange-700 bg-orange-50 rounded-full hover:bg-orange-100 transition-colors cursor-pointer" title="Reconnect Rituranjan Gupta">
+                            Reconnect
+                        </button>
+                    </form>
+                </div>
+                
+
+                <!-- Connect channels (hidden when collapsed) -->
+                
+                <div class="sidebar-connect-channels" x-show="!sidebarCollapsed" style="display: none;">
+                <div class="sidebar-section-label">Connect channels</div>
+                
+                <a href="https://studio.brightbean.xyz/social-accounts/8789fb73-a29d-4921-8abe-c6c4b4a94e26/connect/" class="sidebar-nav-item">
+                    <div class="relative flex-shrink-0">
+                        <div class="w-4 h-4 flex items-center justify-center rounded-lg bg-stone-100">
+                            
+
+
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E4405F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+
+
+
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-2.5 h-2.5 rounded-full bg-orange-500 flex items-center justify-center ring-1 ring-white">
+                            <svg viewBox="0 0 24 24" fill="none" width="6" height="6" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12H19M12 5V19"></path></svg>
+                        </div>
+                    </div>
+                    <span class="sidebar-nav-label">Instagram</span>
+                </a>
+                
+                <a href="https://studio.brightbean.xyz/social-accounts/8789fb73-a29d-4921-8abe-c6c4b4a94e26/connect/" class="sidebar-nav-item">
+                    <div class="relative flex-shrink-0">
+                        <div class="w-4 h-4 flex items-center justify-center rounded-lg bg-stone-100">
+                            
+
+
+<svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2" stroke="none"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path></svg>
+
+
+
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-2.5 h-2.5 rounded-full bg-orange-500 flex items-center justify-center ring-1 ring-white">
+                            <svg viewBox="0 0 24 24" fill="none" width="6" height="6" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12H19M12 5V19"></path></svg>
+                        </div>
+                    </div>
+                    <span class="sidebar-nav-label">Facebook</span>
+                </a>
+                
+                <a href="https://studio.brightbean.xyz/social-accounts/8789fb73-a29d-4921-8abe-c6c4b4a94e26/connect/" class="sidebar-nav-item">
+                    <div class="relative flex-shrink-0">
+                        <div class="w-4 h-4 flex items-center justify-center rounded-lg bg-stone-100">
+                            
+
+
+<svg width="16" height="16" viewBox="0 0 24 24" fill="#000000" stroke="none"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"></path></svg>
+
+
+
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-2.5 h-2.5 rounded-full bg-orange-500 flex items-center justify-center ring-1 ring-white">
+                            <svg viewBox="0 0 24 24" fill="none" width="6" height="6" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12H19M12 5V19"></path></svg>
+                        </div>
+                    </div>
+                    <span class="sidebar-nav-label">TikTok</span>
+                </a>
+                
+                <a href="https://studio.brightbean.xyz/social-accounts/8789fb73-a29d-4921-8abe-c6c4b4a94e26/connect/" class="sidebar-nav-item">
+                    <div class="w-4 h-4 flex items-center justify-center flex-shrink-0 rounded-lg bg-stone-100">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </div>
+                    <span class="sidebar-nav-label">More channels</span>
+                </a>
+                </div>
+                
+                
+                
+            </nav>
+
+            <!-- Organization footer -->
+            <div class="sidebar-org-footer border-t border-stone-100 relative px-3 py-3 px-2 py-2" x-data="{ orgMenuOpen: false }" :class="sidebarCollapsed ? &#39;px-2 py-2&#39; : &#39;px-3 py-3&#39;">
+                <!-- Expanded: single row with org button + collapse toggle -->
+                <div class="sidebar-org-expanded flex items-center gap-1" x-show="!sidebarCollapsed" style="display: none;">
+                    <button @click="orgMenuOpen = !orgMenuOpen" class="flex-1 flex items-center gap-2 px-1 py-1 rounded-lg hover:bg-black/[0.04] transition-colors cursor-pointer min-w-0">
+                        
+                        <div class="w-8 h-8 rounded-full bg-stone-200 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        </div>
+                        
+                        <div class="flex-1 min-w-0 text-left">
+                            <p class="text-sm font-semibold text-stone-800 truncate">My Organization</p>
+                            <p class="text-[11px] text-stone-400 truncate">Rituranjan Gupta</p>
+                        </div>
+                    </button>
+                    <button @click="sidebarCollapsed = true" class="hidden lg:flex w-7 h-7 items-center justify-center rounded-md text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors cursor-pointer flex-shrink-0" title="Collapse sidebar">
+                        <svg viewBox="0 0 24 24" fill="none" width="16" height="16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3V21M16 15L13 12L16 9M5 3H19C20.1046 3 21 3.89543 21 5V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3Z"></path></svg>
+                    </button>
+                </div>
+                <!-- Collapsed: stacked vertically -->
+                <div class="sidebar-org-collapsed flex flex-col items-center gap-2" x-show="sidebarCollapsed">
+                    <button @click="sidebarCollapsed = false" class="w-7 h-7 flex items-center justify-center rounded-md text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors cursor-pointer" title="Expand sidebar">
+                        <svg viewBox="0 0 24 24" fill="none" width="16" height="16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="scale-x-[-1]"><path d="M9 3V21M16 15L13 12L16 9M5 3H19C20.1046 3 21 3.89543 21 5V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3Z"></path></svg>
+                    </button>
+                    <button @click="orgMenuOpen = !orgMenuOpen" class="w-8 h-8 rounded-full bg-stone-200 flex items-center justify-center cursor-pointer hover:bg-stone-300 transition-colors">
+                        
+                        <svg class="w-4 h-4 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        
+                    </button>
+                </div>
+
+                <!-- Org menu popover -->
+                <div x-show="orgMenuOpen" @click.away="orgMenuOpen = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute bottom-full left-3 right-3 mb-2 bg-white rounded-xl shadow-lg ring-1 ring-stone-200 z-50 overflow-hidden" style="display: none;">
+
+                    <!-- User info -->
+                    <div class="px-4 pt-4 pb-3">
+                        <p class="text-sm text-stone-500 truncate">rituranjan.gupta2@gmail.com</p>
+                        <p class="text-sm font-semibold text-stone-900 mt-1">My Organization</p>
+                    </div>
+
+                    <!-- Manage Team button -->
+                    <div class="px-4 pb-3">
+                        <a href="https://studio.brightbean.xyz/members/" class="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-stone-700 bg-white border border-stone-200 rounded-lg hover:bg-black/[0.04] transition-colors">
+                            <svg class="w-4 h-4 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"></path></svg>
+                            Manage Team
+                        </a>
+                    </div>
+
+                    <div class="border-t border-stone-100">
+                        <!-- Settings -->
+                        <a href="https://studio.brightbean.xyz/accounts/settings/" class="flex items-center gap-3 px-4 py-2.5 text-sm text-stone-700 hover:bg-black/[0.04] transition-colors">
+                            <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"></path></svg>
+                            Settings
+                        </a>
+                    </div>
+
+                    <div class="border-t border-stone-100">
+                        <!-- Log out -->
+                        <a href="https://studio.brightbean.xyz/accounts/logout/" class="flex items-center gap-3 px-4 py-2.5 text-sm text-stone-700 hover:bg-black/[0.04] transition-colors">
+                            <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                            Log out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main content area -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Mobile top bar -->
+            <div class="flex lg:hidden items-center justify-between px-4 py-3 border-b border-stone-200 bg-white flex-shrink-0">
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="w-9 h-9 flex items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 transition-colors cursor-pointer -ml-1" title="Toggle menu">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+                <div class="flex items-center gap-2">
+                    
+                    
+                    
+                    <div class="w-7 h-7 rounded-md flex items-center justify-center text-white text-[11px] font-bold" style="background: var(--primary);">M</div>
+                    
+                    <span class="text-sm font-semibold text-stone-800 truncate max-w-[160px]">My Workspace</span>
+                    
+                    
+                </div>
+                <div class="w-9"></div>
+            </div>
+            <!-- Main content -->
+            <main class="lg:border lg:border-stone-200 lg:m-2.5 bg-white lg:rounded-xl flex-1 p-3 sm:p-4 lg:p-6 overflow-y-auto flex flex-col">
+                
+<div class="flex flex-wrap items-center justify-between gap-3 mb-4 lg:mb-[25px]">
+    <h1 class="text-xl sm:text-2xl font-semibold text-stone-900" style="letter-spacing: -0.01em;">Publish</h1>
+
+    <div class="flex items-center gap-3">
+        <!-- List / Calendar toggle -->
+        <div class="flex items-center bg-stone-50 rounded-full p-0.5" x-data="{ activeMode: &#39;calendar&#39; }">
+            <button class="view-btn active" :class="{ active: activeMode === &#39;list&#39; }" @click="activeMode = &#39;list&#39;" hx-get="/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/?mode=list&amp;tab=queue&amp;_switch_mode=1" hx-target="#publish-body" hx-swap="innerHTML" hx-push-url="/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/?mode=list&amp;tab=queue">
+                <svg class="w-3.5 h-3.5 inline -mt-px mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                List
+            </button>
+            <button class="view-btn" :class="{ active: activeMode === &#39;calendar&#39; }" @click="activeMode = &#39;calendar&#39;" hx-get="/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/?mode=calendar&amp;view=month&amp;_switch_mode=1" hx-target="#publish-body" hx-swap="innerHTML" hx-push-url="/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/?mode=calendar&amp;view=month">
+                <svg class="w-3.5 h-3.5 inline -mt-px mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                Calendar
+            </button>
+        </div>
+
+    </div>
+</div>
+
+                
+                <div class="flex-1 min-h-0 flex flex-col overflow-y-auto overflow-x-hidden">
+                
+<div id="publish-body" class="flex-1 flex flex-col min-h-0">
+
+<div x-data="publishList()" class="flex-1 flex flex-col min-h-0">
+    <!-- Tabs + Filters row -->
+    <div class="flex flex-wrap items-center justify-between border-b border-stone-200 pb-0 -mx-3 sm:-mx-4 lg:-mx-6 px-3 sm:px-4 lg:px-6 gap-y-2">
+        <!-- Left: tabs -->
+        <div class="flex items-center gap-1 -mb-px overflow-x-auto flex-nowrap">
+            <button class="publish-tab" :class="activeTab === &#39;queue&#39; &amp;&amp; &#39;active&#39;" @click="switchTab(&#39;queue&#39;)">
+                Queue <span id="tabcount-queue"><span class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[11px] font-medium text-stone-500 bg-stone-100 rounded-full">1</span></span>
+            </button>
+            <button class="publish-tab" :class="activeTab === &#39;drafts&#39; &amp;&amp; &#39;active&#39;" @click="switchTab(&#39;drafts&#39;)">
+                Drafts <span id="tabcount-drafts"><span class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[11px] font-medium text-stone-500 bg-stone-100 rounded-full">5</span></span>
+            </button>
+            <button class="publish-tab active" :class="activeTab === &#39;approvals&#39; &amp;&amp; &#39;active&#39;" @click="switchTab(&#39;approvals&#39;)">
+                Approvals <span id="tabcount-approvals"></span>
+            </button>
+            <button class="publish-tab" :class="activeTab === &#39;sent&#39; &amp;&amp; &#39;active&#39;" @click="switchTab(&#39;sent&#39;)">
+                Sent <span id="tabcount-sent"></span>
+            </button>
+        </div>
+
+        <!-- Right: filter dropdowns -->
+        <div class="flex items-center gap-2 pb-2 overflow-x-auto flex-shrink-0">
+            <!-- Channels filter (multi-select) -->
+            
+<div class="relative flex-shrink-0" x-data="{
+        open: false, top: 0, left: 0,
+        opts: [{&quot;value&quot;: &quot;0188536e-512a-4506-8807-14b72444e723&quot;, &quot;label&quot;: &quot;Rituranjan Gupta&quot;}, {&quot;value&quot;: &quot;4509a879-75ab-4641-9c60-13a46eeb491a&quot;, &quot;label&quot;: &quot;Rituranjan Gupta&quot;}],
+        uiLabel(v){ if (!v) return &#39;Channels&#39;; const o = this.opts.find(o =&gt; String(o.value) === String(v)); return o ? o.label : &#39;Channels&#39;; },
+        uiToggle(e){ if (this.open) { this.open = false; return; } const r = e.currentTarget.getBoundingClientRect(); this.top = r.bottom + 4; this.left = Math.min(r.left, window.innerWidth - 236); this.open = true; }
+     }" @click.away="open = false" @keydown.escape="open = false" @scroll.window="open = false">
+    <svg class="cal-filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M16 8v5a3 3 0 006 0v-1a10 10 0 10-3.92 7.94"></path></svg>
+
+    <button type="button" @click="uiToggle($event)" class="cal-filter-select has-icon flex items-center gap-1 whitespace-nowrap" :class="selectedChannels.length &amp;&amp; &#39;border-orange-300 text-orange-700&#39;">
+        <span x-text="selectedChannels.length ? selectedChannels.length + &#39; selected&#39; : &#39;Channels&#39;">Channels</span>
+        <svg class="w-3 h-3 text-stone-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+    </button>
+    <div x-show="open" :style="`top:${top}px; left:${left}px;`" class="fixed z-50 w-56 max-h-72 overflow-y-auto bg-white rounded-lg shadow-lg ring-1 ring-stone-200 py-1" style="top: 132.625px; left: 899.062px; display: none;">
+        <button type="button" @click="selectedChannels = []; reloadTab()" class="w-full text-left px-3 py-1.5 text-xs font-semibold hover:bg-stone-50 border-b border-stone-100 text-orange-600" :class="!selectedChannels.length ? &#39;text-orange-600&#39; : &#39;text-stone-500&#39;">
+            Channels — all
+        </button>
+        
+        
+        <label class="flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 cursor-pointer">
+            <input type="checkbox" value="0188536e-512a-4506-8807-14b72444e723" x-model="selectedChannels" @change="reloadTab()" class="rounded border-stone-300 text-orange-500 focus:ring-orange-400">
+            <span class="w-4 h-4 rounded flex items-center justify-center pi-linkedin_personal flex-shrink-0 text-white">
+
+<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"></path></svg>
+
+</span>
+            <span class="truncate">Rituranjan Gupta</span>
+        </label>
+        
+        
+        
+        <label class="flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 cursor-pointer">
+            <input type="checkbox" value="4509a879-75ab-4641-9c60-13a46eeb491a" x-model="selectedChannels" @change="reloadTab()" class="rounded border-stone-300 text-orange-500 focus:ring-orange-400">
+            <span class="w-4 h-4 rounded flex items-center justify-center pi-youtube flex-shrink-0 text-white">
+
+<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg>
+
+</span>
+            <span class="truncate">Rituranjan Gupta</span>
+        </label>
+        
+        
+    </div>
+</div>
+
+
+            <!-- Tags filter -->
+            
+<div class="relative flex-shrink-0" x-data="{
+        open: false, top: 0, left: 0,
+        opts: [],
+        uiLabel(v){ if (!v) return &#39;All Tags&#39;; const o = this.opts.find(o =&gt; String(o.value) === String(v)); return o ? o.label : &#39;All Tags&#39;; },
+        uiToggle(e){ if (this.open) { this.open = false; return; } const r = e.currentTarget.getBoundingClientRect(); this.top = r.bottom + 4; this.left = Math.min(r.left, window.innerWidth - 236); this.open = true; }
+     }" @click.away="open = false" @keydown.escape="open = false" @scroll.window="open = false">
+    <svg class="cal-filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+
+    <button type="button" @click="uiToggle($event)" class="cal-filter-select has-icon flex items-center gap-1 whitespace-nowrap" :class="activeTag &amp;&amp; &#39;border-orange-300 text-orange-700&#39;">
+        <span x-text="uiLabel(activeTag)">All Tags</span>
+        <svg class="w-3 h-3 text-stone-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+    </button>
+    <div x-show="open" :style="`top:${top}px; left:${left}px;`" class="fixed z-50 w-56 max-h-72 overflow-y-auto bg-white rounded-lg shadow-lg ring-1 ring-stone-200 py-1" style="top: 0px; left: 0px; display: none;">
+        <button type="button" @click="activeTag = &#39;&#39;; open = false; reloadTab()" class="w-full text-left px-3 py-1.5 text-xs font-semibold hover:bg-stone-50 border-b border-stone-100 text-orange-600" :class="!activeTag ? &#39;text-orange-600&#39; : &#39;text-stone-500&#39;">
+            All Tags — all
+        </button>
+        
+    </div>
+</div>
+
+
+            <!-- Timezone dropdown -->
+            
+<div class="relative flex-shrink-0" x-data="{
+        open: false, top: 0, left: 0,
+        opts: [{&quot;value&quot;: &quot;UTC&quot;, &quot;label&quot;: &quot;UTC (workspace)&quot;}, {&quot;value&quot;: &quot;US/Eastern&quot;, &quot;label&quot;: &quot;Eastern&quot;}, {&quot;value&quot;: &quot;US/Central&quot;, &quot;label&quot;: &quot;Central&quot;}, {&quot;value&quot;: &quot;US/Mountain&quot;, &quot;label&quot;: &quot;Mountain&quot;}, {&quot;value&quot;: &quot;US/Pacific&quot;, &quot;label&quot;: &quot;Pacific&quot;}, {&quot;value&quot;: &quot;Europe/London&quot;, &quot;label&quot;: &quot;London&quot;}, {&quot;value&quot;: &quot;Europe/Paris&quot;, &quot;label&quot;: &quot;Paris&quot;}, {&quot;value&quot;: &quot;Europe/Berlin&quot;, &quot;label&quot;: &quot;Berlin&quot;}, {&quot;value&quot;: &quot;Europe/Amsterdam&quot;, &quot;label&quot;: &quot;Amsterdam&quot;}, {&quot;value&quot;: &quot;Asia/Tokyo&quot;, &quot;label&quot;: &quot;Tokyo&quot;}, {&quot;value&quot;: &quot;Asia/Shanghai&quot;, &quot;label&quot;: &quot;Shanghai&quot;}, {&quot;value&quot;: &quot;Asia/Kolkata&quot;, &quot;label&quot;: &quot;Kolkata&quot;}, {&quot;value&quot;: &quot;Asia/Dubai&quot;, &quot;label&quot;: &quot;Dubai&quot;}, {&quot;value&quot;: &quot;Australia/Sydney&quot;, &quot;label&quot;: &quot;Sydney&quot;}, {&quot;value&quot;: &quot;Pacific/Auckland&quot;, &quot;label&quot;: &quot;Auckland&quot;}, {&quot;value&quot;: &quot;America/Sao_Paulo&quot;, &quot;label&quot;: &quot;Sao_Paulo&quot;}, {&quot;value&quot;: &quot;America/Toronto&quot;, &quot;label&quot;: &quot;Toronto&quot;}, {&quot;value&quot;: &quot;America/Chicago&quot;, &quot;label&quot;: &quot;Chicago&quot;}, {&quot;value&quot;: &quot;America/Denver&quot;, &quot;label&quot;: &quot;Denver&quot;}, {&quot;value&quot;: &quot;America/Los_Angeles&quot;, &quot;label&quot;: &quot;Los_Angeles&quot;}, {&quot;value&quot;: &quot;America/New_York&quot;, &quot;label&quot;: &quot;New_York&quot;}],
+        uiLabel(v){ if (!v) return &#39;Timezone&#39;; const o = this.opts.find(o =&gt; String(o.value) === String(v)); return o ? o.label : &#39;Timezone&#39;; },
+        uiToggle(e){ if (this.open) { this.open = false; return; } const r = e.currentTarget.getBoundingClientRect(); this.top = r.bottom + 4; this.left = Math.min(r.left, window.innerWidth - 236); this.open = true; }
+     }" @click.away="open = false" @keydown.escape="open = false" @scroll.window="open = false">
+    <svg class="cal-filter-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+
+    <button type="button" @click="uiToggle($event)" class="cal-filter-select has-icon flex items-center gap-1 whitespace-nowrap border-orange-300 text-orange-700" :class="displayTimezone &amp;&amp; &#39;border-orange-300 text-orange-700&#39;">
+        <span x-text="uiLabel(displayTimezone)">UTC (workspace)</span>
+        <svg class="w-3 h-3 text-stone-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+    </button>
+    <div x-show="open" :style="`top:${top}px; left:${left}px;`" class="fixed z-50 w-56 max-h-72 overflow-y-auto bg-white rounded-lg shadow-lg ring-1 ring-stone-200 py-1" style="top: 0px; left: 0px; display: none;">
+        <button type="button" @click="displayTimezone = &#39;&#39;; open = false; reloadTab()" class="w-full text-left px-3 py-1.5 text-xs font-semibold hover:bg-stone-50 border-b border-stone-100 text-stone-500" :class="!displayTimezone ? &#39;text-orange-600&#39; : &#39;text-stone-500&#39;">
+            Timezone — all
+        </button>
+        
+        
+        <button type="button" @click="displayTimezone = &#39;UTC&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left bg-orange-50 text-orange-700" :class="String(displayTimezone) === &#39;UTC&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">UTC (workspace)</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;US/Eastern&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;US/Eastern&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">Eastern</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;US/Central&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;US/Central&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">Central</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;US/Mountain&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;US/Mountain&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">Mountain</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;US/Pacific&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;US/Pacific&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">Pacific</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;Europe/London&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;Europe/London&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">London</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;Europe/Paris&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;Europe/Paris&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">Paris</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;Europe/Berlin&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;Europe/Berlin&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">Berlin</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;Europe/Amsterdam&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;Europe/Amsterdam&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">Amsterdam</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;Asia/Tokyo&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;Asia/Tokyo&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">Tokyo</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;Asia/Shanghai&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;Asia/Shanghai&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">Shanghai</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;Asia/Kolkata&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;Asia/Kolkata&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">Kolkata</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;Asia/Dubai&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;Asia/Dubai&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">Dubai</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;Australia/Sydney&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;Australia/Sydney&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">Sydney</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;Pacific/Auckland&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;Pacific/Auckland&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">Auckland</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;America/Sao_Paulo&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;America/Sao_Paulo&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">Sao_Paulo</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;America/Toronto&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;America/Toronto&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">Toronto</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;America/Chicago&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;America/Chicago&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">Chicago</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;America/Denver&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;America/Denver&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">Denver</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;America/Los_Angeles&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;America/Los_Angeles&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">Los_Angeles</span>
+        </button>
+        
+        
+        
+        <button type="button" @click="displayTimezone = &#39;America/New_York&#39;; open = false; reloadTab()" class="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50 text-left" :class="String(displayTimezone) === &#39;America/New_York&#39; &amp;&amp; &#39;bg-orange-50 text-orange-700&#39;">
+            
+            <span class="truncate">New_York</span>
+        </button>
+        
+        
+    </div>
+</div>
+
+        </div>
+    </div>
+
+    <!-- Tab content area (swapped by HTMX on tab/filter changes). -->
+    <!-- Initial tab is rendered server-side to avoid a spinner-then-content shift. -->
+    <div id="tab-content" class="mt-4 flex-1 min-h-0 overflow-y-auto flex justify-center [&amp;&gt;*]:w-full [&amp;&gt;*]:max-w-4xl">
+
+
+
+
+
+
+
+
+<div x-data="{ selectedPosts: [], diffOpen: false, rejectOpen: false, bulkReason: &#39;&#39; }" hx-trigger="approvalAction from:body, bulkActionComplete from:body" hx-get="/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/publish/approvals/?approval_status=all&amp;tz=UTC" hx-target="#tab-content" hx-swap="innerHTML" class="tab-slide-in">
+
+    
+    <div class="flex flex-wrap items-center gap-x-1 gap-y-2 mb-5">
+        
+<button hx-get="/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/publish/approvals/?approval_status=all&amp;tz=UTC" hx-target="#tab-content" hx-swap="innerHTML" class="px-3.5 py-1.5 text-[0.8125rem] font-semibold rounded-full transition-colors text-white" style="background: var(--primary);">
+    All <span class="opacity-75">0</span>
+</button>
+
+        
+<button hx-get="/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/publish/approvals/?approval_status=pending_review&amp;tz=UTC" hx-target="#tab-content" hx-swap="innerHTML" class="px-3.5 py-1.5 text-[0.8125rem] font-semibold rounded-full transition-colors text-stone-600 hover:bg-stone-100">
+    Pending Review <span class="text-stone-400">0</span>
+</button>
+
+        
+<button hx-get="/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/publish/approvals/?approval_status=pending_client&amp;tz=UTC" hx-target="#tab-content" hx-swap="innerHTML" class="px-3.5 py-1.5 text-[0.8125rem] font-semibold rounded-full transition-colors text-stone-600 hover:bg-stone-100">
+    Pending Client <span class="text-stone-400">0</span>
+</button>
+
+        
+<button hx-get="/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/publish/approvals/?approval_status=approved&amp;tz=UTC" hx-target="#tab-content" hx-swap="innerHTML" class="px-3.5 py-1.5 text-[0.8125rem] font-semibold rounded-full transition-colors text-stone-600 hover:bg-stone-100">
+    Approved <span class="text-stone-400">0</span>
+</button>
+
+        
+<button hx-get="/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/publish/approvals/?approval_status=rejected&amp;tz=UTC" hx-target="#tab-content" hx-swap="innerHTML" class="px-3.5 py-1.5 text-[0.8125rem] font-semibold rounded-full transition-colors text-stone-600 hover:bg-stone-100">
+    Rejected <span class="text-stone-400">0</span>
+</button>
+
+        
+<button hx-get="/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/publish/approvals/?approval_status=changes_requested&amp;tz=UTC" hx-target="#tab-content" hx-swap="innerHTML" class="px-3.5 py-1.5 text-[0.8125rem] font-semibold rounded-full transition-colors text-stone-600 hover:bg-stone-100">
+    Changes Requested <span class="text-stone-400">0</span>
+</button>
+
+        
+<button hx-get="/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/publish/approvals/?approval_status=on_hold&amp;tz=UTC" hx-target="#tab-content" hx-swap="innerHTML" class="px-3.5 py-1.5 text-[0.8125rem] font-semibold rounded-full transition-colors text-stone-600 hover:bg-stone-100">
+    Hold <span class="text-stone-400">0</span>
+</button>
+
+    </div>
+
+    
+    <div class="space-y-3">
+        
+        <div class="text-center py-16">
+            <div class="mx-auto w-14 h-14 rounded-full border-2 border-stone-200 flex items-center justify-center text-stone-300 mb-3">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6L9 17l-5-5"></path></svg>
+            </div>
+            <p class="text-stone-500 font-medium">No posts pending approval</p>
+            <p class="text-sm text-stone-400 mt-1">Posts submitted for review will appear here</p>
+        </div>
+        
+    </div>
+
+    
+    
+    <template x-for="id in selectedPosts" :key="id"></template>
+
+    
+    <div x-show="selectedPosts.length &gt; 0" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-y-full opacity-0" x-transition:enter-end="translate-y-0 opacity-100" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40" style="display: none;">
+        <div class="flex items-center gap-3 px-5 py-3 bg-stone-900 text-white rounded-2xl shadow-2xl">
+            <span class="text-[0.8125rem] font-medium" x-text="selectedPosts.length + &#39; selected&#39;">0 selected</span>
+            <div class="w-px h-5 bg-stone-700"></div>
+            <button hx-post="/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/approvals/bulk/" hx-include="[name=&#39;post_ids&#39;]" hx-vals="{&quot;action&quot;: &quot;approve&quot;}" hx-swap="none" class="px-3.5 py-1.5 text-[0.8125rem] font-semibold rounded-full bg-emerald-500 hover:bg-emerald-600 text-white">Approve all</button>
+            <button @click="rejectOpen = true" class="px-3.5 py-1.5 text-[0.8125rem] font-semibold rounded-full bg-red-500 hover:bg-red-600 text-white">Reject all</button>
+            <button @click="selectedPosts = []" class="ml-1 text-stone-400 hover:text-white">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+    </div>
+
+    
+    <div x-show="rejectOpen" class="fixed inset-0 z-[150] flex items-center justify-center p-4" @click="rejectOpen = false" style="display: none;">
+        <div class="absolute inset-0" style="background: rgba(28,25,23,.42); backdrop-filter: blur(3px);"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full modal-pop" style="max-width: 440px;" @click.stop="">
+            <div class="p-6">
+                <h3 class="text-[1.0625rem] font-bold text-stone-900 mb-1" x-text="&#39;Reject &#39; + selectedPosts.length + (selectedPosts.length &gt; 1 ? &#39; posts&#39; : &#39; post&#39;)">Reject 0 post</h3>
+                <p class="text-[0.8125rem] text-stone-500 mb-4">Tell the creator why. This comment is shared with them.</p>
+                <textarea id="bulk-reject-comment" name="comment" x-model="bulkReason" rows="3" placeholder="Reason for rejection…" class="w-full px-3 py-2 text-[0.875rem] border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-transparent resize-none"></textarea>
+                <div class="flex justify-end gap-2 mt-4">
+                    <button @click="rejectOpen = false" class="px-4 py-2 text-[0.8125rem] font-medium text-stone-600 hover:bg-stone-100 rounded-full">Cancel</button>
+                    <button hx-post="/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/approvals/bulk/" hx-include="[name=&#39;post_ids&#39;], #bulk-reject-comment" hx-vals="{&quot;action&quot;: &quot;reject&quot;}" hx-swap="none" :disabled="!bulkReason.trim()" class="px-4 py-2 text-[0.8125rem] font-semibold text-white rounded-full bg-stone-300 cursor-not-allowed" :class="bulkReason.trim() ? &#39;bg-red-500 hover:bg-red-600&#39; : &#39;bg-stone-300 cursor-not-allowed&#39;" disabled="disabled">Reject all</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    
+    <div x-show="diffOpen" class="fixed inset-0 z-[150] flex items-center justify-center p-4" @click="diffOpen = false" style="display: none;">
+        <div class="absolute inset-0" style="background: rgba(28,25,23,.42); backdrop-filter: blur(3px);"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full modal-pop max-h-[80vh] overflow-y-auto" style="max-width: 620px;" @click.stop="">
+            <div class="p-6">
+                <div class="flex items-start justify-between mb-3">
+                    <h3 class="text-[1.0625rem] font-bold text-stone-900">Version changes</h3>
+                    <button @click="diffOpen = false" class="text-stone-400 hover:text-stone-600">
+                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <div id="diff-modal-body"><p class="text-sm text-stone-400">Loading…</p></div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+</div>
+
+
+<style nonce="">
+  @keyframes bb-toastPop { from { opacity:0; transform:translateY(8px) scale(.96); } to { opacity:1; transform:translateY(0) scale(1); } }
+  /* Shared approval-surface animations (design parity). Defined here because this
+     partial is included once per page, outside any htmx-refetched region. */
+  @keyframes bb-modalPop { from { opacity:0; transform:translateY(10px) scale(.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+  .modal-pop { animation: bb-modalPop 200ms cubic-bezier(.16,1,.3,1); }
+  @keyframes bb-collapseIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+  .anim-collapse { animation: bb-collapseIn 200ms ease; }
+  /* Every button on the approval surfaces shows a pointer cursor. Low specificity
+     so explicit cursor utilities still win; disabled buttons stay not-allowed. */
+  button { cursor: pointer; }
+  button:disabled, button[disabled] { cursor: not-allowed; }
+  #bb-toast-host { position:fixed; z-index:200; bottom:1.5rem; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:.5rem; pointer-events:none; }
+  .bb-toast { display:flex; align-items:center; gap:.625rem; padding:.625rem 1rem .625rem .75rem; border-radius:.75rem; color:#fff; box-shadow:0 12px 30px rgba(23,20,18,.32); animation:bb-toastPop 240ms cubic-bezier(.16,1,.3,1); pointer-events:auto; }
+  .bb-toast-title { font-size:.8125rem; font-weight:600; line-height:1.2; }
+  .bb-toast-body { font-size:.75rem; color:#A8A29E; line-height:1.2; }
+</style>
+<div id="bb-toast-host" aria-live="polite" aria-atomic="true"></div>
+<script nonce="">
+(function () {
+  if (window.__bbToastInit) return;
+  window.__bbToastInit = true;
+  var TONES = {
+    success: { accent: '#34D399', bg: '#1C1917', icon: '<circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/>' },
+    info:    { accent: '#FB923C', bg: '#1C1917', icon: '<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>' },
+    warn:    { accent: '#FBBF24', bg: '#1C1917', icon: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' },
+    error:   { accent: '#FCA5A5', bg: '#7F1D1D', icon: '<path d="M6 18L18 6M6 6l12 12"/>' },
+  };
+  function render(detail) {
+    if (!detail || !detail.title) return;
+    var host = document.getElementById('bb-toast-host');
+    if (!host) return;
+    var t = TONES[detail.tone] || TONES.success;
+    var el = document.createElement('div');
+    el.className = 'bb-toast';
+    el.style.background = t.bg;
+    el.innerHTML =
+      '<span style="color:' + t.accent + ';display:flex"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + t.icon + '</svg></span>' +
+      '<div><div class="bb-toast-title"></div>' + (detail.body ? '<div class="bb-toast-body"></div>' : '') + '</div>';
+    el.querySelector('.bb-toast-title').textContent = detail.title;
+    if (detail.body) el.querySelector('.bb-toast-body').textContent = detail.body;
+    host.appendChild(el);
+    setTimeout(function () { el.remove(); }, detail.duration || 3400);
+  }
+  document.body.addEventListener('showToast', function (e) { render(e.detail); });
+})();
+</script>
+
+
+
+<div x-data="bulkBar()">
+    
+    <div x-show="$store.sel.count &gt; 0" x-effect="document.body.classList.toggle(&#39;has-selection&#39;, $store.sel.count &gt; 0)" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-1 bg-stone-900 text-white rounded-full shadow-2xl pl-4 pr-2 py-2" style="display: none;">
+        <span class="text-sm font-medium whitespace-nowrap" x-text="$store.sel.count + &#39; selected&#39;">0 selected</span>
+        <span class="w-px h-5 bg-white/20 mx-1.5"></span>
+        <button @click="ask(&#39;draft&#39;)" :disabled="busy" class="px-3 py-1.5 text-xs font-semibold rounded-full hover:bg-white/10 transition-colors disabled:opacity-50">Draft</button>
+        <button @click="ask(&#39;publish&#39;)" :disabled="busy" class="px-3 py-1.5 text-xs font-semibold rounded-full bg-emerald-500 hover:bg-emerald-600 transition-colors disabled:opacity-50">Publish</button>
+        <button @click="ask(&#39;delete&#39;)" :disabled="busy" class="px-3 py-1.5 text-xs font-semibold rounded-full text-red-300 hover:bg-red-500/20 transition-colors disabled:opacity-50">Delete</button>
+        <button @click="$store.sel.clear()" class="w-7 h-7 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors" title="Clear selection">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+    </div>
+
+    
+    <div x-show="confirmAction" @keydown.escape.window="confirmAction = null" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 px-4" @click.self="confirmAction = null" style="display: none;">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-xs text-center">
+            <div class="w-11 h-11 mx-auto rounded-full flex items-center justify-center mb-3 bg-emerald-50 text-emerald-600" :class="confirmAction === &#39;delete&#39; ? &#39;bg-red-50 text-red-500&#39; : &#39;bg-emerald-50 text-emerald-600&#39;">
+                <svg x-show="confirmAction === &#39;delete&#39;" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                <svg x-show="confirmAction === &#39;publish&#39;" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+            </div>
+            <h3 class="text-base font-bold text-stone-900" x-text="confirmAction === &#39;delete&#39; ? &#39;Delete posts?&#39; : &#39;Publish now?&#39;">Publish now?</h3>
+            <p class="text-sm text-stone-500 mt-1 leading-relaxed" x-text="confirmAction === &#39;delete&#39;
+                   ? (&#39;Permanently delete &#39; + $store.sel.count + &#39; selected post&#39; + ($store.sel.count === 1 ? &#39;&#39; : &#39;s&#39;) + &#39;. This can\&#39;t be undone.&#39;)
+                   : (&#39;Publish &#39; + $store.sel.count + &#39; selected post&#39; + ($store.sel.count === 1 ? &#39;&#39; : &#39;s&#39;) + &#39; now — they go out on their platforms shortly.&#39;)">Publish 0 selected posts now — they go out on their platforms shortly.</p>
+            <div class="flex gap-2 mt-5">
+                <button @click="confirmAction = null" class="flex-1 px-4 py-2 text-sm font-semibold rounded-full border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors">Cancel</button>
+                <button @click="exec(confirmAction)" :disabled="busy" :class="confirmAction === &#39;delete&#39; ? &#39;bg-red-500 hover:bg-red-600&#39; : &#39;bg-emerald-500 hover:bg-emerald-600&#39;" class="flex-1 px-4 py-2 text-sm font-semibold rounded-full text-white transition-colors disabled:opacity-50 bg-emerald-500 hover:bg-emerald-600" x-text="confirmAction === &#39;delete&#39; ? &#39;Delete&#39; : &#39;Publish&#39;">Publish</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Onboarding checklist popup (fixed bottom-right) -->
+    
+
+
+    
+
+    <!-- Vendored JS -->
+    <script src="./approval My Workspace - Brightbean_files/htmx.min.19a573773be4.js.download"></script>
+    <script nonce="">
+        /* Notification bell - Alpine.js component */
+        function notificationBell() {
+            return {
+                open: false,
+                unreadCount: 0,
+                _interval: null,
+                toggle() {
+                    this.open = !this.open;
+                    if (this.open) {
+                        /* Refresh drawer content when opening */
+                        htmx.trigger('#notification-drawer-content', 'load');
+                    }
+                },
+                startPolling() {
+                    this.fetchCount();
+                    this._interval = setInterval(() => this.fetchCount(), 30000);
+                },
+                async fetchCount() {
+                    try {
+                        const resp = await fetch('/notifications/unread-count/');
+                        if (resp.ok) {
+                            const data = await resp.json();
+                            this.unreadCount = data.count;
+                        }
+                    } catch (e) { /* silent */ }
+                },
+                destroy() {
+                    if (this._interval) clearInterval(this._interval);
+                }
+            };
+        }
+
+        /* Refresh unread count after any HTMX notification action */
+        document.body.addEventListener('htmx:afterSettle', function(evt) {
+            var target = evt.detail.target;
+            if (target && (target.id === 'notification-drawer-content' || target.id === 'notification-history-list' || target.closest && target.closest('#notification-drawer-content'))) {
+                /* Trigger a count refresh on the bell component */
+                var bellEl = document.querySelector('[x-data="notificationBell()"]');
+                if (bellEl && bellEl.__x) {
+                    bellEl.__x.$data.fetchCount();
+                }
+            }
+        });
+    </script>
+    <script src="./approval My Workspace - Brightbean_files/alpine.min.8ff95ecd7ce4.js.download" defer=""></script>
+    <script src="./approval My Workspace - Brightbean_files/flatpickr.min.js.download"></script>
+    <script src="./approval My Workspace - Brightbean_files/chart.umd.min.js.download"></script>
+    <script src="./approval My Workspace - Brightbean_files/Sortable.min.js.download"></script>
+    <script nonce="">
+        /* Analytics hero chart: read data attrs off the canvas, (re)create Chart.js.
+           Lives in base.html so its CSP nonce matches the parent page — the chart
+           partial re-renders on HTMX swaps via the htmx:afterSwap hook below. */
+        function bbInitHeroChart(retries) {
+            if (typeof Chart === 'undefined') {
+                /* Chart.js is loaded synchronously above this script, so the
+                   poll should never fire in practice. Cap retries anyway —
+                   if the CDN ever fails (adblock, offline), recursing every
+                   30ms forever burns CPU on every page load. */
+                if ((retries || 0) > 30) return;
+                setTimeout(function () { bbInitHeroChart((retries || 0) + 1); }, 30);
+                return;
+            }
+            var canvas = document.getElementById('analytics-area-chart');
+            if (!canvas) return;
+            var data, labels;
+            try {
+                data = JSON.parse(canvas.dataset.series || '[]');
+                labels = JSON.parse(canvas.dataset.labels || '[]');
+            } catch (e) { return; }
+            var color = '#F97316';
+            if (window._bbHeroChart) { window._bbHeroChart.destroy(); }
+            var ctx = canvas.getContext('2d');
+            var gradient = ctx.createLinearGradient(0, 0, 0, 260);
+            function hexToRgba(c, a) {
+                var v = c.replace('#', '');
+                var r = parseInt(v.slice(0, 2), 16), g = parseInt(v.slice(2, 4), 16), b = parseInt(v.slice(4, 6), 16);
+                return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+            }
+            gradient.addColorStop(0, hexToRgba(color, 0.28));
+            gradient.addColorStop(1, hexToRgba(color, 0.0));
+            window._bbHeroChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        borderColor: color,
+                        backgroundColor: gradient,
+                        fill: true,
+                        tension: 0.32,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
+                        pointHoverBackgroundColor: color,
+                        borderWidth: 2,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { mode: 'index', intersect: false },
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { maxTicksLimit: 6, color: '#78716C' } },
+                        y: { beginAtZero: true, grid: { color: '#F5F5F4' }, ticks: { color: '#78716C' } },
+                    },
+                },
+            });
+        }
+        // Wrap in a no-arg callback so the DOMContentLoaded event object
+        // doesn't get passed as ``retries`` — that would make
+        // ``(retries || 0) + 1`` string-concatenate the event each tick and
+        // the ``> 30`` cap below would never trip when Chart.js is offline.
+        document.addEventListener('DOMContentLoaded', function () { bbInitHeroChart(); });
+        document.body.addEventListener('htmx:afterSwap', function(evt) {
+            var target = evt.detail && evt.detail.target;
+            if (target && target.id === 'analytics-hero-chart') {
+                bbInitHeroChart();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.form-datetime[type="date"]').forEach(function(el) {
+                var fp = flatpickr(el, {
+                    dateFormat: 'Y-m-d',
+                    altInput: true,
+                    altFormat: 'M j, Y',
+                    minDate: 'today',
+                    disableMobile: true,
+                });
+                fp.altInput.placeholder = el.getAttribute('data-placeholder') || 'Select date…';
+            });
+            document.querySelectorAll('.form-datetime[type="time"]').forEach(function(el) {
+                var fp = flatpickr(el, {
+                    enableTime: true,
+                    noCalendar: true,
+                    dateFormat: 'H:i',
+                    altInput: true,
+                    altFormat: 'h:i K',
+                    time_24hr: false,
+                    disableMobile: true,
+                });
+                fp.altInput.placeholder = el.getAttribute('data-placeholder') || 'Select time…';
+            });
+        });
+    </script>
+    
+    <script nonce="">
+        window.ideaModalHelpers = window.ideaModalHelpers || {
+            mediaAssetIdsCsv(items) {
+                return (items || []).map(function(item) { return item.asset_id; }).join(',');
+            },
+            appendUploadedMedia(items, data, file) {
+                if (!items || !data || !data.asset_id) return;
+                var exists = items.some(function(item) { return item.asset_id === data.asset_id; });
+                if (exists) return;
+                items.push({
+                    asset_id: data.asset_id,
+                    url: data.url || '',
+                    filename: data.filename || (file && file.name) || '',
+                    media_type: data.media_type || ((file && file.type && file.type.startsWith('video/')) ? 'video' : 'image'),
+                });
+            },
+            getCsrfToken() {
+                var tokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
+                if (tokenInput && tokenInput.value) return tokenInput.value;
+                var cookieMatch = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+                return cookieMatch ? decodeURIComponent(cookieMatch[1]) : '';
+            },
+            triggerIdeaChanged() {
+                if (window.htmx && typeof window.htmx.trigger === 'function') {
+                    window.htmx.trigger(document.body, 'ideaChanged');
+                    return;
+                }
+                document.body.dispatchEvent(new CustomEvent('ideaChanged', { bubbles: true }));
+            },
+            submitIdeaForm(formEl, onSuccess) {
+                if (!formEl) return Promise.resolve(false);
+                var url = formEl.getAttribute('action') || formEl.getAttribute('hx-post');
+                if (!url) return Promise.resolve(false);
+                var csrfToken = this.getCsrfToken();
+                if (!csrfToken) {
+                    window.alert('Security token missing. Please reload the page.');
+                    return Promise.resolve(false);
+                }
+                var formData = new FormData(formEl);
+                return fetch(url, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrfToken },
+                    body: formData,
+                })
+                    .then(function(response) {
+                        if (!response.ok) throw new Error('save_failed');
+                    })
+                    .then(() => {
+                        this.triggerIdeaChanged();
+                        if (typeof onSuccess === 'function') onSuccess();
+                        return true;
+                    })
+                    .catch(() => {
+                        window.alert('Could not save the idea. Please try again.');
+                        return false;
+                    });
+            },
+            uploadIdeaMediaAsset(uploadUrl, file, onUploaded) {
+                var csrfToken = this.getCsrfToken();
+                if (!csrfToken) return Promise.reject(new Error('csrf_missing'));
+                var formData = new FormData();
+                formData.append('file', file);
+                return fetch(uploadUrl, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrfToken },
+                    body: formData,
+                })
+                    .then(function(response) {
+                        if (!response.ok) throw new Error('upload_failed');
+                        return response.json();
+                    })
+                    .then((data) => {
+                        if (!data.asset_id) throw new Error('upload_failed');
+                        if (typeof onUploaded === 'function') onUploaded(data, file);
+                        return true;
+                    });
+            },
+        };
+
+        function sidebarNewMenu() {
+            const ideaHelpers = window.ideaModalHelpers;
+            return {
+                newMenuOpen: false,
+                showCreateModal: false,
+                createSelectedGroup: '1fee8045-f194-4ccb-9ab2-bca069f440fa',
+                createSelectedTags: [],
+                createGroupDropdownOpen: false,
+                createTagDropdownOpen: false,
+                createTagSearch: '',
+                showCreateTagModal: false,
+                newTagName: '',
+                createMediaAssets: [],
+                createMediaUploadCount: 0,
+                isCreateSaving: false,
+                emojiPickerOpen: false,
+                _mediaDragOver: false,
+                allTags: [],
+
+                _columnMap: { '1fee8045-f194-4ccb-9ab2-bca069f440fa': 'Unassigned', '3947a1cb-d4c7-41dc-9ea2-16d4f23b6bf1': 'To Do', 'f8bd776c-b1a2-42dd-96ef-2ae957de4d00': 'In Progress', '93d217df-9f06-4a60-adcb-5d2e9a8d1aa2': 'Done' },
+                _defaultGroupId: '1fee8045-f194-4ccb-9ab2-bca069f440fa',
+
+                openCreateModal() {
+                    this.newMenuOpen = false;
+                    this.showCreateModal = true;
+                    this.createSelectedGroup = this._defaultGroupId;
+                    this.createSelectedTags = [];
+                    this.createTagSearch = '';
+                    this.showCreateTagModal = false;
+                    this.newTagName = '';
+                    this.createMediaAssets = [];
+                    this.createMediaUploadCount = 0;
+                    this.isCreateSaving = false;
+                    if (this.$refs.sidebarIdeaFileInput) this.$refs.sidebarIdeaFileInput.value = '';
+                },
+
+                closeCreateModal() {
+                    this.showCreateModal = false;
+                    this.createSelectedGroup = this._defaultGroupId;
+                    this.createSelectedTags = [];
+                    this.createGroupDropdownOpen = false;
+                    this.createTagDropdownOpen = false;
+                    this.createTagSearch = '';
+                    this.emojiPickerOpen = false;
+                    this._emojiSearch = '';
+                    this.closeCreateTagModal();
+                    this.createMediaAssets = [];
+                    this.createMediaUploadCount = 0;
+                    this.isCreateSaving = false;
+                    if (this.$refs.sidebarIdeaFileInput) this.$refs.sidebarIdeaFileInput.value = '';
+                },
+
+                createMediaAssetIdsCsv() {
+                    return ideaHelpers.mediaAssetIdsCsv(this.createMediaAssets);
+                },
+
+                createPrimaryMediaAssetId() {
+                    return this.createMediaAssets.length ? this.createMediaAssets[0].asset_id : '';
+                },
+
+                createGroupLabel() {
+                    return this._columnMap[this.createSelectedGroup] || 'Unassigned';
+                },
+
+                toggleCreateTag(tag) {
+                    var idx = this.createSelectedTags.indexOf(tag);
+                    if (idx === -1) { this.createSelectedTags.push(tag); }
+                    else { this.createSelectedTags.splice(idx, 1); }
+                },
+
+                get filteredCreateTags() {
+                    var q = this.createTagSearch.toLowerCase();
+                    return this.allTags.filter(function(t) { return !q || t.toLowerCase().includes(q); });
+                },
+
+                persistAndToggleCreateTag(name) {
+                    name = name.trim();
+                    if (!name) return;
+                    if (!this.allTags.includes(name)) { this.allTags.push(name); this.allTags.sort(); }
+                    if (!this.createSelectedTags.includes(name)) { this.createSelectedTags.push(name); }
+                    this.createTagSearch = '';
+                    this._persistTag(name);
+                },
+
+                closeCreateTagModal() {
+                    this.showCreateTagModal = false;
+                    this.newTagName = '';
+                },
+
+                createTagFromModal() {
+                    var name = this.newTagName.trim();
+                    if (!name) return;
+                    this.persistAndToggleCreateTag(name);
+                    this.closeCreateTagModal();
+                },
+
+                _persistTag(name) {
+                    var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+                    if (!csrfToken) return;
+                    fetch('/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/tags/create/', {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': csrfToken.value, 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: 'name=' + encodeURIComponent(name),
+                    });
+                },
+
+                // Emoji picker
+                _emojiSearch: '',
+                _emojiList: [
+                    {e:'😀',n:'grinning'},{e:'😃',n:'smiley'},{e:'😄',n:'smile'},{e:'😁',n:'grin'},{e:'😆',n:'laughing'},
+                    {e:'😅',n:'sweat smile'},{e:'🤣',n:'rofl'},{e:'😂',n:'joy'},{e:'🙂',n:'slight smile'},{e:'😊',n:'blush'},
+                    {e:'😇',n:'innocent'},{e:'🥰',n:'love'},{e:'😍',n:'heart eyes'},{e:'🤩',n:'star struck'},{e:'😘',n:'kiss'},
+                    {e:'😜',n:'wink tongue'},{e:'🤔',n:'thinking'},{e:'🤗',n:'hugging'},{e:'🤫',n:'shushing'},{e:'😎',n:'cool'},
+                    {e:'🥳',n:'party'},{e:'😤',n:'triumph'},{e:'😱',n:'scream'},{e:'🥺',n:'pleading'},{e:'😢',n:'cry'},
+                    {e:'👍',n:'thumbs up'},{e:'👎',n:'thumbs down'},{e:'👏',n:'clap'},{e:'🙌',n:'raised hands'},{e:'🤝',n:'handshake'},
+                    {e:'💪',n:'strong'},{e:'✌️',n:'peace'},{e:'🤞',n:'crossed fingers'},{e:'👋',n:'wave'},{e:'🫡',n:'salute'},
+                    {e:'❤️',n:'red heart'},{e:'🧡',n:'orange heart'},{e:'💛',n:'yellow heart'},{e:'💚',n:'green heart'},{e:'💙',n:'blue heart'},
+                    {e:'💜',n:'purple heart'},{e:'🖤',n:'black heart'},{e:'🤍',n:'white heart'},{e:'💯',n:'hundred'},{e:'💥',n:'boom'},
+                    {e:'⭐',n:'star'},{e:'🌟',n:'glowing star'},{e:'✨',n:'sparkles'},{e:'⚡',n:'lightning'},{e:'🔥',n:'fire'},
+                    {e:'🎉',n:'party popper'},{e:'🎊',n:'confetti'},{e:'🏆',n:'trophy'},{e:'🎯',n:'bullseye'},{e:'🚀',n:'rocket'},
+                    {e:'💡',n:'light bulb'},{e:'📌',n:'pin'},{e:'📎',n:'paperclip'},{e:'📝',n:'memo'},{e:'✏️',n:'pencil'},
+                    {e:'✅',n:'check mark'},{e:'❌',n:'cross mark'},{e:'⚠️',n:'warning'},{e:'❓',n:'question'},{e:'❗',n:'exclamation'},
+                    {e:'💬',n:'speech'},{e:'👀',n:'eyes'},{e:'🎨',n:'art'},{e:'📸',n:'camera'},{e:'🎬',n:'clapper'},
+                    {e:'📱',n:'phone'},{e:'💻',n:'laptop'},{e:'📊',n:'chart'},{e:'📈',n:'trending up'},{e:'📅',n:'calendar'},
+                    {e:'⏰',n:'alarm clock'},{e:'🔗',n:'link'},{e:'🔒',n:'lock'},{e:'🏷️',n:'label'},{e:'📣',n:'megaphone'},
+                    {e:'🌍',n:'globe'},{e:'☀️',n:'sun'},{e:'🌙',n:'moon'},{e:'🌈',n:'rainbow'},{e:'🍕',n:'pizza'},
+                    {e:'☕',n:'coffee'},{e:'🍺',n:'beer'},{e:'🎵',n:'music'},{e:'🐶',n:'dog'},{e:'🐱',n:'cat'},
+                    {e:'✍️',n:'writing'},{e:'🧠',n:'brain'},{e:'💎',n:'gem'},{e:'🪄',n:'magic wand'},{e:'🎁',n:'gift'},
+                ],
+
+                _filteredEmojis() {
+                    var q = (this._emojiSearch || '').toLowerCase().trim();
+                    if (!q) return this._emojiList;
+                    return this._emojiList.filter(function(em) { return em.n.includes(q); });
+                },
+
+                _insertEmoji(emoji) {
+                    var desc = document.querySelector('.idea-modal textarea.idea-desc-input');
+                    if (desc) {
+                        var start = desc.selectionStart;
+                        var end = desc.selectionEnd;
+                        desc.value = desc.value.substring(0, start) + emoji + desc.value.substring(end);
+                        desc.selectionStart = desc.selectionEnd = start + emoji.length;
+                        desc.focus();
+                        desc.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                    this._emojiSearch = '';
+                },
+
+                // Media file handling
+                _handleFileSelect(event) {
+                    this._enqueueMediaFiles(event.target.files);
+                    event.target.value = '';
+                },
+
+                _handleMediaDrop(event) {
+                    this._enqueueMediaFiles(event.dataTransfer.files);
+                },
+
+                _enqueueMediaFiles(fileList) {
+                    var files = Array.from(fileList || []);
+                    for (var i = 0; i < files.length; i += 1) {
+                        this._uploadIdeaMediaAsset(files[i]);
+                    }
+                },
+
+                _appendUploadedMedia(data, file) {
+                    ideaHelpers.appendUploadedMedia(this.createMediaAssets, data, file);
+                },
+
+                _removeCreateMedia(index) {
+                    if (index < 0 || index >= this.createMediaAssets.length) return;
+                    this.createMediaAssets.splice(index, 1);
+                },
+
+                _getCsrfToken() {
+                    return ideaHelpers.getCsrfToken();
+                },
+
+                _triggerIdeaChanged() {
+                    ideaHelpers.triggerIdeaChanged();
+                },
+
+                _submitIdeaForm(formEl) {
+                    return ideaHelpers.submitIdeaForm.call(ideaHelpers, formEl, () => {
+                        this.closeCreateModal();
+                        formEl.reset();
+                    });
+                },
+
+                submitCreateIdea(event) {
+                    if (this.createMediaUploadCount > 0 || this.isCreateSaving) return;
+                    this.isCreateSaving = true;
+                    this._submitIdeaForm(event.target).finally(() => {
+                        this.isCreateSaving = false;
+                    });
+                },
+
+                _uploadIdeaMediaAsset(file) {
+                    if (!file) return;
+                    this.createMediaUploadCount += 1;
+                    ideaHelpers
+                        .uploadIdeaMediaAsset(
+                            '/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/ideas/upload-media/',
+                            file,
+                            (data, uploadedFile) => {
+                                this._appendUploadedMedia(data, uploadedFile);
+                            }
+                        )
+                        .catch(() => {
+                            window.alert('One of the files failed to upload. Please try again.');
+                        })
+                        .finally(() => {
+                            this.createMediaUploadCount = Math.max(0, this.createMediaUploadCount - 1);
+                        });
+                },
+            };
+        }
+    </script>
+    
+    
+<script nonce="">
+/* Surface a rejected request through the shared toast host
+   (approvals/partials/_toasts.html), which listens for a `showToast` event on
+   document.body. These endpoints are called with fetch(), not htmx, so the
+   usual HX-Trigger route isn't available — dispatch the event directly. */
+function bbFailureToast(res, fallback) {
+    res.json().catch(() => ({})).then((data) => {
+        document.body.dispatchEvent(new CustomEvent('showToast', {
+            detail: { tone: 'error', title: (data && data.error) || fallback },
+        }));
+    });
+}
+
+/* Bulk-selection store (survives HTMX grid/tab swaps) + floating-bar controller. */
+document.addEventListener('alpine:init', () => {
+    Alpine.store('sel', {
+        ids: [],
+        has(id) { return this.ids.includes(id); },
+        toggle(id) { const i = this.ids.indexOf(id); if (i >= 0) this.ids.splice(i, 1); else this.ids.push(id); },
+        clear() { this.ids = []; },
+        get count() { return this.ids.length; },
+    });
+});
+function bulkBar() {
+    return {
+        busy: false,
+        confirmAction: null, // 'publish' | 'delete' pending confirmation, else null
+        // Draft is reversible → run straight away. Publish/Delete open the dialog.
+        ask(action) {
+            if (!Alpine.store('sel').count || this.busy) return;
+            if (action === 'publish' || action === 'delete') { this.confirmAction = action; return; }
+            this.exec(action);
+        },
+        exec(action) {
+            this.confirmAction = null;
+            const store = Alpine.store('sel');
+            if (!store.count || this.busy) return;
+            this.busy = true;
+            const csrf = (document.querySelector('[name=csrfmiddlewaretoken]') || {}).value
+                || (document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/) || [])[1] || '';
+            const body = new URLSearchParams();
+            body.set('action', action);
+            store.ids.forEach(id => body.append('platform_post_ids', id));
+            fetch('/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/bulk-action/', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrf, 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+                body,
+            }).then((res) => {
+                this.busy = false;
+                if (!res.ok) {
+                    // e.g. the publish_directly gate. Keep the selection so the
+                    // user can retry with an action they are allowed to take.
+                    bbFailureToast(res, 'Could not complete that action.');
+                    return;
+                }
+                store.clear();
+                // Refresh whichever view is mounted: the calendar shell reloads
+                // its grid on `calendarRefresh` (from body); publishList reloads
+                // the active tab on the `post-deleted` window event.
+                if (window.htmx) htmx.trigger(document.body, 'calendarRefresh');
+                window.dispatchEvent(new CustomEvent('post-deleted'));
+            }).catch(() => { this.busy = false; });
+        },
+    };
+}
+function calendarApp() {
+    return {
+        activeView: 'month',
+        draggedPlatformPostId: null,
+        calendarFilters: {
+            status: '',
+            channels: [],
+            tag: '',
+            tz: 'UTC',
+        },
+
+        reloadCalendar() {
+            // The selection bar acts on ids, not on what's rendered, so a
+            // filter change would otherwise leave rows ticked that the new grid
+            // doesn't show — and Delete would hit them.
+            Alpine.store('sel').clear();
+            const params = new URLSearchParams();
+            params.set('mode', 'calendar');
+            params.set('view', this.activeView);
+            params.set('date', '2026-08-07');
+            if (this.calendarFilters.status) params.set('status', this.calendarFilters.status);
+            this.calendarFilters.channels.forEach(c => params.append('channel', c));
+            if (this.calendarFilters.tag) params.set('tag', this.calendarFilters.tag);
+            if (this.calendarFilters.tz) params.set('tz', this.calendarFilters.tz);
+            
+            const url = '/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/?' + params.toString();
+            htmx.ajax('GET', url, {target: '#calendar-content', swap: 'innerHTML'});
+        },
+
+        init() {
+            // SortableJS drag-and-drop. Wire on first load and re-wire after
+            // every HTMX swap of the calendar grid (nav, view change, filters).
+            this.$nextTick(() => this.initCalendarDnD());
+            document.body.addEventListener('htmx:afterSettle', (e) => {
+                const t = e.detail && e.detail.target;
+                if (t && (t.id === 'calendar-content' || (t.querySelector && t.querySelector('.cal-drop')))) {
+                    this.$nextTick(() => this.initCalendarDnD());
+                }
+            });
+            // A drag on an <a> chip would otherwise fire a trailing click and
+            // navigate to the editor. Swallow that click while a drag is in
+            // flight; genuine clicks (no drag) still open the post.
+            document.body.addEventListener('click', (e) => {
+                if (this._draggingChip && e.target.closest('.post-chip.is-draggable')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }, true);
+        },
+
+        // Sortable instances bound to cells an HTMX swap threw away. They hold
+        // listeners and detached DOM, so they're destroyed before rewiring
+        // rather than left to accumulate across every filter/nav reload.
+        _sortables: [],
+
+        initCalendarDnD() {
+            if (typeof Sortable === 'undefined') return;
+            this._sortables = this._sortables.filter((s) => {
+                if (s.el && s.el.isConnected) return true;
+                s.destroy();
+                return false;
+            });
+            document.querySelectorAll('#calendar-content .cal-drop').forEach((cell) => {
+                if (Sortable.get(cell)) return; // already wired this cell
+                this._sortables.push(Sortable.create(cell, {
+                    group: 'calendar',
+                    draggable: '.post-chip.is-draggable',
+                    animation: 150,
+                    ghostClass: 'chip-ghost',
+                    // Native HTML5 drag: the browser renders a drag image that
+                    // reliably follows the cursor (a forceFallback clone did
+                    // not — it appeared stuck near the origin). We set that image
+                    // explicitly to the chip and clear the drag data so an <a>
+                    // chip never drags its URL instead of itself.
+                    setData: (dataTransfer, dragEl) => {
+                        try { dataTransfer.setDragImage(dragEl, 20, 12); } catch (e) {}
+                        dataTransfer.setData('text/plain', '');
+                    },
+                    // Touch: short hold before a drag begins so it doesn't
+                    // hijack a scroll. Desktop mouse is unaffected (immediate).
+                    delay: 150,
+                    delayOnTouchOnly: true,
+                    onStart: () => {
+                        this._draggingChip = true;
+                        // Suppress the per-cell "+" add buttons while dragging.
+                        document.body.classList.add('cal-dragging');
+                    },
+                    onMove: (evt) => {
+                        // Highlight only the day cell currently under the drag.
+                        document.querySelectorAll('.cal-drop.cal-drop-active').forEach(c => c.classList.remove('cal-drop-active'));
+                        if (evt.to) evt.to.classList.add('cal-drop-active');
+                        return true;
+                    },
+                    onEnd: (evt) => {
+                        document.body.classList.remove('cal-dragging');
+                        document.querySelectorAll('.cal-drop.cal-drop-active').forEach(c => c.classList.remove('cal-drop-active'));
+                        setTimeout(() => { this._draggingChip = false; }, 60);
+                        if (evt.to === evt.from) return; // dropped back in place
+                        const ppId = evt.item.getAttribute('data-platform-post-id');
+                        const date = evt.to.getAttribute('data-date');
+                        const time = evt.to.getAttribute('data-time') || '09:00';
+                        if (!ppId || !date) return;
+                        this.rescheduleChip(ppId, date + 'T' + time + ':00');
+                    },
+                }));
+            });
+        },
+
+        rescheduleChip(platformPostId, newDatetime) {
+            // newDatetime is the target cell's workspace-tz wall date/time (see
+            // _cell_compose_params); reschedule_post interprets the naive value
+            // in the workspace timezone, so the drop lands on the right instant.
+            const csrfToken =
+                (document.querySelector('[name=csrfmiddlewaretoken]') || {}).value ||
+                (document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/) || [])[1] ||
+                '';
+            fetch('/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/reschedule/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    platform_post_id: platformPostId,
+                    new_datetime: newDatetime,
+                }),
+            }).then((res) => {
+                if (!res.ok) {
+                    // Snap the grid back to the server truth, and say why — a
+                    // drop rejected by the publish gate would otherwise look
+                    // like the chip just sprang back for no reason.
+                    this.reloadCalendar();
+                    bbFailureToast(res, 'Could not reschedule that post.');
+                    return;
+                }
+                // Re-render on success too. SortableJS drops the chip at the
+                // cursor's index, so the target cell is left out of time order
+                // and — in month view, which renders only the first three posts
+                // plus a "+N more" count — one chip over the cap it was
+                // rendered with. It's a partial swap of #calendar-content, not
+                // a page load.
+                this.reloadCalendar();
+            }).catch(() => this.reloadCalendar());
+        }
+    };
+}
+
+function publishList() {
+    return {
+        activeTab: 'queue',
+        selectedChannels: [],
+        activeTag: '',
+        displayTimezone: 'UTC',
+
+        tabUrls: {
+            queue: '/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/publish/queue/',
+            drafts: '/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/publish/drafts/',
+            approvals: '/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/publish/approvals/',
+            sent: '/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/calendar/publish/sent/',
+        },
+
+        init() {
+            window.addEventListener('post-deleted', () => this.reloadTab());
+        },
+
+        switchTab(tab) {
+            this.activeTab = tab;
+            this.reloadTab();
+        },
+
+        reloadTab() {
+            // Drop the selection whenever the visible set changes (tab switch,
+            // channel/tag/tz filter). The bar acts on stored ids regardless of
+            // what's rendered, so a stale tick would let Delete hit a row the
+            // user can no longer see.
+            Alpine.store('sel').clear();
+            const params = new URLSearchParams();
+            this.selectedChannels.forEach(c => params.append('channel', c));
+            if (this.activeTag) params.set('tag', this.activeTag);
+            if (this.displayTimezone) params.set('tz', this.displayTimezone);
+            const url = this.tabUrls[this.activeTab] + '?' + params.toString();
+            htmx.ajax('GET', url, {target: '#tab-content', swap: 'innerHTML'});
+        }
+    };
+}
+</script>
+
+    
+    <!-- Create workspace modal -->
+    <div x-data="{ createWsOpen: false }" @open-create-ws.window="createWsOpen = true; $nextTick(() =&gt; $refs.newWsName.focus())">
+        <div x-show="createWsOpen" class="fixed inset-0 z-[100] flex items-center justify-center" style="display: none;">
+            <div class="absolute inset-0 bg-black/40" @click="createWsOpen = false"></div>
+            <div class="relative bg-white rounded-xl shadow-xl ring-1 ring-stone-200 w-full max-w-md mx-4 p-6" x-show="createWsOpen" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" @keydown.escape.window="createWsOpen = false" style="display: none;">
+                <h3 class="text-base font-semibold text-stone-900 mb-4">Create workspace</h3>
+                <form method="post" action="https://studio.brightbean.xyz/workspaces/create/">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="O2Im65MFvJdaDmqhbXFy0ANoR3cMYiS1H3pHcXpSnCXYuSoX2K2yHrRNFU4WDJqQ">
+                    <input type="text" name="name" x-ref="newWsName" required="" placeholder="Workspace name" class="form-input-styled w-full mb-4">
+                    <div class="flex justify-end gap-2">
+                        <button type="button" @click="createWsOpen = false" class="px-4 py-2 text-sm font-medium text-stone-600 bg-white border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors cursor-pointer">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn-brand px-4 py-2 text-sm cursor-pointer">
+                            Create
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+<script type="module" src="./approval My Workspace - Brightbean_files/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" nonce="" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;d255e6c55f9d4dd185def8cc958ab953&quot;,&quot;r&quot;:1}" crossorigin="anonymous"></script>
+
+
+<div x-show="showCreateModal" class="idea-modal-overlay" @click.self="closeCreateModal()" @keydown.escape.window="closeCreateModal()" data-teleport-target="true" style="display: none;">
+                        <div class="idea-modal" @click.stop="">
+                            <button type="button" class="idea-modal-close" @click="closeCreateModal()" title="Close">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                            <form action="https://studio.brightbean.xyz/workspace/8789fb73-a29d-4921-8abe-c6c4b4a94e26/ideas/create/" method="post" enctype="multipart/form-data" @submit.prevent="submitCreateIdea($event)">
+                                <input type="hidden" name="csrfmiddlewaretoken" value="O2Im65MFvJdaDmqhbXFy0ANoR3cMYiS1H3pHcXpSnCXYuSoX2K2yHrRNFU4WDJqQ">
+                                <input type="hidden" name="group" :value="createSelectedGroup" value="1fee8045-f194-4ccb-9ab2-bca069f440fa">
+                                <input type="hidden" name="tags" :value="createSelectedTags.join(&#39;,&#39;)">
+                                <input type="hidden" name="media_asset_ids" :value="createMediaAssetIdsCsv()">
+                                <input type="hidden" name="media_asset_id" :value="createPrimaryMediaAssetId()">
+
+                                <!-- Header -->
+                                <div class="idea-modal-header">
+                                    <h2 class="text-lg font-semibold" style="color: var(--text-primary);">Create Idea</h2>
+                                    <div class="flex items-center gap-2">
+                                        <!-- Column selector dropdown -->
+                                        <div class="relative" @click.away="createGroupDropdownOpen = false">
+                                            <button type="button" class="idea-pill-btn" @click="createGroupDropdownOpen = !createGroupDropdownOpen; createTagDropdownOpen = false">
+                                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>
+                                                <span x-text="createGroupLabel()">Unassigned</span>
+                                                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg>
+                                            </button>
+                                            <div x-show="createGroupDropdownOpen" x-transition="" class="idea-pill-dropdown" style="display: none;">
+                                                
+                                                <button type="button" @click="createSelectedGroup = &#39;1fee8045-f194-4ccb-9ab2-bca069f440fa&#39;; createGroupDropdownOpen = false" :class="createSelectedGroup === &#39;1fee8045-f194-4ccb-9ab2-bca069f440fa&#39; &amp;&amp; &#39;font-semibold&#39;" class="font-semibold">
+                                                    <span>Unassigned</span>
+                                                    <svg x-show="createSelectedGroup === &#39;1fee8045-f194-4ccb-9ab2-bca069f440fa&#39;" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" class="ml-auto" style="color: var(--primary);"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                                </button>
+                                                
+                                                <button type="button" @click="createSelectedGroup = &#39;3947a1cb-d4c7-41dc-9ea2-16d4f23b6bf1&#39;; createGroupDropdownOpen = false" :class="createSelectedGroup === &#39;3947a1cb-d4c7-41dc-9ea2-16d4f23b6bf1&#39; &amp;&amp; &#39;font-semibold&#39;" class="">
+                                                    <span>To Do</span>
+                                                    <svg x-show="createSelectedGroup === &#39;3947a1cb-d4c7-41dc-9ea2-16d4f23b6bf1&#39;" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" class="ml-auto" style="color: var(--primary); display: none;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                                </button>
+                                                
+                                                <button type="button" @click="createSelectedGroup = &#39;f8bd776c-b1a2-42dd-96ef-2ae957de4d00&#39;; createGroupDropdownOpen = false" :class="createSelectedGroup === &#39;f8bd776c-b1a2-42dd-96ef-2ae957de4d00&#39; &amp;&amp; &#39;font-semibold&#39;" class="">
+                                                    <span>In Progress</span>
+                                                    <svg x-show="createSelectedGroup === &#39;f8bd776c-b1a2-42dd-96ef-2ae957de4d00&#39;" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" class="ml-auto" style="color: var(--primary); display: none;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                                </button>
+                                                
+                                                <button type="button" @click="createSelectedGroup = &#39;93d217df-9f06-4a60-adcb-5d2e9a8d1aa2&#39;; createGroupDropdownOpen = false" :class="createSelectedGroup === &#39;93d217df-9f06-4a60-adcb-5d2e9a8d1aa2&#39; &amp;&amp; &#39;font-semibold&#39;" class="">
+                                                    <span>Done</span>
+                                                    <svg x-show="createSelectedGroup === &#39;93d217df-9f06-4a60-adcb-5d2e9a8d1aa2&#39;" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" class="ml-auto" style="color: var(--primary); display: none;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                                </button>
+                                                
+                                            </div>
+                                        </div>
+
+                                        <!-- Tags dropdown -->
+                                        <div class="relative" @click.away="createTagDropdownOpen = false">
+                                            <button type="button" class="idea-pill-btn" @click="createTagDropdownOpen = !createTagDropdownOpen; createGroupDropdownOpen = false; if(createTagDropdownOpen) $nextTick(() =&gt; $refs.sidebarCreateTagSearchInput.focus())">
+                                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                                                <span>Tags</span>
+                                                <span x-show="createSelectedTags.length" class="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold text-white" style="background: var(--primary); display: none;" x-text="createSelectedTags.length">0</span>
+                                                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path d="M6 9l6 6 6-6"></path></svg>
+                                            </button>
+                                            <div x-show="createTagDropdownOpen" x-transition="" class="idea-pill-dropdown" style="display: none;">
+                                                <div style="padding: 4px 6px; border-bottom: 1px solid var(--border);">
+                                                    <input type="text" x-ref="sidebarCreateTagSearchInput" x-model="createTagSearch" @keydown.enter.prevent="if (createTagSearch.trim() &amp;&amp; !filteredCreateTags.includes(createTagSearch.trim())) { persistAndToggleCreateTag(createTagSearch.trim()); } else if (filteredCreateTags.length === 1) { toggleCreateTag(filteredCreateTags[0]); createTagSearch = &#39;&#39;; }" class="w-full text-xs px-2 py-1.5 rounded border outline-none" style="border-color: var(--border);" placeholder="Search or create tag...">
+                                                </div>
+                                                <template x-for="tag in filteredCreateTags" :key="tag"></template>
+                                                <template x-if="!createTagSearch.trim() &amp;&amp; !allTags.length"></template><div class="px-3 py-2 text-xs" style="color: var(--text-tertiary);">No tags yet. Type to create one.</div>
+                                                <template x-if="createTagSearch.trim() &amp;&amp; !filteredCreateTags.includes(createTagSearch.trim())"></template>
+                                                <div class="border-t border-stone-100 px-1 py-1">
+                                                    <button type="button" @click="createTagDropdownOpen = false; showCreateTagModal = true; newTagName = createTagSearch; createTagSearch = &#39;&#39;; $nextTick(() =&gt; $refs.sidebarNewTagNameInput.focus())" class="flex items-center gap-2 w-full px-2.5 py-1.5 text-sm text-stone-600 hover:bg-stone-50 rounded-md cursor-pointer transition-colors">
+                                                        <svg class="w-3.5 h-3.5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+                                                        Create new tag
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Selected tags chips -->
+                                <template x-if="createSelectedTags.length &gt; 0"></template>
+
+                                <!-- Body -->
+                                <div class="idea-modal-body" @click="createGroupDropdownOpen = false; createTagDropdownOpen = false">
+                                    <input type="text" name="title" required="" class="idea-title-input" placeholder="Give your idea a title">
+                                    <textarea name="description" class="idea-desc-input" placeholder="Let it flow... or"></textarea>
+                                    <input type="file" name="media" x-ref="sidebarIdeaFileInput" accept="image/*,video/*,.gif" style="display:none" multiple="" @change="_handleFileSelect($event)">
+
+                                    <div class="idea-media-strip-layout">
+                                        <template x-for="(media, index) in createMediaAssets" :key="media.asset_id + &#39;-&#39; + index"></template>
+                                        <div class="idea-media-zone idea-media-zone-tile" :class="{ &#39;idea-media-zone-tile&#39;: true, &#39;drag-over&#39;: _mediaDragOver }" @click="$refs.sidebarIdeaFileInput.click()" @dragover.prevent="_mediaDragOver = true" @dragleave.prevent="_mediaDragOver = false" @drop.prevent="_mediaDragOver = false; _handleMediaDrop($event)">
+                                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                            <span x-show="!createMediaAssets.length">Drag &amp; drop</span>
+                                            <span x-show="createMediaAssets.length" style="display: none;">Add another file</span>
+                                            <span>or <strong style="color: var(--primary); cursor: pointer;">select a file</strong></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Footer -->
+                                <div class="idea-modal-footer" @click="createGroupDropdownOpen = false; createTagDropdownOpen = false">
+                                    <span style="margin-right: auto; display: flex; align-items: center; gap: 8px; color: var(--text-tertiary);">
+                                        <span style="width: 1px; height: 20px; background: var(--border);"></span>
+                                        <div class="relative">
+                                            <button type="button" @click.stop="emojiPickerOpen = !emojiPickerOpen" class="p-1 rounded hover:bg-stone-100 transition-colors cursor-pointer" title="Emoji" style="color: var(--text-tertiary);">
+                                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                                            </button>
+                                            <div x-show="emojiPickerOpen" @click.away="emojiPickerOpen = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" class="emoji-picker-popup" style="display: none;">
+                                                <div class="emoji-picker-search">
+                                                    <input type="text" placeholder="Search emoji..." x-model="_emojiSearch" class="w-full px-2 py-1.5 text-xs rounded border outline-none" style="border-color: var(--border);" @click.stop="">
+                                                </div>
+                                                <div class="emoji-picker-grid">
+                                                    <template x-for="emoji in _filteredEmojis()" :key="emoji.e"></template><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="grinning">😀</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="smiley">😃</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="smile">😄</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="grin">😁</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="laughing">😆</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="sweat smile">😅</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="rofl">🤣</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="joy">😂</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="slight smile">🙂</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="blush">😊</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="innocent">😇</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="love">🥰</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="heart eyes">😍</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="star struck">🤩</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="kiss">😘</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="wink tongue">😜</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="thinking">🤔</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="hugging">🤗</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="shushing">🤫</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="cool">😎</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="party">🥳</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="triumph">😤</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="scream">😱</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="pleading">🥺</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="cry">😢</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="thumbs up">👍</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="thumbs down">👎</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="clap">👏</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="raised hands">🙌</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="handshake">🤝</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="strong">💪</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="peace">✌️</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="crossed fingers">🤞</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="wave">👋</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="salute">🫡</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="red heart">❤️</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="orange heart">🧡</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="yellow heart">💛</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="green heart">💚</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="blue heart">💙</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="purple heart">💜</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="black heart">🖤</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="white heart">🤍</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="hundred">💯</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="boom">💥</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="star">⭐</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="glowing star">🌟</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="sparkles">✨</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="lightning">⚡</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="fire">🔥</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="party popper">🎉</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="confetti">🎊</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="trophy">🏆</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="bullseye">🎯</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="rocket">🚀</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="light bulb">💡</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="pin">📌</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="paperclip">📎</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="memo">📝</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="pencil">✏️</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="check mark">✅</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="cross mark">❌</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="warning">⚠️</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="question">❓</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="exclamation">❗</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="speech">💬</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="eyes">👀</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="art">🎨</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="camera">📸</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="clapper">🎬</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="phone">📱</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="laptop">💻</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="chart">📊</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="trending up">📈</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="calendar">📅</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="alarm clock">⏰</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="link">🔗</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="lock">🔒</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="label">🏷️</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="megaphone">📣</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="globe">🌍</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="sun">☀️</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="moon">🌙</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="rainbow">🌈</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="pizza">🍕</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="coffee">☕</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="beer">🍺</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="music">🎵</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="dog">🐶</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="cat">🐱</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="writing">✍️</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="brain">🧠</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="gem">💎</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="magic wand">🪄</button><button type="button" class="emoji-picker-item" @click.stop="_insertEmoji(emoji.e); emojiPickerOpen = false" x-text="emoji.e" :title="emoji.n" title="gift">🎁</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span style="width: 1px; height: 20px; background: var(--border);"></span>
+                                    </span>
+                                    <button type="button" @click="closeCreateModal()" class="btn-neutral px-5 py-2 text-sm font-medium rounded-full transition-colors cursor-pointer" style="background: var(--neutral-100); color: var(--text-primary);">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" :disabled="createMediaUploadCount &gt; 0 || isCreateSaving" :class="(createMediaUploadCount &gt; 0 || isCreateSaving) &amp;&amp; &#39;opacity-50 cursor-not-allowed&#39;" class="btn-neutral px-5 py-2 text-sm font-medium rounded-full transition-colors cursor-pointer" style="background: var(--neutral-100); color: var(--text-primary);">
+                                        Save Idea
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div><div class="flatpickr-calendar animate" tabindex="-1"><div class="flatpickr-months"><span class="flatpickr-prev-month flatpickr-disabled"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 17 17"><g></g><path d="M5.207 8.471l7.146 7.147-0.707 0.707-7.853-7.854 7.854-7.853 0.707 0.707-7.147 7.146z"></path></svg></span><div class="flatpickr-month"><div class="flatpickr-current-month"><select class="flatpickr-monthDropdown-months" aria-label="Month" tabindex="-1"><option class="flatpickr-monthDropdown-month" value="7" tabindex="-1">August</option><option class="flatpickr-monthDropdown-month" value="8" tabindex="-1">September</option><option class="flatpickr-monthDropdown-month" value="9" tabindex="-1">October</option><option class="flatpickr-monthDropdown-month" value="10" tabindex="-1">November</option><option class="flatpickr-monthDropdown-month" value="11" tabindex="-1">December</option></select><div class="numInputWrapper"><input class="numInput cur-year" type="number" tabindex="-1" aria-label="Year" min="2026"><span class="arrowUp"></span><span class="arrowDown"></span></div></div></div><span class="flatpickr-next-month"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 17 17"><g></g><path d="M13.207 8.472l-7.854 7.854-0.707-0.707 7.146-7.146-7.146-7.148 0.707-0.707 7.854 7.854z"></path></svg></span></div><div class="flatpickr-innerContainer"><div class="flatpickr-rContainer"><div class="flatpickr-weekdays"><div class="flatpickr-weekdaycontainer">
+      <span class="flatpickr-weekday">
+        Sun</span><span class="flatpickr-weekday">Mon</span><span class="flatpickr-weekday">Tue</span><span class="flatpickr-weekday">Wed</span><span class="flatpickr-weekday">Thu</span><span class="flatpickr-weekday">Fri</span><span class="flatpickr-weekday">Sat
+      </span>
+      </div></div><div class="flatpickr-days" tabindex="-1"><div class="dayContainer"><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="July 26, 2026">26</span><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="July 27, 2026">27</span><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="July 28, 2026">28</span><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="July 29, 2026">29</span><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="July 30, 2026">30</span><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="July 31, 2026">31</span><span class="flatpickr-day flatpickr-disabled" aria-label="August 1, 2026">1</span><span class="flatpickr-day flatpickr-disabled" aria-label="August 2, 2026">2</span><span class="flatpickr-day flatpickr-disabled" aria-label="August 3, 2026">3</span><span class="flatpickr-day flatpickr-disabled" aria-label="August 4, 2026">4</span><span class="flatpickr-day flatpickr-disabled" aria-label="August 5, 2026">5</span><span class="flatpickr-day flatpickr-disabled" aria-label="August 6, 2026">6</span><span class="flatpickr-day flatpickr-disabled" aria-label="August 7, 2026">7</span><span class="flatpickr-day today" aria-label="August 8, 2026" aria-current="date" tabindex="-1">8</span><span class="flatpickr-day" aria-label="August 9, 2026" tabindex="-1">9</span><span class="flatpickr-day" aria-label="August 10, 2026" tabindex="-1">10</span><span class="flatpickr-day" aria-label="August 11, 2026" tabindex="-1">11</span><span class="flatpickr-day" aria-label="August 12, 2026" tabindex="-1">12</span><span class="flatpickr-day" aria-label="August 13, 2026" tabindex="-1">13</span><span class="flatpickr-day" aria-label="August 14, 2026" tabindex="-1">14</span><span class="flatpickr-day" aria-label="August 15, 2026" tabindex="-1">15</span><span class="flatpickr-day" aria-label="August 16, 2026" tabindex="-1">16</span><span class="flatpickr-day" aria-label="August 17, 2026" tabindex="-1">17</span><span class="flatpickr-day" aria-label="August 18, 2026" tabindex="-1">18</span><span class="flatpickr-day" aria-label="August 19, 2026" tabindex="-1">19</span><span class="flatpickr-day" aria-label="August 20, 2026" tabindex="-1">20</span><span class="flatpickr-day" aria-label="August 21, 2026" tabindex="-1">21</span><span class="flatpickr-day" aria-label="August 22, 2026" tabindex="-1">22</span><span class="flatpickr-day" aria-label="August 23, 2026" tabindex="-1">23</span><span class="flatpickr-day" aria-label="August 24, 2026" tabindex="-1">24</span><span class="flatpickr-day" aria-label="August 25, 2026" tabindex="-1">25</span><span class="flatpickr-day" aria-label="August 26, 2026" tabindex="-1">26</span><span class="flatpickr-day" aria-label="August 27, 2026" tabindex="-1">27</span><span class="flatpickr-day" aria-label="August 28, 2026" tabindex="-1">28</span><span class="flatpickr-day" aria-label="August 29, 2026" tabindex="-1">29</span><span class="flatpickr-day" aria-label="August 30, 2026" tabindex="-1">30</span><span class="flatpickr-day" aria-label="August 31, 2026" tabindex="-1">31</span><span class="flatpickr-day nextMonthDay" aria-label="September 1, 2026" tabindex="-1">1</span><span class="flatpickr-day nextMonthDay" aria-label="September 2, 2026" tabindex="-1">2</span><span class="flatpickr-day nextMonthDay" aria-label="September 3, 2026" tabindex="-1">3</span><span class="flatpickr-day nextMonthDay" aria-label="September 4, 2026" tabindex="-1">4</span><span class="flatpickr-day nextMonthDay" aria-label="September 5, 2026" tabindex="-1">5</span></div></div></div></div></div><div class="flatpickr-calendar animate" tabindex="-1"><div class="flatpickr-months"><span class="flatpickr-prev-month flatpickr-disabled"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 17 17"><g></g><path d="M5.207 8.471l7.146 7.147-0.707 0.707-7.853-7.854 7.854-7.853 0.707 0.707-7.147 7.146z"></path></svg></span><div class="flatpickr-month"><div class="flatpickr-current-month"><select class="flatpickr-monthDropdown-months" aria-label="Month" tabindex="-1"><option class="flatpickr-monthDropdown-month" value="7" tabindex="-1">August</option><option class="flatpickr-monthDropdown-month" value="8" tabindex="-1">September</option><option class="flatpickr-monthDropdown-month" value="9" tabindex="-1">October</option><option class="flatpickr-monthDropdown-month" value="10" tabindex="-1">November</option><option class="flatpickr-monthDropdown-month" value="11" tabindex="-1">December</option></select><div class="numInputWrapper"><input class="numInput cur-year" type="number" tabindex="-1" aria-label="Year" min="2026"><span class="arrowUp"></span><span class="arrowDown"></span></div></div></div><span class="flatpickr-next-month"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 17 17"><g></g><path d="M13.207 8.472l-7.854 7.854-0.707-0.707 7.146-7.146-7.146-7.148 0.707-0.707 7.854 7.854z"></path></svg></span></div><div class="flatpickr-innerContainer"><div class="flatpickr-rContainer"><div class="flatpickr-weekdays"><div class="flatpickr-weekdaycontainer">
+      <span class="flatpickr-weekday">
+        Sun</span><span class="flatpickr-weekday">Mon</span><span class="flatpickr-weekday">Tue</span><span class="flatpickr-weekday">Wed</span><span class="flatpickr-weekday">Thu</span><span class="flatpickr-weekday">Fri</span><span class="flatpickr-weekday">Sat
+      </span>
+      </div></div><div class="flatpickr-days" tabindex="-1"><div class="dayContainer"><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="July 26, 2026">26</span><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="July 27, 2026">27</span><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="July 28, 2026">28</span><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="July 29, 2026">29</span><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="July 30, 2026">30</span><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="July 31, 2026">31</span><span class="flatpickr-day flatpickr-disabled" aria-label="August 1, 2026">1</span><span class="flatpickr-day flatpickr-disabled" aria-label="August 2, 2026">2</span><span class="flatpickr-day flatpickr-disabled" aria-label="August 3, 2026">3</span><span class="flatpickr-day flatpickr-disabled" aria-label="August 4, 2026">4</span><span class="flatpickr-day flatpickr-disabled" aria-label="August 5, 2026">5</span><span class="flatpickr-day flatpickr-disabled" aria-label="August 6, 2026">6</span><span class="flatpickr-day flatpickr-disabled" aria-label="August 7, 2026">7</span><span class="flatpickr-day today" aria-label="August 8, 2026" aria-current="date" tabindex="-1">8</span><span class="flatpickr-day" aria-label="August 9, 2026" tabindex="-1">9</span><span class="flatpickr-day" aria-label="August 10, 2026" tabindex="-1">10</span><span class="flatpickr-day" aria-label="August 11, 2026" tabindex="-1">11</span><span class="flatpickr-day" aria-label="August 12, 2026" tabindex="-1">12</span><span class="flatpickr-day" aria-label="August 13, 2026" tabindex="-1">13</span><span class="flatpickr-day" aria-label="August 14, 2026" tabindex="-1">14</span><span class="flatpickr-day" aria-label="August 15, 2026" tabindex="-1">15</span><span class="flatpickr-day" aria-label="August 16, 2026" tabindex="-1">16</span><span class="flatpickr-day" aria-label="August 17, 2026" tabindex="-1">17</span><span class="flatpickr-day" aria-label="August 18, 2026" tabindex="-1">18</span><span class="flatpickr-day" aria-label="August 19, 2026" tabindex="-1">19</span><span class="flatpickr-day" aria-label="August 20, 2026" tabindex="-1">20</span><span class="flatpickr-day" aria-label="August 21, 2026" tabindex="-1">21</span><span class="flatpickr-day" aria-label="August 22, 2026" tabindex="-1">22</span><span class="flatpickr-day" aria-label="August 23, 2026" tabindex="-1">23</span><span class="flatpickr-day" aria-label="August 24, 2026" tabindex="-1">24</span><span class="flatpickr-day" aria-label="August 25, 2026" tabindex="-1">25</span><span class="flatpickr-day" aria-label="August 26, 2026" tabindex="-1">26</span><span class="flatpickr-day" aria-label="August 27, 2026" tabindex="-1">27</span><span class="flatpickr-day" aria-label="August 28, 2026" tabindex="-1">28</span><span class="flatpickr-day" aria-label="August 29, 2026" tabindex="-1">29</span><span class="flatpickr-day" aria-label="August 30, 2026" tabindex="-1">30</span><span class="flatpickr-day" aria-label="August 31, 2026" tabindex="-1">31</span><span class="flatpickr-day nextMonthDay" aria-label="September 1, 2026" tabindex="-1">1</span><span class="flatpickr-day nextMonthDay" aria-label="September 2, 2026" tabindex="-1">2</span><span class="flatpickr-day nextMonthDay" aria-label="September 3, 2026" tabindex="-1">3</span><span class="flatpickr-day nextMonthDay" aria-label="September 4, 2026" tabindex="-1">4</span><span class="flatpickr-day nextMonthDay" aria-label="September 5, 2026" tabindex="-1">5</span></div></div></div></div></div><span id="content-studio-share-image" style="display: none; position: absolute; z-index: 8775339; width: 80px; height: 25px; background-image: url(&quot;chrome-extension://dmcddloohffhmjngiieikfifpfneadcc/extended/shareimage.png&quot;); background-size: 80px 25px; opacity: 0.9; cursor: pointer;"></span></body></html>

@@ -170,6 +170,14 @@ export function calendarAnchorIso(post) {
   return post?.scheduled_at || post?.published_at || post?.created_at || null;
 }
 
+/** Stable id for calendar UI selection (composer vs legacy calendar). */
+export function postCalendarKey(post) {
+  if (!post) return '';
+  if (post.calendarKey) return String(post.calendarKey);
+  const src = post.source || 'calendar';
+  return `${src}-${post.id}`;
+}
+
 /** Hour (0–23) for placing a post in week/day time grids. */
 export function postHourFromAnchor(post, fallbackHour = 9) {
   const iso = calendarAnchorIso(post);

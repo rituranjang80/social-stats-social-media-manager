@@ -96,7 +96,7 @@ filter the grid, **connected-channel** / tag / search filters, a
 icon**, **title**, and **time** (drafts without a schedule appear on their
 **created** date). Drag-and-drop reschedule, hover **+** on date cells, and a
 floating **+** to compose. The legend stays visible while the grid scrolls in a
-compact layout. Defaults: current month, **All Posts**, **All Channels**, **All
+compact layout. Each post has a **checkbox**: when checked, the post **action toolbar** (same buttons as on hover — edit, preview, etc.) stays **fixed at the bottom center** while you scroll the grid; uncheck or close with **×**. Defaults: current month, **All Posts**, **All Channels**, **All
 Tags**. Reference prototype: `/Brightbean/NewPost.html`.
 
 **Manage workspaces & team access** (other admin pages — not on the composer):

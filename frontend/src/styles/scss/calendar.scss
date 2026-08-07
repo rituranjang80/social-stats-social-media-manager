@@ -570,7 +570,7 @@
 
     &--compact {
       display: grid;
-      grid-template-columns: auto 1fr auto;
+      grid-template-columns: auto auto 1fr auto;
       grid-template-rows: auto;
       align-items: center;
       gap: 2px 4px;
@@ -585,17 +585,25 @@
         box-shadow: none;
       }
 
-      .bb-cal__card-platforms {
+      .bb-cal__card-pin {
         grid-column: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .bb-cal__card-platforms {
+        grid-column: 2;
       }
 
       .bb-cal__card-meta {
-        grid-column: 2;
+        grid-column: 3;
         min-width: 0;
       }
 
       .bb-cal__card-time {
-        grid-column: 3;
+        grid-column: 4;
         font-size: 10px;
         font-weight: 600;
         opacity: 1;
@@ -607,6 +615,15 @@
         font-weight: 600;
         color: inherit;
       }
+    }
+
+    &-pin-input {
+      width: 14px;
+      height: 14px;
+      margin: 0;
+      flex-shrink: 0;
+      accent-color: var(--bb-cal-primary, #f97316);
+      cursor: pointer;
     }
 
     &--draft {
@@ -827,17 +844,34 @@
     display: none;
     position: absolute;
     right: 4px;
-    top: -28px;
+    top: -44px;
     gap: 2px;
     padding: 2px;
     border-radius: 8px;
     border: 1px solid var(--bb-cal-border);
     background: var(--bb-cal-surface);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    z-index: 5;
+
+    &--visible {
+      display: inline-flex;
+    }
+
+    &--dock {
+      position: static;
+      top: auto;
+      right: auto;
+      display: inline-flex;
+      box-shadow: none;
+    }
   }
 
-  &__card:hover &__card-actions {
+  &__card:hover &__card-actions:not(.bb-cal__card-actions--dock) {
     display: inline-flex;
+  }
+
+  &__card.is-pinned:hover &__card-actions:not(.bb-cal__card-actions--dock) {
+    display: none;
   }
 
   &__card-action {
@@ -1060,6 +1094,235 @@
     left: var(--bb-cal-note-x, 0);
     top: var(--bb-cal-note-y, 0);
   }
+
+  /* Pinned post details — fixed like the FAB while the grid scrolls */
+  &__post-dock {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%);
+    z-index: 78;
+    width: min(92vw, 440px);
+    max-height: min(42vh, 320px);
+    pointer-events: none;
+
+    @include respond-down(640px) {
+      bottom: 88px;
+      width: min(calc(100vw - 24px), 440px);
+    }
+  }
+
+  &__post-dock-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: inherit;
+    overflow-y: auto;
+    pointer-events: auto;
+    padding: 2px;
+    align-items: center;
+  }
+
+  &__pinned-tooltip {
+    width: 100%;
+    padding: 10px 12px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--bb-cal-status-border, var(--bb-cal-border));
+    background: var(--bb-cal-surface);
+    color: var(--bb-cal-status-fg, var(--bb-cal-text));
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+    pointer-events: auto;
+  }
+
+  &__pinned-tooltip-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+    margin-bottom: 8px;
+    font-size: 11px;
+    min-width: 0;
+  }
+
+  &__pinned-tooltip-platforms {
+    display: inline-flex;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  &__pinned-tooltip-label {
+    flex: 1;
+    min-width: 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--bb-cal-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__pinned-tooltip-time {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--bb-cal-secondary);
+  }
+
+  &__pinned-tooltip-status {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--bb-cal-status-fg, var(--bb-cal-secondary));
+  }
+
+  &__pinned-tooltip-close {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--bb-cal-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+
+    &:hover {
+      background: var(--bb-cal-past);
+      color: var(--bb-cal-text);
+    }
+  }
+
+  &__post-dock-panel {
+    margin: 0;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--bb-cal-status-border, var(--bb-cal-border));
+    background: var(--bb-cal-surface);
+    color: var(--bb-cal-text);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  &__post-dock-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  &__post-dock-platforms {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  &__post-dock-status {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--bb-cal-status-fg, var(--bb-cal-secondary)) 12%, transparent);
+    color: var(--bb-cal-status-fg, var(--bb-cal-secondary));
+  }
+
+  &__post-dock-close {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin: -4px -6px -4px 0;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--bb-cal-muted);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--bb-cal-past);
+      color: var(--bb-cal-text);
+    }
+  }
+
+  &__post-dock-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--bb-cal-text);
+    margin-bottom: 4px;
+    word-break: break-word;
+  }
+
+  &__post-dock-meta {
+    font-size: 11px;
+    color: var(--bb-cal-secondary);
+    margin-bottom: 2px;
+  }
+
+  &__post-dock-body {
+    margin: 6px 0 0;
+    font-size: 11px;
+    color: var(--bb-cal-secondary);
+  }
+
+  &__post-dock-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--bb-cal-border);
+    font-size: 11px;
+    color: var(--bb-cal-secondary);
+  }
+}
+
+/* Portaled host — keeps calendar theme tokens; viewport-fixed like .bb-cal__fab */
+.bb-cal.bb-cal-post-dock-portal {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 78;
+  width: min(92vw, 440px);
+  max-height: min(42vh, 320px);
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  pointer-events: none;
+
+  @include respond-down(640px) {
+    bottom: 88px;
+    width: min(calc(100vw - 24px), 440px);
+  }
+
+  .bb-cal__post-dock {
+    position: static;
+    left: auto;
+    bottom: auto;
+    transform: none;
+    width: 100%;
+    max-height: inherit;
+  }
+}
+
+.bb-cal-date-cell.can-create:hover .bb-cal-hover-create {
+  min-width: 22px;
+  min-height: 22px;
+  width: 22px;
+  height: 22px;
 }
 
 /* Hover-only create control (top-right of date cell) */
@@ -1071,8 +1334,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  
   padding: 0;
   border: none;
   border-radius: 999px;
@@ -1084,13 +1346,13 @@
   pointer-events: none;
   min-width: 0;
   min-height: 0;
-  width: 22px;
-  height: 22px;
+  width: 22px ;
+  height: 22px ;
 
   // 2. Center positioning
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 140%;
+  left: 44%;
   right: auto; // Remove previous right: 6px
   
   // Combine centering with your hover scale effect
@@ -1347,3 +1609,77 @@
     transform: rotate(360deg);
   }
 }
+[role="button"]:not(.t-edge-toggle) {
+  background-color: var(--bb-cal-status-bg, #eff6ff);
+  border: 1px solid var(--bb-cal-status-border, #bfdbfe);
+  border-radius: 6px;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+  padding: 4px 8px;
+  transition: 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+[role="button"]:not(.t-edge-toggle) {
+  background-color: rgb(248, 250, 252);
+  border-left: 4px solid rgb(59, 130, 246);
+  border-radius: 8px;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 2px;
+  padding: 8px 12px;
+  margin: 4px 0px;
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  overflow: visible;
+  position: relative;
+  color: rgb(30, 41, 59);
+  z-index: 10;
+  border: 1px solid rgb(226, 232, 240);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bb-cal__card--compact .bb-cal__card-time {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: rgb(67, 56, 202);
+  font-size: 10px;
+  text-transform: uppercase;
+  // display: inline-flex;
+  align-items: center;
+  background-color: rgb(224, 231, 255);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: auto;
+}
+
+.bb-cal__card--compact .bb-cal__card-pin {
+  color: rgb(99, 102, 241);
+  font-weight: 500;
+  // display: inline-flex;
+  align-items: center;
+}
+
+.bb-cal__card--compact .bb-cal__card-platforms {
+  color: rgb(71, 85, 105);
+  font-weight: 500;
+  // display: inline-flex;
+  align-items: center;
+}
+
+.bb-cal__card--compact .bb-cal__card-meta {
+  color: rgb(71, 85, 105);
+  font-weight: 500;
+  // display: inline-flex;
+  align-items: center;
+}
+
+.bb-cal__card--compact .bb-cal__card-label {
+  color: inherit;
+}
+
+// .bb-cal__card-actions {
+//   color: rgb(71, 85, 105);
+//   font-weight: 500;
+//   display: inline-flex;
+//   align-items: center;
+// }

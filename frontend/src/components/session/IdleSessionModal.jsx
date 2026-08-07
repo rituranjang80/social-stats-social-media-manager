@@ -12,12 +12,9 @@ export default function IdleSessionModal({
   remainingLabel,
   remainingSeconds,
   warningMinutes,
-  warningSeconds = 0,
   onContinue,
 }) {
-  const totalWarnSec = warningSeconds > 0
-    ? warningSeconds
-    : warningMinutes * 60;
+  const totalWarnSec = warningMinutes * 60;
   const progress = totalWarnSec > 0
     ? Math.min(1, Math.max(0, remainingSeconds / totalWarnSec))
     : 0;

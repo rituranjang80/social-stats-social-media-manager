@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Fixed — App shell crash on load
+
+- Restored **`buildShellModules`** export in **`FeatureSidebar.jsx`** so **`AppShell`** can build the module list again (`TypeError: buildShellModules is not a function`).
+
+### Added — Calendar post detail dock
+
+- **Analytics → Calendar**: each post chip has a **checkbox**. When checked, the same **action toolbar** as hover (`bb-cal__card-actions` — Edit, Preview, etc.) appears **fixed at the bottom center** of the screen (like the **New post** FAB) via a **body portal**, so it **does not scroll** with the grid. Uncheck or **×** to dismiss.
+
 - **Analytics → Calendar**: composer **drafts without a schedule** appear on the day they were **created** (`created_at`). The status legend uses **checkboxes** (including **All Posts**) to filter what shows on the grid; layout margins are tighter so the month view scrolls with less empty space.
 
 - **Week / Day** views place posts in the correct **time slot** (including drafts on `created_at`), use the same **compact chips** and **hover tooltips** as month view, and show a hover **+** on each slot to create a post at that date/time.
