@@ -19,6 +19,7 @@ import EmptyState from '../../components/ui/EmptyState';
 import Badge from '../../components/ui/Badge';
 import { usePostQueues } from '../../hooks/useComposer';
 import { composerAPI } from '../../services/api';
+import QueueScheduleEditor, { describeSchedule } from '../../components/composer/QueueScheduleEditor';
 
 const STRATEGIES = [
   { id: 'sequential',  label: 'Sequential' },
@@ -55,7 +56,7 @@ export default function QueueManagerPage() {
             <EmptyState
               icon={Layers}
               title="No queues yet"
-              description="Queues schedule recurring posts. Create one with a cron rule like '0 10 * * 1-5' for weekday mornings."
+              description="Queues post your pre-written content on a repeating schedule. Pick days and a time — no cron syntax required."
               action={<Button icon={Plus} onClick={() => setShowCreate(true)}>Create queue</Button>}
             />
           )}
@@ -123,8 +124,8 @@ function QueueRow({ queue, active, onClick, onChange }) {
           <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>
             {queue.name}
           </div>
-          <div style={{ fontSize: 11, color: 'var(--text-tertiary)', fontFamily: 'var(--font-mono)' }}>
-            {queue.schedule_rule || '— no rule —'}
+          <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
+            {describeSchedule(queue.schedule_rule)}
           </div>
           <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
             <Badge variant={queue.is_active ? 'success' : 'default'} dot>
@@ -208,7 +209,7 @@ function QueueDetail({ queueId, onChanged }) {
             fontSize: 12, color: 'var(--text-tertiary)', marginTop: 4,
           }}>
             <Clock size={12} />
-            <span style={{ fontFamily: 'var(--font-mono)' }}>{queue.schedule_rule || '—'}</span>
+            <span>{describeSchedule(queue.schedule_rule)}</span>
             <span>·</span>
             <span>{queue.queue_strategy}</span>
             <span>·</span>
@@ -278,12 +279,13 @@ function CreateQueueModal({ onClose, onCreated }) {
             <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
                    placeholder="Weekday mornings" style={inputStyle} autoFocus />
           </Field>
-          <Field label="Schedule (cron)">
-            <input value={form.schedule_rule}
-                   onChange={(e) => setForm({ ...form, schedule_rule: e.target.value })}
-                   placeholder="0 10 * * 1-5"
-                   style={{ ...inputStyle, fontFamily: 'var(--font-mono)' }} />
-            <span style={helpStyle}>e.g. <code style={code}>0 10 * * 1-5</code> = 10am Mon–Fri</span>
+          <Field label="When to post">
+            <QueueScheduleEditor
+              value={form.schedule_rule}
+              onChange={(schedule_rule) => setForm({ ...form, schedule_rule })}
+              inputStyle={inputStyle}
+              helpStyle={helpStyle}
+            />
           </Field>
           <Field label="Strategy">
             <select value={form.queue_strategy}

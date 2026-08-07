@@ -10,6 +10,10 @@
 
 - **`POST /api/composer/posts/`** (and related composer serializers) no longer reject `client` / `client_id` when the UI sends the workspace **public UUID** string. `client` is **read-only** on composer serializers; the server stamps `client_id` from **`TenantScopedMixin`** / `resolve_client_pk` (query, body, or `X-Client-Id` header).
 
+### Changed — Post queue schedule UI
+
+- **Analytics → Queues** (`/admin/analytics/queues`): the **New queue** dialog uses **When to post** (every day, weekdays, weekends, specific days, or advanced cron) plus a **time picker** and plain-language summary. **Specific days** and **Custom cron** stay selected (no snap-back to weekdays). The API still stores a standard cron string in `schedule_rule`.
+
 ### Changed — Composer connected channels UI
 
 - **Connected channels** show **social account profile images** (page/channel photo from Facebook, Instagram, YouTube, LinkedIn, etc.) like tools such as Postiz, loaded via **`PlatformCredential.account_picture_url`** (migration **`0070_platformcredential_account_picture_url`**) and **`GET /api/oauth/status/`** (`avatar_url`). Composer cards use a **checkbox**, **round profile photo**, **small platform icon** badge, and **account name** — not the signed-in user’s app avatar.

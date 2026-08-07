@@ -72,8 +72,11 @@ media uploads report progress, and an attached item can be replaced from the
 existing Media Library without removing it first. Scheduling shows the browser
 timezone and offers an **Open calendar** action after a successful schedule.
 Queue mode continues to save the post as a draft before queue assignment; use
-**Manage queues** to select and manage recurring queues. New drafts do not
-preselect a platform: choose one or more connected channels to create matching
+**Manage queues** (`/dashboard/analytics/queues` or `/admin/analytics/queues`) to
+build **recurring queues**: choose **when to post** (every day, weekdays, weekends,
+or pick specific days), set a **time**, and add pre-written items. No cron syntax
+is required unless you open **Custom cron (advanced)**. Times follow the **workspace
+timezone**. New drafts do not preselect a platform: choose one or more connected channels to create matching
 live-preview tabs.
 
 ### Content calendar (Publish)
