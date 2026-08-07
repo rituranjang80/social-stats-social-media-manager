@@ -20,11 +20,49 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from .client_ref import client_ref_from_request, resolve_client_pk
 from .composer_serializers import UnifiedPostListSerializer
 from .models import (
     NotificationPreference, UnifiedPost,
     SMART_NOTIFICATION_EVENT_CHOICES, NOTIFICATION_CHANNEL_CHOICES,
 )
+
+
+def _agency_client_ids(profile, user):
+    agency_id = getattr(profile, 'primary_agency_id', None)
+    if not agency_id:
+        return []
+    from .marketplace_models import AgencyClientRelation, AgencyMembership
+
+    if not AgencyMembership.objects.filter(
+        user=user, agency_id=agency_id, is_active=True,
+    ).exists():
+        return []
+    return list(
+        AgencyClientRelation.objects.filter(
+            agency_id=agency_id, status='active',
+        ).values_list('client_id', flat=True)
+    )
+
+
+def _scoped_pending_approval_posts(profile, user, request):
+    """Tenant-scoped pending_approval posts (same rules as TenantScopedMixin)."""
+    qs = UnifiedPost.objects.filter(status='pending_approval')
+    if profile.role == 'superadmin':
+        cid = resolve_client_pk(client_ref_from_request(request))
+        if cid:
+            qs = qs.filter(client_id=cid)
+    elif profile.role == 'staff':
+        qs = qs.filter(client__in=profile.assigned_clients.all())
+    else:
+        agency_ids = _agency_client_ids(profile, user)
+        if agency_ids:
+            qs = qs.filter(client_id__in=agency_ids)
+        elif profile.client_id:
+            qs = qs.filter(client_id=profile.client_id)
+        else:
+            qs = qs.none()
+    return qs
 
 
 class NotificationPreferenceSerializer(serializers.ModelSerializer):
@@ -93,18 +131,10 @@ def approval_queue(request):
     except Exception:
         return Response({'error': 'No profile'}, status=403)
 
-    qs = UnifiedPost.objects.filter(status='pending_approval')
-    if profile.role == 'client':
-        qs = qs.filter(client_id=profile.client_id)
-    elif profile.role == 'staff':
-        qs = qs.filter(client__in=profile.assigned_clients.all())
-    # superadmin sees all (optionally filter by ?client_id=)
-    cid = request.query_params.get('client_id')
-    if cid:
-        qs = qs.filter(client_id=cid)
-
-    qs = qs.order_by('-created_at')[:200]
+    qs = _scoped_pending_approval_posts(profile, request.user, request)
+    total = qs.count()
+    page = qs.order_by('-created_at')[:200]
     return Response({
-        'count':  qs.count() if hasattr(qs, 'count') else len(qs),
-        'queue':  UnifiedPostListSerializer(qs, many=True).data,
+        'count': total,
+        'queue': UnifiedPostListSerializer(page, many=True).data,
     })

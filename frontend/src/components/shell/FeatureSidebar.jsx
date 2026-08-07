@@ -412,20 +412,20 @@ const NAV_SETS = {
       //     { label: 'Automations', icon: Zap, path: '/automations', permission: 'automations.view' },
       //   ],
       // },
-      // {
-      //   title: 'Overview',
-      //   items: [
-      //     {
-      //       label: 'Dashboard',
-      //       icon: LayoutDashboard,
-      //       path: '/dashboard',
-      //       end: true,
-      //       permission: 'dashboard.view',
-      //     },
-      //     { label: 'Analytics', icon: LineChart, path: '/analytics', permission: 'analytics.view' },
-      //     { label: 'Reports', icon: FileText, path: '/reports', permission: 'reports.view' },
-      //   ],
-      // },
+      {
+        title: 'Overview',
+        items: [
+          // {
+          //   label: 'Dashboard',
+          //   icon: LayoutDashboard,
+          //   path: '/dashboard',
+          //   end: true,
+          //   permission: 'dashboard.view',
+          // },
+          { label: 'Analytics', icon: LineChart, path: '/analytics', permission: 'analytics.view' },
+          { label: 'Reports', icon: FileText, path: '/reports', permission: 'reports.view' },
+        ],
+      },
       // {
       //   title: 'Content',
       //   items: [
@@ -457,13 +457,13 @@ const NAV_SETS = {
       {
         title: 'Setup',
         items: [
-          // {
-          //   label: 'Approvals',
-          //   icon: ClipboardCheck,
-          //   path: '/approvals',
-          //   permission: 'composer.approve',
-          //   badgeKey: 'pending_approvals',
-          // },
+           {
+             label: 'Approvals',
+             icon: ClipboardCheck,
+             path: '/approvals',
+             permission: 'composer.approve',
+             badgeKey: 'pending_approvals',
+           },
           {
             label: 'Manage connections',
             icon: Link2,

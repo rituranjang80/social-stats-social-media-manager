@@ -331,6 +331,11 @@ class PlatformCredential(models.Model):
     gmb_account_id       = models.CharField(max_length=200, blank=True)   # GMB Account
     gmb_location_id      = models.CharField(max_length=200, blank=True)   # GMB Location
 
+    account_picture_url  = models.URLField(
+        blank=True,
+        help_text='Page/channel profile image URL from the social platform',
+    )
+
     is_active    = models.BooleanField(default=True)
     connected_at = models.DateTimeField(auto_now_add=True)
     updated_at   = models.DateTimeField(auto_now=True)

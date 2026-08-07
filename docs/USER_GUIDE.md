@@ -43,6 +43,23 @@ and a **content calendar**. Agency posts can route through **approval flows**
 before they publish. Drafting and scheduling work without connected accounts;
 actually publishing needs them.
 
+#### Composer post approval (admin queue)
+
+Some workspaces require a reviewer before posts go live. This is controlled by the workspace flag **`requires_approval`** on the `Client` record (enable it in **Django admin** → **Clients** → edit workspace, or via the shell/API until a UI toggle exists).
+
+**Flow:**
+
+1. Turn on **`requires_approval`** for the workspace.
+2. A client or agency user composes a post and chooses **Publish now** or **Schedule** (anything that would publish).
+3. The post moves to **`pending_approval`** instead of publishing; approvers get a notification.
+4. **Staff / superadmin** open **Admin → Analytics → Approval queue** (`/admin/analytics/approvals`). Review the caption, then **Approve** (publishes or keeps the schedule) or **Reject** (cancels). **Edit** opens the post in Composer.
+
+Visibility matches other admin tools: superadmin sees all pending posts (optionally narrowed by **Switch workspace**); staff see posts for **assigned clients** only; agency members see workspaces their agency manages.
+
+#### Marketplace / owner approvals (end-user)
+
+When an **agency** tries a sensitive action (for example deleting posts) and the workspace owner marked that permission as **requires approval**, an **`ApprovalRequest`** is created instead of running immediately. The **workspace owner** reviews these under **End user → Approvals** (`/u/approvals`) — not the admin composer queue above.
+
 **Route:** `/dashboard/analytics/composer` (clients) or
 `/admin/analytics/composer` (admin shell). Calendar deep-links support
 `?scheduled_date=&scheduled_time=` to prefill the schedule. Calendar **+** /
@@ -122,10 +139,11 @@ the top bar and account menu on every page.
   components. Form sections use reusable **T-Type** `TCard` / `TInput` /
   `TTextArea` containers in a responsive card grid. Secondary team and AI
   sections collapse to reduce scrolling.
-  **Connected channels** — Brightbean-style account cards for connected
-  accounts only (logged-in user avatar / initials, platform icon, name, handle,
-  workspace chip, connected badge). Selection still drives which platforms the
-  post publishes to.
+  **Connected channels** — Postiz-style rows for each **connected** account:
+  **checkbox**, **round social profile/page photo** (from the platform API),
+  **small network icon** on the avatar, and the **connected account name**.
+  Existing connections backfill photos on the next OAuth status load; reconnect if a
+  platform still shows initials only.
   **Media Library** in the caption card opens an in-composer picker modal
   (does not leave the page); selected assets appear in the media row and are
   saved/published with the post. Use the replace control on a media thumbnail

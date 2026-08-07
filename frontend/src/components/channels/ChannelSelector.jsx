@@ -31,7 +31,7 @@ export function buildChannelCards({
   catalog = [],
   workspaceLabel = '',
   platformIds = OAUTH_PLATFORM_IDS,
-  currentUser = null,
+  currentUser: _currentUser = null,
 }) {
   const fromCatalog = Array.isArray(catalog) && catalog.length
     ? catalog.map((c) => c.id || c.credential_key).filter(Boolean)
@@ -42,15 +42,6 @@ export function buildChannelCards({
   platformIds.forEach((id) => {
     if (!ids.includes(id)) ids.push(id);
   });
-
-  const userName = [
-    currentUser?.first_name,
-    currentUser?.last_name,
-  ].filter(Boolean).join(' ') || currentUser?.username || currentUser?.email || '';
-  const userAvatarUrl = currentUser?.profile_image
-    || currentUser?.profile_image_url
-    || currentUser?.avatar_url
-    || '';
 
   const catalogById = new Map(
     (Array.isArray(catalog) ? catalog : [])
@@ -67,7 +58,7 @@ export function buildChannelCards({
     const connected = isPlatformConnected({ status: rawStatus });
     if (!connected) return null;
     const accountName = st.account_name || cat.account_name || '';
-    const name = accountName || userName || meta.label || id;
+    const name = accountName || meta.label || id;
     const connStatus = rawStatus || (connected ? 'active' : 'not_connected');
 
     return {
@@ -76,8 +67,8 @@ export function buildChannelCards({
       label: meta.label || cat.label || id,
       name,
       handle: accountName ? slugHandle(accountName, id) : (meta.shortLabel ? `@${meta.shortLabel.toLowerCase()}` : ''),
-      avatarUrl: st.avatar_url || st.profile_image_url || st.picture || cat.avatar_url || userAvatarUrl,
-      avatarName: userName || name,
+      avatarUrl: st.avatar_url || st.profile_image_url || st.picture || cat.avatar_url || '',
+      avatarName: accountName || meta.label || id,
       status: connStatus,
       workspaceLabel: workspaceLabel || '',
       title: [
@@ -99,6 +90,7 @@ export default function ChannelSelector({
   currentUser = null,
   emptyAction = null,
   className = '',
+  cardLayout = 'default',
 }) {
   const { status, catalog, loading } = useOAuthStatus(clientId);
 
@@ -122,6 +114,7 @@ export default function ChannelSelector({
         loading={loading && !channels.length}
         emptyMessage="No connected channels for this workspace. Connect an account first."
         emptyAction={emptyAction}
+        cardLayout={cardLayout}
       />
     </div>
   );

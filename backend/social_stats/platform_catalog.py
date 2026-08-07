@@ -119,6 +119,7 @@ def build_connect_catalog(*, status_by_platform: dict | None = None) -> list[dic
             'credential_key': cred_key,
             'status': user_status,
             'account_name': st.get('account_name', ''),
+            'avatar_url': st.get('avatar_url', ''),
             'expires_at': st.get('expires_at'),
             'connected_at': st.get('connected_at'),
         })

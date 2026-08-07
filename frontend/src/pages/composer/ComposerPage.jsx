@@ -608,6 +608,7 @@ export default function ComposerPage() {
                       currentUser={user}
                       selected={targetPlatforms}
                       onToggle={togglePlatform}
+                      cardLayout="picker"
                       emptyAction={(
                         <Button
                           variant="secondary"
@@ -658,18 +659,17 @@ export default function ComposerPage() {
                     charLimits={characterLimits}
                     uploading={uploadingCount > 0}
                     onOpenMediaLibrary={() => setMediaPickerOpen(true)}
-                    gridSpan={showFirstComment ? 8 : 12}
+                    gridSpan={12}
                   />
 
-                  <ComposerFirstComment
+                </div>
+              </ComposerSection>
+ <ComposerFirstComment
                     value={firstComment}
                     onChange={setFirstComment}
                     visible={showFirstComment}
                     gridSpan={4}
                   />
-                </div>
-              </ComposerSection>
-
               <ComposerSection
                 title="Publishing"
                 description="Choose when to publish and review platform-specific settings."

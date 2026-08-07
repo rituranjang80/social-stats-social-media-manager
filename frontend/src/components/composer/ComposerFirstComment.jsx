@@ -23,9 +23,7 @@ export default function ComposerFirstComment({
         aria-describedby="composer-first-comment-hint"
         hint="Supported on Facebook, Instagram, and LinkedIn when those channels are selected."
       />
-      <span id="composer-first-comment-hint" className="sr-only">
-        Supported on Facebook, Instagram, and LinkedIn when those channels are selected.
-      </span>
+    
     </TCard>
   );
 }

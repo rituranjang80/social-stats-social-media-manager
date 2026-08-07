@@ -46,6 +46,7 @@ from .orchestrator import publish_unified_post
 from .publishers import get_publisher
 from . import media_service
 from .tenant_mixins import TenantScopedMixin
+from .client_ref import resolve_client_pk
 from .marketplace_permissions import (
     check_action, deny_response, approval_pending_response,
 )
@@ -86,6 +87,8 @@ class UnifiedPostViewSet(TenantScopedMixin, viewsets.ModelViewSet):
                          target_object_id: int | None = None, preview: str = ''):
         """Run check_action; return None on allowed, or a Response to short-circuit."""
         client_id = self.request.data.get('client') or self.request.data.get('client_id')
+        if client_id is not None and not isinstance(client_id, int):
+            client_id = resolve_client_pk(client_id)
         if not client_id and target_object_id:
             try:
                 client_id = UnifiedPost.objects.values_list('client_id', flat=True).get(id=target_object_id)
@@ -502,18 +505,16 @@ class PreflightCheckView(APIView):
             profile = request.user.profile
         except Exception:
             return None
+        raw = (
+            request.query_params.get('client_id')
+            or request.query_params.get('workspace_id')
+            or data.get('client_id')
+            or data.get('client')
+        )
+        cid = resolve_client_pk(raw) if raw not in (None, '') else None
         if profile.role == 'superadmin':
-            cid = request.query_params.get('client_id') or data.get('client')
-            try:
-                return int(cid) if cid else None
-            except (TypeError, ValueError):
-                return None
+            return cid
         if profile.role == 'staff':
-            cid = request.query_params.get('client_id') or data.get('client')
-            try:
-                cid = int(cid) if cid else None
-            except (TypeError, ValueError):
-                return None
             if cid and profile.assigned_clients.filter(id=cid).exists():
                 return cid
             return None

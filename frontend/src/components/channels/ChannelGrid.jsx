@@ -10,6 +10,7 @@ export default function ChannelGrid({
   loading = false,
   emptyMessage = 'No channels available for this workspace.',
   emptyAction,
+  cardLayout = 'default',
 }) {
   const selected = new Set((selectedIds || []).map(String));
 
@@ -45,6 +46,7 @@ export default function ChannelGrid({
             channel={ch}
             selected={selected.has(String(ch.id))}
             onToggle={onToggle}
+            layout={cardLayout}
           />
         </div>
       ))}

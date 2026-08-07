@@ -263,6 +263,17 @@ class ApprovalQueueTests(TestCase):
         self.assertIn('Pending', contents)
         self.assertNotIn('Draft', contents)
 
+    def test_queue_accepts_workspace_uuid_client_id_param(self):
+        """Frontend sends public workspace UUID as client_id on every request."""
+        UnifiedPost.objects.create(
+            client=self.c, content='Pending UUID param', media_type='text',
+            target_platforms=['facebook'], status='pending_approval',
+            created_by=self.client_user,
+        )
+        res = self.api.get('/api/composer/approvals/', {'client_id': str(self.c.public_id)})
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.data['count'], 1)
+
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_publish_now_on_approval_required_dispatches_notify(self):
         post = UnifiedPost.objects.create(

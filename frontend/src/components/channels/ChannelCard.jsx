@@ -11,6 +11,7 @@ export default function ChannelCard({
   selected = false,
   onToggle,
   disabled = false,
+  layout = 'default',
 }) {
   const {
     id,
@@ -24,6 +25,7 @@ export default function ChannelCard({
     title,
   } = channel;
 
+  const picker = layout === 'picker' || layout === 'compact';
   const displayName = name || channel.label || platform;
   const tooltip = title || [displayName, handle, workspaceLabel].filter(Boolean).join(' · ');
 
@@ -32,6 +34,7 @@ export default function ChannelCard({
       type="button"
       className={[
         'channel-card',
+        picker ? 'channel-card--picker' : '',
         selected ? 'is-selected' : '',
         disabled ? 'is-disabled' : '',
         status === 'expired' ? 'is-expired' : '',
@@ -47,24 +50,29 @@ export default function ChannelCard({
       <span className="channel-card__check" aria-hidden="true">
         {selected ? <Check size={10} strokeWidth={3} /> : null}
       </span>
-      {/* <span className="sr-only">{selected ? 'Selected' : 'Not selected'}</span> */}
 
       <span className="channel-card__avatar-wrap">
-        <ChannelAvatar src={avatarUrl} name={avatarName || displayName} size="sm" />
+        <ChannelAvatar
+          src={avatarUrl}
+          name={avatarName || displayName}
+          size={picker ? 'md' : 'sm'}
+        />
         <span className={`channel-card__platform channel-card__platform--${platform}`}>
-          <SocialIcon platform={platform} size={12} title={channel.label} />
+          <SocialIcon platform={platform} size={picker ? 11 : 12} title={channel.label} />
         </span>
       </span>
 
       <span className="channel-card__meta">
         <span className="channel-card__name">{displayName}</span>
-        {handle ? <span className="channel-card__handle">{handle}</span> : null}
-        <span className="channel-card__footer">
-          <StatusBadge status={status} />
-          {workspaceLabel ? (
-            <span className="channel-card__workspace">{workspaceLabel}</span>
-          ) : null}
-        </span>
+        {!picker && handle ? <span className="channel-card__handle">{handle}</span> : null}
+        {!picker ? (
+          <span className="channel-card__footer">
+            <StatusBadge status={status} />
+            {workspaceLabel ? (
+              <span className="channel-card__workspace">{workspaceLabel}</span>
+            ) : null}
+          </span>
+        ) : null}
       </span>
     </button>
   );

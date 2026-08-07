@@ -59,9 +59,12 @@ def _facebook_consumer_secret():
 
 def _save_credential(client_id, platform, defaults):
     # Connected-platform count is unlimited (free / open source) — no cap.
-    PlatformCredential.objects.update_or_create(
+    from .oauth_account_pictures import ensure_account_picture_url
+
+    cred, _ = PlatformCredential.objects.update_or_create(
         client_id=client_id, platform=platform, defaults={**defaults, 'is_active': True}
     )
+    ensure_account_picture_url(cred)
 
 
 def _settings_redirect(client_id, query=''):
@@ -540,6 +543,10 @@ def google_oauth_callback(request):
             channel      = yt_items[0]
             channel_id   = channel['id']
             channel_name = channel['snippet']['title']
+            thumbs = (channel.get('snippet') or {}).get('thumbnails') or {}
+            channel_pic = ''
+            for size in ('high', 'medium', 'default'):
+                channel_pic = (thumbs.get(size) or {}).get('url') or channel_pic
 
             _save_credential(client_id, 'youtube', {
                 'access_token':  access_token,
@@ -547,6 +554,7 @@ def google_oauth_callback(request):
                 'expires_at':    expires_at,
                 'channel_id':    channel_id,
                 'channel_name':  channel_name,
+                'account_picture_url': channel_pic,
             })
             connected.append('youtube')
 
@@ -697,6 +705,7 @@ def linkedin_oauth_callback(request):
 
     user_sub  = str(userinfo_resp.get('sub', ''))
     user_name = userinfo_resp.get('name', '') or userinfo_resp.get('given_name', '')
+    user_pic  = (userinfo_resp.get('picture') or '').strip()
 
     _save_credential(client_id, 'linkedin', {
         'access_token':      access_token,
@@ -704,6 +713,7 @@ def linkedin_oauth_callback(request):
         'expires_at':        expires_at,
         'organization_id':   user_sub,
         'organization_name': user_name,
+        'account_picture_url': user_pic,
     })
 
     return _settings_redirect(client_id, "?connected=linkedin")
@@ -773,6 +783,7 @@ def oauth_status(request, client_id):
         return Response({'detail': 'Access denied.'}, status=403)
 
     from .platform_catalog import build_connect_catalog, OAUTH_LIVE_KEYS
+    from .oauth_account_pictures import ensure_account_picture_url
 
     credentials = PlatformCredential.objects.filter(client_id=pk)
     status_by_platform = {}
@@ -786,11 +797,13 @@ def oauth_status(request, client_id):
                     _refresh_google_token(cred)
                 elif platform in ('facebook', 'instagram'):
                     _refresh_facebook_token(cred)
+            avatar_url = ensure_account_picture_url(cred) or ''
             status_by_platform[platform] = {
                 'status':       cred.status,
                 'connected_at': cred.connected_at.isoformat(),
                 'expires_at':   cred.expires_at.isoformat() if cred.expires_at else None,
                 'account_name': cred.page_name or cred.channel_name or cred.organization_name or '',
+                'avatar_url':   avatar_url,
             }
         else:
             status_by_platform[platform] = {'status': 'not_connected'}
@@ -804,6 +817,7 @@ def oauth_status(request, client_id):
         flat[card['id']] = {
             'status': card['status'],
             'account_name': card.get('account_name') or '',
+            'avatar_url': card.get('avatar_url') or '',
             'expires_at': card.get('expires_at'),
             'connected_at': card.get('connected_at'),
             'is_configured': card['is_configured'],
@@ -818,6 +832,7 @@ def oauth_status(request, client_id):
             flat[key] = {
                 'status': status_by_platform.get(key, {}).get('status', 'not_connected'),
                 'account_name': status_by_platform.get(key, {}).get('account_name', ''),
+                'avatar_url': status_by_platform.get(key, {}).get('avatar_url', ''),
                 'expires_at': status_by_platform.get(key, {}).get('expires_at'),
                 'connected_at': status_by_platform.get(key, {}).get('connected_at'),
                 'is_configured': card['is_configured'],

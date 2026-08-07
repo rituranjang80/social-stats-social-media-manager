@@ -34,6 +34,7 @@ class MediaAssetSerializer(serializers.ModelSerializer):
             'created_at',
         ]
         read_only_fields = [
+            'client',
             'mime_type', 'file_size', 'width', 'height', 'duration_seconds',
             'is_used', 'created_at', 'filename', 'uuid',
         ]
@@ -124,6 +125,7 @@ class UnifiedPostSerializer(serializers.ModelSerializer):
             'publish_logs',
         ]
         read_only_fields = [
+            'client',
             'status', 'published_at',
             'created_by', 'created_by_name', 'created_at', 'updated_at',
             'approved_by', 'approved_at', 'media_assets',
@@ -262,7 +264,7 @@ class PostQueueSerializer(serializers.ModelSerializer):
             'items_count', 'waiting_count',
             'created_at', 'updated_at',
         ]
-        read_only_fields = ['last_dispatched_at', 'created_at', 'updated_at']
+        read_only_fields = ['client', 'last_dispatched_at', 'created_at', 'updated_at']
 
     def get_items_count(self, obj):
         return obj.items.count()

@@ -212,7 +212,9 @@ shows **Not Configured** (not a hardcoded “Coming soon” list).
 | `PLATFORM_TWITTER_CLIENT_ID` / `SECRET` | Optional | empty | X (Twitter). |
 
 API: `GET /api/oauth/status/<client_id>/` returns `{ platforms, catalog }` where each
-catalog row includes `is_configured`, `connectable`, and user link `status`.
+connected platform includes `account_name`, `avatar_url` (page/channel profile photo
+from the social network, cached on `PlatformCredential.account_picture_url`), plus
+catalog rows with `is_configured`, `connectable`, and link `status`.
 
 ## Email
 

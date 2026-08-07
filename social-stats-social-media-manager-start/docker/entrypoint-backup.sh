@@ -49,7 +49,7 @@ chmod 0644 /etc/cron.d/social-stats-backup
 sed -i 's/\r$//' /etc/cron.d/social-stats-backup
 
 touch /var/log/backup.log
-echo "[backup] cron schedule (UTC): ${CRON_EXPR}"
+echo "[backup] scheduler=cron schedule (UTC): ${CRON_EXPR}"
 
 if [[ "${BACKUP_RUN_ON_START,,}" == "true" || "${BACKUP_RUN_ON_START}" == "1" ]]; then
   run_backup >> /var/log/backup.log 2>&1 || true
