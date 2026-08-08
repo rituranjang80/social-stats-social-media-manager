@@ -129,6 +129,11 @@ export default function CalendarCard({
           />
         </span>
       ) : null}
+      <span className="bb-cal__card-meta">
+        <span className="bb-cal__card-label">{label}</span>
+        {!compact && account ? <span className="bb-cal__card-account">{account}</span> : null}
+      </span>
+
       {!compact && thumb ? (
         <img className="bb-cal__card-thumb" src={thumb} alt="" loading="lazy" />
       ) : null}
@@ -140,11 +145,7 @@ export default function CalendarCard({
           <SocialPlatformIcon key={pl} platform={pl} size={compact ? 14 : 12} />
         ))}
       </span>
-      <span className="bb-cal__card-meta">
-        <span className="bb-cal__card-label">{label}</span>
-        {!compact && account ? <span className="bb-cal__card-account">{account}</span> : null}
-      </span>
-      {timeStr ? <span className="bb-cal__card-time">{timeStr}</span> : null}
+            {timeStr ? <span className="bb-cal__card-time">{timeStr}</span> : null}
       <span className="bb-cal__card-status sr-only">{statusHuman}</span>
       {!compact && tags.length ? (
         <span className="bb-cal__card-tags">

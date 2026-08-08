@@ -1,10 +1,5 @@
 /* ============================================================================
- *  Social Stats — Social Media Management & Marketing Platform
- *  Author    : Chandrabhan Shekhawat
- *  Company   : Gigai Kripa Services
- *  Website   : https://gigaikripaservices.com/
- *  Copyright (c) 2026 Chandrabhan Shekhawat / Gigai Kripa Services.
- *  Released under the MIT License — see LICENSE. Keep this notice.
+ *  useCalendarPosts — extended for publish list date range (server-side).
  * ========================================================================== */
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { calendarAPI, composerAPI } from '../services/api';
@@ -14,16 +9,16 @@ import {
   mapLegacyCalendarPost,
 } from '../components/calendar/utils';
 
-async function fetchAllComposerPosts(clientId) {
+async function fetchAllComposerPosts(clientId, { dateFrom, dateTo } = {}) {
   const rows = [];
   let page = 1;
   let guard = 0;
   while (guard < 20) {
     guard += 1;
-    const res = await composerAPI.posts.list({
-      client_id: clientId,
-      page,
-    });
+    const params = { client_id: clientId, page };
+    if (dateFrom) params.date_from = dateFrom;
+    if (dateTo) params.date_to = dateTo;
+    const res = await composerAPI.posts.list(params);
     const payload = res.data;
     const batch = payload?.results || (Array.isArray(payload) ? payload : []);
     rows.push(...batch);
@@ -42,9 +37,14 @@ function normalizeCalendarMap(data) {
 }
 
 // ── useCalendarPosts ───────────────────────────────────────────────────────────
-/** @param {{ composerScope?: 'month' | 'all' }} options — list mode should use `all`. */
+/**
+ * @param {{ composerScope?: 'month' | 'all', dateFrom?: string, dateTo?: string, useDateRange?: boolean }} options
+ */
 export function useCalendarPosts(clientId, month, year, options = {}) {
   const composerScope = options.composerScope || 'month';
+  const useDateRange = !!options.useDateRange;
+  const dateFrom = options.dateFrom;
+  const dateTo = options.dateTo;
   const [postsByDate, setPostsByDate] = useState({});
   const [loading,    setLoading]     = useState(false);
   const [error,      setError]       = useState('');
@@ -54,23 +54,36 @@ export function useCalendarPosts(clientId, month, year, options = {}) {
       setPostsByDate({});
       return;
     }
+    if (useDateRange && (!dateFrom || !dateTo)) {
+      setPostsByDate({});
+      return;
+    }
     setLoading(true);
     setError('');
     try {
-      const params = { client_id: clientId, month, year };
-      const composerRows = await fetchAllComposerPosts(clientId).catch(() => []);
+      const params = { client_id: clientId };
+      if (useDateRange) {
+        params.date_from = dateFrom;
+        params.date_to = dateTo;
+      } else {
+        params.month = month;
+        params.year = year;
+      }
+      const composerRows = await fetchAllComposerPosts(clientId, useDateRange ? {
+        dateFrom,
+        dateTo,
+      } : {}).catch(() => []);
       let calendarMap = {};
       try {
         const calRes = await calendarAPI.getPosts(params);
         calendarMap = normalizeCalendarMap(calRes.data || {});
       } catch (calErr) {
-        // Legacy calendar rows are optional; composer posts still render.
         if (process.env.NODE_ENV !== 'production') {
           // eslint-disable-next-line no-console
           console.warn('Calendar legacy posts load failed:', calErr?.message || calErr);
         }
       }
-      const composerMap = composerScope === 'all'
+      const composerMap = (useDateRange || composerScope === 'all')
         ? groupComposerPostsByDate(composerRows, null, null)
         : groupComposerPostsByDate(composerRows, month, year);
       setPostsByDate(mergePostsByDate(calendarMap, composerMap));
@@ -80,7 +93,7 @@ export function useCalendarPosts(clientId, month, year, options = {}) {
     } finally {
       setLoading(false);
     }
-  }, [clientId, month, year, composerScope]);
+  }, [clientId, month, year, composerScope, useDateRange, dateFrom, dateTo]);
 
   useEffect(() => { fetch(); }, [fetch]);
 
@@ -131,7 +144,7 @@ export function useUpcomingPosts(clientId) {
 
   useEffect(() => {
     fetch();
-    intervalRef.current = setInterval(fetch, 5 * 60 * 1000); // 5 minutes
+    intervalRef.current = setInterval(fetch, 5 * 60 * 1000);
     return () => clearInterval(intervalRef.current);
   }, [fetch]);
 

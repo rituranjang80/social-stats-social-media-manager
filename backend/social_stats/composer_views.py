@@ -51,6 +51,7 @@ from .marketplace_permissions import (
     check_action, deny_response, approval_pending_response,
 )
 from .activity_logger import log_activity_for_request
+from .publish_list_dates import filter_queryset_by_publish_date
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +72,10 @@ class UnifiedPostViewSet(TenantScopedMixin, viewsets.ModelViewSet):
             qs = qs.filter(status=params['status'])
         if params.get('platform'):
             qs = qs.filter(target_platforms__contains=[params['platform']])
+        date_from = params.get('date_from')
+        date_to = params.get('date_to')
+        if date_from or date_to:
+            qs = filter_queryset_by_publish_date(qs, date_from, date_to)
         return qs
 
     # ── — close audit gap 4.2: create/update/destroy were ungated ─

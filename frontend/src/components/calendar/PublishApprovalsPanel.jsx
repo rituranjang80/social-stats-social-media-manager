@@ -59,7 +59,15 @@ export default function PublishApprovalsPanel({
     }
     setLoading(true);
     try {
-      const res = await composerAPI.posts.list({ client_id: clientId, page_size: 200 });
+      const params = {
+        client_id: clientId,
+        page_size: 200,
+      };
+      if (toolbarFilter?.dateFrom && toolbarFilter?.dateTo) {
+        params.date_from = toolbarFilter.dateFrom;
+        params.date_to = toolbarFilter.dateTo;
+      }
+      const res = await composerAPI.posts.list(params);
       const payload = res.data;
       const batch = payload?.results || (Array.isArray(payload) ? payload : []);
       const mapped = batch.map(mapComposerRow).filter((p) => (

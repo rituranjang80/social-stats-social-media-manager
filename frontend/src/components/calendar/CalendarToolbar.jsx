@@ -7,14 +7,17 @@ import { CAL_VIEWS } from './constants';
 import ConnectedChannelFilter from './ConnectedChannelFilter';
 import TagFilterDropdown from './TagFilterDropdown';
 import StatusFilterDropdown from './StatusFilterDropdown';
+import ListDateRangeFilter from './ListDateRangeFilter';
 import { periodLabel } from './utils';
 
 export default function CalendarToolbar({
   view,
   onViewChange,
   listMode = false,
-  /** When true (default), list mode keeps the same nav + view controls as calendar mode. */
-  showCalendarNavInList = true,
+  showCalendarNavInList = false,
+  listDateFrom,
+  listDateTo,
+  onListDateRangeChange,
   currentDate,
   onPrev,
   onNext,
@@ -49,15 +52,21 @@ export default function CalendarToolbar({
   }, [viewOpen]);
 
   const viewLabel = CAL_VIEWS.find((v) => v.id === view)?.label || 'Month';
-  const showNav = !listMode || showCalendarNavInList;
 
   return (
     <div className={`bb-cal__toolbar${listMode ? ' bb-cal__toolbar--list' : ''}`} role="toolbar" aria-label="Calendar controls">
-      {showNav ? (
+      {listMode ? (
+        <>
+       
+          <ListDateRangeFilter
+            dateFrom={listDateFrom}
+            dateTo={listDateTo}
+            onChange={onListDateRangeChange}
+          />
+        </>
+      ) : null}
+      {!listMode ? (
         <div className="bb-cal__toolbar-calendar">
-          {listMode ? (
-            <span className="bb-cal__list-badge">List</span>
-          ) : null}
           <div className="bb-cal__nav">
             <button type="button" className="bb-cal__nav-btn" onClick={onPrev} aria-label="Previous">
               <ChevronLeft size={16} />
@@ -105,9 +114,7 @@ export default function CalendarToolbar({
             ) : null}
           </div>
         </div>
-      ) : (
-        <h2 className="bb-cal__period bb-cal__period--list">Publish list</h2>
-      )}
+      ) : null}
 
       <div className="bb-cal__filters">
         <StatusFilterDropdown
@@ -156,6 +163,9 @@ CalendarToolbar.propTypes = {
   onViewChange: PropTypes.func.isRequired,
   listMode: PropTypes.bool,
   showCalendarNavInList: PropTypes.bool,
+  listDateFrom: PropTypes.string,
+  listDateTo: PropTypes.string,
+  onListDateRangeChange: PropTypes.func,
   currentDate: PropTypes.instanceOf(Date).isRequired,
   onPrev: PropTypes.func.isRequired,
   onNext: PropTypes.func.isRequired,

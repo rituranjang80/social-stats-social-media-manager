@@ -13,6 +13,7 @@ from collections import defaultdict
 from datetime import date, timedelta, datetime
 import calendar as cal_module
 
+from django.db.models import Q
 from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -25,6 +26,7 @@ from .models import UNIFIED_POST_STATUS_CHOICES, CALENDAR_STATUS_CHOICES
 from .calendar_serializers import (
     CalendarPostSerializer, CalendarNoteSerializer, PostingScheduleSerializer
 )
+from .publish_list_dates import parse_publish_date_range
 
 DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
@@ -103,6 +105,8 @@ class CalendarPostViewSet(viewsets.ModelViewSet):
         client_id = request.query_params.get('client_id')
         month     = request.query_params.get('month')
         year      = request.query_params.get('year')
+        date_from = request.query_params.get('date_from')
+        date_to   = request.query_params.get('date_to')
         platform  = request.query_params.get('platform')
         status_f  = request.query_params.get('status')
 
@@ -115,7 +119,13 @@ class CalendarPostViewSet(viewsets.ModelViewSet):
 
         qs = self.get_queryset().filter(client_id=client.id)
 
-        if month and year:
+        range_start, range_end = parse_publish_date_range(date_from, date_to)
+        if range_start and range_end:
+            qs = qs.filter(
+                Q(scheduled_at__date__gte=range_start, scheduled_at__date__lte=range_end)
+                | Q(published_at__date__gte=range_start, published_at__date__lte=range_end)
+            )
+        elif month and year:
             try:
                 m, y = int(month), int(year)
                 start = date(y, m, 1)

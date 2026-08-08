@@ -636,22 +636,22 @@
         box-shadow: none;
       }
 
-      .bb-cal__card-pin {
-        grid-column: 1;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-      }
+      // .bb-cal__card-pin {
+      //   grid-column: 1;
+      //   display: inline-flex;
+      //   align-items: center;
+      //   justify-content: center;
+      //   flex-shrink: 0;
+      // }
 
       .bb-cal__card-platforms {
         grid-column: 2;
       }
 
-      .bb-cal__card-meta {
-        grid-column: 3;
-        min-width: 0;
-      }
+      // .bb-cal__card-meta {
+      //   grid-column: 3;
+      //   min-width: 0;
+      // }
 
       .bb-cal__card-time {
         grid-column: 4;
@@ -661,11 +661,11 @@
         color: inherit;
       }
 
-      .bb-cal__card-label {
-        font-size: 11px;
-        font-weight: 600;
-        color: inherit;
-      }
+      // .bb-cal__card-label {
+      //   font-size: 11px;
+      //   font-weight: 600;
+      //   color: inherit;
+      // }
     }
 
     &-pin-input {
@@ -817,14 +817,14 @@
     background: currentColor;
   }
 
-  &__card-label {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-weight: 600;
-  }
+  // &__card-label {
+  //   flex: 1;
+  //   min-width: 0;
+  //   overflow: hidden;
+  //   text-overflow: ellipsis;
+  //   white-space: nowrap;
+  //   font-weight: 600;
+  // }
 
   &__card-time {
     flex-shrink: 0;
@@ -917,9 +917,9 @@
     }
   }
 
-  &__card:hover &__card-actions:not(.bb-cal__card-actions--dock) {
-    display: inline-flex;
-  }
+  // &__card:hover &__card-actions:not(.bb-cal__card-actions--dock) {
+  //   display: inline-flex;
+  // }
 
   &__card.is-pinned:hover &__card-actions:not(.bb-cal__card-actions--dock) {
     display: none;
@@ -1661,6 +1661,59 @@
   }
 }
 
+
+
+
+
+
+.bb-cal__card--compact .bb-cal__card-meta {
+  overflow: hidden;
+  min-width: 0px;
+  flex: 1 1 0%;
+  display: flex;
+  flex-direction: column;
+}
+
+.bb-cal__card--compact .bb-cal__card-label {
+  width: 100%;
+  max-width: 100%;
+  // overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.bb-cal__card--compact .bb-cal__card-pin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+input.bb-cal__card-pin-input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  margin: 0px;
+  padding: 0px;
+  pointer-events: auto;
+}
+
+[role=button]:not(.t-edge-toggle) {
+  gap: 8px;
+  padding-left: 4px;
+  padding-right: 4px;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+
+
 /* List mode + approvals (Brightbean Publish) */
 .bb-cal__toolbar--list {
   .bb-cal__toolbar-calendar {
@@ -1668,17 +1721,37 @@
     gap: 6px;
   }
 
-  .bb-cal__list-badge {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 2px 6px;
-    border-radius: 4px;
-    background: #fff7ed;
-    color: #ea580c;
-    border: 1px solid #fed7aa;
-    align-self: center;
+  .bb-cal__period--list {
+    margin: 0;
+    flex: 0 0 auto;
+  }
+
+  .bb-cal-list-range {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    // flex: 1 1 auto;
+    min-width: 0;
+  }
+  
+
+  .bb-cal-list-range__field {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--bb-cal-muted);
+  }
+
+  .bb-cal-list-range__input {
+    padding: 5px 6px;
+    border: 1px solid var(--bb-cal-border);
+    border-radius: 6px;
+    font-size: 12px;
+    background: var(--bb-cal-surface);
+    color: var(--bb-cal-text);
   }
 
   .bb-cal__filters {
@@ -2022,12 +2095,12 @@
   margin-left: auto;
 }
 
-.bb-cal__card--compact .bb-cal__card-pin {
-  color: rgb(99, 102, 241);
-  font-weight: 500;
-  // display: inline-flex;
-  align-items: center;
-}
+// .bb-cal__card--compact .bb-cal__card-pin {
+//   color: rgb(99, 102, 241);
+//   font-weight: 500;
+//   // display: inline-flex;
+//   align-items: center;
+// }
 
 .bb-cal__card--compact .bb-cal__card-platforms {
   color: rgb(71, 85, 105);
@@ -2036,16 +2109,16 @@
   align-items: center;
 }
 
-.bb-cal__card--compact .bb-cal__card-meta {
-  color: rgb(71, 85, 105);
-  font-weight: 500;
-  // display: inline-flex;
-  align-items: center;
-}
+// .bb-cal__card--compact .bb-cal__card-meta {
+//   color: rgb(71, 85, 105);
+//   font-weight: 500;
+//   // display: inline-flex;
+//   align-items: center;
+// }
 
-.bb-cal__card--compact .bb-cal__card-label {
-  color: inherit;
-}
+// .bb-cal__card--compact .bb-cal__card-label {
+//   color: inherit;
+// }
 
 // .bb-cal__card-actions {
 //   color: rgb(71, 85, 105);
@@ -2053,3 +2126,129 @@
 //   display: inline-flex;
 //   align-items: center;
 // }
+
+.bb-cal-date-cell__posts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 6px;
+  height: auto;
+}
+
+[role=button]:not(.t-edge-toggle) {
+  display: grid;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border-left: 4px solid rgb(59, 130, 246);
+  border-radius: 12px;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 4px 6px -1px, rgba(0, 0, 0, 0.03) 0px 2px 4px -1px;
+  transition: 0.2s;
+  cursor: pointer;
+  height: auto;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  grid-template-areas: "pin label" ". time-platforms";
+  grid-template-columns: auto 1fr;
+  min-height: unset;
+  align-items: start;
+  column-gap: 6px;
+  row-gap: 2px;
+  border-width: 2px;
+  border-color: rgb(37, 99, 235);
+  border-left-width: 2px;
+  border-left-color: rgb(37, 99, 235);
+  border-style: solid;
+}
+
+.bb-cal__card--compact .bb-cal__card-meta {
+  display: block;
+  height: auto;
+  overflow: visible;
+  grid-area: label;
+  margin: 0px;
+}
+
+.bb-cal__card--compact .bb-cal__card-label {
+  display: -webkit-box;
+  font-weight: 600;
+  font-size: 12.5px;
+  color: rgb(15, 23, 42);
+  line-height: 1.2;
+  white-space: normal;
+  margin: 0px;
+  letter-spacing: -0.01em;
+  grid-area: label;
+  margin-bottom: 2px;
+  overflow: hidden;
+}
+
+.bb-cal__card--compact .bb-cal__card-time {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  color: rgb(29, 78, 216);
+  font-weight: 600;
+  background: rgb(239, 246, 255);
+  padding: 2px 6px;
+  border-radius: 6px;
+  width: fit-content;
+  gap: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  border: 1px solid rgb(219, 234, 254);
+  grid-area: time;
+  margin: 0px;
+}
+
+.bb-cal__card--compact .bb-cal__card-platforms {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-top: 4px;
+  background: transparent;
+  padding: 0px;
+  border-radius: 8px;
+  width: fit-content;
+  border: 1px solid rgb(241, 245, 249);
+  grid-area: platforms;
+  margin: 0px;
+}
+
+svg.social-platform-icon {
+  width: 12px;
+  height: 12px;
+  fill: rgb(148, 163, 184);
+}
+
+.bb-cal-date-cell__posts {
+  padding: 2px;
+  gap: 4px;
+}
+
+.bb-cal__card--compact .bb-cal__card-pin {
+  grid-area: pin;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  position: static;
+  width: 16px;
+  height: 16px;
+}
+
+input.bb-cal__card-pin-input {
+  margin: 0px;
+  cursor: pointer;
+}
+
+.ai-bottom-wrapper {
+  grid-area: time-platforms;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 2px;
+}

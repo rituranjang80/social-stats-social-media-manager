@@ -41,6 +41,7 @@ import {
   flattenPosts,
   preserveTimeOnDate,
   shiftPeriod,
+  defaultPublishListDateRange,
 } from '../components/calendar/utils';
 import { DEFAULT_COMPOSE_TIME } from '../components/calendar/constants';
 import { usePublishCalendarConfig, PublishCalendarConfigProvider } from '../hooks/useCalendarPostStatuses';
@@ -104,6 +105,9 @@ function CalendarPageInner({ clientId: propClientId }) {
   const queryMode = searchParams.get('mode');
   const queryYear = searchParams.get('year');
   const queryMonth = searchParams.get('month');
+  const queryFrom = searchParams.get('from');
+  const queryTo = searchParams.get('to');
+  const defaultListRange = defaultPublishListDateRange();
   // Default: Calendar mode + Month view for the current month
   const initialView = ['month', 'week', 'day', 'agenda', 'stats', 'list'].includes(queryView)
     ? (queryView === 'list' ? 'agenda' : queryView)
@@ -128,6 +132,10 @@ function CalendarPageInner({ clientId: propClientId }) {
   const [channels, setChannels] = useState([]); // empty = All Channels
   const [tags, setTags] = useState([]); // empty = All Tags
   const [search, setSearch] = useState('');
+  const [listDateRange, setListDateRange] = useState(() => ({
+    from: queryFrom || defaultListRange.from,
+    to: queryTo || defaultListRange.to,
+  }));
 
   const month = currentDate.getMonth() + 1;
   const year = currentDate.getFullYear();
@@ -152,6 +160,9 @@ function CalendarPageInner({ clientId: propClientId }) {
   const { postsByDate, loading: postsLoading, refetch: refetchPosts } =
     useCalendarPosts(clientId, month, year, {
       composerScope: mode === 'list' ? 'all' : 'month',
+      useDateRange: mode === 'list',
+      dateFrom: listDateRange.from,
+      dateTo: listDateRange.to,
     });
   const { notesByDate } = useCalendarNotes(clientId, month, year);
   const { stats } = useCalendarStats(clientId, month, year);
@@ -185,7 +196,14 @@ function CalendarPageInner({ clientId: propClientId }) {
         return new Date(y, m - 1, 1);
       });
     }
-  }, [queryView, queryMode, view, queryTab, listTab, queryYear, queryMonth, tabIds]);
+    if (queryFrom && queryTo) {
+      setListDateRange((prev) => (
+        prev.from === queryFrom && prev.to === queryTo
+          ? prev
+          : { from: queryFrom, to: queryTo }
+      ));
+    }
+  }, [queryView, queryMode, view, queryTab, listTab, queryYear, queryMonth, tabIds, queryFrom, queryTo]);
 
   useEffect(() => {
     if (!tabIds.length) return;
@@ -195,9 +213,29 @@ function CalendarPageInner({ clientId: propClientId }) {
   }, [tabIds, defaultTabId, listTab]);
 
   const toolbarFilter = useMemo(
-    () => ({ statuses, channels, tags, search }),
-    [statuses, channels, tags, search],
+    () => ({
+      statuses,
+      channels,
+      tags,
+      search,
+      dateFrom: listDateRange.from,
+      dateTo: listDateRange.to,
+    }),
+    [statuses, channels, tags, search, listDateRange.from, listDateRange.to],
   );
+
+  function setListDateRangeAndUrl(next) {
+    setListDateRange(next);
+    updateSearch({
+      mode: 'list',
+      view: 'agenda',
+      tab: listTab,
+      from: next.from,
+      to: next.to,
+      year: null,
+      month: null,
+    });
+  }
 
   const filteredPosts = useMemo(
     () => filterPosts(postsByDate, { statuses, channels, tags, search }),
@@ -377,7 +415,15 @@ function CalendarPageInner({ clientId: propClientId }) {
     setMode(nextMode);
     if (nextMode === 'list') {
       setView('agenda');
-      updateSearch({ mode: 'list', view: 'agenda', tab: listTab || 'queue' });
+      updateSearch({
+        mode: 'list',
+        view: 'agenda',
+        tab: listTab || 'queue',
+        from: listDateRange.from,
+        to: listDateRange.to,
+        year: null,
+        month: null,
+      });
     } else {
       setView((v) => (v === 'agenda' ? 'month' : v));
       updateSearch({ mode: 'calendar', view: view === 'agenda' ? 'month' : view, tab: null });
@@ -386,7 +432,15 @@ function CalendarPageInner({ clientId: propClientId }) {
 
   function setListTabAndUrl(nextTab) {
     setListTab(nextTab);
-    updateSearch({ mode: 'list', view: 'agenda', tab: nextTab });
+    updateSearch({
+      mode: 'list',
+      view: 'agenda',
+      tab: nextTab,
+      from: listDateRange.from,
+      to: listDateRange.to,
+      year: null,
+      month: null,
+    });
   }
 
   if (!clientId) {
@@ -443,7 +497,9 @@ function CalendarPageInner({ clientId: propClientId }) {
           view={activeView}
           onViewChange={setViewAndUrl}
           listMode={mode === 'list'}
-          showCalendarNavInList
+          listDateFrom={listDateRange.from}
+          listDateTo={listDateRange.to}
+          onListDateRangeChange={setListDateRangeAndUrl}
           currentDate={currentDate}
           onPrev={() => setCurrentDateAndUrl(shiftPeriod(activeView, currentDate, -1))}
           onNext={() => setCurrentDateAndUrl(shiftPeriod(activeView, currentDate, 1))}
@@ -470,7 +526,9 @@ function CalendarPageInner({ clientId: propClientId }) {
           currentUser={user}
         />
 
-        <CalendarStatusLegend selected={statuses} onChange={setStatuses} />
+        {mode !== 'list' ? (
+          <CalendarStatusLegend selected={statuses} onChange={setStatuses} />
+        ) : null}
 
         <div className="bb-cal__content-scroll">
         {postsLoading && mode !== 'list' ? (

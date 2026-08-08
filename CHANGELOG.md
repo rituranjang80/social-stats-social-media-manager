@@ -2,7 +2,9 @@
 
 ## [Unreleased]
 
-### Fixed — Publish list / Approvals page looked unchanged
+### Changed — Publish list date range (server-side)
+
+- **List mode only**: removed calendar **month nav / Today / view / List badge**; added **From–To** date range (default **today minus 1 month → today**). Posts load via **`date_from` / `date_to`** on **`GET /api/composer/posts/`** and **`GET /api/calendar/posts/`** (`publish_list_dates` helper). URL: `?mode=list&from=YYYY-MM-DD&to=YYYY-MM-DD` (replaces `year`/`month` for list).
 
 - **List mode** no longer hides behind the calendar **posts loading** spinner; **Queue / Drafts / Sent** and **Approvals** render while posts load.
 - **List mode toolbar** matches calendar mode (**month nav**, **Today**, **view**, **status / channel / tag / search** filters) plus a **List** badge; **status legend** checkboxes show on both modes.

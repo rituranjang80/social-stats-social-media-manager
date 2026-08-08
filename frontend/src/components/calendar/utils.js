@@ -12,6 +12,7 @@ import {
   startOfDay,
   startOfMonth,
   startOfWeek,
+  subMonths,
 } from 'date-fns';
 import { statusMatchesFilter } from './statusTheme';
 import { isShowingAllStatuses } from './statusFilterState';
@@ -19,6 +20,16 @@ import { isMultiSelectNone } from './multiSelectFilterState';
 
 export function getMondayIndex(d) {
   return (getDay(d) + 6) % 7;
+}
+
+/** Default publish list range: from one month ago through today (inclusive). */
+export function defaultPublishListDateRange(refDate = new Date()) {
+  const to = startOfDay(refDate);
+  const from = subMonths(to, 1);
+  return {
+    from: format(from, 'yyyy-MM-dd'),
+    to: format(to, 'yyyy-MM-dd'),
+  };
 }
 
 export function buildMonthCells(month, year) {
