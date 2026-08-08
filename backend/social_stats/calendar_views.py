@@ -455,22 +455,98 @@ CALENDAR_PUBLISH_STATUS_FILTERS = [
     {'id': 'on_hold', 'label': 'On Hold', 'match': ['on_hold', 'queued']},
 ]
 
+# Publish list mode tabs (Queue / Drafts / …) — match lists intersected with DB enums in the view.
+PUBLISH_LIST_TAB_DEFS = [
+    {'id': 'queue', 'label': 'Queue', 'match': ['scheduled', 'queued', 'publishing']},
+    {'id': 'drafts', 'label': 'Drafts', 'match': ['draft']},
+    {'id': 'approvals', 'label': 'Approvals', 'panel': 'approvals'},
+    {'id': 'sent', 'label': 'Sent', 'match': ['published', 'partial', 'failed', 'cancelled']},
+]
+
+# Approvals sub-pills — labels are UI-short; match values must exist on UnifiedPost (or calendar) enums.
+APPROVAL_PILL_DEFS = [
+    {
+        'id': 'all',
+        'label': 'All',
+        'match': [
+            'pending_approval', 'pending_review', 'pending_client',
+            'changes_requested', 'approved', 'cancelled', 'queued', 'scheduled',
+        ],
+    },
+    {'id': 'pending_review', 'label': 'Review', 'match': ['pending_review', 'pending_approval']},
+    {'id': 'pending_client', 'label': 'Client', 'match': ['pending_client']},
+    {'id': 'approved', 'label': 'Approved', 'match': ['approved', 'queued', 'scheduled']},
+    {'id': 'rejected', 'label': 'Rejected', 'match': ['rejected', 'cancelled']},
+    {'id': 'changes_requested', 'label': 'Changes', 'match': ['changes_requested']},
+    {'id': 'on_hold', 'label': 'Hold', 'match': ['on_hold', 'queued']},
+]
+
+
+def _status_values_in_db():
+    db_values = {v for v, _ in UNIFIED_POST_STATUS_CHOICES}
+    db_values.update(v for v, _ in CALENDAR_STATUS_CHOICES)
+    return db_values
+
+
+def _intersect_match(match, db_values):
+    return [m for m in (match or []) if m in db_values]
+
+
+def _build_publish_status_filters(db_values):
+    filters = []
+    for row in CALENDAR_PUBLISH_STATUS_FILTERS:
+        match = _intersect_match(row['match'], db_values)
+        if match:
+            filters.append({
+                'id': row['id'],
+                'label': row['label'],
+                'match': match,
+            })
+    return filters
+
+
+def _build_list_tabs(db_values):
+    tabs = []
+    for row in PUBLISH_LIST_TAB_DEFS:
+        if row.get('panel') == 'approvals':
+            tabs.append({
+                'id': row['id'],
+                'label': row['label'],
+                'panel': 'approvals',
+            })
+            continue
+        match = _intersect_match(row.get('match'), db_values)
+        if match:
+            tabs.append({
+                'id': row['id'],
+                'label': row['label'],
+                'match': match,
+            })
+    return tabs
+
+
+def _build_approval_pills(db_values):
+    pills = []
+    for row in APPROVAL_PILL_DEFS:
+        match = _intersect_match(row.get('match'), db_values)
+        if match:
+            pills.append({
+                'id': row['id'],
+                'label': row['label'],
+                'match': match,
+            })
+    return pills
+
 
 class CalendarPostStatusesView(APIView):
     """Publish calendar status filters + raw DB choice values for the workspace UI."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        db_values = {v for v, _ in UNIFIED_POST_STATUS_CHOICES}
-        db_values.update(v for v, _ in CALENDAR_STATUS_CHOICES)
-        filters = []
-        for row in CALENDAR_PUBLISH_STATUS_FILTERS:
-            if any(m in db_values for m in row['match']):
-                filters.append({
-                    'id': row['id'],
-                    'label': row['label'],
-                    'match': row['match'],
-                })
+        db_values = _status_values_in_db()
+        filters = _build_publish_status_filters(db_values)
+        list_tabs = _build_list_tabs(db_values)
+        approval_pills = _build_approval_pills(db_values)
         db_statuses = [
             {'id': v, 'label': lbl, 'source': 'composer' if v in dict(UNIFIED_POST_STATUS_CHOICES) else 'calendar'}
             for v, lbl in UNIFIED_POST_STATUS_CHOICES
@@ -482,5 +558,7 @@ class CalendarPostStatusesView(APIView):
         ]
         return Response({
             'filters': filters,
+            'list_tabs': list_tabs,
+            'approval_pills': approval_pills,
             'db_statuses': db_statuses + cal_only,
         })

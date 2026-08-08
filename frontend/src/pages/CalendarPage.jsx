@@ -43,9 +43,8 @@ import {
   shiftPeriod,
 } from '../components/calendar/utils';
 import { DEFAULT_COMPOSE_TIME } from '../components/calendar/constants';
-import { useCalendarPostStatuses } from '../hooks/useCalendarPostStatuses';
+import { usePublishCalendarConfig, PublishCalendarConfigProvider } from '../hooks/useCalendarPostStatuses';
 import PublishListView from '../components/calendar/PublishListView';
-import { PUBLISH_LIST_TAB_IDS } from '../components/calendar/publishListConfig';
 
 import '../styles/scss/calendar.scss';
 
@@ -80,7 +79,15 @@ CalendarPinnedDock.propTypes = {
   cardActions: PropTypes.object,
 };
 
-export default function CalendarPage({ clientId: propClientId }) {
+export default function CalendarPage(props) {
+  return (
+    <PublishCalendarConfigProvider>
+      <CalendarPageInner {...props} />
+    </PublishCalendarConfigProvider>
+  );
+}
+
+function CalendarPageInner({ clientId: propClientId }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -103,7 +110,7 @@ export default function CalendarPage({ clientId: propClientId }) {
     : 'month';
   const initialMode = queryMode === 'list' ? 'list' : 'calendar';
 
-  const initialListTab = PUBLISH_LIST_TAB_IDS.includes(queryTab) ? queryTab : 'queue';
+  const initialListTab = queryTab || 'queue';
 
   const [currentDate, setCurrentDate] = useState(() => {
     const y = queryYear ? parseInt(queryYear, 10) : NaN;
@@ -131,7 +138,15 @@ export default function CalendarPage({ clientId: propClientId }) {
   const [formDate, setFormDate] = useState(null);
   const [editingPost, setEditingPost] = useState(null);
 
-  useCalendarPostStatuses();
+  const {
+    listTabs,
+    approvalPills,
+    tabIds,
+    defaultTabId,
+    loading: publishConfigLoading,
+    configError: publishConfigError,
+    refetchConfig,
+  } = usePublishCalendarConfig();
 
   // Fetch full month once; channel/tag filters apply client-side (All = no restriction)
   const { postsByDate, loading: postsLoading, refetch: refetchPosts } =
@@ -159,7 +174,7 @@ export default function CalendarPage({ clientId: propClientId }) {
     if (queryMode === 'list' || queryMode === 'calendar') {
       setMode(queryMode);
     }
-    if (PUBLISH_LIST_TAB_IDS.includes(queryTab) && queryTab !== listTab) {
+    if (tabIds.includes(queryTab) && queryTab !== listTab) {
       setListTab(queryTab);
     }
     const y = queryYear ? parseInt(queryYear, 10) : NaN;
@@ -170,7 +185,19 @@ export default function CalendarPage({ clientId: propClientId }) {
         return new Date(y, m - 1, 1);
       });
     }
-  }, [queryView, queryMode, view, queryTab, listTab, queryYear, queryMonth]);
+  }, [queryView, queryMode, view, queryTab, listTab, queryYear, queryMonth, tabIds]);
+
+  useEffect(() => {
+    if (!tabIds.length) return;
+    if (!tabIds.includes(listTab)) {
+      setListTab(defaultTabId);
+    }
+  }, [tabIds, defaultTabId, listTab]);
+
+  const toolbarFilter = useMemo(
+    () => ({ statuses, channels, tags, search }),
+    [statuses, channels, tags, search],
+  );
 
   const filteredPosts = useMemo(
     () => filterPosts(postsByDate, { statuses, channels, tags, search }),
@@ -416,6 +443,7 @@ export default function CalendarPage({ clientId: propClientId }) {
           view={activeView}
           onViewChange={setViewAndUrl}
           listMode={mode === 'list'}
+          showCalendarNavInList
           currentDate={currentDate}
           onPrev={() => setCurrentDateAndUrl(shiftPeriod(activeView, currentDate, -1))}
           onNext={() => setCurrentDateAndUrl(shiftPeriod(activeView, currentDate, 1))}
@@ -442,10 +470,10 @@ export default function CalendarPage({ clientId: propClientId }) {
           currentUser={user}
         />
 
-        {/* <CalendarStatusLegend selected={statuses} onChange={setStatuses} /> */}
+        <CalendarStatusLegend selected={statuses} onChange={setStatuses} />
 
         <div className="bb-cal__content-scroll">
-        {postsLoading ? (
+        {postsLoading && mode !== 'list' ? (
           <div className="bb-cal__loading">
             <Loader2 size={18} className="bb-cal__spin" />
             Loading calendar…
@@ -488,6 +516,13 @@ export default function CalendarPage({ clientId: propClientId }) {
                 listTab={listTab}
                 onListTabChange={setListTabAndUrl}
                 postsByDate={filteredPosts}
+                listTabs={listTabs}
+                approvalPills={approvalPills}
+                toolbarFilter={toolbarFilter}
+                configLoading={publishConfigLoading}
+                configError={publishConfigError}
+                onRetryConfig={refetchConfig}
+                postsLoading={postsLoading}
                 basePath={basePath}
                 clientId={clientId}
                 canApprove={canApprove}

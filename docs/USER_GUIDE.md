@@ -88,10 +88,9 @@ live-preview tabs.
 ### Content calendar (Publish)
 **Route:** `/dashboard/analytics/calendar` or `/admin/analytics/calendar`.
 BrightBean-style Publish UI: List ↔ Calendar toggle, month/week/day/agenda
-views. **List mode** adds **Queue**, **Drafts**, **Approvals**, and **Sent** tabs
-(`?mode=list&view=agenda&tab=approvals`). The **Approvals** tab supports review
+views. **List mode** uses the **same toolbar filters** (status, channels, tags, search) as calendar mode. **Queue**, **Drafts**, **Approvals**, and **Sent** tabs plus Approvals pills (**All**, **Review**, **Client**, etc.) load from **`GET /api/calendar/post-statuses/`** (`list_tabs`, `approval_pills`, and `filters` — only statuses that exist in the database). URL: `?mode=list&view=agenda&tab=approvals`. The **Approvals** tab supports review
 pills, approve/reject (including bulk), and opening posts in Composer. Toolbar
-**status** options load from **`GET /api/calendar/post-statuses/`** (database
+**status** options use the same API **`filters`** array (database
 enums). Searchable multi-select status (All Posts, Draft, Pending Review,
 Pending Client, Approved, Changes Requested, Rejected, Scheduled, Publishing,
 Published, Failed, On Hold), a **checkbox legend** (All Posts + each status) to

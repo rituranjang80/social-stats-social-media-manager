@@ -303,18 +303,18 @@ const NAV_SETS = {
       //     { label: 'Competitors', icon: TrendingUp, path: '/competitors', permission: 'competitors.view' },
       //   ],
       // },
-      {
-        title: 'Setup',
-        items: [
-          // { label: 'Approvals',     icon: ClipboardCheck, path: '/approvals',     permission: 'composer.approve',
-          //   badgeKey: 'pending_approvals' },
-          { label: 'Manage connections',     icon: ClipboardCheck, path: '/approvals',     permission: 'composer.approve',
-            badgeKey: 'pending_approvals' },
-          // { label: 'Notifications', icon: Bell,           path: '/notifications',
-          //   badgeKey: 'unread_notifications' },
-          // { label: 'Audit Log',     icon: ShieldCheck,    path: '/audit-log',     permission: 'audit.view' },
-        ],
-      },
+      // {
+      //   title: 'Setup',
+      //   items: [
+      //     // { label: 'Approvals',     icon: ClipboardCheck, path: '/approvals',     permission: 'composer.approve',
+      //     //   badgeKey: 'pending_approvals' },
+      //     { label: 'Manage connections',     icon: ClipboardCheck, path: '/approvals',     permission: 'composer.approve',
+      //       badgeKey: 'pending_approvals' },
+      //     // { label: 'Notifications', icon: Bell,           path: '/notifications',
+      //     //   badgeKey: 'unread_notifications' },
+      //     // { label: 'Audit Log',     icon: ShieldCheck,    path: '/audit-log',     permission: 'audit.view' },
+      //   ],
+      // },
     ],
   },
 

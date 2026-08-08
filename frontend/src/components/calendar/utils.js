@@ -191,6 +191,15 @@ export function filterPosts(postsByDate, {
   return out;
 }
 
+/** Same rules as filterPosts for a single post (list / approvals toolbar sync). */
+export function postPassesToolbarFilters(post, options = {}) {
+  if (!post) return false;
+  const iso = post.scheduled_at || post.published_at || post.created_at;
+  const key = iso && String(iso).length >= 10 ? String(iso).slice(0, 10) : 'x';
+  const map = filterPosts({ [key]: [post] }, options);
+  return Object.values(map).some((list) => list?.length);
+}
+
 /** ISO timestamp used to place a post on the calendar grid. */
 export function calendarAnchorIso(post) {
   return post?.scheduled_at || post?.published_at || post?.created_at || null;

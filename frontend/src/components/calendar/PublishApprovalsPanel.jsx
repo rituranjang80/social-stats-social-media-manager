@@ -8,7 +8,8 @@ import toast from 'react-hot-toast';
 import SocialPlatformIcon from '../ui/SocialPlatformIcon';
 import { composerAPI } from '../../services/api';
 import { confirmDialog, promptDialog } from '../../services/dialog';
-import { APPROVAL_STATUS_PILLS } from './publishListConfig';
+import { postMatchesApprovalPill } from './publishListConfig';
+import { postPassesToolbarFilters } from './utils';
 import { postStatusFilterKey, statusLabelFor } from './statusTheme';
 
 function mapComposerRow(row) {
@@ -29,10 +30,11 @@ function mapComposerRow(row) {
   };
 }
 
-function postMatchesPill(post, pillId) {
-  const pill = APPROVAL_STATUS_PILLS.find((p) => p.id === pillId) || APPROVAL_STATUS_PILLS[0];
-  const raw = String(post.status || '').toLowerCase();
-  return pill.matchStatuses.some((m) => m === raw || postStatusFilterKey(raw) === postStatusFilterKey(m));
+function postInApprovalScope(post, approvalPills) {
+  const pills = approvalPills || [];
+  const allPill = pills.find((p) => p.id === 'all') || pills[0];
+  if (!allPill?.match?.length) return true;
+  return postMatchesApprovalPill(post, allPill.id, pills);
 }
 
 export default function PublishApprovalsPanel({
@@ -40,6 +42,8 @@ export default function PublishApprovalsPanel({
   basePath,
   canApprove,
   onChanged,
+  approvalPills = [],
+  toolbarFilter = {},
 }) {
   const [pill, setPill] = useState('all');
   const [rows, setRows] = useState([]);
@@ -59,8 +63,8 @@ export default function PublishApprovalsPanel({
       const payload = res.data;
       const batch = payload?.results || (Array.isArray(payload) ? payload : []);
       const mapped = batch.map(mapComposerRow).filter((p) => (
-        APPROVAL_STATUS_PILLS[0].matchStatuses.includes(String(p.status))
-        || p.status === 'cancelled'
+        postInApprovalScope(p, approvalPills)
+        && postPassesToolbarFilters(p, toolbarFilter)
       ));
       setRows(mapped);
       setSelected(new Set());
@@ -70,22 +74,29 @@ export default function PublishApprovalsPanel({
     } finally {
       setLoading(false);
     }
-  }, [clientId]);
+  }, [clientId, approvalPills, toolbarFilter]);
 
   useEffect(() => { load(); }, [load]);
 
+  useEffect(() => {
+    if (!approvalPills?.length) return;
+    if (!approvalPills.some((p) => p.id === pill)) {
+      setPill(approvalPills.find((p) => p.id === 'all')?.id || approvalPills[0].id);
+    }
+  }, [approvalPills, pill]);
+
   const visible = useMemo(
-    () => rows.filter((p) => postMatchesPill(p, pill)),
-    [rows, pill],
+    () => rows.filter((p) => postMatchesApprovalPill(p, pill, approvalPills)),
+    [rows, pill, approvalPills],
   );
 
   const pillCounts = useMemo(() => {
     const counts = {};
-    APPROVAL_STATUS_PILLS.forEach((p) => {
-      counts[p.id] = rows.filter((row) => postMatchesPill(row, p.id)).length;
+    (approvalPills || []).forEach((p) => {
+      counts[p.id] = rows.filter((row) => postMatchesApprovalPill(row, p.id, approvalPills)).length;
     });
     return counts;
-  }, [rows]);
+  }, [rows, approvalPills]);
 
   function toggleOne(post) {
     const key = String(post.id);
@@ -181,7 +192,7 @@ export default function PublishApprovalsPanel({
   return (
     <div className="bb-cal-approvals">
       <div className="bb-cal-approvals__pills" role="tablist" aria-label="Approval status">
-        {APPROVAL_STATUS_PILLS.map((p) => (
+        {approvalPills.map((p) => (
           <button
             key={p.id}
             type="button"
@@ -327,4 +338,6 @@ PublishApprovalsPanel.propTypes = {
   basePath: PropTypes.string.isRequired,
   canApprove: PropTypes.bool,
   onChanged: PropTypes.func,
+  approvalPills: PropTypes.arrayOf(PropTypes.object),
+  toolbarFilter: PropTypes.object,
 };

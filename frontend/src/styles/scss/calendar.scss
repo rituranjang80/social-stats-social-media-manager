@@ -1663,6 +1663,24 @@
 
 /* List mode + approvals (Brightbean Publish) */
 .bb-cal__toolbar--list {
+  .bb-cal__toolbar-calendar {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .bb-cal__list-badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #fff7ed;
+    color: #ea580c;
+    border: 1px solid #fed7aa;
+    align-self: center;
+  }
+
   .bb-cal__filters {
     margin-left: 0;
     flex: 1;

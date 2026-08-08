@@ -2,7 +2,14 @@
 
 ## [Unreleased]
 
-### Fixed — Publish calendar status/channel/tag filter checkboxes
+### Fixed — Publish list / Approvals page looked unchanged
+
+- **List mode** no longer hides behind the calendar **posts loading** spinner; **Queue / Drafts / Sent** and **Approvals** render while posts load.
+- **List mode toolbar** matches calendar mode (**month nav**, **Today**, **view**, **status / channel / tag / search** filters) plus a **List** badge; **status legend** checkboxes show on both modes.
+- **`PublishCalendarConfigProvider`** loads **`list_tabs`** and **`approval_pills`** from **`GET /api/calendar/post-statuses/`** with retry UI when the API fails.
+
+- **`?mode=list`** uses the same **status / channel / tag / search** toolbar as calendar mode; filtered posts flow into **Queue**, **Drafts**, and **Sent**, and into **Approvals** (composer list respects the same filters).
+- **GET `/api/calendar/post-statuses/`** now also returns **`list_tabs`** and **`approval_pills`** (labels + `match` status values intersected with **UnifiedPost** / **CalendarPost** DB enums). The UI no longer hardcodes tab or pill definitions in the frontend.
 
 - **All Posts / All Channels / All Tags** master rows now **toggle off every child** when unchecked and **turn all children on** when checked (including indeterminate → all). Status filters use the same id list as **`GET /api/calendar/post-statuses/`**. Filter checkboxes use a **custom box** so **unchecked** rows show an empty square (native controlled checkboxes could stay visually checked).
 

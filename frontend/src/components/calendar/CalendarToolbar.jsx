@@ -13,6 +13,8 @@ export default function CalendarToolbar({
   view,
   onViewChange,
   listMode = false,
+  /** When true (default), list mode keeps the same nav + view controls as calendar mode. */
+  showCalendarNavInList = true,
   currentDate,
   onPrev,
   onNext,
@@ -47,11 +49,15 @@ export default function CalendarToolbar({
   }, [viewOpen]);
 
   const viewLabel = CAL_VIEWS.find((v) => v.id === view)?.label || 'Month';
+  const showNav = !listMode || showCalendarNavInList;
 
   return (
     <div className={`bb-cal__toolbar${listMode ? ' bb-cal__toolbar--list' : ''}`} role="toolbar" aria-label="Calendar controls">
-      {!listMode ? (
+      {showNav ? (
         <div className="bb-cal__toolbar-calendar">
+          {listMode ? (
+            <span className="bb-cal__list-badge">List</span>
+          ) : null}
           <div className="bb-cal__nav">
             <button type="button" className="bb-cal__nav-btn" onClick={onPrev} aria-label="Previous">
               <ChevronLeft size={16} />
@@ -149,6 +155,7 @@ CalendarToolbar.propTypes = {
   view: PropTypes.string.isRequired,
   onViewChange: PropTypes.func.isRequired,
   listMode: PropTypes.bool,
+  showCalendarNavInList: PropTypes.bool,
   currentDate: PropTypes.instanceOf(Date).isRequired,
   onPrev: PropTypes.func.isRequired,
   onNext: PropTypes.func.isRequired,

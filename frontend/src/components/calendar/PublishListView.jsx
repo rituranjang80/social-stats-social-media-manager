@@ -3,9 +3,9 @@ import { lazy, Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 import PublishApprovalsPanel from './PublishApprovalsPanel';
 import {
-  PUBLISH_LIST_TABS,
   countPostsByTab,
   filterPostsByTab,
+  isApprovalsListTab,
 } from './publishListConfig';
 import { flattenPosts, groupPostsByDateForList } from './utils';
 
@@ -23,24 +23,56 @@ export default function PublishListView({
   listTab,
   onListTabChange,
   postsByDate,
+  listTabs,
+  approvalPills,
+  toolbarFilter,
   basePath,
   clientId,
   canApprove,
   onRefresh,
   agendaProps,
+  configLoading,
+  configError,
+  onRetryConfig,
+  postsLoading,
 }) {
+  const tabs = listTabs?.length ? listTabs : [];
   const allPosts = flattenPosts(postsByDate);
-  const tabCounts = countPostsByTab(allPosts);
+  const tabCounts = countPostsByTab(allPosts, tabs, approvalPills);
+  const onApprovalsTab = isApprovalsListTab(listTab, tabs) || listTab === 'approvals';
 
-  const tabPosts = listTab === 'approvals'
+  const tabPosts = onApprovalsTab
     ? []
-    : filterPostsByTab(allPosts, listTab);
+    : filterPostsByTab(allPosts, listTab, tabs);
   const tabPostsByDate = groupPostsByDateForList(tabPosts);
+
+  if (configLoading && !tabs.length) {
+    return (
+      <div className="bb-cal__loading">
+        <Loader2 size={18} className="bb-cal__spin" />
+        Loading publish lists…
+      </div>
+    );
+  }
+
+  if (configError && !tabs.length) {
+    return (
+      <div className="bb-cal__empty">
+        <h3 className="bb-cal__empty-title">Publish list unavailable</h3>
+        <p className="bb-cal__empty-copy">{configError}</p>
+        {onRetryConfig ? (
+          <button type="button" className="bb-cal__today-btn" onClick={() => onRetryConfig()}>
+            Retry
+          </button>
+        ) : null}
+      </div>
+    );
+  }
 
   return (
     <div className="bb-cal-publish-list">
       <div className="bb-cal-publish-list__tabs" role="tablist" aria-label="Publish lists">
-        {PUBLISH_LIST_TABS.map((tab) => (
+        {tabs.map((tab) => (
           <button
             key={tab.id}
             type="button"
@@ -56,13 +88,20 @@ export default function PublishListView({
       </div>
 
       <div className="bb-cal-publish-list__panel" role="tabpanel">
-        {listTab === 'approvals' ? (
+        {onApprovalsTab ? (
           <PublishApprovalsPanel
             clientId={clientId}
             basePath={basePath}
             canApprove={canApprove}
             onChanged={onRefresh}
+            approvalPills={approvalPills}
+            toolbarFilter={toolbarFilter}
           />
+        ) : postsLoading ? (
+          <div className="bb-cal__loading">
+            <Loader2 size={18} className="bb-cal__spin" />
+            Loading posts…
+          </div>
         ) : (
           <Suspense fallback={<TabFallback />}>
             <AgendaView
@@ -81,9 +120,16 @@ PublishListView.propTypes = {
   listTab: PropTypes.string.isRequired,
   onListTabChange: PropTypes.func.isRequired,
   postsByDate: PropTypes.object,
+  listTabs: PropTypes.arrayOf(PropTypes.object),
+  approvalPills: PropTypes.arrayOf(PropTypes.object),
+  toolbarFilter: PropTypes.object,
   basePath: PropTypes.string.isRequired,
   clientId: PropTypes.string,
   canApprove: PropTypes.bool,
   onRefresh: PropTypes.func,
   agendaProps: PropTypes.object,
+  configLoading: PropTypes.bool,
+  configError: PropTypes.string,
+  onRetryConfig: PropTypes.func,
+  postsLoading: PropTypes.bool,
 };
