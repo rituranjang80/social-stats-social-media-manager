@@ -3,10 +3,10 @@
  * ========================================================================== */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
 import sessionIdleConfig from '../config/sessionIdle';
 import { playIdleBeep } from '../utils/idleBeep';
+import { refreshSessionTokens } from '../services/api';
 
 const ACTIVITY_EVENTS = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click', 'wheel'];
 
@@ -18,12 +18,7 @@ function formatCountdown(totalSeconds) {
 }
 
 async function refreshAccessTokenSilently() {
-  const refresh = localStorage.getItem('refresh_token');
-  if (!refresh) return;
-  const base = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
-  const res = await axios.post(`${base}/auth/refresh/`, { refresh });
-  if (res.data?.access) localStorage.setItem('access_token', res.data.access);
-  if (res.data?.refresh) localStorage.setItem('refresh_token', res.data.refresh);
+  await refreshSessionTokens();
 }
 
 /**

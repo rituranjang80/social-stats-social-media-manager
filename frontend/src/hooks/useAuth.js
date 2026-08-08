@@ -7,7 +7,7 @@
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { authAPI, mfaAPI } from '../services/api';
+import { authAPI, mfaAPI, refreshSessionTokens } from '../services/api';
 import { useAppStore } from '../stores/appStore';
 
 const AuthContext = createContext(null);
@@ -18,14 +18,36 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
-    if (token) {
-      authAPI.me()
-        .then(res => setUser(res.data))
-        .catch(() => { localStorage.clear(); })
-        .finally(() => setLoading(false));
-    } else {
+    if (!token) {
       setLoading(false);
+      return undefined;
     }
+
+    let cancelled = false;
+
+    async function hydrate() {
+      try {
+        const res = await authAPI.me();
+        if (!cancelled) setUser(res.data);
+      } catch {
+        try {
+          await refreshSessionTokens();
+          const res = await authAPI.me();
+          if (!cancelled) setUser(res.data);
+        } catch {
+          if (!cancelled) {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            setUser(null);
+          }
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    hydrate();
+    return () => { cancelled = true; };
   }, []);
 
   const login = async (email, password, termsAccepted) => {

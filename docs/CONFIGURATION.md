@@ -263,8 +263,7 @@ These have working defaults and rarely need changing:
 | `AXES_FAILURE_LIMIT` | `5` | Failed logins before lockout (django-axes). |
 | `AXES_COOLOFF_HOURS` | `1` | Lockout duration in hours. |
 | `JWT_ACCESS_MIN` | `15` | Access-token lifetime (minutes). |
-| *(schema)* | — | Each **Client** row has **`public_id`** (UUID) for URLs and API scoping; numeric `id` remains internal. Run migration **`0067_client_public_id`**. |
-| `JWT_REFRESH_DAYS` | `7` | Refresh-token lifetime (days). |
+| `JWT_REFRESH_DAYS` | `7` | Refresh-token lifetime (days). Refresh tokens **rotate** on each `POST /api/auth/refresh/`; the SPA must save the new `refresh` value from the response (handled in `frontend/src/services/api.js`). |
 | `JWT_AUDIENCE` / `JWT_ISSUER` | `socialstats-app` / `socialstats.com` | JWT claims. |
 | `SESSION_COOKIE_SAMESITE` / `CSRF_COOKIE_SAMESITE` | `Lax` | Cookie SameSite policy. |
 | `FACEBOOK_SOCIAL_APP_ID` / `FACEBOOK_SOCIAL_APP_SECRET` | falls back to `META_APP_ID` / `META_APP_SECRET` | App credentials for "Sign in with Facebook" (app login, separate from connecting a Page). |

@@ -140,12 +140,13 @@ export default function CalendarCard({
       {!compact && !thumb ? (
         <span className="bb-cal__card-dot" aria-hidden />
       ) : null}
-      <span className="bb-cal__card-platforms" aria-hidden>
+      
+            {timeStr ? <span className="bb-cal__card-time">{timeStr}</span> : null}
+            <span className="bb-cal__card-platforms" aria-hidden>
         {platforms.slice(0, 2).map((pl) => (
           <SocialPlatformIcon key={pl} platform={pl} size={compact ? 14 : 12} />
         ))}
       </span>
-            {timeStr ? <span className="bb-cal__card-time">{timeStr}</span> : null}
       <span className="bb-cal__card-status sr-only">{statusHuman}</span>
       {!compact && tags.length ? (
         <span className="bb-cal__card-tags">

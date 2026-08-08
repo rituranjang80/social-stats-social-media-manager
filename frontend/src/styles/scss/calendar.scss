@@ -2182,7 +2182,7 @@ input.bb-cal__card-pin-input {
   letter-spacing: -0.01em;
   grid-area: label;
   margin-bottom: 2px;
-  overflow: hidden;
+  // overflow: hidden;
 }
 
 .bb-cal__card--compact .bb-cal__card-time {
@@ -2251,4 +2251,19 @@ input.bb-cal__card-pin-input {
   justify-content: space-between;
   gap: 8px;
   margin-top: 2px;
+}
+
+[role=button]:not(.t-edge-toggle) {
+  background-color: var(--bb-cal-status-bg);
+}
+
+.bb-cal__card--compact .bb-cal__card-platforms {
+  grid-area: time-platforms;
+  justify-self: start;
+  z-index: 2;
+}
+
+.bb-cal__card--compact .bb-cal__card-time {
+  grid-area: time-platforms;
+  justify-self: end;
 }

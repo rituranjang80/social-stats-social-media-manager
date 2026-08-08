@@ -2,7 +2,9 @@
 
 ## [Unreleased]
 
-### Changed — Publish list date range (server-side)
+### Fixed — Sudden logout (~15 min) with valid session
+
+- **JWT refresh rotation**: the API blacklists the old refresh token on each refresh (`ROTATE_REFRESH_TOKENS`). The SPA now **stores the new `refresh` token** from `POST /api/auth/refresh/` (401 handler, idle refresh, and app bootstrap). Previously only `access` was updated, so the next refresh failed and cleared the session (`NotAuthenticated`).
 
 - **List mode only**: removed calendar **month nav / Today / view / List badge**; added **From–To** date range (default **today minus 1 month → today**). Posts load via **`date_from` / `date_to`** on **`GET /api/composer/posts/`** and **`GET /api/calendar/posts/`** (`publish_list_dates` helper). URL: `?mode=list&from=YYYY-MM-DD&to=YYYY-MM-DD` (replaces `year`/`month` for list).
 

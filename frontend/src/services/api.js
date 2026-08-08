@@ -9,10 +9,37 @@
 import axios from 'axios';
 import { useAppStore } from '../stores/appStore';
 
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8000/api',
+  baseURL: API_BASE,
   headers: { 'Content-Type': 'application/json' },
 });
+
+/** Persist rotated refresh tokens (SIMPLE_JWT ROTATE_REFRESH_TOKENS). */
+export async function refreshSessionTokens(refreshToken) {
+  const refresh = refreshToken || localStorage.getItem('refresh_token');
+  if (!refresh) {
+    const err = new Error('no_refresh_token');
+    err.code = 'NO_REFRESH';
+    throw err;
+  }
+  const res = await axios.post(`${API_BASE}/auth/refresh/`, { refresh });
+  if (res.data?.access) localStorage.setItem('access_token', res.data.access);
+  if (res.data?.refresh) localStorage.setItem('refresh_token', res.data.refresh);
+  return res.data;
+}
+
+let refreshInFlight = null;
+
+function refreshSessionOnce() {
+  if (!refreshInFlight) {
+    refreshInFlight = refreshSessionTokens().finally(() => {
+      refreshInFlight = null;
+    });
+  }
+  return refreshInFlight;
+}
 
 /** Auth / bootstrap paths that must not receive a workspace scope. */
 const WORKSPACE_SKIP_PATH_RE = /\/(auth|token|schema|docs|redoc)(\/|$)/i;
@@ -114,6 +141,10 @@ api.interceptors.response.use(
       error.errorTimestamp = data.timestamp || null;
     }
     const original = error.config;
+    const url = String(original?.url || '');
+    if (url.includes('/auth/refresh/')) {
+      return Promise.reject(error);
+    }
     if (error.response?.status !== 401 || original?._retry) {
       return Promise.reject(error);
     }
@@ -130,12 +161,10 @@ api.interceptors.response.use(
     }
 
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_URL || 'http://localhost:8000/api'}/auth/refresh/`,
-        { refresh }
-      );
-      localStorage.setItem('access_token', res.data.access);
-      original.headers.Authorization = `Bearer ${res.data.access}`;
+      await refreshSessionOnce();
+      const access = localStorage.getItem('access_token');
+      original.headers = original.headers || {};
+      original.headers.Authorization = `Bearer ${access}`;
       return api(original);
     } catch {
       _redirectToLogin();
