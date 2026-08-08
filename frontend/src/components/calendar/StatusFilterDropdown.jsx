@@ -6,9 +6,16 @@ import {
   isShowingAllStatuses,
   isStatusChecked,
   selectAllStatuses,
+  selectNoStatuses,
   toggleStatusCheck,
 } from './statusFilterState';
-import { multiSelectMasterProps, multiSelectRowProps } from './multiSelectFilterState';
+import {
+  isMasterIndeterminate,
+  isMultiSelectNone,
+  multiSelectMasterProps,
+  multiSelectRowProps,
+} from './multiSelectFilterState';
+import MultiSelectCheckbox from './MultiSelectCheckbox';
 
 /**
  * Searchable multi-select post status filter (same state as legend checkboxes).
@@ -20,6 +27,7 @@ export default function StatusFilterDropdown({ selected = [], onChange }) {
   const btnId = useId();
 
   const statusFilters = getActiveStatusFilters();
+  const allIds = useMemo(() => statusFilters.map((f) => f.id), [statusFilters]);
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -39,11 +47,18 @@ export default function StatusFilterDropdown({ selected = [], onChange }) {
   }, [open]);
 
   const allOn = isShowingAllStatuses(selected);
-  const masterProps = multiSelectMasterProps(allOn, () => onChange(selectAllStatuses()));
+  const indeterminate = isMasterIndeterminate(selected, allIds);
+  const masterProps = multiSelectMasterProps(
+    allOn,
+    () => onChange(selectAllStatuses()),
+    () => onChange(selectNoStatuses()),
+  );
 
   const label = allOn
     ? 'All Posts'
-    : `${selected.length} status${selected.length > 1 ? 'es' : ''}`;
+    : (isMultiSelectNone(selected)
+      ? 'No statuses'
+      : `${selected.length} status${selected.length > 1 ? 'es' : ''}`);
 
   return (
     <div className="bb-cal__filter bb-cal-status-filter" ref={ref}>
@@ -56,7 +71,7 @@ export default function StatusFilterDropdown({ selected = [], onChange }) {
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
       >
-        {label}
+        {allOn ? 'All Posts' : label}
       </button>
       {open ? (
         <div className="bb-cal__multi bb-cal-status-filter__panel" role="listbox" aria-labelledby={btnId}>
@@ -68,7 +83,11 @@ export default function StatusFilterDropdown({ selected = [], onChange }) {
             aria-label="Search statuses"
           />
           <label className="bb-cal__multi-all" {...masterProps}>
-            <input type="checkbox" readOnly tabIndex={-1} checked={allOn} />
+            <MultiSelectCheckbox
+              checked={allOn}
+              indeterminate={indeterminate}
+              ariaLabel="All Posts"
+            />
             All Posts
           </label>
           {filtered.length === 0 ? (
@@ -80,11 +99,9 @@ export default function StatusFilterDropdown({ selected = [], onChange }) {
               className="bb-cal-status-filter__row"
               {...multiSelectRowProps(() => onChange(toggleStatusCheck(f.id, selected)))}
             >
-              <input
-                type="checkbox"
-                readOnly
-                tabIndex={-1}
+              <MultiSelectCheckbox
                 checked={isStatusChecked(f.id, selected)}
+                ariaLabel={`Show ${f.label}`}
               />
               <span
                 className={`bb-cal__legend-swatch bb-cal__legend-swatch--${f.id}`}

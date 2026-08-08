@@ -15,6 +15,7 @@ import {
 } from 'date-fns';
 import { statusMatchesFilter } from './statusTheme';
 import { isShowingAllStatuses } from './statusFilterState';
+import { isMultiSelectNone } from './multiSelectFilterState';
 
 export function getMondayIndex(d) {
   return (getDay(d) + 6) % 7;
@@ -150,6 +151,9 @@ export function filterPosts(postsByDate, {
   tags = [],
   search = '',
 } = {}) {
+  if (isMultiSelectNone(statuses) || isMultiSelectNone(channels) || isMultiSelectNone(tags)) {
+    return {};
+  }
   const q = String(search || '').trim().toLowerCase();
   const channelSet = new Set((channels || []).filter(Boolean));
   const tagSet = new Set((tags || []).map((t) => String(t).toLowerCase().replace(/^#/, '')));
@@ -278,12 +282,14 @@ function inMonthYear(iso, month, year) {
   return y === Number(year) && m === Number(month);
 }
 
-/** Group composer posts for the visible month into postsByDate. */
+/** Group composer posts into postsByDate. Omit month/year to include all dates. */
 export function groupComposerPostsByDate(posts, month, year) {
   const out = {};
+  const filterMonth = month != null && year != null;
   (posts || []).forEach((raw) => {
     const iso = raw.scheduled_at || raw.published_at || raw.created_at;
-    if (!iso || !inMonthYear(iso, month, year)) return;
+    if (!iso) return;
+    if (filterMonth && !inMonthYear(iso, month, year)) return;
     const mapped = mapComposerPostToCalendar(raw);
     const key = dateKeyFromIso(iso);
     if (!key) return;

@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Fixed — Publish calendar status/channel/tag filter checkboxes
+
+- **All Posts / All Channels / All Tags** master rows now **toggle off every child** when unchecked and **turn all children on** when checked (including indeterminate → all). Status filters use the same id list as **`GET /api/calendar/post-statuses/`**. Filter checkboxes use a **custom box** so **unchecked** rows show an empty square (native controlled checkboxes could stay visually checked).
+
+- Restored **`calendarAPI.getPosts`** on **`frontend/src/services/api.js`** (hook called a missing method, so loads failed and the grid stayed empty). Calendar list API now resolves **`client_id`** UUIDs via **`resolve_client_pk`**.
+
+- **List mode** loads **composer posts across all months** (not only the toolbar month). **Calendar mode** still scopes the grid to the visible month — use **Prev/Next** or URL **`?year=2026&month=10`** for October–December demo seeds.
+
+- **`python manage.py seed_calendar_status_posts`** — creates **4 composer posts per DB status** with anchor dates in **October–December** (after September), tagged `calendar-demo-seed`, for Publish calendar / list / approvals QA. Options: `--client=<uuid|pk>`, `--year=2026`, `--replace`, `--legacy-calendar`.
+
 ### Added — Publish list approvals (Brightbean)
 
 - **List mode** on **Analytics → Calendar** (`?mode=list&view=agenda`): **Queue**, **Drafts**, **Approvals**, and **Sent** tabs (URL `tab=queue|drafts|approvals|sent`). **Approvals** matches the Brightbean workflow: status pills, per-post **Approve** / **Reject**, bulk actions, and **Edit** in Composer.

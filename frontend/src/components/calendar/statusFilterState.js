@@ -1,13 +1,15 @@
-import { CAL_STATUS_FILTERS, statusMatchesFilter } from './statusTheme';
+import { getActiveStatusFilters, statusMatchesFilter } from './statusTheme';
 import {
   clearMultiSelectAll,
   isMultiSelectChecked,
+  isMultiSelectNone,
   isShowingAllSelected,
+  selectNoneSelected,
   toggleMultiSelectItem,
 } from './multiSelectFilterState';
 
 export function allStatusIds() {
-  return CAL_STATUS_FILTERS.map((f) => f.id);
+  return getActiveStatusFilters().map((f) => f.id);
 }
 
 export function isShowingAllStatuses(selected) {
@@ -19,12 +21,17 @@ export function isStatusChecked(id, selected) {
 }
 
 export function statusPassesFilter(rawStatus, selected) {
+  if (isMultiSelectNone(selected)) return false;
   if (isShowingAllStatuses(selected)) return true;
   return statusMatchesFilter(rawStatus, selected);
 }
 
 export function selectAllStatuses() {
   return clearMultiSelectAll();
+}
+
+export function selectNoStatuses() {
+  return selectNoneSelected();
 }
 
 export function toggleStatusCheck(id, selected) {

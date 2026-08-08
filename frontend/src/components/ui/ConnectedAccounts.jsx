@@ -124,11 +124,7 @@ export default function ConnectedAccounts({
         <h2 id="connect-accounts-title" className="connect-accounts__title">
           Connect a Platform
         </h2>
-        <p className="connect-accounts__sub">
-          Platforms with app credentials in SocialMediaStart <code>.env</code> show
-          Connect. Empty credentials show Not Configured (SS-style). Connection state
-          uses a checkmark when your account is linked.
-        </p>
+       
         <div className="connect-accounts__summary" aria-live="polite">
           <span className="connect-accounts__stat">
             <TPlatformCheck checked size={16} />
@@ -189,24 +185,7 @@ export default function ConnectedAccounts({
         onContinue={handleFbConsentContinue}
       />
 
-      <aside className="connect-accounts__help">
-        <p className="connect-accounts__help-title">
-          <Lightbulb size={14} aria-hidden="true" />
-          How configuration works
-        </p>
-        <ul className="connect-accounts__help-list">
-          <li>
-            Set <code>PLATFORM_*</code> keys in <strong>C:\app\SocialMediaStart\.env</strong>, then
-            restart Docker. Configured platforms show a Connect button.
-          </li>
-          <li>
-            Control the list with <code>CONNECT_PLATFORMS=facebook,instagram,...</code> and
-            optional <code>PLATFORM_&lt;ID&gt;_ENABLED=false</code>.
-          </li>
-          <li>Checkmark = your workspace account is linked; empty circle = not linked.</li>
-          <li>Facebook &amp; Instagram share Meta login. YouTube &amp; Google Business share Google.</li>
-        </ul>
-      </aside>
+      
     </section>
   );
 }

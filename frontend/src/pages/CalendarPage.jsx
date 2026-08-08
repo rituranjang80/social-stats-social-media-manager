@@ -95,6 +95,8 @@ export default function CalendarPage({ clientId: propClientId }) {
   const queryTab = searchParams.get('tab');
   const queryView = searchParams.get('view');
   const queryMode = searchParams.get('mode');
+  const queryYear = searchParams.get('year');
+  const queryMonth = searchParams.get('month');
   // Default: Calendar mode + Month view for the current month
   const initialView = ['month', 'week', 'day', 'agenda', 'stats', 'list'].includes(queryView)
     ? (queryView === 'list' ? 'agenda' : queryView)
@@ -104,6 +106,11 @@ export default function CalendarPage({ clientId: propClientId }) {
   const initialListTab = PUBLISH_LIST_TAB_IDS.includes(queryTab) ? queryTab : 'queue';
 
   const [currentDate, setCurrentDate] = useState(() => {
+    const y = queryYear ? parseInt(queryYear, 10) : NaN;
+    const m = queryMonth ? parseInt(queryMonth, 10) : NaN;
+    if (Number.isFinite(y) && Number.isFinite(m) && m >= 1 && m <= 12) {
+      return new Date(y, m - 1, 1);
+    }
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
   });
@@ -128,7 +135,9 @@ export default function CalendarPage({ clientId: propClientId }) {
 
   // Fetch full month once; channel/tag filters apply client-side (All = no restriction)
   const { postsByDate, loading: postsLoading, refetch: refetchPosts } =
-    useCalendarPosts(clientId, month, year);
+    useCalendarPosts(clientId, month, year, {
+      composerScope: mode === 'list' ? 'all' : 'month',
+    });
   const { notesByDate } = useCalendarNotes(clientId, month, year);
   const { stats } = useCalendarStats(clientId, month, year);
   const { upcoming } = useUpcomingPosts(clientId);
@@ -153,7 +162,15 @@ export default function CalendarPage({ clientId: propClientId }) {
     if (PUBLISH_LIST_TAB_IDS.includes(queryTab) && queryTab !== listTab) {
       setListTab(queryTab);
     }
-  }, [queryView, queryMode, view, queryTab, listTab]);
+    const y = queryYear ? parseInt(queryYear, 10) : NaN;
+    const m = queryMonth ? parseInt(queryMonth, 10) : NaN;
+    if (Number.isFinite(y) && Number.isFinite(m) && m >= 1 && m <= 12) {
+      setCurrentDate((prev) => {
+        if (prev.getFullYear() === y && prev.getMonth() + 1 === m) return prev;
+        return new Date(y, m - 1, 1);
+      });
+    }
+  }, [queryView, queryMode, view, queryTab, listTab, queryYear, queryMonth]);
 
   const filteredPosts = useMemo(
     () => filterPosts(postsByDate, { statuses, channels, tags, search }),
@@ -313,7 +330,20 @@ export default function CalendarPage({ clientId: propClientId }) {
 
   function setViewAndUrl(nextView) {
     setView(nextView);
-    updateSearch({ view: nextView, mode: mode === 'list' ? 'list' : 'calendar' });
+    updateSearch({
+      view: nextView,
+      mode: mode === 'list' ? 'list' : 'calendar',
+      year: String(year),
+      month: String(month),
+    });
+  }
+
+  function setCurrentDateAndUrl(nextDate) {
+    setCurrentDate(nextDate);
+    updateSearch({
+      year: String(nextDate.getFullYear()),
+      month: String(nextDate.getMonth() + 1),
+    });
   }
 
   function setModeAndUrl(nextMode) {
@@ -387,14 +417,14 @@ export default function CalendarPage({ clientId: propClientId }) {
           onViewChange={setViewAndUrl}
           listMode={mode === 'list'}
           currentDate={currentDate}
-          onPrev={() => setCurrentDate((d) => shiftPeriod(activeView, d, -1))}
-          onNext={() => setCurrentDate((d) => shiftPeriod(activeView, d, 1))}
+          onPrev={() => setCurrentDateAndUrl(shiftPeriod(activeView, currentDate, -1))}
+          onNext={() => setCurrentDateAndUrl(shiftPeriod(activeView, currentDate, 1))}
           onToday={() => {
             const now = new Date();
             if (activeView === 'month' || activeView === 'stats') {
-              setCurrentDate(new Date(now.getFullYear(), now.getMonth(), 1));
+              setCurrentDateAndUrl(new Date(now.getFullYear(), now.getMonth(), 1));
             } else {
-              setCurrentDate(now);
+              setCurrentDateAndUrl(now);
             }
           }}
           statuses={statuses}

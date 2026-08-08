@@ -105,6 +105,9 @@ check and uncheck not proper working for All Channels, All Post below are xpath
 on Day view we require toll-tips and  add a post //*[@id="main-content"]/div/div/div[1]/div[4]/div/div[2]/div[12]/div[1]/button on mouse hover near by current content top please resolve issue
 
 
+
+python manage.py seed_calendar_status_posts --client=1 --replace
+
 width: 15px !important;
     height: 15px !important;
     top: 1px;
@@ -124,4 +127,11 @@ Schedule (cron)
 0 10 * * 1-5
 e.g. 0 10 * * 1-5 = 10am Mon–Fri
 please create the user friendly change the UI for end user easily understand
+
+all the status xpath //*[@id="main-content"]/div/div/div[1]/div[2]/div[3]/div[1] come from database 
+we require the approval system in window 
+http://localhost:3000/admin/analytics/calendar?mode=list&view=agenda
+reference page is frontend\public\Brightbean\approval My Workspace - Brightbean_files
+do the perfect
+other fuctionlity must not be break
 

@@ -95,8 +95,11 @@
       height: 14px;
       margin: 0;
       flex-shrink: 0;
-      accent-color: var(--bb-cal-primary, #f97316);
       cursor: pointer;
+    }
+
+    .bb-cal-multi-cb {
+      margin: 0;
     }
 
     &--all {
@@ -349,6 +352,50 @@
     font-weight: 600;
     color: var(--bb-cal-text);
     cursor: pointer;
+  }
+
+  /* Filter dropdown / legend — explicit checked vs unchecked (native box repaint bug) */
+  .bb-cal-multi-cb {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+
+    &__input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    &__box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      box-sizing: border-box;
+      border: 1.5px solid var(--bb-cal-muted, #a8a29e);
+      border-radius: 3px;
+      background: var(--bb-cal-surface, #fff);
+      color: #fff;
+      line-height: 0;
+
+      &.is-checked,
+      &.is-indeterminate {
+        border-color: var(--bb-cal-primary, #f97316);
+        background: var(--bb-cal-primary, #f97316);
+      }
+
+      &:not(.is-checked):not(.is-indeterminate) {
+        background: var(--bb-cal-surface, #fff);
+      }
+    }
   }
 
   &__multi-search {

@@ -4,12 +4,16 @@ import { Hash } from 'lucide-react';
 import { composerAPI } from '../../services/api';
 import {
   clearMultiSelectAll,
+  isMasterIndeterminate,
   isMultiSelectChecked,
+  isMultiSelectNone,
   isShowingAllSelected,
   multiSelectMasterProps,
   multiSelectRowProps,
+  selectNoneSelected,
   toggleMultiSelectItem,
 } from './multiSelectFilterState';
+import MultiSelectCheckbox from './MultiSelectCheckbox';
 
 /** Deterministic pastel hue from tag name (no hardcoded palette list of names). */
 function tagHue(name) {
@@ -85,10 +89,13 @@ export default function TagFilterDropdown({
   }
 
   const allOn = isShowingAllSelected(selected, options);
-  const masterProps = multiSelectMasterProps(allOn, clearAll);
+  const indeterminate = isMasterIndeterminate(selected, options);
+  const masterProps = multiSelectMasterProps(allOn, clearAll, () => onChange(selectNoneSelected()));
   const label = allOn
     ? 'All Tags'
-    : `${selected.length} tag${selected.length > 1 ? 's' : ''}`;
+    : (isMultiSelectNone(selected)
+      ? 'No tags'
+      : `${selected.length} tag${selected.length > 1 ? 's' : ''}`);
 
   return (
     <div className="bb-cal__filter bb-cal-tag-filter" ref={ref}>
@@ -113,11 +120,10 @@ export default function TagFilterDropdown({
             aria-label="Search tags"
           />
           <label className="bb-cal__multi-all" {...masterProps}>
-            <input
-              type="checkbox"
-              readOnly
-              tabIndex={-1}
+            <MultiSelectCheckbox
               checked={allOn}
+              indeterminate={indeterminate}
+              ariaLabel="All Tags"
             />
             All Tags
           </label>
@@ -137,11 +143,9 @@ export default function TagFilterDropdown({
                   toggleMultiSelectItem(tag, selected, options),
                 ))}
               >
-                <input
-                  type="checkbox"
-                  readOnly
-                  tabIndex={-1}
+                <MultiSelectCheckbox
                   checked={isMultiSelectChecked(tag, selected, options)}
+                  ariaLabel={`Tag ${tag}`}
                 />
                 <span
                   className="bb-cal-tag-filter__swatch"

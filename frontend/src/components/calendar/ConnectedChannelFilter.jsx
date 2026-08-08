@@ -8,12 +8,16 @@ import SocialIcon from '../channels/SocialIcon';
 import { getPlatformMeta } from '../../constants/socialPlatforms';
 import {
   clearMultiSelectAll,
+  isMasterIndeterminate,
   isMultiSelectChecked,
+  isMultiSelectNone,
   isShowingAllSelected,
   multiSelectMasterProps,
   multiSelectRowProps,
+  selectNoneSelected,
   toggleMultiSelectItem,
 } from './multiSelectFilterState';
+import MultiSelectCheckbox from './MultiSelectCheckbox';
 
 import '../../styles/scss/channel-selector.scss';
 
@@ -101,11 +105,18 @@ export default function ConnectedChannelFilter({
   }, [open]);
 
   const allOn = isShowingAllSelected(selected, allChannelIds);
+  const indeterminate = isMasterIndeterminate(selected, allChannelIds);
   const label = allOn
     ? 'All Channels'
-    : `${selected.length} channel${selected.length > 1 ? 's' : ''}`;
+    : (isMultiSelectNone(selected)
+      ? 'No channels'
+      : `${selected.length} channel${selected.length > 1 ? 's' : ''}`);
 
-  const masterLabelProps = multiSelectMasterProps(allOn, () => onChange(clearMultiSelectAll()));
+  const masterLabelProps = multiSelectMasterProps(
+    allOn,
+    () => onChange(clearMultiSelectAll()),
+    () => onChange(selectNoneSelected()),
+  );
 
   return (
     <div className="bb-cal__filter bb-cal-channel-filter" ref={ref}>
@@ -130,11 +141,10 @@ export default function ConnectedChannelFilter({
             aria-label="Search channels"
           />
           <label className="bb-cal__multi-all" {...masterLabelProps}>
-            <input
-              type="checkbox"
-              readOnly
-              tabIndex={-1}
+            <MultiSelectCheckbox
               checked={allOn}
+              indeterminate={indeterminate}
+              ariaLabel="All Channels"
             />
             All Channels
           </label>
@@ -155,11 +165,9 @@ export default function ConnectedChannelFilter({
                     toggleMultiSelectItem(ch.id, selected, allChannelIds),
                   ))}
                 >
-                  <input
-                    type="checkbox"
-                    readOnly
-                    tabIndex={-1}
+                  <MultiSelectCheckbox
                     checked={isMultiSelectChecked(ch.id, selected, allChannelIds)}
+                    ariaLabel={ch.name}
                   />
                   <ChannelAvatar src={ch.avatarUrl} name={ch.avatarName || ch.name} size="sm" />
                   <SocialIcon platform={ch.platform} size={14} />

@@ -100,8 +100,16 @@ filter the grid, **connected-channel** / tag / search filters, a
 icon**, **title**, and **time** (drafts without a schedule appear on their
 **created** date). Drag-and-drop reschedule, hover **+** on date cells, and a
 floating **+** to compose. The legend stays visible while the grid scrolls in a
-compact layout. Each post has a **checkbox**: when checked, the post **action toolbar** (same buttons as on hover — edit, preview, etc.) stays **fixed at the bottom center** while you scroll the grid; uncheck or close with **×**. Defaults: current month, **All Posts**, **All Channels**, **All
-Tags**. Reference prototype: `/Brightbean/NewPost.html`.
+compact layout. Each post has a **checkbox**: when checked, the post **action toolbar** (same buttons as on hover — edit, preview, etc.) stays **fixed at the bottom center** while you scroll the grid; uncheck or close with **×**. Defaults: current month, **All Posts**, **All Channels**, **All Tags** (master checkbox on = every row checked; master off = every row unchecked). Partial selections show an indeterminate master until you click **All Posts** again. Reference prototype: `/Brightbean/NewPost.html`.
+
+**Demo data (QA):** From the backend directory, seed 4 posts per composer status
+(Oct–Dec, after September) for the active workspace:
+
+```bash
+python manage.py seed_calendar_status_posts --client=<workspace-uuid> --replace
+```
+
+**List mode** shows composer posts from **all months** (Queue, Drafts, Sent, etc.). **Calendar mode** only shows posts in the **month you are viewing** — after seeding demo data, move to **Oct / Nov / Dec 2026** with the calendar arrows or open e.g. `?mode=calendar&year=2026&month=10`. Titles start with `[Demo Calendar]`.
 
 **Manage workspaces & team access** (other admin pages — not on the composer):
 

@@ -67,15 +67,19 @@ INDUSTRY_BEST_TIMES = {
 
 def _check_client_access(request, client_id):
     """Returns (client, error_response)."""
+    from .client_ref import resolve_client_pk
+    pk = resolve_client_pk(client_id)
+    if pk is None:
+        return None, Response({'error': 'Client not found.'}, status=404)
     try:
-        client = Client.objects.get(id=client_id)
+        client = Client.objects.get(id=pk)
     except Client.DoesNotExist:
         return None, Response({'error': 'Client not found.'}, status=404)
 
     profile = getattr(request.user, 'profile', None)
     if not profile:
         return None, Response({'error': 'No profile.'}, status=403)
-    if not profile.can_access_client(client_id):
+    if not profile.can_access_client(pk):
         return None, Response({'error': 'Access denied.'}, status=403)
     return client, None
 
@@ -109,7 +113,7 @@ class CalendarPostViewSet(viewsets.ModelViewSet):
         if err:
             return err
 
-        qs = self.get_queryset().filter(client_id=client_id)
+        qs = self.get_queryset().filter(client_id=client.id)
 
         if month and year:
             try:
@@ -223,7 +227,10 @@ class CalendarPostViewSet(viewsets.ModelViewSet):
 
         client_id = request.query_params.get('client_id')
         if client_id:
-            qs = qs.filter(client_id=client_id)
+            from .client_ref import resolve_client_pk
+            pk = resolve_client_pk(client_id)
+            if pk is not None:
+                qs = qs.filter(client_id=pk)
 
         return Response(self.get_serializer(qs.order_by('scheduled_at'), many=True).data)
 
@@ -249,7 +256,7 @@ class CalendarPostViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Invalid month/year.'}, status=400)
 
         qs = CalendarPost.objects.filter(
-            client_id=client_id,
+            client_id=client.id,
             status='published',
         ).filter(
             published_at__date__range=[start, end]
@@ -338,7 +345,7 @@ class CalendarNoteViewSet(viewsets.ModelViewSet):
         if err:
             return err
 
-        qs = self.get_queryset().filter(client_id=client_id)
+        qs = self.get_queryset().filter(client_id=client.id)
 
         if month and year:
             try:
@@ -382,7 +389,10 @@ class PostingScheduleViewSet(viewsets.ModelViewSet):
             return qs.none()
 
         if client_id:
-            qs = qs.filter(client_id=client_id)
+            from .client_ref import resolve_client_pk
+            pk = resolve_client_pk(client_id)
+            if pk is not None:
+                qs = qs.filter(client_id=pk)
         elif profile.role == 'staff':
             qs = qs.filter(client__in=profile.assigned_clients.all())
 

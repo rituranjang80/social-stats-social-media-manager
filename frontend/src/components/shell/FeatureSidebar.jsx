@@ -306,8 +306,8 @@ const NAV_SETS = {
       {
         title: 'Setup',
         items: [
-          { label: 'Approvals',     icon: ClipboardCheck, path: '/approvals',     permission: 'composer.approve',
-            badgeKey: 'pending_approvals' },
+          // { label: 'Approvals',     icon: ClipboardCheck, path: '/approvals',     permission: 'composer.approve',
+          //   badgeKey: 'pending_approvals' },
           { label: 'Manage connections',     icon: ClipboardCheck, path: '/approvals',     permission: 'composer.approve',
             badgeKey: 'pending_approvals' },
           // { label: 'Notifications', icon: Bell,           path: '/notifications',
@@ -351,13 +351,13 @@ const NAV_SETS = {
       //     { label: 'Bot Safety',    icon: ShieldCheck,    path: '/admin/bot-settings', permission: 'bot.view' },
       //   ],
       // },
-      // {
-      //   title: 'Setup',
-      //   items: [
-      //     { label: 'Account',  icon: Settings, path: '/account',                                  permission: 'whatsapp.manage_account' },
-      //     { label: 'Webhooks', icon: Webhook,  path: '/account#webhooks', disabled: true },
-      //   ],
-      // },
+      {
+        title: 'Setup',
+        items: [
+          { label: 'Account',  icon: Settings, path: '/account',                                  permission: 'whatsapp.manage_account' },
+          { label: 'Webhooks', icon: Webhook,  path: '/account#webhooks', disabled: true },
+        ],
+      },
     ],
   },
 

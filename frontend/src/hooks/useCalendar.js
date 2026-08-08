@@ -42,7 +42,9 @@ function normalizeCalendarMap(data) {
 }
 
 // ── useCalendarPosts ───────────────────────────────────────────────────────────
-export function useCalendarPosts(clientId, month, year) {
+/** @param {{ composerScope?: 'month' | 'all' }} options — list mode should use `all`. */
+export function useCalendarPosts(clientId, month, year, options = {}) {
+  const composerScope = options.composerScope || 'month';
   const [postsByDate, setPostsByDate] = useState({});
   const [loading,    setLoading]     = useState(false);
   const [error,      setError]       = useState('');
@@ -56,12 +58,21 @@ export function useCalendarPosts(clientId, month, year) {
     setError('');
     try {
       const params = { client_id: clientId, month, year };
-      const [calRes, composerRows] = await Promise.all([
-        calendarAPI.getPosts(params),
-        fetchAllComposerPosts(clientId).catch(() => []),
-      ]);
-      const calendarMap = normalizeCalendarMap(calRes.data || {});
-      const composerMap = groupComposerPostsByDate(composerRows, month, year);
+      const composerRows = await fetchAllComposerPosts(clientId).catch(() => []);
+      let calendarMap = {};
+      try {
+        const calRes = await calendarAPI.getPosts(params);
+        calendarMap = normalizeCalendarMap(calRes.data || {});
+      } catch (calErr) {
+        // Legacy calendar rows are optional; composer posts still render.
+        if (process.env.NODE_ENV !== 'production') {
+          // eslint-disable-next-line no-console
+          console.warn('Calendar legacy posts load failed:', calErr?.message || calErr);
+        }
+      }
+      const composerMap = composerScope === 'all'
+        ? groupComposerPostsByDate(composerRows, null, null)
+        : groupComposerPostsByDate(composerRows, month, year);
       setPostsByDate(mergePostsByDate(calendarMap, composerMap));
     } catch (e) {
       setError(e.response?.data?.error || 'Failed to load calendar posts.');
@@ -69,7 +80,7 @@ export function useCalendarPosts(clientId, month, year) {
     } finally {
       setLoading(false);
     }
-  }, [clientId, month, year]);
+  }, [clientId, month, year, composerScope]);
 
   useEffect(() => { fetch(); }, [fetch]);
 
