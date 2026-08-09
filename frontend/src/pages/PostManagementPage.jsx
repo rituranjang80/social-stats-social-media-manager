@@ -35,7 +35,7 @@ import '../styles/scss/calendar.scss';
 import '../styles/scss/post-management.scss';
 
 /** Default status filter ids (toolbar), from GET /api/calendar/post-statuses/ filter ids. */
-export const DEFAULT_PM_STATUS_IDS = ['pending_review', 'on_hold'];
+export const DEFAULT_PM_STATUS_IDS = ['pending_review', 'on_hold','draft'];
 
 export function defaultPostManagementDateRange(refDate = new Date()) {
   const from = format(refDate, 'yyyy-MM-dd');
@@ -90,15 +90,17 @@ function PostManagementInner() {
   const featureOn = settings?.enabled !== false;
 
   useEffect(() => {
-    if (searchParams.get('from') && searchParams.get('to') && searchParams.has('status')) return;
+    const from = searchParams.get('from');
+    const to = searchParams.get('to');
+    const hasStatus = searchParams.has('status');
+    if (from && to && hasStatus) return;
+
     const next = new URLSearchParams(searchParams);
-    if (!next.get('from')) next.set('from', defaultRange.from);
-    if (!next.get('to')) next.set('to', defaultRange.to);
-    if (!searchParams.has('status')) next.set('status', DEFAULT_PM_STATUS_IDS.join(','));
+    if (!from) next.set('from', defaultRange.from);
+    if (!to) next.set('to', defaultRange.to);
+    if (!hasStatus) next.set('status', DEFAULT_PM_STATUS_IDS.join(','));
     setSearchParams(next, { replace: true });
-    // Seed URL once when opening post-management without query params
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [searchParams, setSearchParams, defaultRange.from, defaultRange.to]);
 
   const tagOptions = useMemo(
     () => extractTagsFromPosts(flattenPosts(postsByDate)),
@@ -263,7 +265,7 @@ function PostManagementInner() {
             <ListChecks size={32} strokeWidth={1.5} style={{ marginBottom: 8, opacity: 0.5 }} />
             <h3 className="bb-cal__empty-title">No posts match your filters</h3>
             <p className="bb-cal__empty-copy">
-              Defaults are Pending Review and On Hold for the next month. Widen the date range
+              Defaults are Pending Review,Draft and On Hold for the next month. Widen the date range
               or add statuses in the toolbar.
             </p>
           </div>

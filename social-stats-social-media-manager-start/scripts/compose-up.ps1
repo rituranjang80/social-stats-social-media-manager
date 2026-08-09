@@ -18,7 +18,25 @@ if (-not (Test-Path '.env')) {
     Write-Host 'Created .env from .env.example.'
 }
 
-& (Join-Path $StartRoot 'normalize-shell-lf.ps1') -StartRoot (Get-Location)
+$normalizeScript = Join-Path $StartRoot 'normalize-shell-lf.ps1'
+if (Test-Path $normalizeScript) {
+    & $normalizeScript -StartRoot (Get-Location)
+} else {
+    Write-Warning "normalize-shell-lf.ps1 not found in $StartRoot — normalizing shell entrypoints inline."
+    $startDir = Get-Location
+    @(
+        (Join-Path $startDir 'docker\entrypoint-backup.sh'),
+        (Join-Path $startDir 'docker\entrypoint-backend.sh'),
+        (Join-Path $startDir 'docker\entrypoint-frontend-dev.sh'),
+        (Join-Path $startDir 'docker\nginx\entrypoint-gateway.sh')
+    ) | ForEach-Object {
+        if (-not (Test-Path $_)) { return }
+        $text = [IO.File]::ReadAllText($_) -replace "`r`n", "`n" -replace "`r", "`n"
+        $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+        [IO.File]::WriteAllText($_, $text, $utf8NoBom)
+        Write-Host "LF normalized: $_"
+    }
+}
 
 function Get-DotEnvValue {
     param([string]$Name, [string]$FilePath)

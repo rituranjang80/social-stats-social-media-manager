@@ -85,6 +85,24 @@ deploying outside a dev machine.
 Gateway is exposed as NodePort **30080**. Adjust `k8s/base/configmap.yaml` for
 environment-specific settings.
 
+## Troubleshooting (Windows)
+
+**`compose-up.ps1` cannot find `normalize-shell-lf.ps1`:** ensure
+`scripts/normalize-shell-lf.ps1` exists (same folder as `compose-up.ps1`). The
+up script also normalizes entrypoints inline if that file is missing.
+
+**Backend container exits immediately (`exited (2)`) / logs show
+`set: pipefail: invalid option name`:** shell entrypoints under `docker/` were
+saved with Windows CRLF. From this folder run:
+
+```powershell
+.\scripts\normalize-shell-lf.ps1
+.\scripts\compose-up.ps1
+```
+
+Or re-run `compose-up.ps1` (it normalizes LF before `docker compose up`).
+`.gitattributes` keeps `*.sh` on LF for future checkouts.
+
 ## Production notes
 
 - Use `APP_MODE=prod`, `DEBUG=False`, real `SECRET_KEY` and `FIELD_ENCRYPTION_KEYS`.
