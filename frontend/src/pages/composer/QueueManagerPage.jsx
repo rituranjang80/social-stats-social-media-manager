@@ -20,7 +20,8 @@ import Badge from '../../components/ui/Badge';
 import { usePostQueues } from '../../hooks/useComposer';
 import { composerAPI } from '../../services/api';
 import { confirmDialog } from '../../services/dialog';
-import QueueScheduleEditor, { describeSchedule } from '../../components/composer/QueueScheduleEditor';
+import QueueScheduleEditor from '../../components/composer/QueueScheduleEditor';
+import { describeSchedule } from '../../utils/queueSchedule';
 
 const STRATEGIES = [
   { id: 'sequential',  label: 'Sequential' },

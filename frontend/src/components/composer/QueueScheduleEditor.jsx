@@ -189,5 +189,3 @@ export default function QueueScheduleEditor({ value, onChange, inputStyle, helpS
     </div>
   );
 }
-
-export { describeSchedule } from '../../utils/queueSchedule';

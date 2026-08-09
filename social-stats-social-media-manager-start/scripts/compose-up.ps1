@@ -11,7 +11,7 @@ Set-Location (Join-Path $StartRoot '..')
 
 if (-not (Test-Path 'paths.env')) {
     Copy-Item 'paths.env.example' 'paths.env'
-    Write-Host 'Created paths.env from paths.env.example — edit SOURCE_REL if needed.'
+    Write-Host 'Created paths.env from paths.env.example - edit SOURCE_REL if needed.'
 }
 if (-not (Test-Path '.env')) {
     Copy-Item '.env.example' '.env'
@@ -22,7 +22,7 @@ $normalizeScript = Join-Path $StartRoot 'normalize-shell-lf.ps1'
 if (Test-Path $normalizeScript) {
     & $normalizeScript -StartRoot (Get-Location)
 } else {
-    Write-Warning "normalize-shell-lf.ps1 not found in $StartRoot — normalizing shell entrypoints inline."
+    Write-Warning "normalize-shell-lf.ps1 not found in $StartRoot - normalizing shell entrypoints inline."
     $startDir = Get-Location
     @(
         (Join-Path $startDir 'docker\entrypoint-backup.sh'),
@@ -46,7 +46,7 @@ function Get-DotEnvValue {
         Select-Object -First 1
     if (-not $line) { return $null }
     if ($line -match '=\s*(.*)$') {
-        return $Matches[1].Trim().Trim('"').Trim("'")
+        return $Matches[1].Trim().Trim([char]34).Trim([char]39)
     }
     return $null
 }
@@ -62,7 +62,6 @@ $composeArgs = @(
     '-f', 'docker-compose.yml'
 )
 
-# Scheduled backup sidecar (profile backup) starts with the app when enabled in .env
 if ($null -eq $backupEnabled -or $backupEnabled -match '^(?i:true|1|yes|on)$') {
     $composeArgs += '--profile', 'backup'
 }
@@ -94,5 +93,6 @@ Write-Host 'Frontend: http://localhost:3000 (dev mode)'
 Write-Host 'Backend:  http://localhost:8001 (direct)'
 Write-Host 'Health:   http://localhost:8000/api/health/services/'
 if ($composeArgs -contains 'backup') {
-    Write-Host 'Backup:   scheduled container (profile backup) — logs: docker compose --env-file paths.env --env-file .env --profile backup logs -f backup'
+    $backupLogsCmd = 'docker compose --env-file paths.env --env-file .env --profile backup logs -f backup'
+    Write-Host "Backup:   scheduled container (profile backup). Logs: $backupLogsCmd"
 }

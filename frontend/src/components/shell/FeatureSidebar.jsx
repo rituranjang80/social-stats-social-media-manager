@@ -18,7 +18,7 @@ import {
   Star, AtSign,
   Zap, Film,
   Bell, ShieldCheck, ClipboardCheck,
-  Mic, Sparkles,
+  Mic, Sparkles, Link2,
   Bot, MessageSquare, Megaphone, UserPlus,
 } from 'lucide-react';
 
@@ -63,7 +63,7 @@ export default function FeatureSidebar({
   const { user } = useAuth();
   const { workspaceId } = useWorkspace({ user, autoHydrate: false });
 
-  const navSet = NAV_SETS[module] ;//|| NAV_SETS.analytics;
+  const navSet = NAV_SETS[module] || NAV_SETS.analytics;
   const showChannels = module === 'analytics';
 
   const settingsPath = useMemo(() => {
@@ -81,10 +81,20 @@ export default function FeatureSidebar({
         <>
           {navSet.sections.map((section) => (
             <Section key={section.title} title={section.title}>
-              {section.items.map((item) => (
-                <PermissionGate key={item.path} code={item.permission}>
+              {section.items.map((item) => {
+                const rawPath = item.pathKey === 'settings'
+                  ? settingsPath
+                  : item.path;
+                if (!rawPath || typeof rawPath !== 'string') {
+                  return null;
+                }
+                const to = rawPath.startsWith('/admin/') || rawPath.startsWith('/dashboard/')
+                  ? rawPath
+                  : `${basePath}/${module}${rawPath.startsWith('/') ? rawPath : `/${rawPath}`}`;
+                return (
+                <PermissionGate key={to + item.label} code={item.permission}>
                   <NavItem
-                    to={item.path.startsWith('/admin/') ? item.path : `${basePath}/${module}${item.path}`}
+                    to={to}
                     icon={item.icon}
                     label={item.label}
                     end={item.end}
@@ -94,7 +104,8 @@ export default function FeatureSidebar({
                     disabled={item.disabled}
                   />
                 </PermissionGate>
-              ))}
+                );
+              })}
               {showChannels && section.title === 'Publish' ? (
                 <ComposerConnectChannels
                   clientId={workspaceId}
@@ -135,7 +146,7 @@ export default function FeatureSidebar({
 }
 
 export function getFeatureSidebarMeta(module) {
-  const navSet = NAV_SETS[module] ;//|| NAV_SETS.analytics;
+  const navSet = NAV_SETS[module] || NAV_SETS.analytics;
   return {
     label: navSet.label,
     subtitle: navSet.subtitle,
@@ -308,9 +319,13 @@ const NAV_SETS = {
         title: 'Setup',
         items: [
           { label: 'Approvals',     icon: ClipboardCheck, path: '/approvals',     permission: 'composer.approve',
-            badgeKey: 'pending_approvals' }
-          // { label: 'Manage connections',     icon: ClipboardCheck, path: '/approvals',     permission: 'composer.approve',
-          //   badgeKey: 'pending_approvals' },
+            badgeKey: 'pending_approvals' },
+             {
+            label: 'Manage connections',
+            icon: Link2,
+            pathKey: 'settings',
+            permission: 'composer.view',
+          },
           // { label: 'Notifications', icon: Bell,           path: '/notifications',
           //   badgeKey: 'unread_notifications' },
           // { label: 'Audit Log',     icon: ShieldCheck,    path: '/audit-log',     permission: 'audit.view' },
