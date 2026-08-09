@@ -15,6 +15,7 @@ const AnalyticsPage     = lazy(() => import('../pages/AnalyticsPage'));
 const ReportsPage       = lazy(() => import('../pages/ReportsPage'));
 const MyPostsPage       = lazy(() => import('../pages/MyPostsPage'));
 const CalendarPage      = lazy(() => import('../pages/CalendarPage'));
+const PostManagementPage  = lazy(() => import('../pages/PostManagementPage'));
 const CaptionWriterPage = lazy(() => import('../pages/CaptionWriterPage'));
 const PostIdeasPage     = lazy(() => import('../pages/PostIdeasPage'));
 const ROICalculatorPage = lazy(() => import('../pages/ROICalculatorPage'));
@@ -74,6 +75,7 @@ export default function AnalyticsModule({ isAdmin = false, clientId = null }) {
         <Route path="reports"      element={<ReportsPage />} />
         <Route path="posts"        element={<MyPostsPage />} />
         <Route path="calendar"     element={<CalendarPage clientId={clientId} />} />
+        <Route path="post-management" element={<PostManagementPage />} />
         <Route path="caption-writer" element={<CaptionWriterPage />} />
         <Route path="post-ideas"   element={<PostIdeasPage />} />
         <Route path="hashtags"     element={<CaptionWriterPage defaultTab="hashtag" />} />

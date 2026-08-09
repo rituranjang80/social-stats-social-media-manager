@@ -208,3 +208,21 @@ class IsSuperAdminRole(BasePermission):
             return request.user.profile.role == 'superadmin'
         except Exception:
             return False
+
+
+class IsSuperAdminOrPermission(BasePermission):
+    """Superadmin or holder of a permission code on the view (`required_permission`)."""
+
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        try:
+            profile = request.user.profile
+        except Exception:
+            return False
+        if profile.role == 'superadmin':
+            return True
+        code = getattr(view, 'required_permission', None)
+        if not code:
+            return False
+        return PermissionChecker.has_permission(profile, code)

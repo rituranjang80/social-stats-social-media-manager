@@ -135,3 +135,99 @@ reference page is frontend\public\Brightbean\approval My Workspace - Brightbean_
 do the perfect
 other fuctionlity must not be break
 
+
+on page http://localhost:3000/admin/analytics/calendar
+all checked and unchecked is not working properly on xpath=//*[@id="main-content"]/div/div/div[1]/div[2]/div[2]/div[2]/div/label
+child must be checked or unchecked according to parents
+
+on page http://localhost:3000/admin/analytics/calendar
+parent checked and unchecked is  working properly on xpath=//*[@id="main-content"]/div/div/div[1]/div[2]/div[2]/div[2]/div/label but not show unchecked also  when indivisual  click on childes check box then checked and unchecked is  working properly  but not show unchecked 
+
+
+
+ page http://localhost:3000/admin/analytics/calendar
+xpath //*[@id="main-content"]/div/div/div[1]/div[2]
+all the above xpath element functionaliy apply on page 
+http://localhost:3000/admin/analytics/calendar?mode=list 
+so all the filter xpath //*[@id="main-content"]/div/div/div[1]/div[2]
+ on 
+Queue
+Drafts
+Approvals
+Sent
+All
+
+Review
+
+Client
+
+Approved
+
+Rejected
+
+Changes
+
+Hold
+
+we not require any hardcode value all values comes from data base
+
+resolve the issue
+we not show any changes of page http://localhost:3000/admin/analytics/calendar?mode=list&view=agenda&tab=approvals
+we reqire all of the components on page  http://localhost:3000/admin/analytics/calendar?mode=list&view=agenda&tab=approvals
+
+from  page http://localhost:3000/admin/analytics/calendar
+xpath //*[@id="main-content"]/div/div/div[1]/div[2]
+
+so all the filter xpath //*[@id="main-content"]/div/div/div[1]/div[2]
+ on 
+Queue
+Drafts
+Approvals
+Sent
+All
+
+Review
+
+Client
+
+Approved
+
+Rejected
+
+Changes
+
+Hold
+
+python manage.py migrate 
+
+we not require any hardcode value all values comes from database
+
+only change apply in list view http://localhost:3000/admin/analytics/calendar?mode=list
+In page 
+http://localhost:3000/admin/analytics/calendar?mode=list&view=agenda&year=2026&month=11&tab=queue date filter is not proper working we require date range filter it must filter on server side it default range must be 1 month ago from today date
+remove the //*[@id="main-content"]/div/div/div[1]/div[2]/div[1]/span
+//*[@id="main-content"]/div/div/div[1]/div[2]/div[1]/div[1]
+//*[@id="main-content"]/div/div/div[1]/div[2]/div[1]/h2
+//*[@id="main-content"]/div/div/div[1]/div[2]/div[1]/button
+//*[@id="main-content"]/div/div/div[1]/div[2]/div[1]/div[2]
+
+
+
+write a post management page they display all post in beautifull format only upcoming post status change post background color must be status color , also configure the RBAC rule ,also update the setting page post management is enable then work other it disable both front-end and backend
+refernce page http://localhost:3000/admin/analytics/calendar?mode=list
+filter page //*[@id="main-content"]/div/div/div[1]/div[2]
+RBAC page http://localhost:3000/admin/management
+setting page http://localhost:3000/admin/account-settings
+not use any hardcode use the table for it, also use the team management see the page http://localhost:3000/admin/management
+reuse the react component and python code all is working so not break anything
+
+
+
+UI format is not good of page
+http://localhost:3000/admin/analytics/post-management
+improve the layout of page for user beautifull layout and deflaut status (Pending Review,hold) must be selected date range today to one month 
+of every xpath link must be open in new tabs xpath //*[@id="main-content"]/div/div/div/div[3]/section[1]/div/article[2]/div[2]/a
+
+
+please not change the filter  layout  //*[@id="main-content"]/div/div/div/div[1] it show must be as previous
+remove the open in compose button/link whenever any one click on tile //*[@id="main-content"]/div/div/div/div[2]/section[4]/div[2]/article[1]/div[2]/div[2]/p the compose with current post open page open in new tab , we require less space but better ui

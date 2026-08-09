@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added — Post Management module
+
+- **Analytics → Post Management** (`/admin/analytics/post-management`): defaults **today → +1 month**, status filters **Pending Review** + **On Hold**; card layout refresh; composer links open in new tabs.
+- **RBAC** (Team & permissions): `post_management.view`, `post_management.change_status`, `post_management.configure` seeded in the **`Permission`** table.
+- **Workspace toggle**: **`ClientPageConfig.show_post_management`** — enable/disable in **Account settings → Workspace features** or **Management → Portal config**. API: **`GET/PUT /api/post-management/settings/`**, **`GET /api/post-management/posts/`**, **`PATCH /api/post-management/posts/<id>/status/`** (403 when disabled).
+
 ### Fixed — Sudden logout (~15 min) with valid session
 
 - **JWT refresh rotation**: the API blacklists the old refresh token on each refresh (`ROTATE_REFRESH_TOKENS`). The SPA now **stores the new `refresh` token** from `POST /api/auth/refresh/` (401 handler, idle refresh, and app bootstrap). Previously only `access` was updated, so the next refresh failed and cleared the session (`NotAuthenticated`).

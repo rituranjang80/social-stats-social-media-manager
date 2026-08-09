@@ -154,6 +154,7 @@ def _make_jwt(user):
                     'show_posts_section':   cfg.show_posts_section,
                     'show_roi_section':     cfg.show_roi_section,
                     'show_calendar':        cfg.show_calendar,
+                    'show_post_management': cfg.show_post_management,
                     'show_reviews_section': cfg.show_reviews_section,
                     'custom_accent_color':  cfg.custom_accent_color,
                     'welcome_message':      cfg.welcome_message,

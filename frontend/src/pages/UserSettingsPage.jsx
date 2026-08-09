@@ -17,7 +17,7 @@ import {
   User, Lock, Building2, Camera, Save, Loader2,
   Eye, EyeOff, CheckCircle, AlertTriangle, X,
   LogOut, Shield, Mail, Trash2,
-  Bell, Palette, Keyboard, Key, Database, Webhook, MoreHorizontal, FileText,
+  Bell, Palette, Keyboard, Key, Database, Webhook, MoreHorizontal, FileText, Layers,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -32,6 +32,7 @@ import {
   DataPrivacySection,
   WebhooksSection,
   CrossLinksSection,
+  WorkspaceFeaturesSection,
 } from './settings/SettingsSections';
 import { MFAManager, ActiveSessionsList } from './settings/SecuritySections';
 
@@ -51,6 +52,7 @@ const TAB_GROUPS = [
     label: 'Workspace',
     items: [
       { id: 'notifications',   label: 'Notifications',    icon: Bell },
+      { id: 'workspace',       label: 'Workspace features', icon: Layers },
       { id: 'appearance',      label: 'Appearance',       icon: Palette },
       { id: 'shortcuts',       label: 'Keyboard',         icon: Keyboard },
     ],
@@ -121,6 +123,7 @@ export default function UserSettingsPage() {
             <AgencyTab user={user} refreshAuth={refreshAuth} navigate={navigate} />
           )}
           {tab === 'notifications' && <NotificationsSection />}
+          {tab === 'workspace'     && <WorkspaceFeaturesSection />}
           {tab === 'appearance'    && <AppearanceSection />}
           {tab === 'shortcuts'     && <KeyboardShortcutsSection />}
           {tab === 'api'           && <APIKeysSection />}

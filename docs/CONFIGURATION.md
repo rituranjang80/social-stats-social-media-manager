@@ -272,3 +272,4 @@ These have working defaults and rarely need changing:
 | `AI_DEFAULT_MODEL` | `claude-sonnet-4-6` | Default Claude model. |
 | `AI_FAST_MODEL` | `claude-haiku-4-5-20251001` | Fast/cheap model for light tasks. |
 | `AI_DEEP_MODEL` | `claude-opus-4-7` | Highest-capability model for deep tasks. |
+| *(schema)* **`ClientPageConfig.show_post_management`** | `True` | Per-client flag: Analytics → **Post Management** and `GET /api/post-management/*`. Toggle via Account settings or Management portal config. Migration **`0072_post_management_feature`**. |

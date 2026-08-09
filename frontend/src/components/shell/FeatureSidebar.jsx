@@ -253,6 +253,7 @@ const NAV_SETS = {
         items: [
           { label: 'Composer',      icon: PenSquare,   path: '/composer',  permission: 'composer.view' },
           { label: 'Calendar',      icon: CalendarDays, path: '/calendar', permission: 'calendar.view' },
+          { label: 'Post Management', icon: ListChecks, path: '/post-management', permission: 'post_management.view' },
          // { label: 'Queues',        icon: Layers,      path: '/queues',    permission: 'composer.view' },
           { label: 'Media Library', icon: Images,      path: '/media',     permission: 'composer.view' },
           { label: 'Video Studio',  icon: Film,        path: '/video',     permission: 'video.view' },
@@ -303,18 +304,18 @@ const NAV_SETS = {
       //     { label: 'Competitors', icon: TrendingUp, path: '/competitors', permission: 'competitors.view' },
       //   ],
       // },
-      // {
-      //   title: 'Setup',
-      //   items: [
-      //     // { label: 'Approvals',     icon: ClipboardCheck, path: '/approvals',     permission: 'composer.approve',
-      //     //   badgeKey: 'pending_approvals' },
-      //     { label: 'Manage connections',     icon: ClipboardCheck, path: '/approvals',     permission: 'composer.approve',
-      //       badgeKey: 'pending_approvals' },
-      //     // { label: 'Notifications', icon: Bell,           path: '/notifications',
-      //     //   badgeKey: 'unread_notifications' },
-      //     // { label: 'Audit Log',     icon: ShieldCheck,    path: '/audit-log',     permission: 'audit.view' },
-      //   ],
-      // },
+      {
+        title: 'Setup',
+        items: [
+          { label: 'Approvals',     icon: ClipboardCheck, path: '/approvals',     permission: 'composer.approve',
+            badgeKey: 'pending_approvals' }
+          // { label: 'Manage connections',     icon: ClipboardCheck, path: '/approvals',     permission: 'composer.approve',
+          //   badgeKey: 'pending_approvals' },
+          // { label: 'Notifications', icon: Bell,           path: '/notifications',
+          //   badgeKey: 'unread_notifications' },
+          // { label: 'Audit Log',     icon: ShieldCheck,    path: '/audit-log',     permission: 'audit.view' },
+        ],
+      },
     ],
   },
 

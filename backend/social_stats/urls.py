@@ -32,6 +32,9 @@ from .calendar_views import (
     CalendarPostViewSet, CalendarNoteViewSet,
     PostingScheduleViewSet, SuggestTimesView, CalendarPostStatusesView,
 )
+from .post_management_views import (
+    PostManagementSettingsView, PostManagementPostsView, PostManagementStatusView,
+)
 from .oauth_views import (
     facebook_oauth_start, facebook_oauth_callback, facebook_consumer_callback,
     google_oauth_start, google_oauth_callback,
@@ -489,6 +492,9 @@ urlpatterns = [
     # Calendar
     path('calendar/suggest-times/', SuggestTimesView.as_view(), name='calendar_suggest_times'),
     path('calendar/post-statuses/', CalendarPostStatusesView.as_view(), name='calendar_post_statuses'),
+    path('post-management/settings/', PostManagementSettingsView.as_view(), name='post_management_settings'),
+    path('post-management/posts/', PostManagementPostsView.as_view(), name='post_management_posts'),
+    path('post-management/posts/<int:pk>/status/', PostManagementStatusView.as_view(), name='post_management_status'),
 
     # Access Management (superadmin only)
     path('management/staff/',                              StaffListView.as_view(),               name='mgmt_staff_list'),

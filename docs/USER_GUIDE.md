@@ -110,6 +110,14 @@ python manage.py seed_calendar_status_posts --client=<workspace-uuid> --replace
 
 **List mode** shows composer posts from **all months** (Queue, Drafts, Sent, etc.). **Calendar mode** only shows posts in the **month you are viewing** — after seeding demo data, move to **Oct / Nov / Dec 2026** with the calendar arrows or open e.g. `?mode=calendar&year=2026&month=10`. Titles start with `[Demo Calendar]`.
 
+### Post Management
+**Route:** `/admin/analytics/post-management` (admin) or `/dashboard/analytics/post-management` (client portal when enabled).
+
+Dedicated **upcoming posts** board (excludes Sent-tab statuses from the database). Cards use the **same status colors** as Publish calendar. **Toolbar** matches Publish **list mode** (unchanged layout). **Defaults:** date range **today → one month ahead**, status filters **Pending Review** and **On Hold**. Click a **composer post row** to open it in Composer (**new tab**); no separate link button.
+
+- **Enable/disable:** **Account settings → Workspace features → Post Management**, or **Management → client → Portal config** (`ClientPageConfig.show_post_management`). When off, the API returns **403** and the page shows a disabled message.
+- **Permissions** (Management → staff/client): `post_management.view` (see the page), `post_management.change_status` (status dropdown on cards), `post_management.configure` (toggle the workspace feature in Account settings).
+
 **Manage workspaces & team access** (other admin pages — not on the composer):
 
 ### Client invitations

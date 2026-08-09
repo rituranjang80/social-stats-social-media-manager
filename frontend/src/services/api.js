@@ -494,6 +494,13 @@ export const calendarAPI = {
   suggestTimes: (params)   => api.get('/calendar/suggest-times/',       { params }),
 };
 
+export const postManagementAPI = {
+  getSettings: (params) => api.get('/post-management/settings/', { params }),
+  saveSettings: (data) => api.put('/post-management/settings/', data),
+  getPosts: (params) => api.get('/post-management/posts/', { params }),
+  updateStatus: (id, data) => api.patch(`/post-management/posts/${id}/status/`, data),
+};
+
 // ── GMB Business Info & Reviews ───────────────────────
 export const gmbAPI = {
   info:    (clientId)         => api.get(`/gmb/info/${clientId}/`),

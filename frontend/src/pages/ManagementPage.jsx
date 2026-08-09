@@ -254,6 +254,7 @@ function PortalConfigPanel({ clientId }) {
     { key: 'show_posts_section',   label: 'Posts Section' },
     { key: 'show_roi_section',     label: 'ROI Section' },
     { key: 'show_calendar',        label: 'Content Calendar' },
+    { key: 'show_post_management', label: 'Post Management' },
     { key: 'show_reviews_section', label: 'Reviews Section' },
     { key: 'show_export_button',   label: 'Export Button' },
     { key: 'show_sync_button',     label: 'Sync Button' },

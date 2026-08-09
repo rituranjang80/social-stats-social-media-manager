@@ -23,6 +23,9 @@ import {
 } from 'lucide-react';
 
 import { useTheme } from '../../hooks/useTheme';
+import { useAuth } from '../../hooks/useAuth';
+import useWorkspace from '../../hooks/useWorkspace';
+import { usePostManagementSettings } from '../../hooks/usePostManagement';
 import Button from '../../components/ui/Button';
 import Switch from '../../components/ui/Switch';
 import Card from '../../components/ui/Card';
@@ -779,7 +782,94 @@ export function WebhooksSection() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// 7. Cross-link cards — for sections that live as separate pages
+// 7. Workspace features (DB-backed ClientPageConfig)
+// ─────────────────────────────────────────────────────────────────────────
+
+export function WorkspaceFeaturesSection() {
+  const { user } = useAuth();
+  const { workspaceId, workspace, loading: wsLoading } = useWorkspace({ user, autoHydrate: true });
+  const {
+    settings,
+    loading,
+    saveEnabled,
+    refetch,
+  } = usePostManagementSettings(workspaceId);
+  const [saving, setSaving] = useState(false);
+
+  const canConfigure = settings?.can_configure;
+  const enabled = !!settings?.enabled;
+
+  async function onToggle(next) {
+    if (!workspaceId || !canConfigure) return;
+    setSaving(true);
+    try {
+      await saveEnabled(next);
+      toast.success(next ? 'Post management enabled' : 'Post management disabled');
+    } catch (e) {
+      toast.error(e.response?.data?.error || 'Could not save');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (wsLoading || loading) {
+    return (
+      <SectionContainer title="Workspace features" description="Loading workspace settings…">
+        <Card padding="md"><span style={{ color: 'var(--text-tertiary)', fontSize: 13 }}>Loading…</span></Card>
+      </SectionContainer>
+    );
+  }
+
+  if (!workspaceId) {
+    return (
+      <SectionContainer title="Workspace features" description="Select a workspace in the top bar first.">
+        <Card padding="md">
+          <EmptyState compact title="No workspace" description="Switch workspace to configure features." />
+        </Card>
+      </SectionContainer>
+    );
+  }
+
+  return (
+    <SectionContainer
+      title="Workspace features"
+      description={`Toggle modules for ${workspace?.label || 'this workspace'}. Changes apply immediately for all users on that client.`}
+    >
+      <Card padding="md">
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
+              Post Management
+            </div>
+            <p style={{ margin: 0, fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              Upcoming-post board at Analytics → Post Management. Requires the
+              {' '}
+              <code style={{ fontSize: 12 }}>post_management.view</code>
+              {' '}
+              permission (Team &amp; permissions).
+            </p>
+          </div>
+          <Switch
+            checked={enabled}
+            disabled={!canConfigure || saving}
+            onChange={onToggle}
+          />
+        </div>
+        {!canConfigure ? (
+          <p style={{ margin: '12px 0 0', fontSize: 12, color: 'var(--text-tertiary)' }}>
+            You need the Post Management → Configure permission or superadmin access to change this.
+          </p>
+        ) : null}
+        <div style={{ marginTop: 12 }}>
+          <Button variant="ghost" size="sm" onClick={() => refetch()}>Refresh</Button>
+        </div>
+      </Card>
+    </SectionContainer>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 8. Cross-link cards — for sections that live as separate pages
 // ─────────────────────────────────────────────────────────────────────────
 export function CrossLinksSection({ user }) {
   const isStaff = user?.role === 'superadmin' || user?.role === 'staff';

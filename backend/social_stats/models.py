@@ -1042,6 +1042,7 @@ PERMISSION_PAGE_GROUPS = {
     'dashboard': {'label': 'Dashboard',         'icon': '📊', 'prefix': 'dashboard.'},
     'analytics': {'label': 'Analytics',         'icon': '📈', 'prefix': 'analytics.'},
     'calendar':  {'label': 'Content Calendar',  'icon': '📅', 'prefix': 'calendar.'},
+    'post_management': {'label': 'Post Management', 'icon': '📋', 'prefix': 'post_management.'},
     'roi':       {'label': 'ROI Calculator',    'icon': '💰', 'prefix': 'roi.'},
     'reports':   {'label': 'Reports',           'icon': '📄', 'prefix': 'reports.'},
     'alerts':    {'label': 'Alerts',            'icon': '🔔', 'prefix': 'alerts.'},
@@ -1137,6 +1138,7 @@ class ClientPageConfig(models.Model):
     show_reviews_section = models.BooleanField(default=False)
     show_roi_section     = models.BooleanField(default=False)
     show_calendar        = models.BooleanField(default=False)
+    show_post_management = models.BooleanField(default=True)
     default_platform     = models.CharField(max_length=30, default='all')
     default_date_range   = models.IntegerField(default=30)
     custom_logo_url      = models.URLField(blank=True)

@@ -410,6 +410,7 @@ class ClientPortalConfigView(APIView):
             'show_reviews_section':  config.show_reviews_section,
             'show_roi_section':      config.show_roi_section,
             'show_calendar':         config.show_calendar,
+            'show_post_management':  config.show_post_management,
             'default_platform':      config.default_platform,
             'default_date_range':    config.default_date_range,
             'custom_logo_url':       config.custom_logo_url,
@@ -426,6 +427,7 @@ class ClientPortalConfigView(APIView):
             'portal_title', 'show_platform_tabs', 'show_date_picker',
             'show_export_button', 'show_sync_button', 'show_posts_section',
             'show_reviews_section', 'show_roi_section', 'show_calendar',
+            'show_post_management',
             'default_platform', 'default_date_range', 'custom_logo_url',
             'custom_accent_color', 'welcome_message',
         ]
