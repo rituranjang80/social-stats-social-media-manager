@@ -106,6 +106,7 @@ def _payload_to_model_fields(payload: dict[str, Any]) -> dict[str, Any]:
         'database_error': payload.get('database_error', ''),
         'suggestion': payload.get('suggestion', ''),
         'error_category': payload.get('error_category', ''),
+        'screenshot_path': payload.get('screenshot_path', ''),
     }
     uid = payload.get('authenticated_user_id')
     if uid:

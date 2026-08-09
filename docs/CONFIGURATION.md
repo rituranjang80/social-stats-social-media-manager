@@ -115,8 +115,18 @@ review in Django admin (`/django-admin/`), the React page **`/admin/error-logs`*
 | `ERROR_MONITORING_ASYNC` | No | `True` | Queue DB writes via Celery (`social_stats.error_monitoring.persist_error_log`). Falls back to sync if the broker is down. |
 | `ERROR_MONITORING_APP_NAME` | No | `social-stats` | Stored on each row as `application_name`. |
 | `ERROR_MONITORING_DEDUP_SECONDS` | No | `30` | Suppress duplicate rows with the same exception signature within this window. |
+| `ERROR_MONITORING_FRONTEND_REPORT_ENABLED` | No | `True` | Accept **`POST /api/errors/client-report/`** from the React app (ErrorBoundary, `window.onerror`, unhandled rejections). |
+| `ERROR_MONITORING_SCREENSHOT_ENABLED` | No | `True` | When the client sends a PNG (base64), save under the screenshot directory. |
+| `ERROR_MONITORING_SCREENSHOT_DIR` | No | `{MEDIA_ROOT}/error_screenshots` | Absolute path inside the backend container. **Docker default:** `/data/media/error_screenshots` (host: `social-stats-social-media-manager-start/data/media/error_screenshots/`). Served via **`/media/error_screenshots/…`**. |
 | `APP_ENV` | No | `Development` if `DEBUG=True` else `Production` | `Development` / `Staging` / `Production` label on each log. |
 | `GIT_COMMIT` | No | empty | Optional deploy revision stored on each log. |
+
+**Frontend (CRA)** — mirror in `frontend/.env`:
+
+| Variable | Default | What it does |
+|---|---|---|
+| `REACT_APP_CLIENT_ERROR_REPORTING` | on (unless `false`) | POST browser/React errors to **`/api/errors/client-report/`**. |
+| `REACT_APP_ERROR_SCREENSHOTS` | on (unless `false`) | Capture **`html2canvas`** PNG on each report (respects backend `ERROR_MONITORING_SCREENSHOT_*`). |
 
 Programmatic logging from any module:
 

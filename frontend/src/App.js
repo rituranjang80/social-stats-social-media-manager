@@ -16,6 +16,8 @@ import { RealtimeProvider } from './hooks/useRealtime';
 import { Toaster } from 'react-hot-toast';
 import { lazy, Suspense } from 'react';
 import ErrorBoundary from './components/ui/ErrorBoundary';
+import ClientErrorReporting from './components/monitoring/ClientErrorReporting';
+import { reportClientError } from './services/clientErrorReporter';
 import DialogHost from './components/ui/DialogHost';
 
 import { BrandLogoStacked } from './components/ui/BrandLogo';
@@ -333,9 +335,19 @@ export default function App() {
     <BrowserRouter>
       <BrandHead />
       <PageviewTracker />
-      <ErrorBoundary>
+      <ErrorBoundary
+        onError={(error, errorInfo, ref) => {
+          reportClientError({
+            error,
+            errorInfo,
+            source: 'error_boundary',
+            referenceId: ref,
+          });
+        }}
+      >
       <ThemeProvider>
         <AuthProvider>
+        <ClientErrorReporting />
         <QueryClientProvider client={queryClient}>
         <RealtimeProvider>
           {/*bridges WebSocket events to React Query cache

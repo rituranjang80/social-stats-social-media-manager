@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added — Frontend error logging + screenshots
+
+- **`POST /api/errors/client-report/`** persists React **`ErrorBoundary`**, **`window.onerror`**, and **unhandled rejection** events into **`ErrorLog`** (`error_category=frontend`). Optional **PNG screenshot** saved under **`ERROR_MONITORING_SCREENSHOT_DIR`** (Docker: **`/data/media/error_screenshots`**, host **`data/media/error_screenshots/`**). Staff view rows and images at **`/admin/error-logs`**. Env: **`ERROR_MONITORING_FRONTEND_REPORT_ENABLED`**, **`ERROR_MONITORING_SCREENSHOT_*`**, **`REACT_APP_CLIENT_ERROR_REPORTING`**, **`REACT_APP_ERROR_SCREENSHOTS`**.
+
 ### Added — Post Management module
 
 - **Analytics → Post Management** (`/admin/analytics/post-management`): defaults **today → +1 month**, status filters **Pending Review** + **On Hold**; card layout refresh; composer links open in new tabs.

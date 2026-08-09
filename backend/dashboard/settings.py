@@ -284,9 +284,13 @@ ERROR_MONITORING = {
     'ENABLED': _env_bool('ERROR_MONITORING_ENABLED', True),
     'ASYNC': _env_bool('ERROR_MONITORING_ASYNC', True),
     'APPLICATION_NAME': os.environ.get('ERROR_MONITORING_APP_NAME', 'social-stats'),
+    'FRONTEND_APPLICATION_NAME': os.environ.get('ERROR_MONITORING_FRONTEND_APP_NAME', ''),
     'ENVIRONMENT': os.environ.get('APP_ENV', ''),
     'DEDUP_SECONDS': int(os.environ.get('ERROR_MONITORING_DEDUP_SECONDS', '30')),
     'GIT_COMMIT': os.environ.get('GIT_COMMIT', ''),
+    'FRONTEND_REPORT_ENABLED': _env_bool('ERROR_MONITORING_FRONTEND_REPORT_ENABLED', True),
+    'SCREENSHOT_ENABLED': _env_bool('ERROR_MONITORING_SCREENSHOT_ENABLED', True),
+    'SCREENSHOT_DIR': os.environ.get('ERROR_MONITORING_SCREENSHOT_DIR', '').strip(),
 }
 
 # Interactive Swagger / ReDoc — see docs/API_SWAGGER.md

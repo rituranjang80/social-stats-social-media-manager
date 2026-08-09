@@ -359,6 +359,34 @@ export default function ErrorLogsPage() {
 
                 <h3 style={sectionTitle}>Stack trace</h3>
                 <pre style={preBlock}>{detail.full_stack_trace || '—'}</pre>
+
+                {detail.screenshot_url ? (
+                  <>
+                    <h3 style={sectionTitle}>Screenshot</h3>
+                    <p style={{ fontSize: 12, color: 'var(--text-tertiary)', marginTop: 8 }}>
+                      Saved under media (Docker: host <code>data/media/error_screenshots/</code>).
+                    </p>
+                    <a
+                      href={detail.screenshot_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ display: 'inline-block', marginTop: 8, fontSize: 13, fontWeight: 600 }}
+                    >
+                      Open full image
+                    </a>
+                    <img
+                      src={detail.screenshot_url}
+                      alt="Error screenshot"
+                      style={{
+                        display: 'block',
+                        marginTop: 12,
+                        maxWidth: '100%',
+                        borderRadius: 'var(--radius-md)',
+                        border: '1px solid var(--border-subtle)',
+                      }}
+                    />
+                  </>
+                ) : null}
               </>
             )}
           </div>

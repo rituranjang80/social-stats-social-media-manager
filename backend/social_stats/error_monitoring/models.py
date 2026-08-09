@@ -85,6 +85,12 @@ class ErrorLog(models.Model):
     resolved_at = models.DateTimeField(null=True, blank=True)
     notes = models.TextField(blank=True)
 
+    screenshot_path = models.CharField(
+        max_length=512,
+        blank=True,
+        help_text='Relative path under MEDIA_ROOT (e.g. error_screenshots/<id>.png)',
+    )
+
     class Meta:
         app_label = 'social_stats'
         ordering = ['-created_at']

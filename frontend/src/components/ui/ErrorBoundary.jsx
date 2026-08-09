@@ -38,7 +38,7 @@ export default class ErrorBoundary extends Component {
     const ref = Date.now().toString(36).toUpperCase();
     this.setState({ errorInfo, ref });
     if (typeof this.props.onError === 'function') {
-      try { this.props.onError(error, errorInfo, ref); } catch {}
+      try { this.props.onError(error, errorInfo, ref); } catch { /* ignore */ }
     }
     // Useful in development; harmless in prod (the bundler may strip)
     if (typeof console !== 'undefined') console.error('[ErrorBoundary]', error, errorInfo);

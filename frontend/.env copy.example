@@ -11,3 +11,7 @@ REACT_APP_BRAND_LOGO_URL=
 REACT_APP_FAVICON_URL=/icons/icon-192.png
 REACT_APP_APPLE_TOUCH_ICON_URL=/apple-touch-icon.png
 REACT_APP_BRAND_PRIMARY_COLOR=#00CCF5
+
+# Client error reports → POST /api/errors/client-report/ (ErrorLog + optional screenshot)
+REACT_APP_CLIENT_ERROR_REPORTING=true
+REACT_APP_ERROR_SCREENSHOTS=true

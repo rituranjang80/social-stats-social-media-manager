@@ -703,10 +703,14 @@ export const auditAPI = {
 };
 
 export const errorMonitoringAPI = {
-  list:    (params) => api.get('/errors/', { params }),
-  get:     (id)     => api.get(`/errors/${id}/`),
-  resolve: (id, data) => api.post(`/errors/${id}/resolve/`, data),
-  delete:  (id)     => api.delete(`/errors/${id}/`),
+  list:         (params) => api.get('/errors/', { params }),
+  get:          (id)     => api.get(`/errors/${id}/`),
+  resolve:      (id, data) => api.post(`/errors/${id}/resolve/`, data),
+  delete:       (id)     => api.delete(`/errors/${id}/`),
+  reportClient: (data)   => api.post('/errors/client-report/', data, {
+    skipWorkspace: true,
+    validateStatus: (s) => s === 201 || s === 204,
+  }),
 };
 
 export const notificationsAPI = {
