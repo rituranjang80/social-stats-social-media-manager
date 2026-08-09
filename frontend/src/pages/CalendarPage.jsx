@@ -526,9 +526,7 @@ function CalendarPageInner({ clientId: propClientId }) {
           currentUser={user}
         />
 
-        {mode !== 'list' ? (
-          <CalendarStatusLegend selected={statuses} onChange={setStatuses} />
-        ) : null}
+        
 
         <div className="bb-cal__content-scroll">
         {postsLoading && mode !== 'list' ? (

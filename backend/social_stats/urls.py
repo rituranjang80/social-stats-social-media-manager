@@ -34,6 +34,7 @@ from .calendar_views import (
 )
 from .post_management_views import (
     PostManagementSettingsView, PostManagementPostsView, PostManagementStatusView,
+    PostManagementStatusLogView,
 )
 from .oauth_views import (
     facebook_oauth_start, facebook_oauth_callback, facebook_consumer_callback,
@@ -495,6 +496,7 @@ urlpatterns = [
     path('post-management/settings/', PostManagementSettingsView.as_view(), name='post_management_settings'),
     path('post-management/posts/', PostManagementPostsView.as_view(), name='post_management_posts'),
     path('post-management/posts/<int:pk>/status/', PostManagementStatusView.as_view(), name='post_management_status'),
+    path('post-management/status-log/', PostManagementStatusLogView.as_view(), name='post_management_status_log'),
 
     # Access Management (superadmin only)
     path('management/staff/',                              StaffListView.as_view(),               name='mgmt_staff_list'),

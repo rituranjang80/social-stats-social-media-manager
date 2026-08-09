@@ -6,6 +6,11 @@
 
 - **`POST /api/errors/client-report/`** persists React **`ErrorBoundary`**, **`window.onerror`**, and **unhandled rejection** events into **`ErrorLog`** (`error_category=frontend`). Optional **PNG screenshot** saved under **`ERROR_MONITORING_SCREENSHOT_DIR`** (Docker: **`/data/media/error_screenshots`**, host **`data/media/error_screenshots/`**). Staff view rows and images at **`/admin/error-logs`**. Env: **`ERROR_MONITORING_FRONTEND_REPORT_ENABLED`**, **`ERROR_MONITORING_SCREENSHOT_*`**, **`REACT_APP_CLIENT_ERROR_REPORTING`**, **`REACT_APP_ERROR_SCREENSHOTS`**.
 
+### Added — Post Management status audit
+
+- **Status changes** on Post Management require a **comment**; each change is stored in **`PostManagementStatusChange`** (who, when, from/to status, comment). Also written to the workspace **Activity** feed (`post_management.status_change`).
+- **RBAC:** **`post_management.view_status_log`** — see comments and changer on post cards + **`GET /api/post-management/status-log/`** for export/analysis. Grant on **Management → Permissions** (staff/client). Existing **`post_management.change_status`** is required to update status. Migration **`0074_post_management_status_change`**.
+
 ### Added — Post Management module
 
 - **Analytics → Post Management** (`/admin/analytics/post-management`): defaults **today → +1 month**, status filters **Pending Review** + **On Hold**; card layout refresh; composer links open in new tabs.

@@ -21,6 +21,7 @@ import {
 } from '../hooks/useCalendarPostStatuses';
 import CalendarToolbar from '../components/calendar/CalendarToolbar';
 import PostManagementCard from '../components/post-management/PostManagementCard';
+import PostManagementStatusModal from '../components/post-management/PostManagementStatusModal';
 import {
   extractPlatformsFromPosts,
   extractTagsFromPosts,
@@ -76,6 +77,7 @@ function PostManagementInner() {
   const [tags, setTags] = useState([]);
   const [search, setSearch] = useState('');
   const [statusSavingKey, setStatusSavingKey] = useState('');
+  const [statusDraft, setStatusDraft] = useState(null);
 
   const { settings, loading: settingsLoading } = usePostManagementSettings(clientId);
   const { postsByDate, loading, error, refetch } = usePostManagementPosts(
@@ -86,7 +88,8 @@ function PostManagementInner() {
   const { filters: statusFilters, loading: configLoading } = usePublishCalendarConfig();
 
   const canView = can('post_management.view');
-  const canChangeStatus = can('post_management.change_status');
+  const canChangeStatus = settings?.can_change_status ?? can('post_management.change_status');
+  const canViewStatusLog = settings?.can_view_status_log ?? can('post_management.view_status_log');
   const featureOn = settings?.enabled !== false;
 
   useEffect(() => {
@@ -152,8 +155,14 @@ function PostManagementInner() {
     }
   };
 
-  const onStatusChange = async (post, nextStatus) => {
+  const onStatusChangeRequest = (post, nextStatus) => {
     if (!clientId || nextStatus === post.status) return;
+    setStatusDraft({ post, nextStatus });
+  };
+
+  const confirmStatusChange = async (comment) => {
+    if (!statusDraft || !clientId) return;
+    const { post, nextStatus } = statusDraft;
     const key = post.calendarKey || `${post.source}-${post.id}`;
     setStatusSavingKey(key);
     try {
@@ -161,8 +170,10 @@ function PostManagementInner() {
         client_id: clientId,
         status: nextStatus,
         source: post.source || 'composer',
+        comment,
       });
       toast.success('Status updated');
+      setStatusDraft(null);
       refetch();
     } catch (e) {
       toast.error(e.response?.data?.error || 'Could not update status');
@@ -286,7 +297,8 @@ function PostManagementInner() {
                         post={post}
                         statusOptions={statusSelectOptions}
                         canChangeStatus={canChangeStatus}
-                        onStatusChange={onStatusChange}
+                        canViewStatusLog={canViewStatusLog}
+                        onStatusChangeRequest={onStatusChangeRequest}
                         statusSaving={statusSavingKey === saveKey}
                         basePath={basePath}
                         clientId={clientId}
@@ -299,6 +311,15 @@ function PostManagementInner() {
           </div>
         )}
       </div>
+
+      <PostManagementStatusModal
+        open={!!statusDraft}
+        post={statusDraft?.post}
+        nextStatus={statusDraft?.nextStatus}
+        saving={!!statusSavingKey}
+        onCancel={() => setStatusDraft(null)}
+        onConfirm={confirmStatusChange}
+      />
     </div>
   );
 }

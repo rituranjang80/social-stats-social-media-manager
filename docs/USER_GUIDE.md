@@ -116,7 +116,8 @@ python manage.py seed_calendar_status_posts --client=<workspace-uuid> --replace
 Dedicated **upcoming posts** board (excludes Sent-tab statuses from the database). Cards use the **same status colors** as Publish calendar. **Toolbar** matches Publish **list mode** (unchanged layout). **Defaults:** date range **today → one month ahead**, status filters **Pending Review** and **On Hold**. Click a **composer post row** to open it in Composer (**new tab**); no separate link button.
 
 - **Enable/disable:** **Account settings → Workspace features → Post Management**, or **Management → client → Portal config** (`ClientPageConfig.show_post_management`). When off, the API returns **403** and the page shows a disabled message.
-- **Permissions** (Management → staff/client): `post_management.view` (see the page), `post_management.change_status` (status dropdown on cards), `post_management.configure` (toggle the workspace feature in Account settings).
+- **Status changes:** choosing a new status opens a **comment** dialog (required). The change is logged with user, timestamp, and note for later analysis.
+- **Permissions** (Management → staff/client): `post_management.view` (see the page), `post_management.change_status` (change status + comment), `post_management.view_status_log` (see audit notes on cards and call `GET /api/post-management/status-log/`), `post_management.configure` (toggle the workspace feature in Account settings).
 
 **Manage workspaces & team access** (other admin pages — not on the composer):
 

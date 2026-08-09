@@ -499,6 +499,7 @@ export const postManagementAPI = {
   saveSettings: (data) => api.put('/post-management/settings/', data),
   getPosts: (params) => api.get('/post-management/posts/', { params }),
   updateStatus: (id, data) => api.patch(`/post-management/posts/${id}/status/`, data),
+  getStatusLog: (params) => api.get('/post-management/status-log/', { params }),
 };
 
 // ── GMB Business Info & Reviews ───────────────────────

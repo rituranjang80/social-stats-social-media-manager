@@ -45,3 +45,42 @@ class PostManagementApiTests(APITestCase):
             'date_to': (timezone.now().date() + timezone.timedelta(days=30)).isoformat(),
         })
         self.assertEqual(res.status_code, 403)
+
+    def test_status_change_requires_comment_and_logs(self):
+        from social_stats.post_management_models import PostManagementStatusChange
+
+        self.client.force_authenticate(user=self.agency)
+        post = UnifiedPost.objects.filter(client=self.client_row).first()
+        res = self.client.patch(
+            f'/api/post-management/posts/{post.pk}/status/',
+            {
+                'client_id': self.client_row.id,
+                'status': 'draft',
+                'source': 'composer',
+                'comment': 'Moving back for edits',
+            },
+            format='json',
+        )
+        self.assertEqual(res.status_code, 200)
+        post.refresh_from_db()
+        self.assertEqual(post.status, 'draft')
+        log = PostManagementStatusChange.objects.filter(
+            client=self.client_row, post_id=post.pk, post_source='composer',
+        ).first()
+        self.assertIsNotNone(log)
+        self.assertEqual(log.comment, 'Moving back for edits')
+        self.assertEqual(log.changed_by_id, self.agency.pk)
+
+    def test_status_change_rejects_missing_comment(self):
+        self.client.force_authenticate(user=self.agency)
+        post = UnifiedPost.objects.filter(client=self.client_row).first()
+        res = self.client.patch(
+            f'/api/post-management/posts/{post.pk}/status/',
+            {
+                'client_id': self.client_row.id,
+                'status': 'draft',
+                'source': 'composer',
+            },
+            format='json',
+        )
+        self.assertEqual(res.status_code, 400)

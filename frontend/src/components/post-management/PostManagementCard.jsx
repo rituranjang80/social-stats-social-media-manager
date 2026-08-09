@@ -21,11 +21,21 @@ function captionPreview(post) {
   return t.length > 160 ? `${t.slice(0, 160)}…` : t;
 }
 
+function formatChangeWhen(iso) {
+  if (!iso) return '';
+  try {
+    return format(parseISO(iso), 'MMM d, yyyy h:mm a');
+  } catch {
+    return iso;
+  }
+}
+
 export default function PostManagementCard({
   post,
   statusOptions,
   canChangeStatus,
-  onStatusChange,
+  canViewStatusLog,
+  onStatusChangeRequest,
   statusSaving,
   basePath,
   clientId,
@@ -45,10 +55,14 @@ export default function PostManagementCard({
   const handleStatusSelect = (e) => {
     e.stopPropagation();
     const nextKey = e.target.value;
+    if (nextKey === filterKey) return;
     const opt = (statusOptions || []).find((o) => o.value === nextKey);
     const raw = opt?.rawStatus || nextKey;
-    onStatusChange?.(post, raw);
+    onStatusChangeRequest?.(post, raw);
+    e.target.value = filterKey;
   };
+
+  const latest = post.latest_status_change;
 
   const onTileActivate = () => {
     if (composerLink) {
@@ -83,6 +97,16 @@ export default function PostManagementCard({
             </span>
             <span className="bb-pm-card__when">{when}</span>
           </div>
+          {canViewStatusLog && latest?.comment ? (
+            <p className="bb-pm-card__audit" title={latest.comment}>
+              <span className="bb-pm-card__audit-meta">
+                {latest.changed_by?.name || latest.changed_by?.username || 'Someone'}
+                {' · '}
+                {formatChangeWhen(latest.changed_at)}
+              </span>
+              {latest.comment}
+            </p>
+          ) : null}
         </div>
       </div>
 
@@ -116,7 +140,8 @@ PostManagementCard.propTypes = {
   post: PropTypes.object.isRequired,
   statusOptions: PropTypes.arrayOf(PropTypes.object),
   canChangeStatus: PropTypes.bool,
-  onStatusChange: PropTypes.func,
+  canViewStatusLog: PropTypes.bool,
+  onStatusChangeRequest: PropTypes.func,
   statusSaving: PropTypes.bool,
   basePath: PropTypes.string,
   clientId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
