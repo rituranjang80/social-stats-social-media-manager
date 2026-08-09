@@ -41,6 +41,12 @@ time-series API. With demo data you'll see 90 days of charts; with real connecte
 accounts (see [CONNECT_ACCOUNTS.md](CONNECT_ACCOUNTS.md)) it shows live numbers.
 AI-narrated monthly reports summarize the trends in plain language.
 
+Open **Analytics → Analytics** (`/admin/analytics/analytics`). **Switch workspace** in the top bar includes **All workspaces** (combined KPIs and platform charts) or one workspace (time-series from stored metrics).
+
+- **Date range** and **Sync data** — pull social metrics into the database (`DailyMetric`); uses the same sync jobs as the per-client dashboard.
+- **Social channel filter** — same control as **Calendar**; empty = all channels; narrow charts by connected platform/account.
+- No OAuth for the active workspace? Use **Connect accounts** in workspace settings, then **Sync data**.
+
 ![Analytics dashboard](images/dashboard.png)
 
 ### Composer + scheduling
@@ -221,6 +227,14 @@ row and in the live platform Preview panel.
 ### Unified inbox
 One queue across DMs, comments, and Google reviews, with **AI reply suggestions**
 in your brand voice. Reply, assign, and resolve from a single screen.
+
+**Demo / QA data** (no live OAuth required):
+
+```bash
+docker compose exec backend python manage.py seed_inbox_demo --replace
+```
+
+Select a **workspace** in the top bar (inbox is scoped per client). Sample threads cover **Comments**, **DMs**, **Mentions**, **Reviews**, platform pills, sentiment, **Unread** / **Starred** filters, and search (try `Priya` or `refund`). **Star**, **Archive**, **Resolve**, and **Reply** work on demo threads when `INBOX_DEMO_REPLY=true` (default with `DEBUG=true`) and demo credentials were seeded.
 
 ![Unified inbox](images/inbox.png)
 

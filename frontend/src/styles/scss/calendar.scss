@@ -2267,3 +2267,9 @@ input.bb-cal__card-pin-input {
   grid-area: time-platforms;
   justify-self: end;
 }
+.bb-cal__multi.bb-cal-channel-filter__panel {
+  background-color: white;
+  border: 1px solid rgb(226, 232, 240);
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px;
+  margin-top: 8px;
+}

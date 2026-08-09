@@ -175,6 +175,9 @@ def _env_bool(name: str, default: bool) -> bool:
         return default
     return raw.strip().lower() in ('1', 'true', 'yes', 'on')
 
+# When true, inbox replies using demo_inbox_* credentials skip live publisher APIs.
+INBOX_DEMO_REPLY = _env_bool('INBOX_DEMO_REPLY', DEBUG)
+
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT     = _env_bool('SECURE_SSL_REDIRECT',     not DEBUG)
 

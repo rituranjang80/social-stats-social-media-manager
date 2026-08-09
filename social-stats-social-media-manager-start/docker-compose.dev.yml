@@ -28,6 +28,7 @@ services:
       CHOKIDAR_USEPOLLING: ${CHOKIDAR_USEPOLLING:-true}
       WATCHPACK_POLLING: ${WATCHPACK_POLLING:-true}
       NPM_INSTALL: ${NPM_INSTALL:-always}
+      GENERATE_SOURCEMAP: ${GENERATE_SOURCEMAP:-false}
     volumes:
       - ${SOURCE_REL}/frontend:/app/frontend
       - frontend_node_modules:/app/frontend/node_modules

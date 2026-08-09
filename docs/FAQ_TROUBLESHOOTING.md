@@ -17,6 +17,19 @@ alternative to tools like Hootsuite, Buffer, and Sprout Social. See
 
 ---
 
+## Frontend dev (Docker / localhost:3000)
+
+### `Module build failed` / `source-map-loader` / `Unknown system error -61`
+On **Docker bind mounts** (especially Windows), Create React App’s **source-map-loader** can fail while reading sources. Set in **`frontend/.env`**:
+
+```env
+GENERATE_SOURCEMAP=false
+```
+
+Restart the frontend container (`docker compose … restart frontend`). Dev compose in **`social-stats-social-media-manager-start`** sets this by default via **`GENERATE_SOURCEMAP=false`**.
+
+---
+
 ## Auth & sessions
 
 ### I get signed out while I am still working

@@ -7,6 +7,7 @@ import { clientsAPI } from '../services/api';
 import { useAppStore, useCurrentClientId } from '../stores/appStore';
 import { queryClient } from '../services/queryClient';
 import { workspaceRouteRef } from '../utils/workspacePaths';
+import { ALL_WORKSPACES, ALL_WORKSPACES_ID, isAllWorkspacesId } from '../constants/workspace';
 
 function initialFrom(name = '') {
   const t = String(name || '').trim();
@@ -72,15 +73,19 @@ export default function useWorkspace({ user, autoHydrate = true } = {}) {
         setWorkspaces(rows);
 
         const storeId = useAppStore.getState().currentClientId;
-        const preferredId = storeId || fallbackId;
-        const match = rows.find((w) => (
-          String(w.id) === String(preferredId)
-          || (w.publicId && String(w.publicId) === String(preferredId))
-        )) || rows[0] || null;
-        if (match && String(match.id) !== String(storeId)) {
-          setCurrentClient(match);
-        } else if (!match && storeId) {
-          setCurrentClient(null);
+        if (isAllWorkspacesId(storeId)) {
+          setCurrentClient(ALL_WORKSPACES);
+        } else {
+          const preferredId = storeId || fallbackId;
+          const match = rows.find((w) => (
+            String(w.id) === String(preferredId)
+            || (w.publicId && String(w.publicId) === String(preferredId))
+          )) || rows[0] || null;
+          if (match && String(match.id) !== String(storeId)) {
+            setCurrentClient(match);
+          } else if (!match && storeId) {
+            setCurrentClient(null);
+          }
         }
       } catch {
         if (!cancelled) setWorkspaces([]);
@@ -93,21 +98,28 @@ export default function useWorkspace({ user, autoHydrate = true } = {}) {
     return () => { cancelled = true; };
   }, [user, fallbackId, setCurrentClient, setWorkspaces, setWorkspacesLoading, autoHydrate]);
 
-  const workspaceId = currentClientId || fallbackId || null;
+  const isAllWorkspaces = isAllWorkspacesId(currentClientId);
+  const workspaceId = isAllWorkspaces
+    ? null
+    : (currentClientId || fallbackId || null);
 
   const workspace = useMemo(() => {
-    const found = workspaces.find((w) => String(w.id) === String(workspaceId));
+    if (isAllWorkspacesId(currentClientId)) {
+      return ALL_WORKSPACES;
+    }
+    const found = workspaces.find((w) => String(w.id) === String(currentClientId || fallbackId));
     if (found) return found;
     const stored = useAppStore.getState().currentClient;
-    if (stored && String(stored.id) === String(workspaceId)) {
+    const resolvedId = currentClientId || fallbackId;
+    if (stored && String(stored.id) === String(resolvedId)) {
       return typeof stored.label === 'string' ? stored : normalizeWorkspace(stored);
     }
-    if (workspaceId) {
+    if (resolvedId) {
       return {
-        id: workspaceId,
-        label: `Workspace #${workspaceId}`,
-        company: `Workspace #${workspaceId}`,
-        name: `Workspace #${workspaceId}`,
+        id: resolvedId,
+        label: `Workspace #${resolvedId}`,
+        company: `Workspace #${resolvedId}`,
+        name: `Workspace #${resolvedId}`,
         slug: null,
         initial: 'W',
         logo: null,
@@ -115,13 +127,15 @@ export default function useWorkspace({ user, autoHydrate = true } = {}) {
       };
     }
     return null;
-  }, [workspaces, workspaceId]);
+  }, [workspaces, currentClientId, fallbackId]);
 
   const workspaceRef = workspaceRouteRef(workspace) || workspaceId;
 
   const switchWorkspace = useCallback(async (ws) => {
     if (!ws?.id) return;
-    const normalized = typeof ws.label === 'string' ? ws : normalizeWorkspace(ws);
+    const normalized = isAllWorkspacesId(ws.id)
+      ? ALL_WORKSPACES
+      : (typeof ws.label === 'string' ? ws : normalizeWorkspace(ws));
     const prev = useAppStore.getState().currentClientId;
     if (String(normalized.id) === String(prev)) return;
 
@@ -141,6 +155,9 @@ export default function useWorkspace({ user, autoHydrate = true } = {}) {
     workspace,
     workspaces,
     switchWorkspace,
+    isAllWorkspaces,
     canSwitch: workspaces.length > 1,
   };
 }
+
+export { ALL_WORKSPACES, ALL_WORKSPACES_ID };

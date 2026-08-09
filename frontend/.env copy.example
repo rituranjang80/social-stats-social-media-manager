@@ -15,3 +15,6 @@ REACT_APP_BRAND_PRIMARY_COLOR=#00CCF5
 # Client error reports → POST /api/errors/client-report/ (ErrorLog + optional screenshot)
 REACT_APP_CLIENT_ERROR_REPORTING=true
 REACT_APP_ERROR_SCREENSHOTS=true
+
+# Docker dev on Windows/macOS bind mounts: avoids source-map-loader read errors (errno -61)
+GENERATE_SOURCEMAP=false

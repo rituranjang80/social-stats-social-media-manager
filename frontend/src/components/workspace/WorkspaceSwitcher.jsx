@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { ChevronDown, Layers, Plus, Search } from 'lucide-react';
 
 import '../../styles/scss/workspace-switcher.scss';
+import { ALL_WORKSPACES, isAllWorkspacesId } from '../../constants/workspace';
 
 function matchesQuery(workspace, q) {
   if (!q) return true;
@@ -33,6 +34,7 @@ export default function WorkspaceSwitcher({
   align = 'center',
   isAdmin = false,
   newWorkspaceTo = '/admin/clients',
+  includeAllWorkspaces = false,
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -83,6 +85,8 @@ export default function WorkspaceSwitcher({
       </div>
     );
   }
+
+  const isAllActive = isAllWorkspacesId(workspace?.id);
 
   const openMenu = () => {
     if (canSwitch) setOpen((v) => !v);
@@ -147,7 +151,24 @@ export default function WorkspaceSwitcher({
           )}
 
           <div className="ws-switcher__list">
-            {filtered.length === 0 ? (
+            {includeAllWorkspaces && isAdmin && (
+              <button
+                type="button"
+                role="option"
+                aria-selected={isAllActive}
+                className={`ws-switcher__option ${isAllActive ? 'is-active' : ''}`}
+                onClick={() => {
+                  setOpen(false);
+                  if (!isAllActive) onSwitch?.(ALL_WORKSPACES);
+                }}
+              >
+                <span className="ws-switcher__avatar" aria-hidden="true">A</span>
+                <span className="ws-switcher__option-name">All workspaces</span>
+                {isAllActive && <span className="ws-switcher__badge">Current</span>}
+              </button>
+            )}
+
+            {filtered.length === 0 && !(includeAllWorkspaces && isAdmin) ? (
               <p className="ws-switcher__empty-hint" role="status">
                 {workspaces.length === 0
                   ? 'No workspaces yet.'

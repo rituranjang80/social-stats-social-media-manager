@@ -44,7 +44,7 @@ export default function QueueScheduleEditor({ value, onChange, inputStyle, helpS
     if (external !== internal) {
       setSchedule(parseCronToSchedule(value));
     }
-  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps -- schedule compared intentionally
+  }, [value]);
 
   function commit(next) {
     const cron = buildCronFromSchedule(next);

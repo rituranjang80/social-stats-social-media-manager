@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+### Added — Inbox demo sample data
+
+- **`python manage.py seed_inbox_demo`** — creates **`demo-inbox-*`** conversations (comments, DMs, mentions, reviews) across platforms with varied sentiment, unread/starred/resolved/archived states, and optional **`demo_inbox_seed`** credentials for local replies. Use **`--replace`** to refresh. With **`INBOX_DEMO_REPLY=true`** (default when **`DEBUG=true`**), replies on demo credentials persist outbound messages without calling social APIs.
+
+### Fixed — Analytics dev build (source-map-loader)
+
+- **Analytics** page no longer imports the large **`calendar.scss`** bundle (filter row uses inline layout; channel control keeps **`channel-selector`** styles). Docker dev defaults **`GENERATE_SOURCEMAP=false`** to avoid **`Unknown system error -61`** from **source-map-loader** on bind-mounted volumes.
+
+### Added — Analytics workspace scope + social filters
+
+- **Admin Analytics** (`/admin/analytics/analytics`): use the top bar **Switch workspace → All workspaces** for combined metrics across every workspace, or pick one workspace for per-client charts. Removed duplicate client/platform dropdowns; **social channel filter** matches **Analytics → Calendar** (connected accounts from the database / OAuth). **Sync data** queues API sync (`POST /admin/sync-all/` or per-client `trigger_sync`) so charts reflect stored **`DailyMetric`** rows; **Connect accounts** links appear when OAuth is missing.
+
 ### Added — Frontend error logging + screenshots
 
 - **`POST /api/errors/client-report/`** persists React **`ErrorBoundary`**, **`window.onerror`**, and **unhandled rejection** events into **`ErrorLog`** (`error_category=frontend`). Optional **PNG screenshot** saved under **`ERROR_MONITORING_SCREENSHOT_DIR`** (Docker: **`/data/media/error_screenshots`**, host **`data/media/error_screenshots/`**). Staff view rows and images at **`/admin/error-logs`**. Env: **`ERROR_MONITORING_FRONTEND_REPORT_ENABLED`**, **`ERROR_MONITORING_SCREENSHOT_*`**, **`REACT_APP_CLIENT_ERROR_REPORTING`**, **`REACT_APP_ERROR_SCREENSHOTS`**.

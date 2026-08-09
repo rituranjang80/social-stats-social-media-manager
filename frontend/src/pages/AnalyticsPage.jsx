@@ -6,18 +6,23 @@
  *  Copyright (c) 2026 Chandrabhan Shekhawat / Gigai Kripa Services.
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   AreaChart, Area, RadarChart, Radar, PolarGrid, PolarAngleAxis,
 } from 'recharts';
 import { overviewAPI, clientsAPI } from '../services/api';
-import { useClients, useDateRange } from '../hooks/useData';
-import { TrendingUp, TrendingDown, Minus, RefreshCw, Users, Eye, MousePointer, Play, UserPlus } from 'lucide-react';
+import { useClients, useDateRange, useOAuthStatus } from '../hooks/useData';
+import useWorkspace from '../hooks/useWorkspace';
+import { useAuth } from '../hooks/useAuth';
+import { TrendingUp, TrendingDown, Minus, RefreshCw, Users, Eye, MousePointer, Play, UserPlus, Loader2 } from 'lucide-react';
 import DateRangePicker from '../components/ui/DateRangePicker';
 import SocialPlatformIcon from '../components/ui/SocialPlatformIcon';
 import PageHeader from '../components/layout/PageHeader';
+import ConnectedChannelFilter from '../components/calendar/ConnectedChannelFilter';
+import { clientSettingsPath } from '../utils/workspacePaths';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const PLATFORM_META = {
@@ -46,6 +51,60 @@ function fmt(n) {
 function pctChange(curr, prev) {
   if (!prev || prev === 0) return null;
   return ((curr - prev) / prev) * 100;
+}
+
+const METRIC_KEYS = ['impressions', 'reach', 'clicks', 'video_views', 'followers'];
+
+function mapApiTotals(totals) {
+  if (!totals) return null;
+  return {
+    impressions: totals.total_impressions ?? totals.impressions ?? 0,
+    reach: totals.total_reach ?? totals.reach ?? 0,
+    clicks: totals.total_clicks ?? totals.clicks ?? 0,
+    video_views: totals.total_video_views ?? totals.video_views ?? 0,
+    followers: totals.total_followers ?? totals.followers ?? 0,
+  };
+}
+
+function filterByPlatforms(rows, platformFilter) {
+  if (!platformFilter?.length) return rows || [];
+  return (rows || []).filter((p) => platformFilter.includes(p.platform));
+}
+
+function reducePlatformTotals(rows) {
+  return (rows || []).reduce((acc, p) => {
+    METRIC_KEYS.forEach((k) => {
+      acc[k] = (acc[k] || 0) + (p[k] || 0);
+    });
+    return acc;
+  }, {});
+}
+
+function aggregateTimeseries(rows, platformFilter) {
+  const filtered = platformFilter?.length
+    ? (rows || []).filter((r) => platformFilter.includes(r.platform))
+    : (rows || []);
+  const byDate = new Map();
+  filtered.forEach((d) => {
+    const key = d.date;
+    const cur = byDate.get(key) || {
+      date: key,
+      impressions: 0,
+      reach: 0,
+      clicks: 0,
+      video_views: 0,
+      likes: 0,
+      followers: 0,
+    };
+    cur.impressions += d.impressions || 0;
+    cur.reach += d.reach || 0;
+    cur.clicks += d.clicks || 0;
+    cur.video_views += d.video_views || 0;
+    cur.likes += d.likes || 0;
+    cur.followers += d.followers || 0;
+    byDate.set(key, cur);
+  });
+  return [...byDate.values()].sort((a, b) => String(a.date).localeCompare(String(b.date)));
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -128,17 +187,40 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function AnalyticsPage() {
+  const { user } = useAuth();
+  const {
+    workspaceId,
+    workspace,
+    isAllWorkspaces,
+    switchWorkspace,
+  } = useWorkspace({ user, autoHydrate: true });
   const { clients } = useClients();
-  const [selectedClientId, setSelectedClientId] = useState('all');
-  const [selectedPlatform, setSelectedPlatform] = useState('all');
+  const [selectedChannels, setSelectedChannels] = useState([]);
   const [range, setRange]               = useDateRange(30);
   const [activeMetric, setActiveMetric] = useState('impressions');
+  const [syncing, setSyncing] = useState(false);
 
-  // Overview data (all clients, all platforms, date range)
+  const filterClientId = isAllWorkspaces ? null : workspaceId;
+  const { status: oauthStatus, refetch: refetchOAuth } = useOAuthStatus(filterClientId);
+  const connectedPlatforms = useMemo(
+    () => Object.entries(oauthStatus || {})
+      .filter(([, v]) => v?.status === 'active')
+      .map(([k]) => k),
+    [oauthStatus],
+  );
+  const platformFilter = selectedChannels?.length ? [...new Set(selectedChannels)] : null;
+  const apiPlatform = platformFilter?.length === 1 ? platformFilter[0] : undefined;
+
+  const basePath = '/admin';
+  const settingsConnectPath = filterClientId
+    ? clientSettingsPath(basePath, workspace)
+    : null;
+
+  // Overview data (all workspaces)
   const [overview, setOverview]           = useState(null);
   const [overviewLoading, setOverviewLoading] = useState(true);
 
-  // Per-client data
+  // Per-workspace data
   const [summary, setSummary]           = useState(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [timeseries, setTimeseries]     = useState([]);
@@ -154,35 +236,65 @@ export default function AnalyticsPage() {
     until: range.since,
   };
 
-  // ── Fetch overview ──────────────────────────────────────────────────────────
   const fetchOverview = useCallback(() => {
+    if (!isAllWorkspaces) {
+      setOverviewLoading(false);
+      return Promise.resolve();
+    }
     setOverviewLoading(true);
-    overviewAPI.get(range)
+    return overviewAPI.get(range)
       .then(res => setOverview(res.data))
       .catch(() => setOverview(null))
       .finally(() => setOverviewLoading(false));
-  }, [range.since, range.until]);
+  }, [range.since, range.until, isAllWorkspaces]);
 
   useEffect(() => { fetchOverview(); }, [fetchOverview]);
 
-  // ── Fetch per-client summary + timeseries ───────────────────────────────────
+  const refetchAnalytics = useCallback(() => {
+    if (isAllWorkspaces) {
+      fetchOverview();
+    } else if (filterClientId) {
+      const id = filterClientId;
+      const platform = apiPlatform;
+      setSummaryLoading(true);
+      setTimeseriesLoading(true);
+      Promise.all([
+        clientsAPI.summary(id, { ...range, ...(platform ? { platform } : {}) }),
+        clientsAPI.timeseries(id, { ...range, ...(platform ? { platform } : {}) }),
+      ])
+        .then(([sumRes, tsRes]) => {
+          setSummary(sumRes.data);
+          setTimeseries(tsRes.data?.results || tsRes.data || []);
+        })
+        .catch(() => {
+          setSummary(null);
+          setTimeseries([]);
+        })
+        .finally(() => {
+          setSummaryLoading(false);
+          setTimeseriesLoading(false);
+        });
+    }
+    refetchOAuth?.();
+  }, [isAllWorkspaces, filterClientId, range, apiPlatform, fetchOverview, refetchOAuth]);
+
+  // ── Fetch per-workspace summary + timeseries ───────────────────────────────────
   useEffect(() => {
-    if (!selectedClientId || selectedClientId === 'all') {
+    if (isAllWorkspaces || !filterClientId) {
       setSummary(null);
       setTimeseries([]);
+      setPrevSummary(null);
       return;
     }
-    const id = selectedClientId;
-    const platform = selectedPlatform !== 'all' ? selectedPlatform : undefined;
+    const id = filterClientId;
+    const platform = apiPlatform;
 
-    // Current period
     setSummaryLoading(true);
     clientsAPI.summary(id, { ...range, ...(platform ? { platform } : {}) })
       .then(res => setSummary(res.data))
       .catch(() => setSummary(null))
       .finally(() => setSummaryLoading(false));
 
-    // Previous period for comparison
     clientsAPI.summary(id, {
       since: prevRange.since, until: prevRange.until,
       ...(platform ? { platform } : {}),
@@ -190,37 +302,64 @@ export default function AnalyticsPage() {
       .then(res => setPrevSummary(res.data))
       .catch(() => setPrevSummary(null));
 
-    // Timeseries
     setTimeseriesLoading(true);
     clientsAPI.timeseries(id, { ...range, ...(platform ? { platform } : {}) })
       .then(res => setTimeseries(res.data?.results || res.data || []))
       .catch(() => setTimeseries([]))
       .finally(() => setTimeseriesLoading(false));
-  }, [selectedClientId, selectedPlatform, range.since, range.until]);
+  }, [filterClientId, isAllWorkspaces, apiPlatform, range.since, range.until, prevRange.since, prevRange.until]);
+
+  const handleSync = async () => {
+    setSyncing(true);
+    try {
+      if (isAllWorkspaces) {
+        await clientsAPI.syncAll();
+      } else if (filterClientId) {
+        const platforms = connectedPlatforms.length
+          ? connectedPlatforms
+          : Object.keys(PLATFORM_META);
+        await clientsAPI.triggerSync(filterClientId, platforms);
+      }
+      setTimeout(() => {
+        refetchAnalytics();
+        setSyncing(false);
+      }, 3000);
+    } catch {
+      setSyncing(false);
+    }
+  };
 
   // ── Derived data ────────────────────────────────────────────────────────────
-  const platformData = (overview?.by_platform || []).map(p => ({
+  const rawPlatformRows = isAllWorkspaces
+    ? (overview?.by_platform || [])
+    : (summary?.by_platform || []);
+
+  const filteredPlatformRows = filterByPlatforms(rawPlatformRows, platformFilter);
+
+  const platformData = filteredPlatformRows.map(p => ({
     ...p,
     label: PLATFORM_META[p.platform]?.label || p.platform,
     color: PLATFORM_META[p.platform]?.color || '#00d7ff',
   }));
 
-  // Aggregate totals from overview platform data
-  const totals = platformData.reduce((acc, p) => {
-    acc.impressions  = (acc.impressions  || 0) + (p.impressions  || 0);
-    acc.reach        = (acc.reach        || 0) + (p.reach        || 0);
-    acc.clicks       = (acc.clicks       || 0) + (p.clicks       || 0);
-    acc.video_views  = (acc.video_views  || 0) + (p.video_views  || 0);
-    acc.followers    = (acc.followers    || 0) + (p.followers    || 0);
-    return acc;
-  }, {});
+  const totals = reducePlatformTotals(platformData);
 
-  // Use per-client summary when one is selected
-  const kpiSource = summary || totals;
+  const clientTotals = mapApiTotals(summary?.totals);
+  const filteredClientTotals = apiPlatform && clientTotals
+    ? clientTotals
+    : (platformFilter?.length
+      ? reducePlatformTotals(filterByPlatforms(summary?.by_platform || [], platformFilter))
+      : clientTotals);
 
-  // Format timeseries for recharts
-  const chartData = timeseries.map(d => ({
-    date:        d.date ? d.date.slice(5) : d.date,
+  const kpiSource = isAllWorkspaces ? totals : (filteredClientTotals || totals);
+
+  const prevKpiSource = mapApiTotals(prevSummary?.totals);
+  const prevForKpi = isAllWorkspaces ? null : prevKpiSource;
+
+  const aggregatedTs = aggregateTimeseries(timeseries, platformFilter?.length && !apiPlatform ? platformFilter : null);
+
+  const chartData = aggregatedTs.map(d => ({
+    date:        d.date ? String(d.date).slice(5) : d.date,
     impressions: d.impressions || 0,
     reach:       d.reach       || 0,
     clicks:      d.clicks      || 0,
@@ -243,52 +382,102 @@ export default function AnalyticsPage() {
     return entry;
   });
 
-  // Top clients table (per platform, sorted by impressions)
-  const topClients = clients.slice(0, 10).map(c => ({ ...c }));
+  const isClientSelected = !isAllWorkspaces && !!filterClientId;
+  const selectedClientName = workspace?.label || workspace?.company;
 
-  const isClientSelected = selectedClientId && selectedClientId !== 'all';
-  const selectedClientName = clients.find(c => String(c.id) === String(selectedClientId))?.company;
+  const dataLoading = isClientSelected ? summaryLoading : overviewLoading;
+  const channelFallbackPlatforms = isAllWorkspaces ? Object.keys(PLATFORM_META) : connectedPlatforms;
 
+  const disconnectedPlatforms = !isAllWorkspaces && filterClientId
+    ? Object.keys(PLATFORM_META).filter((p) => !connectedPlatforms.includes(p))
+    : [];
   return (
     <div style={{ padding: '32px 36px', background: 'var(--surface-page)', minHeight: '10vh' }}>
       <PageHeader
         title="Analytics"
-        // subtitle={isClientSelected
-        //   ? `Viewing ${selectedClientName} — ${range.since} to ${range.until}`
-        //   : `All clients overview — ${range.since} to ${range.until}`}
+        subtitle={isAllWorkspaces
+          ? `Combined across all workspaces — ${range.since} to ${range.until}`
+          : (selectedClientName
+            ? `${selectedClientName} — ${range.since} to ${range.until}`
+            : undefined)}
         actions={(
           <div className="analytics-controls" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+        
             <DateRangePicker range={range} onChange={setRange} />
-            <select
-              value={selectedClientId}
-              onChange={e => setSelectedClientId(e.target.value)}
-              style={selectStyle}
-            >
-              <option value="all">All Users</option>
-              {clients.map(c => <option key={c.id} value={c.id}>{c.company}</option>)}
-            </select>
-            {isClientSelected && (
-              <select
-                value={selectedPlatform}
-                onChange={e => setSelectedPlatform(e.target.value)}
-                style={selectStyle}
-              >
-                <option value="all">All Platforms</option>
-                {Object.entries(PLATFORM_META).map(([k, v]) => (
-                  <option key={k} value={k}>{v.label}</option>
-                ))}
-              </select>
-            )}
+                 <ConnectedChannelFilter
+          clientId={filterClientId}
+          workspaceLabel={workspace?.label || ''}
+          currentUser={user}
+          selected={selectedChannels}
+          onChange={setSelectedChannels}
+          fallbackPlatforms={channelFallbackPlatforms}
+        />
             <button
-              onClick={fetchOverview}
+              type="button"
+              onClick={handleSync}
+              disabled={syncing}
+              style={{ ...btnSecondary, padding: '8px 14px' }}
+              title="Queue sync from connected social accounts into the database"
+            >
+              {syncing
+                ? <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> Syncing…</>
+                : <><RefreshCw size={14} /> Sync data</>}
+            </button>
+            <button
+              type="button"
+              onClick={refetchAnalytics}
               style={{ ...btnSecondary, padding: '8px 12px' }}
-              title="Refresh"
+              title="Refresh charts from database"
             >
               <RefreshCw size={14} />
             </button>
           </div>
         )}
       />
+
+      <div
+        style={{
+          marginBottom: 20,
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          gap: 8,
+        }}
+      >
+     
+      </div>
+
+      {!isAllWorkspaces && filterClientId && connectedPlatforms.length === 0 && (
+        <div style={{
+          marginBottom: 20, padding: '14px 18px', borderRadius: 12,
+          background: 'var(--surface-card)', border: '1px solid var(--border-default)',
+          fontSize: 13, color: 'var(--text-secondary)',
+        }}>
+          No social accounts connected for this workspace. Metrics come from the database after sync —{' '}
+          {settingsConnectPath ? (
+            <Link to={settingsConnectPath} style={{ color: '#00d7ff', fontWeight: 700 }}>
+              Connect accounts
+            </Link>
+          ) : (
+            'connect accounts in workspace settings'
+          )}
+          {' '}then use <strong>Sync data</strong>.
+        </div>
+      )}
+
+      {!isAllWorkspaces && disconnectedPlatforms.length > 0 && connectedPlatforms.length > 0 && (
+        <div style={{
+          marginBottom: 20, padding: '12px 18px', borderRadius: 12,
+          background: 'var(--surface-sunken)', fontSize: 12, color: 'var(--text-tertiary)',
+        }}>
+          Not connected: {disconnectedPlatforms.map((p) => PLATFORM_META[p]?.label || p).join(', ')}.
+          {settingsConnectPath && (
+            <> <Link to={settingsConnectPath} style={{ color: '#00d7ff', fontWeight: 600 }}>Connect</Link></>
+          )}
+        </div>
+      )}
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
       {/* ── KPI Cards ──────────────────────────────────────────────────────── */}
       <div className="analytics-kpi-grid" style={{ display: 'flex', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
@@ -297,10 +486,10 @@ export default function AnalyticsPage() {
             key={key}
             label={meta.label}
             value={kpiSource?.[key]}
-            prev={prevSummary?.[key]}
+            prev={prevForKpi?.[key]}
             icon={meta.icon}
             color={meta.color}
-            loading={isClientSelected ? summaryLoading : overviewLoading}
+            loading={dataLoading}
           />
         ))}
       </div>
@@ -370,12 +559,12 @@ export default function AnalyticsPage() {
           subtitle={`Aggregated across all clients — ${range.since} to ${range.until}`}
           style={{ marginBottom: 24 }}
         >
-          {overviewLoading ? (
+          {dataLoading ? (
             <div style={{ height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-tertiary)' }}>
               Loading chart…
             </div>
           ) : platformData.length === 0 ? (
-            <EmptyChart message="No data yet. Sync your users to see platform analytics." />
+            <EmptyChart message="No data yet. Use Sync data to pull metrics from connected accounts." />
           ) : (
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={platformData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
@@ -420,8 +609,8 @@ export default function AnalyticsPage() {
             ))}
           </div>
 
-          {overviewLoading || pieData.length === 0 ? (
-            <EmptyChart height={200} message={overviewLoading ? 'Loading…' : 'No platform data yet.'} />
+          {dataLoading || pieData.length === 0 ? (
+            <EmptyChart height={200} message={dataLoading ? 'Loading…' : 'No platform data yet.'} />
           ) : (
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
@@ -454,8 +643,8 @@ export default function AnalyticsPage() {
           title="Platform Metrics Comparison"
           subtitle="Side-by-side reach vs clicks vs video views"
         >
-          {overviewLoading || platformData.length === 0 ? (
-            <EmptyChart height={240} message={overviewLoading ? 'Loading…' : 'No data yet.'} />
+          {dataLoading || platformData.length === 0 ? (
+            <EmptyChart height={240} message={dataLoading ? 'Loading…' : 'No data yet.'} />
           ) : (
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={platformData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }} barGap={2}>
@@ -504,8 +693,8 @@ export default function AnalyticsPage() {
           subtitle="Relative strength across all metrics per platform"
           style={{ marginBottom: 24 }}
         >
-          {overviewLoading || platformData.length === 0 ? (
-            <EmptyChart height={260} message={overviewLoading ? 'Loading…' : 'No data yet.'} />
+          {dataLoading || platformData.length === 0 ? (
+            <EmptyChart height={260} message={dataLoading ? 'Loading…' : 'No data yet.'} />
           ) : (
             <ResponsiveContainer width="100%" height={260}>
               <RadarChart cx="50%" cy="50%" outerRadius={90} data={radarData}>
@@ -536,7 +725,7 @@ export default function AnalyticsPage() {
         subtitle="Detailed metrics per platform"
         style={{ marginBottom: 24 }}
       >
-        {overviewLoading ? (
+        {dataLoading ? (
           <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-tertiary)' }}>Loading…</div>
         ) : platformData.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-tertiary)' }}>
@@ -602,88 +791,7 @@ export default function AnalyticsPage() {
         )}
       </SectionCard>
 
-      {/* ── Row 5: Users overview table (only when "All Users") ───────── */}
-      {!isClientSelected && (
-        <SectionCard
-          title="User Overview"
-          subtitle="All active users — click a user for detailed analytics"
-        >
-          {clients.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-tertiary)' }}>
-              No clients yet. Add a client to get started.
-            </div>
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                <thead>
-                  <tr style={{ background: 'var(--surface-page)' }}>
-                    {['Client', 'Status', 'Created', 'Website', ''].map(h => (
-                      <th key={h} style={{
-                        padding: '10px 16px', textAlign: 'left', fontWeight: 700,
-                        color: 'var(--text-secondary)', borderBottom: '1px solid var(--border-default)',
-                      }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {clients.map((c, i) => (
-                    <tr key={c.id} style={{ borderBottom: '1px solid var(--surface-sunken)' }}>
-                      <td style={{ padding: '13px 16px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <div style={{
-                            width: 34, height: 34, borderRadius: 10, background: '#e6fbff',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 13, fontWeight: 800, color: '#00d7ff',
-                          }}>
-                            {(c.company || 'C')[0].toUpperCase()}
-                          </div>
-                          <div>
-                            <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{c.company}</div>
-                            <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{c.email}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ padding: '13px 16px' }}>
-                        <span style={{
-                          display: 'inline-flex', padding: '3px 10px', borderRadius: 20,
-                          fontSize: 11, fontWeight: 700,
-                          background: c.is_active ? '#d1fae5' : '#fee2e2',
-                          color:      c.is_active ? '#059669' : '#dc2626',
-                        }}>
-                          {c.is_active ? 'Active' : 'Inactive'}
-                        </span>
-                      </td>
-                      <td style={{ padding: '13px 16px', color: 'var(--text-secondary)' }}>
-                        {c.created_at ? new Date(c.created_at).toLocaleDateString() : '—'}
-                      </td>
-                      <td style={{ padding: '13px 16px' }}>
-                        {c.website ? (
-                          <a href={c.website} target="_blank" rel="noreferrer"
-                            style={{ color: '#00d7ff', fontSize: 12, textDecoration: 'none' }}>
-                            {c.website.replace(/^https?:\/\//, '')}
-                          </a>
-                        ) : <span style={{ color: 'var(--text-quaternary)' }}>—</span>}
-                      </td>
-                      <td style={{ padding: '13px 16px' }}>
-                        <button
-                          onClick={() => setSelectedClientId(String(c.id))}
-                          style={{
-                            padding: '5px 14px', borderRadius: 8, border: '1.5px solid #00d7ff',
-                            background: 'var(--surface-card)', color: '#00d7ff', fontSize: 12, fontWeight: 700,
-                            cursor: 'pointer',
-                          }}
-                        >
-                          View Analytics →
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </SectionCard>
-      )}
+     
     </div>
   );
 }
@@ -700,12 +808,6 @@ function EmptyChart({ height = 200, message }) {
     </div>
   );
 }
-
-const selectStyle = {
-  padding: '8px 12px', borderRadius: 10, border: '1.5px solid var(--border-default)',
-  background: 'var(--surface-card)', fontSize: 13, fontWeight: 600, color: 'var(--text-primary)',
-  cursor: 'pointer', outline: 'none',
-};
 
 const btnSecondary = {
   display: 'flex', alignItems: 'center', gap: 6,

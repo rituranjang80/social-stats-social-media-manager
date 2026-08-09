@@ -65,6 +65,7 @@ export default function TopBar({
           onSwitch={switchWorkspace}
           align="center"
           isAdmin={isAdmin}
+          includeAllWorkspaces={isAdmin}
           newWorkspaceTo={`${basePath}/clients`}
         />
       </div>

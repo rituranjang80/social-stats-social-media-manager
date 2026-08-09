@@ -25,9 +25,11 @@ APIView:
 from __future__ import annotations
 
 import logging
+import uuid
 from datetime import timedelta
 from typing import Optional
 
+from django.conf import settings
 from django.db.models import Avg, Count, F, Q
 from django.utils import timezone
 from rest_framework import viewsets, status
@@ -46,6 +48,7 @@ from .publishers import (
     get_publisher,
     PublishError, TokenExpiredError, RateLimitError,
 )
+from .publishers.base import PublishResult
 from .tenant_mixins import TenantScopedMixin
 from .marketplace_permissions import (
     check_action, deny_response, approval_pending_response,
@@ -204,35 +207,42 @@ class ConversationViewSet(TenantScopedMixin, viewsets.ReadOnlyModelViewSet):
         if not cred:
             return Response({'detail': f'No active {conv.platform} credential'}, status=400)
 
-        publisher = get_publisher(conv.platform)
         last_inbound = (Message.objects
                         .filter(conversation=conv, direction='inbound')
                         .order_by('-created_at').first())
 
-        try:
-            if conv.type == 'comment':
-                if not last_inbound or not last_inbound.platform_message_id:
-                    return Response({'detail': 'No inbound comment to reply to'}, status=400)
-                result = publisher.reply_to_comment(cred, last_inbound.platform_message_id, text)
-            elif conv.type == 'dm':
-                psid = (last_inbound.author_handle if last_inbound else conv.contact_handle)
-                if not psid:
-                    return Response({'detail': 'No recipient ID on this thread'}, status=400)
-                result = publisher.reply_to_dm(cred, conv.platform_thread_id, text, psid=psid, recipient_id=psid)
-            elif conv.type == 'review':
-                if not last_inbound or not last_inbound.platform_message_id:
-                    return Response({'detail': 'No review to reply to'}, status=400)
-                result = publisher.reply_to_review(cred, last_inbound.platform_message_id, text)
-            else:
-                return Response({'detail': f'Reply not supported for type={conv.type}'}, status=400)
-        except TokenExpiredError as e:
-            cred.is_active = False
-            cred.save(update_fields=['is_active'])
-            return Response({'detail': str(e), 'code': 'token_expired'}, status=400)
-        except RateLimitError as e:
-            return Response({'detail': str(e), 'code': 'rate_limited'}, status=429)
-        except PublishError as e:
-            return Response({'detail': str(e), 'code': e.code or 'publish_error'}, status=400)
+        demo_token = (cred.access_token or '').startswith('demo_inbox_')
+        if getattr(settings, 'INBOX_DEMO_REPLY', False) and demo_token:
+            result = PublishResult(
+                success=True,
+                platform_post_id=f'demo-reply-{uuid.uuid4().hex[:12]}',
+            )
+        else:
+            publisher = get_publisher(conv.platform)
+            try:
+                if conv.type == 'comment':
+                    if not last_inbound or not last_inbound.platform_message_id:
+                        return Response({'detail': 'No inbound comment to reply to'}, status=400)
+                    result = publisher.reply_to_comment(cred, last_inbound.platform_message_id, text)
+                elif conv.type == 'dm':
+                    psid = (last_inbound.author_handle if last_inbound else conv.contact_handle)
+                    if not psid:
+                        return Response({'detail': 'No recipient ID on this thread'}, status=400)
+                    result = publisher.reply_to_dm(cred, conv.platform_thread_id, text, psid=psid, recipient_id=psid)
+                elif conv.type == 'review':
+                    if not last_inbound or not last_inbound.platform_message_id:
+                        return Response({'detail': 'No review to reply to'}, status=400)
+                    result = publisher.reply_to_review(cred, last_inbound.platform_message_id, text)
+                else:
+                    return Response({'detail': f'Reply not supported for type={conv.type}'}, status=400)
+            except TokenExpiredError as e:
+                cred.is_active = False
+                cred.save(update_fields=['is_active'])
+                return Response({'detail': str(e), 'code': 'token_expired'}, status=400)
+            except RateLimitError as e:
+                return Response({'detail': str(e), 'code': 'rate_limited'}, status=429)
+            except PublishError as e:
+                return Response({'detail': str(e), 'code': e.code or 'publish_error'}, status=400)
 
         # Persist outbound message
         msg = Message.objects.create(
