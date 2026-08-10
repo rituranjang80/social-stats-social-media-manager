@@ -35,6 +35,9 @@ export const soloAPI = {
 
 export const invitationAPI = {
   send:       (data)         => api.post('/invitations/send/', data),
+  listEmailTemplates: ()     => api.get('/invitations/email-templates/'),
+  getEmailTemplate: (slug)   => api.get(`/invitations/email-templates/${slug}/`),
+  saveEmailTemplate: (slug, template) => api.put(`/invitations/email-templates/${slug}/`, { template }),
   getWelcomeTemplate: ()    => api.get('/invitations/welcome-email-template/'),
   saveWelcomeTemplate: (template) => api.put('/invitations/welcome-email-template/', { template }),
   getTemplate: ()            => api.get('/invitations/welcome-email-template/'),

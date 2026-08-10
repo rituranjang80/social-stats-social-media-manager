@@ -5,7 +5,7 @@ import {
   useCallback, useEffect, useMemo, useState,
 } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { format, addMonths, parseISO } from 'date-fns';
+import { format, subMonths, parseISO } from 'date-fns';
 import { Loader2, ListChecks } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -39,9 +39,30 @@ import '../styles/scss/post-management.scss';
 export const DEFAULT_PM_STATUS_IDS = ['pending_review', 'on_hold','draft'];
 
 export function defaultPostManagementDateRange(refDate = new Date()) {
-  const from = format(refDate, 'yyyy-MM-dd');
-  const to = format(addMonths(refDate, 1), 'yyyy-MM-dd');
+  const to = format(refDate, 'yyyy-MM-dd');
+  const from = format(subMonths(refDate, 1), 'yyyy-MM-dd');
   return { from, to };
+}
+
+const PM_STAT_BUCKETS = [
+  { id: 'draft', label: 'Draft', match: ['draft'] },
+  { id: 'pending_review', label: 'Pending Review', match: ['pending_review', 'pending_approval', 'pending_client'] },
+  { id: 'on_hold', label: 'On Hold', match: ['on_hold', 'queued'] },
+];
+
+function bucketForPostStatus(status) {
+  const s = (status || '').toLowerCase();
+  const bucket = PM_STAT_BUCKETS.find((b) => b.match.includes(s));
+  return bucket?.id || null;
+}
+
+function countPostManagementStats(posts) {
+  const counts = Object.fromEntries(PM_STAT_BUCKETS.map((b) => [b.id, 0]));
+  posts.forEach((p) => {
+    const id = bucketForPostStatus(p.status);
+    if (id) counts[id] += 1;
+  });
+  return counts;
 }
 
 function parseStatusFromUrl(searchParams) {
@@ -123,6 +144,8 @@ function PostManagementInner() {
 
   const posts = useMemo(() => flattenPosts(filteredMap), [filteredMap]);
   const grouped = useMemo(() => groupPostsByDateForList(posts), [posts]);
+  const allInRange = useMemo(() => flattenPosts(postsByDate), [postsByDate]);
+  const statCounts = useMemo(() => countPostManagementStats(allInRange), [allInRange]);
 
   const statusSelectOptions = useMemo(() => (
     (statusFilters || []).map((f) => ({
@@ -258,6 +281,15 @@ function PostManagementInner() {
           currentUser={user}
         />
 
+        <div className="bb-pm__stats" role="group" aria-label="Post counts for selected period">
+          {PM_STAT_BUCKETS.map((b) => (
+            <div key={b.id} className="bb-pm__stat">
+              <span className="bb-pm__stat-value">{statCounts[b.id] ?? 0}</span>
+              <span className="bb-pm__stat-label">{b.label}</span>
+            </div>
+          ))}
+        </div>
+
         {loading || configLoading ? (
           <div className="bb-cal__loading">
             <Loader2 size={18} className="bb-cal__spin" />
@@ -276,7 +308,7 @@ function PostManagementInner() {
             <ListChecks size={32} strokeWidth={1.5} style={{ marginBottom: 8, opacity: 0.5 }} />
             <h3 className="bb-cal__empty-title">No posts match your filters</h3>
             <p className="bb-cal__empty-copy">
-              Defaults are Pending Review,Draft and On Hold for the next month. Widen the date range
+              Defaults are Draft, Pending Review, and On Hold for the last month. Widen the date range
               or add statuses in the toolbar.
             </p>
           </div>

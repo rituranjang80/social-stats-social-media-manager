@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added — Post Management digest emails & multi-template editor
+
+- **Analytics → Post Management** default range is the **last 30 days** with stat cards for **Draft**, **Pending Review**, and **On Hold** (same buckets as the digest job).
+- **Celery beat** task `send-post-management-client-digest` emails each **active client** when those statuses have posts in the lookback window. Template: **Account settings → Email templates → Client approval** (`GET/PUT /api/invitations/email-templates/client-approval/`). Schedule via **`POST_MANAGEMENT_DIGEST_*`** env vars; manual run: `python manage.py send_post_management_digest --dry-run`.
+- **Email templates** page at `/admin/account-settings/welcome-email-template` now lists **Welcome** and **Client approval** (query `?template=client-approval`); legacy welcome API unchanged.
+
 ### Added — Account settings back navigation
 
 - **Settings → More settings** links pass navigation state so destination pages show a **Back** control (left of the title) that returns to **`/admin/account-settings?tab=more`** (or **`/dashboard/account-settings?tab=more`** for client roles). **Welcome email template** always shows **Back** to the More settings tab. Deep link **`?tab=more`** opens the More settings sidebar tab when returning.

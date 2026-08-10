@@ -21,6 +21,10 @@ See original `docs/CONFIGURATION.md` in repo root and `social-stats-social-media
 |----------|---------|
 | `SECRET_KEY`, `DEBUG` | Django core |
 | `INBOX_DEMO_REPLY` | Demo inbox replies without live APIs |
+| `POST_MANAGEMENT_DIGEST_ENABLED` | When `true`, Celery beat sends client digest emails if Draft / Pending Review / On Hold posts exist in the lookback window |
+| `POST_MANAGEMENT_DIGEST_LOOKBACK_DAYS` | Stats window (default `30`) — matches Post Management default date range |
+| `POST_MANAGEMENT_DIGEST_HOUR` / `POST_MANAGEMENT_DIGEST_MINUTE` | Local schedule time (UTC unless you change Celery timezone) |
+| `POST_MANAGEMENT_DIGEST_DAY_OF_MONTH` / `POST_MANAGEMENT_DIGEST_DAY_OF_WEEK` | Crontab day filters (`*` = any). Default: 1st of each month |
 | OAuth / `FIELD_ENCRYPTION_*` | Social connect & token storage |
 
 ## Docker paths

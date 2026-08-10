@@ -403,6 +403,16 @@ CELERY_BEAT_SCHEDULER    = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_TASK_ALWAYS_EAGER = _env_bool('CELERY_TASK_ALWAYS_EAGER', DEBUG)
 CELERY_TASK_EAGER_PROPAGATES = _env_bool('CELERY_TASK_EAGER_PROPAGATES', CELERY_TASK_ALWAYS_EAGER)
 
+# Post Management — scheduled client digest email (Draft / Pending Review / On Hold)
+POST_MANAGEMENT_DIGEST_ENABLED = _env_bool('POST_MANAGEMENT_DIGEST_ENABLED', False)
+POST_MANAGEMENT_DIGEST_LOOKBACK_DAYS = int(os.environ.get('POST_MANAGEMENT_DIGEST_LOOKBACK_DAYS', '30'))
+POST_MANAGEMENT_DIGEST_MINUTE = int(os.environ.get('POST_MANAGEMENT_DIGEST_MINUTE', '0'))
+POST_MANAGEMENT_DIGEST_HOUR = int(os.environ.get('POST_MANAGEMENT_DIGEST_HOUR', '9'))
+_pm_digest_dom = os.environ.get('POST_MANAGEMENT_DIGEST_DAY_OF_MONTH', '1').strip()
+POST_MANAGEMENT_DIGEST_DAY_OF_MONTH = _pm_digest_dom if _pm_digest_dom == '*' else int(_pm_digest_dom)
+_pm_digest_dow = os.environ.get('POST_MANAGEMENT_DIGEST_DAY_OF_WEEK', '*').strip()
+POST_MANAGEMENT_DIGEST_DAY_OF_WEEK = _pm_digest_dow if _pm_digest_dow == '*' else int(_pm_digest_dow)
+
 from celery.schedules import crontab
 CELERY_BEAT_SCHEDULE = {
     'check-alerts-every-6-hours': {
@@ -464,6 +474,15 @@ CELERY_BEAT_SCHEDULE = {
     'privacy-sweep-pending-deletions-hourly': {
         'task':     'social_stats.security.privacy_tasks.sweep_pending_deletions',
         'schedule': crontab(minute=20),  # every hour at HH:20
+    },
+    'send-post-management-client-digest': {
+        'task': 'social_stats.post_management_tasks.send_client_post_management_digests',
+        'schedule': crontab(
+            minute=POST_MANAGEMENT_DIGEST_MINUTE,
+            hour=POST_MANAGEMENT_DIGEST_HOUR,
+            day_of_month=POST_MANAGEMENT_DIGEST_DAY_OF_MONTH,
+            day_of_week=POST_MANAGEMENT_DIGEST_DAY_OF_WEEK,
+        ),
     },
 }
 

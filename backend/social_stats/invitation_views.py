@@ -12,7 +12,12 @@ from rest_framework import status
 
 from .models import ClientInvitation, Notification, Client, UserProfile, OnboardingStep
 from .social_auth_views import _make_jwt
-from .welcome_email_service import save_welcome_template, template_api_payload
+from .welcome_email_service import (
+    list_email_templates_payload,
+    save_template,
+    save_welcome_template,
+    template_api_payload,
+)
 from .client_invitation_service import (
     create_and_send_invitation,
     accept_invitation_by_token,
@@ -33,7 +38,7 @@ def welcome_email_template(request):
         return Response({'error': 'Only agency users can manage welcome email templates.'}, status=403)
 
     if request.method == 'GET':
-        return Response(template_api_payload())
+        return Response(template_api_payload('welcome'))
 
     payload = request.data.get('template')
     if not isinstance(payload, dict):
@@ -42,7 +47,41 @@ def welcome_email_template(request):
         return Response({'error': 'template object required.'}, status=400)
 
     save_welcome_template(payload)
-    return Response(template_api_payload())
+    return Response(template_api_payload('welcome'))
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def email_templates_catalog(request):
+    profile = getattr(request.user, 'profile', None)
+    if not _staff_only(profile):
+        return Response({'error': 'Only agency users can manage email templates.'}, status=403)
+    return Response(list_email_templates_payload())
+
+
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated])
+def email_template_detail(request, slug):
+    profile = getattr(request.user, 'profile', None)
+    if not _staff_only(profile):
+        return Response({'error': 'Only agency users can manage email templates.'}, status=403)
+
+    try:
+        if request.method == 'GET':
+            return Response(template_api_payload(slug))
+    except ValueError:
+        return Response({'error': 'Unknown template.'}, status=404)
+
+    payload = request.data.get('template')
+    if not isinstance(payload, dict):
+        payload = request.data
+    if not isinstance(payload, dict):
+        return Response({'error': 'template object required.'}, status=400)
+    try:
+        save_template(slug, payload)
+    except ValueError:
+        return Response({'error': 'Unknown template.'}, status=404)
+    return Response(template_api_payload(slug))
 
 
 # Backward-compatible alias

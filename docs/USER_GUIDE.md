@@ -119,7 +119,7 @@ python manage.py seed_calendar_status_posts --client=<workspace-uuid> --replace
 ### Post Management
 **Route:** `/admin/analytics/post-management` (admin) or `/dashboard/analytics/post-management` (client portal when enabled).
 
-Dedicated **upcoming posts** board (excludes Sent-tab statuses from the database). Cards use the **same status colors** as Publish calendar. **Toolbar** matches Publish **list mode** (unchanged layout). **Defaults:** date range **today → one month ahead**, status filters **Pending Review** and **On Hold**. Click a **composer post row** to open it in Composer (**new tab**); no separate link button.
+Dedicated **upcoming posts** board (excludes Sent-tab statuses from the database). Cards use the **same status colors** as Publish calendar. **Toolbar** matches Publish **list mode**. **Defaults:** date range **last 30 days**, status filters **Draft**, **Pending Review**, and **On Hold**; stat cards show counts for those three statuses. **Client digest emails** (optional, backend `.env`) use the **Client approval** template when posts exist in that window. Click a **composer post row** to open it in Composer (**new tab**).
 
 - **Enable/disable:** **Account settings → Workspace features → Post Management**, or **Management → client → Portal config** (`ClientPageConfig.show_post_management`). When off, the API returns **403** and the page shows a disabled message.
 - **Status changes:** choosing a new status opens a **comment** dialog (required). The change is logged with user, timestamp, and note for later analysis.
@@ -133,14 +133,15 @@ Dedicated **upcoming posts** board (excludes Sent-tab statuses from the database
 2. The client receives a branded email with **Accept invitation** (`/accept-invitation/<token>`) and **Login** (`/login`). Passwords are **never** emailed.
 3. One click on **Accept invitation** signs them in and sends them to the dashboard; the token is **single-use** and expires after the configured period (default 7 days). **No temporary password** is emailed — the accept link is the secure sign-in method.
 4. If the link expired, they see **Invitation expired**; staff use **Resend** on that client row (or send a new invite from the form).
-5. Edit the HTML template under **Account settings → Welcome email template** (link on the Profile tab or **More settings**). Placeholders include `{{company_name}}`, `{{accept_invitation_url}}`, `{{login_url}}`, etc. Preview uses sample data.
+5. Edit templates under **Account settings → Email templates** (Welcome + Client approval). Placeholders include `{{company_name}}`, `{{accept_invitation_url}}`, `{{login_url}}`, etc. Preview uses sample data.
 
 **Client row actions:** Open workspace, Sync, Edit, Resend invitation, Activate / Deactivate (invalidates sessions when deactivated), Delete (soft delete with confirmation).
 
 | Concept | URL |
 |---|---|
 | Workspaces + invitations | http://localhost:3000/admin/clients |
-| Welcome email template (staff) | http://localhost:3000/admin/account-settings/welcome-email-template |
+| Welcome / email templates (staff) | http://localhost:3000/admin/account-settings/welcome-email-template |
+| Client approval email template | http://localhost:3000/admin/account-settings/welcome-email-template?template=client-approval |
 | Account settings (profile) | http://localhost:3000/admin/account-settings |
 | Members, RBAC, custom roles | http://localhost:8000/admin/management |
 | Per-workspace settings | http://localhost:8000/admin/client/`{clientId}`/settings |

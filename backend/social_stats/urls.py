@@ -57,6 +57,7 @@ from .invitation_views import (
     send_invitation, get_invitation, respond_invitation,
     list_invitations, cancel_invitation, invitation_email_template,
     welcome_email_template, accept_invitation_magic,
+    email_templates_catalog, email_template_detail,
     list_notifications, mark_read, mark_all_read,
 )
 from .auth_views import signup, verify_email, resend_verification, password_reset_request, password_reset_confirm
@@ -440,6 +441,8 @@ urlpatterns = [
     # Invitations
     path('invitations/send/',                        send_invitation,    name='invitation_send'),
     path('invitations/welcome-email-template/',    welcome_email_template, name='welcome_email_template'),
+    path('invitations/email-templates/',           email_templates_catalog, name='email_templates_catalog'),
+    path('invitations/email-templates/<slug:slug>/', email_template_detail, name='email_template_detail'),
     path('invitations/email-template/',              invitation_email_template, name='invitation_email_template'),
     path('invitations/<uuid:token>/',                get_invitation,     name='invitation_get_short'),
     path('invitations/<uuid:token>/accept/',         accept_invitation_magic, name='invitation_accept_magic'),

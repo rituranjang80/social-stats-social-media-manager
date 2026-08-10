@@ -84,3 +84,41 @@ class PostManagementApiTests(APITestCase):
             format='json',
         )
         self.assertEqual(res.status_code, 400)
+
+
+class PostManagementDigestTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='digest@test.com', email='digest@test.com', password='pass12345',
+        )
+        self.client_row = Client.objects.create(
+            company='Digest Co',
+            name='Digest Client',
+            email='digest-client@example.com',
+            is_active=True,
+        )
+        ClientPageConfig.objects.update_or_create(
+            client=self.client_row,
+            defaults={'show_post_management': True},
+        )
+
+    def test_counts_draft_and_skips_empty_clients(self):
+        from datetime import date, timedelta
+        from social_stats.post_management_digest import count_post_management_buckets, run_post_management_client_digests
+
+        today = date.today()
+        UnifiedPost.objects.create(
+            client=self.client_row,
+            content='Draft item',
+            status='draft',
+            created_by=self.user,
+        )
+        counts = count_post_management_buckets(
+            self.client_row,
+            today - timedelta(days=30),
+            today,
+        )
+        self.assertEqual(counts['draft'], 1)
+
+        result = run_post_management_client_digests(dry_run=True)
+        self.assertGreaterEqual(result['sent'], 1)
