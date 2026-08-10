@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Changed — Refactor Phase 2 (manager2 API split)
+
+- **`frontend/src/core/api/*`**: domain API modules extracted from the monolithic `services/api.js`; **`services/api.js`** is now a thin re-export barrel so existing imports keep working. No endpoint or payload changes.
+
+### Added — Refactor foundation (manager2)
+
+- **New codebase** at `social-stats-social-media-manager2` (source app unchanged). Architecture audit, module registry, `@app/core/*` and `@app/modules/*` public facades, `jsconfig` path aliases, and Docker instructions via `SOURCE_REL=../social-stats-social-media-manager2`. See `docs/REFACTOR_ROADMAP.md`.
+
 ### Added — Inbox date range, channel toolbar, API sync
 
 - **Analytics → Inbox** loads **`Conversation`** / **`Message`** rows from the database only, filtered by **date range** (`since`/`until`), **connected channel** multi-select (same **`ConnectedChannelFilter`** as Calendar), type/sentiment/unread/starred, and search.

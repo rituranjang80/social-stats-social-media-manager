@@ -1,68 +1,12 @@
----
-title: "Social Stats — Open-Source Social Media Management Platform"
-description: "Open-source social media management & marketing platform — schedule posts, content calendar, cross-platform analytics dashboards, unified inbox, click-to-WhatsApp bot builder, and an AI assistant. Self-hosted Django + React. A Hootsuite / Buffer / Sprout Social alternative."
----
+# Documentation index (manager2)
 
-# Social Stats — Open-Source Social Media Management Platform
+- [architecture.md](./architecture.md) — Audit & target design
+- [modules.md](./modules.md) — Plug-and-play module boundaries
+- [components.md](./components.md) — UI / SCSS design system
+- [api.md](./api.md) — Frontend & backend API layer
+- [configuration.md](./configuration.md) — Environment & Docker `SOURCE_REL`
+- [development.md](./development.md) — Run locally / Docker
+- [deployment.md](./deployment.md) — Production notes
+- [REFACTOR_ROADMAP.md](./REFACTOR_ROADMAP.md) — Phased migration plan
 
-**Social Stats** is an open-source, self-hostable **social media management** and
-marketing platform for agencies and teams. It's an open alternative to Hootsuite,
-Buffer, and Sprout Social, built on **Django + React**.
-
-[⭐ Star the project on GitHub »](https://github.com/cbsshekhawat18-lab/social-stats-social-media-manager)
-
-## What it does
-
-- **Social media scheduler & content calendar** — one composer with per-platform
-  formatting, brand-voice AI captions, scheduling, agency approval flows,
-  Connect Channels, first comment, internal tags, and a Multi-workspace & Teams
-  (Organization → Workspace → Members) layout.
-- **Social media analytics dashboard** — daily-metric ingestion across Facebook,
-  Instagram, YouTube, LinkedIn, and Google Business, with a time-series API and
-  per-client dashboards.
-- **Unified inbox** — DMs, comments, and Google reviews in one queue, with AI
-  reply suggestions in your brand voice.
-- **Click-to-WhatsApp bot builder** — a visual flow editor with conditional
-  branches and AI chat nodes.
-- **Agency marketplace** — a two-sided directory connecting businesses with
-  agencies.
-- **AI social media assistant** — powered by Anthropic Claude.
-- **Multi-tenant access** — agency / end-user model, per-client workspaces,
-  staff RBAC, invitations, and client collaborator role.
-
-## Self-hosting
-
-Social Stats runs on Django 4.2 + Django REST Framework, Celery + Redis, Django
-Channels, PostgreSQL, and a React 18 frontend. See the
-[installation guide on GitHub](https://github.com/cbsshekhawat18-lab/social-stats-social-media-manager#self-hosting--installation-local-dev).
-
-```bash
-python manage.py migrate
-python manage.py demo_setup   # demo accounts + 90 days of sample analytics
-python manage.py runserver
-```
-
-## Guides
-
-- [Getting Started](GETTING_STARTED.md)
-- [Run & Debug (Python + Frontend)](RUN_AND_DEBUG.md)
-- [Docker & Kubernetes](DOCKER_K8S.md) — config outside source (`../social-stats-social-media-manager-start`)
-- [API Swagger (Try it out)](API_SWAGGER.md) — http://localhost:8000/api/docs/
-- [Configuration](CONFIGURATION.md)
-- [Connect Social Accounts](CONNECT_ACCOUNTS.md)
-- [Connect WhatsApp](CONNECT_WHATSAPP.md)
-- [Going Live](GOING_LIVE.md)
-- [User Guide](USER_GUIDE.md)
-- [FAQ & Troubleshooting](FAQ_TROUBLESHOOTING.md)
-- [How it compares](COMPARISON.md)
-
-## Links
-
-- [Source code & README](https://github.com/cbsshekhawat18-lab/social-stats-social-media-manager)
-- [Contributing guide](https://github.com/cbsshekhawat18-lab/social-stats-social-media-manager/blob/main/CONTRIBUTING.md)
-- [Report an issue](https://github.com/cbsshekhawat18-lab/social-stats-social-media-manager/issues)
-
----
-
-_Open-source under the MIT License. An open-source alternative to Hootsuite,
-Buffer, and Sprout Social._
+Legacy product docs from the source copy remain under repo root `docs/` (USER_GUIDE, etc.).

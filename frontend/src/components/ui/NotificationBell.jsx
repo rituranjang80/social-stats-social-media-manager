@@ -171,8 +171,8 @@ export default function NotificationBell({ clientId }) {
       </button>
 
       {open && (
-        <div className="notif-dropdown" style={{ ...s.dropdown, position: 'fixed', top: dropPos.top, left: dropPos.left, width: dropPos.width }}>
-          {/* Header */}
+        <div className="notif-dropdown" style={{ ...s.dropdown, position: 'fixed', top: dropPos.top, left: dropPos.left }}>
+          {/* Header  width: dropPos.width*/ }
           <div style={s.dropHead}>
             <span style={s.dropTitle}>Notifications</span>
             <div style={{ display: 'flex', gap: 4 }}>

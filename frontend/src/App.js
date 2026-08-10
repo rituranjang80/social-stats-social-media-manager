@@ -35,7 +35,7 @@ const MessagingModule = lazy(() => import('./modules/MessagingModule'));
 const AdsModule       = lazy(() => import('./modules/AdsModule'));
 
 // ── Eagerly loaded (critical path) ──────────────────────────────────────────
-import LoginPage         from './pages/LoginPage';
+import { LoginPage } from './modules/authentication';
 import AuthCallbackPage  from './pages/AuthCallbackPage';
 import OAuthCallbackPage from './pages/OAuthCallbackPage';
 

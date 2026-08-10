@@ -114,8 +114,7 @@ export default function UnifiedInboxPage() {
         inboxAPI.conversations.markRead(activeId).then(() => refetchList()).catch(() => {});
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeId]);
+  }, [activeId, conversations, refetchList]);
 
   const handleSync = async () => {
     if (!clientId) {
