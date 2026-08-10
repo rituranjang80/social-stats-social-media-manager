@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added — Inbox date range, channel toolbar, API sync
+
+- **Analytics → Inbox** loads **`Conversation`** / **`Message`** rows from the database only, filtered by **date range** (`since`/`until`), **connected channel** multi-select (same **`ConnectedChannelFilter`** as Calendar), type/sentiment/unread/starred, and search.
+- Reusable **`WorkspaceChannelToolbar`** (date + channels + sync) shared with **Analytics** metrics page.
+- **`POST /api/inbox/sync/`** queues Celery inbox pulls for the active workspace (optional `platforms` array). Configure default range via **`REACT_APP_INBOX_DEFAULT_DAYS`** in `frontend/.env`.
+
 ### Added — Inbox demo sample data
 
 - **`python manage.py seed_inbox_demo`** — creates **`demo-inbox-*`** conversations (comments, DMs, mentions, reviews) across platforms with varied sentiment, unread/starred/resolved/archived states, and optional **`demo_inbox_seed`** credentials for local replies. Use **`--replace`** to refresh. With **`INBOX_DEMO_REPLY=true`** (default when **`DEBUG=true`**), replies on demo credentials persist outbound messages without calling social APIs.

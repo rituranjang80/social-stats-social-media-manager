@@ -26,7 +26,7 @@ from __future__ import annotations
 
 import logging
 import uuid
-from datetime import timedelta
+from datetime import datetime, time, date, timedelta
 from typing import Optional
 
 from django.conf import settings
@@ -34,8 +34,11 @@ from django.db.models import Avg, Count, F, Q
 from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from .views import parse_dates, check_client_access
 
 from .inbox_serializers import (
     ConversationListSerializer, ConversationDetailSerializer,
@@ -79,8 +82,12 @@ class ConversationViewSet(TenantScopedMixin, viewsets.ReadOnlyModelViewSet):
         qs = super().get_queryset()
         params = self.request.query_params
 
-        # Common list filters
-        if params.get('platform'):
+        platforms_param = params.get('platforms')
+        if platforms_param:
+            plats = [p.strip() for p in platforms_param.split(',') if p.strip()]
+            if plats:
+                qs = qs.filter(platform__in=plats)
+        elif params.get('platform'):
             qs = qs.filter(platform=params['platform'])
         if params.get('type'):
             qs = qs.filter(type=params['type'])
@@ -97,6 +104,20 @@ class ConversationViewSet(TenantScopedMixin, viewsets.ReadOnlyModelViewSet):
                 qs = qs.filter(is_archived=True)
             elif params.get('include_archived') not in ('1', 'true', 'True'):
                 qs = qs.filter(is_archived=False)
+
+            since, until = parse_dates(self.request)
+            from_raw = params.get('from') or params.get('date_from')
+            to_raw = params.get('to') or params.get('date_to')
+            if from_raw and to_raw:
+                try:
+                    since = date.fromisoformat(str(from_raw)[:10])
+                    until = date.fromisoformat(str(to_raw)[:10])
+                except ValueError:
+                    pass
+            start = timezone.make_aware(datetime.combine(since, time.min))
+            end = timezone.make_aware(datetime.combine(until, time.max))
+            qs = qs.filter(last_message_at__gte=start, last_message_at__lte=end)
+
         if params.get('resolved') in ('1', 'true', 'True'):
             qs = qs.filter(is_resolved=True)
         if params.get('assigned_to'):
@@ -422,3 +443,33 @@ class InboxStatsView(APIView):
         if profile.client_id:
             return [profile.client_id]
         return []
+
+
+class InboxSyncView(APIView):
+    """Queue inbox pull tasks for the active workspace (comments, DMs, reviews → DB)."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        from .inbox_tasks import queue_inbox_sync_for_client
+
+        helper = TenantScopedMixin()
+        helper.request = request
+        client_id = helper.resolved_client_id()
+        if not client_id:
+            return Response(
+                {'detail': 'Select a workspace before syncing inbox.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not check_client_access(request, client_id):
+            return Response({'detail': 'Access denied'}, status=status.HTTP_403_FORBIDDEN)
+
+        platforms = request.data.get('platforms')
+        if platforms is not None and not isinstance(platforms, list):
+            return Response({'detail': 'platforms must be an array of platform ids'}, status=400)
+
+        queued = queue_inbox_sync_for_client(client_id, platforms or None)
+        return Response({
+            'client_id': client_id,
+            'queued': queued,
+            'message': 'Inbox sync queued' if queued else 'No active credentials for selected platforms',
+        })

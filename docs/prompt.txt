@@ -231,3 +231,8 @@ of every xpath link must be open in new tabs xpath //*[@id="main-content"]/div/d
 
 please not change the filter  layout  //*[@id="main-content"]/div/div/div/div[1] it show must be as previous
 remove the open in compose button/link whenever any one click on tile //*[@id="main-content"]/div/div/div/div[2]/section[4]/div[2]/article[1]/div[2]/div[2]/p the compose with current post open page open in new tab , we require less space but better ui
+
+
+if we have recived any error of front end also it must be save in error log also save the screenshot of error consider we using docker so it must share able read the env and check the path of sharing
+
+it is  http://localhost:3000/admin/analytics/inbox all the social media inbox so we require all data come from database and with date filter , and there must be synsc button for refresh the database from api for channer selection the http://localhost:3000/admin/analytics/calendar?mode=list&view=agenda&tab=queue&from=2026-07-10&to=2026-08-10 xpath //*[@id="main-content"]/div/div/div[1]/div[2]/div[2]/div[2] please componet must reusable all data come from database no hardcode value allow also maintain the configuration file .env

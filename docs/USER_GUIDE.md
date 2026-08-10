@@ -234,7 +234,9 @@ in your brand voice. Reply, assign, and resolve from a single screen.
 docker compose exec backend python manage.py seed_inbox_demo --replace
 ```
 
-Select a **workspace** in the top bar (inbox is scoped per client). Sample threads cover **Comments**, **DMs**, **Mentions**, **Reviews**, platform pills, sentiment, **Unread** / **Starred** filters, and search (try `Priya` or `refund`). **Star**, **Archive**, **Resolve**, and **Reply** work on demo threads when `INBOX_DEMO_REPLY=true` (default with `DEBUG=true`) and demo credentials were seeded.
+Select a **workspace** in the top bar (inbox is scoped per client). Use the **date range** and **channel** toolbar (same control as **Calendar** list mode) to narrow threads. **Sync inbox** pulls from connected social APIs into the database (`POST /api/inbox/sync/`). Sample threads cover **Comments**, **DMs**, **Mentions**, **Reviews**, platform pills, sentiment, **Unread** / **Starred** filters, and search (try `Priya` or `refund`). **Star**, **Archive**, **Resolve**, and **Reply** work on demo threads when `INBOX_DEMO_REPLY=true` (default with `DEBUG=true`) and demo credentials were seeded.
+
+Set **`REACT_APP_INBOX_DEFAULT_DAYS`** in `frontend/.env` to change the default date window (default 30).
 
 ![Unified inbox](images/inbox.png)
 

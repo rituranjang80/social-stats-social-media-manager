@@ -213,6 +213,12 @@ class ConversationAPITests(TestCase):
         self.assertIn(self.c1.id, ids)
         self.assertNotIn(self.c2.id, ids)
 
+    def test_filter_by_platforms_csv(self):
+        res = self.api.get('/api/inbox/conversations/?platforms=facebook,instagram')
+        ids = [c['id'] for c in (res.data.get('results') or res.data)]
+        self.assertIn(self.c1.id, ids)
+        self.assertIn(self.c2.id, ids)
+
     def test_filter_unread(self):
         res = self.api.get('/api/inbox/conversations/?unread=1')
         ids = [c['id'] for c in (res.data.get('results') or res.data)]

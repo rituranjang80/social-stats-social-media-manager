@@ -7,9 +7,10 @@
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
-  Inbox, Search, Star, Archive, ArchiveRestore, CheckCircle2, X, Send,
-  MessageSquare, AtSign, MessageCircle, Loader2, Filter,
+  Inbox, Search, Star, Archive, ArchiveRestore, CheckCircle2, Send,
+  MessageSquare, AtSign, MessageCircle, Loader2,
   Smile, Frown, Meh, Sparkles,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -17,65 +18,95 @@ import toast from 'react-hot-toast';
 import PageHeader from '../../components/layout/PageHeader';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
 import AIReplySuggestions from '../../components/ai/AIReplySuggestions';
+import WorkspaceChannelToolbar from '../../components/analytics/WorkspaceChannelToolbar';
 import { useConversations, useConversation } from '../../hooks/useInbox';
+import { useDateRange, useOAuthStatus } from '../../hooks/useData';
 import { inboxAPI } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
+import useWorkspace from '../../hooks/useWorkspace';
+import { getPlatformMeta, OAUTH_PLATFORM_IDS } from '../../constants/socialPlatforms';
+import {
+  INBOX_CONVERSATION_TYPES,
+  INBOX_DEFAULT_RANGE_DAYS,
+  INBOX_SENTIMENT_FILTERS,
+} from '../../config/inbox';
+import { clientSettingsPath } from '../../utils/workspacePaths';
 
-const TYPE_FILTERS = [
-  { id: '',         label: 'All',      icon: Inbox },
-  { id: 'comment',  label: 'Comments', icon: MessageSquare },
-  { id: 'dm',       label: 'DMs',      icon: MessageCircle },
-  { id: 'mention',  label: 'Mentions', icon: AtSign },
-  { id: 'review',   label: 'Reviews',  icon: Star },
-];
+const TYPE_ICONS = {
+  '': Inbox,
+  comment: MessageSquare,
+  dm: MessageCircle,
+  mention: AtSign,
+  review: Star,
+};
 
-const PLATFORM_PILLS = [
-  { id: '',                   label: 'All',   color: 'var(--text-tertiary)' },
-  { id: 'facebook',           label: 'FB',    color: '#1877F2' },
-  { id: 'instagram',          label: 'IG',    color: '#E1306C' },
-  { id: 'youtube',            label: 'YT',    color: '#FF0000' },
-  { id: 'linkedin',           label: 'LI',    color: '#0A66C2' },
-  { id: 'google_my_business', label: 'GMB',   color: '#34A853' },
-];
+const SENTIMENT_ICONS = {
+  positive: Smile,
+  neutral: Meh,
+  negative: Frown,
+};
 
-const SENTIMENT = {
-  positive: { color: 'var(--success)', icon: Smile,   label: 'Positive' },
-  neutral:  { color: 'var(--text-tertiary)', icon: Meh, label: 'Neutral' },
-  negative: { color: 'var(--danger)',  icon: Frown,   label: 'Negative' },
-  unknown:  { color: 'var(--text-tertiary)', icon: null, label: 'Unknown' },
+const SENTIMENT_COLORS = {
+  positive: 'var(--success)',
+  neutral: 'var(--text-tertiary)',
+  negative: 'var(--danger)',
 };
 
 export default function UnifiedInboxPage() {
+  const { user } = useAuth();
+  const { workspaceId, workspace, isAllWorkspaces } = useWorkspace({ user, autoHydrate: true });
+  const clientId = isAllWorkspaces ? null : workspaceId;
+
   const [type, setType] = useState('');
-  const [platform, setPlatform] = useState('');
   const [sentiment, setSentiment] = useState('');
   const [unreadOnly, setUnreadOnly] = useState(false);
   const [starredOnly, setStarredOnly] = useState(false);
   const [search, setSearch] = useState('');
+  const [channels, setChannels] = useState([]);
   const [activeId, setActiveId] = useState(null);
+  const [syncing, setSyncing] = useState(false);
 
-  const params = {};
-  if (type) params.type = type;
-  if (platform) params.platform = platform;
-  if (sentiment) params.sentiment = sentiment;
-  if (unreadOnly) params.unread = 1;
-  if (starredOnly) params.starred = 1;
-  if (search) params.search = search;
+  const [range, setRange] = useDateRange(INBOX_DEFAULT_RANGE_DAYS);
+  const { status: oauthStatus } = useOAuthStatus(clientId);
+  const connectedPlatforms = useMemo(
+    () => Object.entries(oauthStatus || {})
+      .filter(([, v]) => v?.status === 'active')
+      .map(([k]) => k),
+    [oauthStatus],
+  );
+
+  const params = useMemo(() => {
+    const p = {
+      since: range.since,
+      until: range.until,
+    };
+    if (type) p.type = type;
+    if (sentiment) p.sentiment = sentiment;
+    if (unreadOnly) p.unread = 1;
+    if (starredOnly) p.starred = 1;
+    if (search) p.search = search;
+    if (channels.length) p.platforms = channels.join(',');
+    return p;
+  }, [type, sentiment, unreadOnly, starredOnly, search, channels, range.since, range.until]);
 
   const { data: conversations, refetch: refetchList, loading } = useConversations(params);
   const { data: thread, refetch: refetchThread } = useConversation(activeId);
 
-  // Auto-select the first conversation when the list loads
+  const settingsConnectPath = clientId ? clientSettingsPath('/admin', workspace) : null;
+  const channelFallback = connectedPlatforms.length ? connectedPlatforms : OAUTH_PLATFORM_IDS;
+
+  useEffect(() => {
+    setActiveId(null);
+  }, [clientId, range.since, range.until, channels.join(',')]);
+
   useEffect(() => {
     if (!activeId && conversations.length > 0) {
       setActiveId(conversations[0].id);
     }
   }, [conversations, activeId]);
 
-  // Mark-read on selection
   useEffect(() => {
     if (activeId) {
       const convo = conversations.find((c) => c.id === activeId);
@@ -83,12 +114,78 @@ export default function UnifiedInboxPage() {
         inboxAPI.conversations.markRead(activeId).then(() => refetchList()).catch(() => {});
       }
     }
-  // eslint-disable-next-line
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeId]);
+
+  const handleSync = async () => {
+    if (!clientId) {
+      toast.error('Select a workspace to sync inbox.');
+      return;
+    }
+    setSyncing(true);
+    try {
+      const platforms = channels.length ? channels : null;
+      const res = await inboxAPI.sync(platforms);
+      const queued = res.data?.queued || [];
+      if (queued.length) {
+        toast.success(`Inbox sync queued: ${queued.join(', ')}`);
+      } else {
+        toast.error('No active credentials — connect accounts first.');
+      }
+      setTimeout(() => {
+        refetchList();
+        if (activeId) refetchThread();
+        setSyncing(false);
+      }, 2500);
+    } catch (e) {
+      toast.error(e.response?.data?.detail || 'Inbox sync failed');
+      setSyncing(false);
+    }
+  };
 
   return (
     <div style={{ paddingBottom: 0 }}>
-      <PageHeader title="Inbox" subtitle="Comments, DMs and mentions across every platform" />
+      <PageHeader
+        title="Inbox"
+        subtitle="Comments, DMs, mentions, and reviews from the database for the selected workspace and date range"
+      />
+
+      <WorkspaceChannelToolbar
+        clientId={clientId}
+        workspaceLabel={workspace?.label || ''}
+        currentUser={user}
+        channels={channels}
+        onChannelsChange={setChannels}
+        fallbackPlatforms={channelFallback}
+        range={range}
+        onRangeChange={setRange}
+        onSync={handleSync}
+        syncing={syncing}
+        syncDisabled={isAllWorkspaces}
+        syncLabel="Sync inbox"
+        syncTitle="Pull comments, DMs, and reviews from social APIs into the database"
+        style={{ padding: '0 24px 12px' }}
+      />
+
+      {isAllWorkspaces && (
+        <p style={{ padding: '0 24px 12px', fontSize: 13, color: 'var(--text-secondary)' }}>
+          Select a single workspace in the top bar to view and sync inbox threads.
+        </p>
+      )}
+
+      {!isAllWorkspaces && clientId && connectedPlatforms.length === 0 && (
+        <p style={{ padding: '0 24px 12px', fontSize: 13, color: 'var(--text-secondary)' }}>
+          No channels connected —{' '}
+          {settingsConnectPath ? (
+            <Link to={settingsConnectPath} style={{ color: 'var(--brand-primary-hover)', fontWeight: 600 }}>
+              Connect accounts
+            </Link>
+          ) : (
+            'connect accounts in workspace settings'
+          )}
+          , then use <strong>Sync inbox</strong>.
+        </p>
+      )}
 
       <div className="inbox-grid" style={{
         display: 'grid',
@@ -100,7 +197,6 @@ export default function UnifiedInboxPage() {
         {/* ── LEFT: filters ─────────────────────────────────────────── */}
         <FiltersColumn
           type={type} setType={setType}
-          platform={platform} setPlatform={setPlatform}
           sentiment={sentiment} setSentiment={setSentiment}
           unreadOnly={unreadOnly} setUnreadOnly={setUnreadOnly}
           starredOnly={starredOnly} setStarredOnly={setStarredOnly}
@@ -135,7 +231,7 @@ export default function UnifiedInboxPage() {
 
 /* ── FILTERS COLUMN ────────────────────────────────────────────────────── */
 function FiltersColumn({
-  type, setType, platform, setPlatform, sentiment, setSentiment,
+  type, setType, sentiment, setSentiment,
   unreadOnly, setUnreadOnly, starredOnly, setStarredOnly, search, setSearch,
 }) {
   return (
@@ -167,45 +263,15 @@ function FiltersColumn({
 
       <div style={{ flex: 1, overflowY: 'auto', padding: 8 }}>
         <SectionHeader>Type</SectionHeader>
-        {TYPE_FILTERS.map((f) => (
-          <FilterRow key={f.id} icon={f.icon} label={f.label}
+        {INBOX_CONVERSATION_TYPES.map((f) => (
+          <FilterRow key={f.id || 'all'} icon={TYPE_ICONS[f.id] || Inbox} label={f.label}
                      active={type === f.id} onClick={() => setType(f.id)} />
         ))}
 
-        <SectionHeader>Platform</SectionHeader>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, padding: '4px 10px 8px' }}>
-          {PLATFORM_PILLS.map((p) => {
-            const active = platform === p.id;
-            return (
-              <button
-                key={p.id || 'all'}
-                type="button"
-                onClick={() => setPlatform(p.id)}
-                style={{
-                  padding: '4px 10px', borderRadius: 'var(--radius-pill)',
-                  border: `1px solid ${active ? 'transparent' : 'var(--border-subtle)'}`,
-                  background: active ? p.color : 'var(--surface-card)',
-                  color: active ? '#fff' : 'var(--text-secondary)',
-                  fontSize: 11, fontWeight: 600, cursor: 'pointer',
-                  minHeight: 'unset', minWidth: 'unset',
-                  transition: 'var(--transition-fast)',
-                }}
-              >
-                {p.label}
-              </button>
-            );
-          })}
-        </div>
-
         <SectionHeader>Sentiment</SectionHeader>
-        {[
-          { id: '',         label: 'All' },
-          { id: 'positive', label: 'Positive', icon: Smile,  color: 'var(--success)' },
-          { id: 'neutral',  label: 'Neutral',  icon: Meh,    color: 'var(--text-tertiary)' },
-          { id: 'negative', label: 'Negative', icon: Frown,  color: 'var(--danger)' },
-        ].map((s) => (
-          <FilterRow key={s.id || 'all'} icon={s.icon} label={s.label}
-                     iconColor={s.color}
+        {INBOX_SENTIMENT_FILTERS.map((s) => (
+          <FilterRow key={s.id || 'all'} icon={SENTIMENT_ICONS[s.id]} label={s.label}
+                     iconColor={SENTIMENT_COLORS[s.id]}
                      active={sentiment === s.id} onClick={() => setSentiment(s.id)} />
         ))}
 
@@ -295,8 +361,11 @@ function ListColumn({ conversations, activeId, onSelect, loading }) {
 }
 
 function ConversationRow({ conv, active, onClick }) {
-  const platform = PLATFORM_PILLS.find((p) => p.id === conv.platform);
-  const sent = SENTIMENT[conv.sentiment] || SENTIMENT.unknown;
+  const meta = getPlatformMeta(conv.platform) || {};
+  const platformColor = meta.color || 'var(--text-tertiary)';
+  const platformLabel = meta.shortLabel || meta.label || conv.platform || '?';
+  const SentIcon = SENTIMENT_ICONS[conv.sentiment];
+  const sentColor = SENTIMENT_COLORS[conv.sentiment] || 'var(--text-tertiary)';
   const initial = (conv.contact_name || conv.contact_handle || '?')[0].toUpperCase();
 
   return (
@@ -316,7 +385,7 @@ function ConversationRow({ conv, active, onClick }) {
       <div style={{ position: 'relative', flexShrink: 0 }}>
         <div style={{
           width: 40, height: 40, borderRadius: 999,
-          background: `linear-gradient(135deg, ${platform?.color || 'var(--text-tertiary)'}, ${shade(platform?.color || 'var(--text-tertiary)', -15)})`,
+          background: `linear-gradient(135deg, ${platformColor}, ${shade(platformColor, -15)})`,
           color: '#fff', fontWeight: 700, fontSize: 14,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
@@ -327,9 +396,9 @@ function ConversationRow({ conv, active, onClick }) {
           width: 14, height: 14, borderRadius: 999,
           background: 'var(--surface-card)', border: '2px solid var(--surface-card)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 8, fontWeight: 700, color: platform?.color,
+          fontSize: 8, fontWeight: 700, color: platformColor,
         }}>
-          {(platform?.label || '?').slice(0, 2)}
+          {String(platformLabel).slice(0, 2)}
         </div>
       </div>
 
@@ -363,7 +432,7 @@ function ConversationRow({ conv, active, onClick }) {
           {conv.last_message_preview || ''}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          {sent.icon && <sent.icon size={11} color={sent.color} />}
+          {SentIcon && <SentIcon size={11} color={sentColor} />}
           <span style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>
             {fmtTime(conv.last_message_at)}
           </span>
@@ -399,7 +468,9 @@ function ThreadColumn({ thread, onAction }) {
     );
   }
 
-  const platform = PLATFORM_PILLS.find((p) => p.id === thread.platform);
+  const meta = getPlatformMeta(thread.platform) || {};
+  const platformColor = meta.color || 'var(--text-tertiary)';
+  const platformLabel = meta.label || thread.platform;
 
   async function send() {
     const text = replyText.trim();
@@ -455,7 +526,7 @@ function ThreadColumn({ thread, onAction }) {
       }}>
         <div style={{
           width: 36, height: 36, borderRadius: 999,
-          background: `linear-gradient(135deg, ${platform?.color || 'var(--text-tertiary)'}, ${shade(platform?.color || 'var(--text-tertiary)', -15)})`,
+          background: `linear-gradient(135deg, ${platformColor}, ${shade(platformColor, -15)})`,
           color: '#fff', fontWeight: 700, fontSize: 13,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
@@ -466,7 +537,7 @@ function ThreadColumn({ thread, onAction }) {
             {thread.contact_name || thread.contact_handle || 'Unknown'}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-tertiary)', marginTop: 2 }}>
-            <span style={{ color: platform?.color, fontWeight: 600 }}>{platform?.label}</span>
+            <span style={{ color: platformColor, fontWeight: 600 }}>{platformLabel}</span>
             <span>·</span>
             <span>{thread.type}</span>
             {thread.contact_handle && (
@@ -590,7 +661,8 @@ function ActionIcon({ icon: Icon, active, onClick, ariaLabel }) {
 
 function Bubble({ msg }) {
   const isOut = msg.direction === 'outbound';
-  const sent = SENTIMENT[msg.sentiment] || SENTIMENT.unknown;
+  const SentIcon = SENTIMENT_ICONS[msg.sentiment];
+  const sentColor = SENTIMENT_COLORS[msg.sentiment] || 'var(--text-tertiary)';
   return (
     <div style={{
       display: 'flex', flexDirection: 'column',
@@ -624,10 +696,10 @@ function Bubble({ msg }) {
         padding: '0 6px',
       }}>
         <span>{fmtDateTime(msg.sent_at || msg.created_at)}</span>
-        {!isOut && sent.icon && (
+        {!isOut && SentIcon && (
           <>
             <span>·</span>
-            <sent.icon size={10} color={sent.color} />
+            <SentIcon size={10} color={sentColor} />
           </>
         )}
       </div>

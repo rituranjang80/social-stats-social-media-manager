@@ -22,6 +22,8 @@ and the platform credentials only when you want to connect real accounts.
 | `SECRET_KEY` | **Yes (prod)** | dev fallback | Django cryptographic signing key. Dev has an insecure fallback; in production set a long random value. Generate: `python -c "import secrets; print(secrets.token_urlsafe(50))"`. |
 | `DEBUG` | No | `False` | `True` enables Django debug pages. **Keep `False` in production.** |
 | `INBOX_DEMO_REPLY` | No | same as `DEBUG` | When `true`, inbox **Reply** on credentials whose token starts with `demo_inbox_` skips live publisher APIs (used with `python manage.py seed_inbox_demo`). |
+
+Inbox list API accepts **`since` / `until`** (or **`from` / `to`**) and **`platforms`** (comma-separated) to filter **`Conversation`** rows from the database. Manual pull: **`POST /api/inbox/sync/`** with optional `{ "platforms": ["facebook", …] }` and workspace **`X-Client-Id`** (queues Celery inbox tasks).
 | `ALLOWED_HOSTS` | **Yes (prod)** | `socialstats.app,www.socialstats.app` | Comma-separated hostnames Django will serve. For local dev add `localhost,127.0.0.1`. Requests to other hosts are rejected. |
 | `FRONTEND_URL` | **Yes** | `https://socialstats.app` | Base URL of the React app. Used to build links in emails and OAuth redirects back to the UI. For local dev set `http://localhost:3000`. |
 | `BRAND_NAME` | No | `REACT_APP_BRAND_NAME` → `Application` | Product name in **transactional emails** (client invitations, etc.). Set explicitly in `backend/.env` or mirror frontend `REACT_APP_BRAND_NAME`. |
@@ -54,6 +56,7 @@ Set in **`frontend/.env`** for native `npm start`. For **Docker dev** (`docker-c
 | `REACT_APP_IDLE_WARNING_SECONDS` | No | *(unset)* | When set, overrides `REACT_APP_IDLE_WARNING_MINUTES` |
 | `REACT_APP_IDLE_BEEP` | No | `true` | Short beep when the warning opens |
 | `REACT_APP_IDLE_TOKEN_REFRESH_MINUTES` | No | `10` | While you are active, refresh the JWT at most this often (keeps working sessions alive; set below backend `JWT_ACCESS_MIN`, default 15) |
+| `REACT_APP_INBOX_DEFAULT_DAYS` | No | `30` | Default date range (days) when opening **Analytics → Inbox** |
 | `GENERATE_SOURCEMAP` | No | `true` (CRA default) | Set **`false`** in **`frontend/.env`** for Docker dev on bind mounts to avoid **source-map-loader** read failures (`Unknown system error -61`). Dev compose sets `false` by default. |
 
 Template: [`frontend/.env.example`](../frontend/.env.example).

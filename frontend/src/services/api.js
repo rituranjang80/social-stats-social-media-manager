@@ -843,6 +843,7 @@ export const inboxAPI = {
     flag:        (id)       => api.post(`/inbox/reviews/${id}/flag/`),
   },
   stats:         ()         => api.get('/inbox/stats/'),
+  sync:          (platforms) => api.post('/inbox/sync/', { platforms: platforms || undefined }),
 };
 
 // ── WhatsApp (Pinbot) ──────────────────────────────────

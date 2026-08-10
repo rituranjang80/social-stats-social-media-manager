@@ -17,12 +17,12 @@ import { overviewAPI, clientsAPI } from '../services/api';
 import { useClients, useDateRange, useOAuthStatus } from '../hooks/useData';
 import useWorkspace from '../hooks/useWorkspace';
 import { useAuth } from '../hooks/useAuth';
-import { TrendingUp, TrendingDown, Minus, RefreshCw, Users, Eye, MousePointer, Play, UserPlus, Loader2 } from 'lucide-react';
-import DateRangePicker from '../components/ui/DateRangePicker';
+import { TrendingUp, TrendingDown, Minus, RefreshCw, Users, Eye, MousePointer, Play, UserPlus } from 'lucide-react';
 import SocialPlatformIcon from '../components/ui/SocialPlatformIcon';
 import PageHeader from '../components/layout/PageHeader';
-import ConnectedChannelFilter from '../components/calendar/ConnectedChannelFilter';
+import WorkspaceChannelToolbar from '../components/analytics/WorkspaceChannelToolbar';
 import { clientSettingsPath } from '../utils/workspacePaths';
+import { OAUTH_PLATFORM_IDS } from '../constants/socialPlatforms';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const PLATFORM_META = {
@@ -401,51 +401,32 @@ export default function AnalyticsPage() {
             ? `${selectedClientName} — ${range.since} to ${range.until}`
             : undefined)}
         actions={(
-          <div className="analytics-controls" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-        
-            <DateRangePicker range={range} onChange={setRange} />
-                 <ConnectedChannelFilter
-          clientId={filterClientId}
-          workspaceLabel={workspace?.label || ''}
-          currentUser={user}
-          selected={selectedChannels}
-          onChange={setSelectedChannels}
-          fallbackPlatforms={channelFallbackPlatforms}
-        />
-            <button
-              type="button"
-              onClick={handleSync}
-              disabled={syncing}
-              style={{ ...btnSecondary, padding: '8px 14px' }}
-              title="Queue sync from connected social accounts into the database"
-            >
-              {syncing
-                ? <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> Syncing…</>
-                : <><RefreshCw size={14} /> Sync data</>}
-            </button>
-            <button
-              type="button"
-              onClick={refetchAnalytics}
-              style={{ ...btnSecondary, padding: '8px 12px' }}
-              title="Refresh charts from database"
-            >
-              <RefreshCw size={14} />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={refetchAnalytics}
+            style={{ ...btnSecondary, padding: '8px 12px' }}
+            title="Refresh charts from database"
+          >
+            <RefreshCw size={14} />
+          </button>
         )}
       />
 
-      <div
-        style={{
-          marginBottom: 20,
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          gap: 8,
-        }}
-      >
-     
-      </div>
+      <WorkspaceChannelToolbar
+        clientId={filterClientId}
+        workspaceLabel={workspace?.label || ''}
+        currentUser={user}
+        channels={selectedChannels}
+        onChannelsChange={setSelectedChannels}
+        fallbackPlatforms={channelFallbackPlatforms.length ? channelFallbackPlatforms : OAUTH_PLATFORM_IDS}
+        range={range}
+        onRangeChange={setRange}
+        onSync={handleSync}
+        syncing={syncing}
+        syncDisabled={isAllWorkspaces}
+        syncLabel="Sync data"
+        style={{ marginBottom: 20 }}
+      />
 
       {!isAllWorkspaces && filterClientId && connectedPlatforms.length === 0 && (
         <div style={{

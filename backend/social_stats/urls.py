@@ -224,6 +224,7 @@ from .composer_views import (
 )
 from .inbox_views import (
     ConversationViewSet, MessageViewSet, UnifiedReviewViewSet, InboxStatsView,
+    InboxSyncView,
 )
 from .manual_token_views import (
     connect_facebook_manual, connect_instagram_manual,
@@ -641,6 +642,7 @@ urlpatterns = [
 
     # Inbox stats
     path('inbox/stats/',            InboxStatsView.as_view(),           name='inbox_stats'),
+    path('inbox/sync/',             InboxSyncView.as_view(),            name='inbox_sync'),
 
     # Manual-token mode (per-client OAuth-app credentials)
     path('manual/facebook/<str:client_id>/',  connect_facebook_manual,  name='manual_fb'),

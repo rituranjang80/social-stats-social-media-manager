@@ -59,15 +59,9 @@ def sync_inbox_for_all_clients(self):
         'id', 'client_id', 'platform',
     )
     queued = 0
-    by_platform = {
-        'facebook':           sync_facebook_inbox,
-        'instagram':          sync_instagram_inbox,
-        'youtube':            sync_youtube_inbox,
-        'linkedin':           sync_linkedin_inbox,
-        'google_my_business': sync_gmb_reviews_unified,
-    }
     for c in creds:
-        task = by_platform.get(c.platform)
+        plat = c.platform
+        task = _inbox_sync_task_for_platform(plat)
         if task is not None:
             task.delay(c.client_id)
             queued += 1
@@ -609,3 +603,41 @@ def _parse_iso(value) -> Optional[datetime]:
         return datetime.fromisoformat(v)
     except (ValueError, TypeError):
         return timezone.now()
+
+
+def _inbox_sync_task_for_platform(platform: str):
+    """Lazy map — defined after all per-platform Celery tasks."""
+    return {
+        'facebook':           sync_facebook_inbox,
+        'instagram':          sync_instagram_inbox,
+        'youtube':            sync_youtube_inbox,
+        'linkedin':           sync_linkedin_inbox,
+        'google_my_business': sync_gmb_reviews_unified,
+    }.get(platform)
+
+
+def queue_inbox_sync_for_client(client_id: int, platforms: list | None = None) -> list:
+    """Queue Celery inbox sync tasks for one workspace. Returns platforms queued."""
+    qs = PlatformCredential.objects.filter(client_id=client_id, is_active=True)
+    if platforms:
+        qs = qs.filter(platform__in=platforms)
+    queued = []
+    seen = set()
+    for cred in qs.only('platform'):
+        plat = cred.platform
+        if plat in seen:
+            continue
+        task = _inbox_sync_task_for_platform(plat)
+        if task is not None:
+            task.delay(client_id)
+            queued.append(plat)
+            seen.add(plat)
+    return queued
+
+
+@shared_task(bind=True)
+def sync_inbox_for_client(self, client_id: int, platforms: list | None = None):
+    """Manual / API-triggered inbox sync for one client."""
+    queued = queue_inbox_sync_for_client(client_id, platforms)
+    logger.info('sync_inbox_for_client client=%s queued=%s', client_id, queued)
+    return queued
