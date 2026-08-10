@@ -17,12 +17,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Sun, Moon, Monitor, Plus, Copy, Trash2, Eye, EyeOff,
+  Plus, Copy, Trash2, Eye, EyeOff,
   Download, AlertTriangle, ExternalLink, Bell, Mail, Smartphone,
   Sparkles, ArrowRight, Webhook,
 } from 'lucide-react';
 
 import { useTheme } from '../../hooks/useTheme';
+import { APPEARANCE_THEMES } from '../../config/appThemes';
 import { useAuth } from '../../hooks/useAuth';
 import useWorkspace from '../../hooks/useWorkspace';
 import { usePostManagementSettings } from '../../hooks/usePostManagement';
@@ -167,15 +168,24 @@ export function AppearanceSection() {
       title="Appearance"
       description={`Customise how ${BRAND_NAME} looks and feels.`}
     >
-      <Card padding="md">
+      <Card padding="md" id="settings-appearance-mode">
         <div style={{ marginBottom: 8, fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>Theme</div>
         <p style={{ margin: '0 0 16px', fontSize: 13, color: 'var(--text-secondary)' }}>
-          Choose a light or dark theme. "System" matches your OS preference.
+          Pick a theme for the entire application — surfaces, text, buttons, and accents update instantly.
         </p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 12 }}>
-          <ThemeCard active={preference === 'light'}  icon={Sun}     label="Light"  onClick={() => setTheme('light')} />
-          <ThemeCard active={preference === 'dark'}   icon={Moon}    label="Dark"   onClick={() => setTheme('dark')} />
-          <ThemeCard active={preference === 'system'} icon={Monitor} label="System" onClick={() => setTheme('system')} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: 12 }}>
+          {APPEARANCE_THEMES.map((t) => (
+            <ThemeCard
+              key={t.id}
+              active={preference === t.id}
+              icon={t.icon}
+              label={t.label}
+              onClick={() => {
+                setTheme(t.id);
+                toast.success(`${t.label} theme applied`);
+              }}
+            />
+          ))}
         </div>
       </Card>
 

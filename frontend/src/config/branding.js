@@ -2,6 +2,8 @@
  *  White-label branding — ONLY this module reads REACT_APP_BRAND_* from .env.
  * ========================================================================== */
 
+import { isExtendedTheme } from './appThemes';
+
 const trim = (v) => (v == null ? '' : String(v).trim());
 
 const PUBLIC = process.env.PUBLIC_URL || '';
@@ -191,8 +193,19 @@ export function absoluteBrandLogoUrl() {
 
 export function applyBrandingCssVariables() {
   if (typeof document === 'undefined') return;
-  const v = primaryColorVariants(BRAND_PRIMARY_COLOR);
   const root = document.documentElement;
+  const pref = (typeof window !== 'undefined' && window.localStorage?.getItem('theme')) || 'light';
+  if (isExtendedTheme(pref)) {
+    root.style.removeProperty('--brand-primary');
+    root.style.removeProperty('--brand-primary-hover');
+    root.style.removeProperty('--brand-primary-active');
+    root.style.removeProperty('--brand-primary-soft');
+    root.style.removeProperty('--brand-primary-glow');
+    root.style.removeProperty('--brand-cyan');
+    root.style.removeProperty('--blue');
+    return;
+  }
+  const v = primaryColorVariants(BRAND_PRIMARY_COLOR);
   root.style.setProperty('--brand-primary', v.primary);
   root.style.setProperty('--brand-primary-hover', v.hover);
   root.style.setProperty('--brand-primary-active', v.active);

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added — Full application themes (Appearance)
+
+- **Settings → Appearance → Theme** (`#settings-appearance-mode`): **Light**, **Dark**, **System**, plus **seven** full themes (**Ocean**, **Violet**, **Emerald**, **Sunset**, **Rose**, **Indigo**, **Midnight**). One click applies the whole UI via `<html data-theme="…">` (same mechanism as Light/Dark). Stored in `localStorage` key `theme`.
+
 ### Changed — Refactor Phase 2 (manager2 API split)
 
 - **`frontend/src/core/api/*`**: domain API modules extracted from the monolithic `services/api.js`; **`services/api.js`** is now a thin re-export barrel so existing imports keep working. No endpoint or payload changes.

@@ -1,0 +1,275 @@
+/*
+ * Seven full UI themes (+ light/dark use tokens.css :root / [data-theme="dark"]).
+ * Legacy --bg / --surface names included so index.js dark bridge pages stay in sync.
+ */
+
+/* ── Ocean — bright cyan brand, cool gray surfaces ── */
+html[data-theme="ocean"] {
+  color-scheme: light;
+  --brand-primary: #00CCF5;
+  --brand-primary-hover: #00A8D8;
+  --brand-primary-active: #008CB8;
+  --brand-primary-soft: rgba(0, 204, 245, 0.12);
+  --brand-primary-glow: rgba(0, 204, 245, 0.20);
+  --brand-gradient: linear-gradient(135deg, #00CCF5 0%, #00A8D8 100%);
+  --text-link: #009ec0;
+
+  --surface-page: #f0f9fc;
+  --surface-card: #ffffff;
+  --surface-elevated: #ffffff;
+  --surface-sunken: #e8f4f8;
+  --surface-hover: #e3f2f8;
+  --surface-overlay: rgba(255, 255, 255, 0.9);
+  --surface-glass: rgba(255, 255, 255, 0.78);
+
+  --text-primary: #0a1628;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+
+  --border-subtle: rgba(0, 120, 150, 0.08);
+  --border-default: rgba(0, 120, 150, 0.14);
+  --border-focus: rgba(0, 204, 245, 0.55);
+  --shadow-brand: 0 8px 24px rgba(0, 204, 245, 0.22);
+  --module-analytics: #00CCF5;
+
+  --bg: #f0f9fc;
+  --surface: #ffffff;
+  --surface-2: #e8f4f8;
+  --border: #cce8f0;
+  --blue: var(--brand-primary-hover);
+  --blue-light: var(--brand-primary-soft);
+  --blue-glow: var(--brand-primary-glow);
+}
+
+/* ── Violet — soft purple light ── */
+html[data-theme="violet"] {
+  color-scheme: light;
+  --brand-primary: #8b5cf6;
+  --brand-primary-hover: #7c3aed;
+  --brand-primary-active: #6d28d9;
+  --brand-primary-soft: rgba(139, 92, 246, 0.12);
+  --brand-primary-glow: rgba(139, 92, 246, 0.20);
+  --brand-gradient: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+  --text-link: #7c3aed;
+
+  --surface-page: #f5f3ff;
+  --surface-card: #ffffff;
+  --surface-sunken: #ede9fe;
+  --surface-hover: #f3e8ff;
+  --text-primary: #1e1b4b;
+  --text-secondary: #5b21b6;
+  --text-tertiary: #7c3aed;
+  --border-subtle: rgba(91, 33, 182, 0.08);
+  --border-default: rgba(91, 33, 182, 0.14);
+  --border-focus: rgba(139, 92, 246, 0.5);
+  --shadow-brand: 0 8px 24px rgba(139, 92, 246, 0.25);
+  --module-analytics: #8b5cf6;
+
+  --bg: #f5f3ff;
+  --surface: #ffffff;
+  --surface-2: #ede9fe;
+  --border: #ddd6fe;
+  --blue: var(--brand-primary-hover);
+  --blue-light: var(--brand-primary-soft);
+  --blue-glow: var(--brand-primary-glow);
+}
+
+/* ── Emerald — fresh green light ── */
+html[data-theme="emerald"] {
+  color-scheme: light;
+  --brand-primary: #10b981;
+  --brand-primary-hover: #059669;
+  --brand-primary-active: #047857;
+  --brand-primary-soft: rgba(16, 185, 129, 0.12);
+  --brand-primary-glow: rgba(16, 185, 129, 0.20);
+  --brand-gradient: linear-gradient(135deg, #34d399 0%, #059669 100%);
+  --text-link: #059669;
+
+  --surface-page: #ecfdf5;
+  --surface-card: #ffffff;
+  --surface-sunken: #d1fae5;
+  --surface-hover: #d1fae5;
+  --text-primary: #064e3b;
+  --text-secondary: #047857;
+  --text-tertiary: #059669;
+  --border-subtle: rgba(4, 120, 87, 0.08);
+  --border-default: rgba(4, 120, 87, 0.14);
+  --border-focus: rgba(16, 185, 129, 0.5);
+  --shadow-brand: 0 8px 24px rgba(16, 185, 129, 0.22);
+  --module-analytics: #10b981;
+
+  --bg: #ecfdf5;
+  --surface: #ffffff;
+  --surface-2: #d1fae5;
+  --border: #a7f3d0;
+  --blue: var(--brand-primary-hover);
+  --blue-light: var(--brand-primary-soft);
+  --blue-glow: var(--brand-primary-glow);
+}
+
+/* ── Sunset — warm amber light ── */
+html[data-theme="sunset"] {
+  color-scheme: light;
+  --brand-primary: #f59e0b;
+  --brand-primary-hover: #d97706;
+  --brand-primary-active: #b45309;
+  --brand-primary-soft: rgba(245, 158, 11, 0.14);
+  --brand-primary-glow: rgba(245, 158, 11, 0.22);
+  --brand-gradient: linear-gradient(135deg, #fbbf24 0%, #ea580c 100%);
+  --text-link: #c2410c;
+
+  --surface-page: #fffbeb;
+  --surface-card: #ffffff;
+  --surface-sunken: #fef3c7;
+  --surface-hover: #fef9c3;
+  --text-primary: #431407;
+  --text-secondary: #9a3412;
+  --text-tertiary: #c2410c;
+  --border-subtle: rgba(154, 52, 18, 0.08);
+  --border-default: rgba(154, 52, 18, 0.14);
+  --border-focus: rgba(245, 158, 11, 0.5);
+  --shadow-brand: 0 8px 24px rgba(245, 158, 11, 0.28);
+  --module-analytics: #f59e0b;
+
+  --bg: #fffbeb;
+  --surface: #ffffff;
+  --surface-2: #fef3c7;
+  --border: #fde68a;
+  --blue: var(--brand-primary-hover);
+  --blue-light: var(--brand-primary-soft);
+  --blue-glow: var(--brand-primary-glow);
+}
+
+/* ── Rose — blush pink light ── */
+html[data-theme="rose"] {
+  color-scheme: light;
+  --brand-primary: #f43f5e;
+  --brand-primary-hover: #e11d48;
+  --brand-primary-active: #be123c;
+  --brand-primary-soft: rgba(244, 63, 94, 0.12);
+  --brand-primary-glow: rgba(244, 63, 94, 0.20);
+  --brand-gradient: linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
+  --text-link: #be123c;
+
+  --surface-page: #fff1f2;
+  --surface-card: #ffffff;
+  --surface-sunken: #ffe4e6;
+  --surface-hover: #ffe4e6;
+  --text-primary: #4c0519;
+  --text-secondary: #9f1239;
+  --text-tertiary: #be123c;
+  --border-subtle: rgba(159, 18, 57, 0.08);
+  --border-default: rgba(159, 18, 57, 0.14);
+  --border-focus: rgba(244, 63, 94, 0.5);
+  --shadow-brand: 0 8px 24px rgba(244, 63, 94, 0.25);
+  --module-analytics: #f43f5e;
+
+  --bg: #fff1f2;
+  --surface: #ffffff;
+  --surface-2: #ffe4e6;
+  --border: #fecdd3;
+  --blue: var(--brand-primary-hover);
+  --blue-light: var(--brand-primary-soft);
+  --blue-glow: var(--brand-primary-glow);
+}
+
+/* ── Indigo — deep dark indigo ── */
+html[data-theme="indigo"] {
+  color-scheme: dark;
+  --brand-primary: #818cf8;
+  --brand-primary-hover: #6366f1;
+  --brand-primary-active: #4f46e5;
+  --brand-primary-soft: rgba(129, 140, 248, 0.16);
+  --brand-primary-glow: rgba(129, 140, 248, 0.28);
+  --brand-gradient: linear-gradient(135deg, #818cf8 0%, #4f46e5 100%);
+  --text-link: #a5b4fc;
+
+  --surface-page: #0f0f23;
+  --surface-card: #1e1b4b;
+  --surface-elevated: #252350;
+  --surface-sunken: #0c0a1f;
+  --surface-hover: #2e2a5e;
+  --surface-overlay: rgba(30, 27, 75, 0.92);
+  --surface-glass: rgba(30, 27, 75, 0.72);
+
+  --text-primary: #e0e7ff;
+  --text-secondary: #c7d2fe;
+  --text-tertiary: #a5b4fc;
+  --text-quaternary: #6366f1;
+
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.12);
+  --border-focus: rgba(129, 140, 248, 0.55);
+  --overlay-backdrop: rgba(0, 0, 0, 0.65);
+  --shadow-brand: 0 8px 24px rgba(99, 102, 241, 0.35);
+  --module-analytics: #818cf8;
+
+  --bg: #0f0f23;
+  --surface: #1e1b4b;
+  --surface-2: #252350;
+  --border: rgba(255, 255, 255, 0.12);
+  --text-muted: #a5b4fc;
+  --blue-light: var(--brand-primary-soft);
+  --blue-glow: var(--brand-primary-glow);
+}
+
+html[data-theme="indigo"] .socialstats-loader__logo {
+  filter: brightness(0) invert(1);
+}
+
+/* ── Midnight — neutral dark slate ── */
+html[data-theme="midnight"] {
+  color-scheme: dark;
+  --brand-primary: #38bdf8;
+  --brand-primary-hover: #0ea5e9;
+  --brand-primary-active: #0284c7;
+  --brand-primary-soft: rgba(56, 189, 248, 0.14);
+  --brand-primary-glow: rgba(56, 189, 248, 0.24);
+  --brand-gradient: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+  --text-link: #7dd3fc;
+
+  --surface-page: #0a0f14;
+  --surface-card: #111827;
+  --surface-elevated: #1f2937;
+  --surface-sunken: #060a0f;
+  --surface-hover: #1f2937;
+  --surface-overlay: rgba(17, 24, 39, 0.92);
+  --surface-glass: rgba(17, 24, 39, 0.68);
+
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  --text-quaternary: #6b7280;
+
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.10);
+  --border-focus: rgba(56, 189, 248, 0.5);
+  --overlay-backdrop: rgba(0, 0, 0, 0.68);
+  --shadow-brand: 0 8px 24px rgba(56, 189, 248, 0.28);
+  --module-analytics: #38bdf8;
+
+  --bg: #0a0f14;
+  --surface: #111827;
+  --surface-2: #1f2937;
+  --border: rgba(255, 255, 255, 0.10);
+  --text-muted: #9ca3af;
+  --blue-light: var(--brand-primary-soft);
+  --blue-glow: var(--brand-primary-glow);
+}
+
+html[data-theme="midnight"] .socialstats-loader__logo {
+  filter: brightness(0) invert(1);
+}
+
+html[data-theme="indigo"] ::-webkit-scrollbar-thumb,
+html[data-theme="midnight"] ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+html[data-theme="indigo"] .skeleton,
+html[data-theme="indigo"] .skeleton-card,
+html[data-theme="midnight"] .skeleton,
+html[data-theme="midnight"] .skeleton-card {
+  background: linear-gradient(90deg, #1a212c 25%, #232c39 50%, #1a212c 75%);
+  background-size: 200% 100%;
+}

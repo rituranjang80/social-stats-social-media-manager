@@ -7,29 +7,27 @@
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  ALL_THEME_IDS,
+  isExtendedTheme,
+  themeIsDark,
+} from '../config/appThemes';
+import { applyBrandingCssVariables } from '../config/branding';
 
 /**
- * Theme management.
+ * Theme management — one preference drives `<html data-theme="…">` for the whole app.
  *
- *  - User preference: 'light' | 'dark' | 'system' (persisted to localStorage)
- *  - Resolved value:  'light' | 'dark' (what's actually applied)
- *
- * The resolved value is written to <html data-theme="..."> so the CSS in
- * tokens.css and the dark-mode bridge in index.js can react.
- *
- * Default preference is 'light'. The TopBar/MarketingNav toggle is binary
- * (light ↔ dark); the 3-way Light/Dark/System chooser is exposed via
- * `setTheme(value)` for the Settings → Appearance page.
+ *  - light | dark | system (system resolves to light/dark on the document)
+ *  - ocean | violet | emerald | sunset | rose | indigo | midnight (full palettes in app-themes.css)
  */
 
 const STORAGE_KEY = 'theme';
 const DEFAULT_PREFERENCE = 'light';
-const VALID_PREFS = new Set(['light', 'dark', 'system']);
 
 function readPref() {
   if (typeof window === 'undefined') return DEFAULT_PREFERENCE;
   const v = window.localStorage?.getItem(STORAGE_KEY);
-  return VALID_PREFS.has(v) ? v : DEFAULT_PREFERENCE;
+  return ALL_THEME_IDS.has(v) ? v : DEFAULT_PREFERENCE;
 }
 
 function systemTheme() {
@@ -37,55 +35,81 @@ function systemTheme() {
   return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
-function resolve(pref) {
-  return pref === 'system' ? systemTheme() : pref;
+/** Value written to data-theme (extended themes keep their id). */
+function resolveDocumentTheme(preference) {
+  if (preference === 'system') return systemTheme();
+  if (isExtendedTheme(preference)) return preference;
+  return preference;
 }
 
-function apply(resolved) {
+function resolveColorScheme(preference, documentTheme) {
+  if (preference === 'dark' || documentTheme === 'dark') return 'dark';
+  if (isExtendedTheme(preference)) {
+    return themeIsDark(preference, documentTheme) ? 'dark' : 'light';
+  }
+  return 'light';
+}
+
+export function applyThemePreference(preference) {
   if (typeof document === 'undefined') return;
-  document.documentElement.setAttribute('data-theme', resolved);
-  document.documentElement.style.colorScheme = resolved;
+  const documentTheme = resolveDocumentTheme(preference);
+  const colorScheme = resolveColorScheme(preference, documentTheme);
+  document.documentElement.setAttribute('data-theme', documentTheme);
+  document.documentElement.style.colorScheme = colorScheme;
+  applyBrandingCssVariables();
 }
 
 const ThemeContext = createContext(null);
 
 export function ThemeProvider({ children }) {
   const [preference, setPreference] = useState(readPref);
-  const [resolved,   setResolved]   = useState(() => resolve(readPref()));
+  const [documentTheme, setDocumentTheme] = useState(() => resolveDocumentTheme(readPref()));
 
   useEffect(() => {
-    const next = resolve(preference);
-    setResolved(next);
-    apply(next);
-    try { window.localStorage.setItem(STORAGE_KEY, preference); } catch {}
+    const docTheme = resolveDocumentTheme(preference);
+    setDocumentTheme(docTheme);
+    applyThemePreference(preference);
+    try { window.localStorage.setItem(STORAGE_KEY, preference); } catch { /* ignore */ }
   }, [preference]);
 
-  // Track OS theme changes when preference is "system"
   useEffect(() => {
     if (preference !== 'system' || typeof window === 'undefined') return;
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const handler = () => {
-      const next = systemTheme();
-      setResolved(next);
-      apply(next);
+      const docTheme = systemTheme();
+      setDocumentTheme(docTheme);
+      document.documentElement.setAttribute('data-theme', docTheme);
+      document.documentElement.style.colorScheme = docTheme;
     };
     mq.addEventListener?.('change', handler);
     return () => mq.removeEventListener?.('change', handler);
   }, [preference]);
 
-  // Binary toggle — flips between explicit light and dark.
-  // Always commits to a concrete preference so the user's choice is durable.
+  const isDark = themeIsDark(preference, documentTheme);
+
   const toggle = useCallback(() => {
-    setPreference((p) => (resolve(p) === 'dark' ? 'light' : 'dark'));
+    setPreference((p) => {
+      if (isExtendedTheme(p)) {
+        return themeIsDark(p, p) ? 'light' : 'dark';
+      }
+      const resolved = p === 'system' ? systemTheme() : p;
+      return resolved === 'dark' ? 'light' : 'dark';
+    });
   }, []);
 
   const setTheme = useCallback((value) => {
-    if (VALID_PREFS.has(value)) setPreference(value);
+    if (ALL_THEME_IDS.has(value)) setPreference(value);
   }, []);
 
   const value = useMemo(
-    () => ({ preference, theme: resolved, isDark: resolved === 'dark', toggle, setTheme }),
-    [preference, resolved, toggle, setTheme]
+    () => ({
+      preference,
+      theme: documentTheme,
+      isDark,
+      toggle,
+      setTheme,
+    }),
+    [preference, documentTheme, isDark, toggle, setTheme],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
@@ -95,19 +119,20 @@ export function useTheme() {
   const ctx = useContext(ThemeContext);
   if (ctx) return ctx;
 
-  // Standalone fallback (no provider mounted): bootstrap on the fly so
-  // imports don't crash before the provider is wired into App.js.
   const pref = readPref();
+  const doc = resolveDocumentTheme(pref);
   return {
     preference: pref,
-    theme: resolve(pref),
-    isDark: resolve(pref) === 'dark',
+    theme: doc,
+    isDark: themeIsDark(pref, doc),
     toggle: () => {},
     setTheme: () => {},
   };
 }
 
-/* Apply persisted theme as early as possible to avoid a flash on first paint. */
 export function bootstrapTheme() {
-  apply(resolve(readPref()));
+  try {
+    if (typeof window !== 'undefined') window.localStorage?.removeItem('colorTheme');
+  } catch { /* ignore */ }
+  applyThemePreference(readPref());
 }

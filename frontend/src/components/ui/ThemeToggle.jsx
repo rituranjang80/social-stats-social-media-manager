@@ -16,9 +16,7 @@ import { useTheme } from '../../hooks/useTheme';
  * → Appearance page.
  */
 export default function ThemeToggle({ size = 'md', className }) {
-  const { theme, toggle } = useTheme();
-
-  const isDark = theme === 'dark';
+  const { isDark, toggle } = useTheme();
   const Icon = isDark ? Sun : Moon;
   const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
 

@@ -10,6 +10,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './styles/tokens.css';
+import './styles/app-themes.css';
 import './styles/common.css';
 import './styles/base/_themes.scss';
 import { bootstrapTheme } from './hooks/useTheme';

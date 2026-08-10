@@ -168,6 +168,8 @@ Use the **account avatar** at the right of the top bar (chevron on desktop) for
 If you upload a **profile photo** under Settings → Profile, that image appears in
 the top bar and account menu on every page.
 
+**Appearance** (`/admin/account-settings` → **Appearance**): under **Theme** (`#settings-appearance-mode`), choose **Light**, **Dark**, **System**, or one of **seven** full themes (**Ocean**, **Violet**, **Emerald**, **Sunset**, **Rose**, **Indigo**, **Midnight**). Each option restyles the entire app (backgrounds, text, buttons, borders) immediately; saved in `localStorage` as `theme`.
+
 **Compose features (in addition to caption + media + schedule):**
 - **Brightbean-aligned chrome** — Create/Edit header with back + Preview,
   workspace/status context, orange accents, stone surfaces, account-style
