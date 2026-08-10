@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added — Optional Cython build for DRF date helpers
+
+- **`backend/scripts/build_cython.py`** compiles pure helper modules listed in **`cython_manifest.json`** (starts with **`date_utils.pyx`**). DRF views stay Python; **`date_utils_fast`** uses compiled code when present and pure Python otherwise so API behavior is unchanged. See **`docs/CYTHON.md`**.
+
 ### Added — Full application themes (Appearance)
 
 - **Settings → Appearance → Theme** (`#settings-appearance-mode`): **Light**, **Dark**, **System**, plus **seven** full themes (**Ocean**, **Violet**, **Emerald**, **Sunset**, **Rose**, **Indigo**, **Midnight**). One click applies the whole UI via `<html data-theme="…">` (same mechanism as Light/Dark). Stored in `localStorage` key `theme`.

@@ -1,7 +1,9 @@
 -r requirements.txt
 
-# ── Static analysis ──────────────────────────────────────────────────────────
-bandit[toml]==1.7.9        # Python static security scanner
+# ── Optional native extensions (date parsing helpers) ───────────────────────
+cython==3.0.11
+
+# ── Static analysis ──────────────────────────────────────────────────────────bandit[toml]==1.7.9        # Python static security scanner
 ruff==0.6.9                # Fast linter (replaces flake8 + pyflakes)
 
 # ── Dependency CVE scanning ──────────────────────────────────────────────────

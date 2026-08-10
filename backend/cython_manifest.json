@@ -1,0 +1,8 @@
+{
+  "extensions": [
+    {
+      "name": "social_stats._cython.date_utils",
+      "sources": ["social_stats/_cython/date_utils.pyx"]
+    }
+  ]
+}

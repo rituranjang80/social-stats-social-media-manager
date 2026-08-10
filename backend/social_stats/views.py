@@ -222,13 +222,11 @@ class LoginView(TokenObtainPairView):
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def parse_dates(request):
-    today = date.today()
-    since = request.query_params.get('since', (today - timedelta(days=30)).isoformat())
-    until = request.query_params.get('until', today.isoformat())
-    try:
-        return date.fromisoformat(since), date.fromisoformat(until)
-    except ValueError:
-        return today - timedelta(days=30), today
+    from .date_utils_fast import parse_since_until_dates
+    return parse_since_until_dates(
+        request.query_params.get('since'),
+        request.query_params.get('until'),
+    )
 
 
 def check_client_access(request, client_id):

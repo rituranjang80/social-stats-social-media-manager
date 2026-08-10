@@ -4,19 +4,10 @@
 from __future__ import annotations
 
 from django.db.models import Q
-from django.utils.dateparse import parse_date
 
+from .date_utils_fast import parse_publish_date_range
 
-def parse_publish_date_range(date_from_str, date_to_str):
-    start = parse_date(date_from_str) if date_from_str else None
-    end = parse_date(date_to_str) if date_to_str else None
-    if start and end and start > end:
-        start, end = end, start
-    if start and not end:
-        end = start
-    if end and not start:
-        start = end
-    return start, end
+__all__ = ['parse_publish_date_range', 'filter_queryset_by_publish_date']
 
 
 def filter_queryset_by_publish_date(qs, date_from_str, date_to_str):
