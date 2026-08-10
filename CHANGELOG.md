@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added — Account settings back navigation
+
+- **Settings → More settings** links pass navigation state so destination pages show a **Back** control (left of the title) that returns to **`/admin/account-settings?tab=more`** (or **`/dashboard/account-settings?tab=more`** for client roles). **Welcome email template** always shows **Back** to the More settings tab. Deep link **`?tab=more`** opens the More settings sidebar tab when returning.
+
 ### Added — Full application themes (Appearance)
 
 - **Settings → Appearance → Theme** (`#settings-appearance-mode`): **Light**, **Dark**, **System**, plus **seven** full themes (**Ocean**, **Violet**, **Emerald**, **Sunset**, **Rose**, **Indigo**, **Midnight**). One click applies the whole UI via `<html data-theme="…">` (same mechanism as Light/Dark). Stored in `localStorage` key `theme`.

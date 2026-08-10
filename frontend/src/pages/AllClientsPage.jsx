@@ -19,6 +19,7 @@ import PageHeader from '../components/layout/PageHeader';
 import ClientRowActions from '../components/clients/ClientRowActions';
 import { clientWorkspacePath } from '../utils/workspacePaths';
 import { BRAND_NAME } from '../config/branding';
+import { useFromAccountSettingsBack } from '../hooks/useFromAccountSettingsBack';
 
 const STATUS_COLOR = {
   pending:   { text: '#d97706', bg: '#fef3c7', label: 'Pending' },
@@ -30,6 +31,7 @@ const STATUS_COLOR = {
 
 export default function AllClientsPage({ onSelectClient }) {
   const navigate             = useNavigate();
+  const backHref             = useFromAccountSettingsBack('more');
   const { clients, refetch: refetchClients } = useClients();
   const [search, setSearch]  = useState('');
 
@@ -141,6 +143,7 @@ export default function AllClientsPage({ onSelectClient }) {
       <PageHeader
         title="Clients"
         subtitle={`${clients.length} connected client${clients.length !== 1 ? 's' : ''}`}
+        backHref={backHref}
       />
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>

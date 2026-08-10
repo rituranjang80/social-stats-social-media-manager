@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Loader2, Save, RotateCcw, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Loader2, Save, RotateCcw } from 'lucide-react';
 
 import PageHeader from '../../components/layout/PageHeader';
 import Button from '../../components/ui/Button';
@@ -10,11 +10,12 @@ import RichEmailEditor, { previewWelcomeHtml } from '../../components/email/Rich
 import toast from '../../components/ui/toast';
 import { invitationAPI } from '../../services/api';
 import { BRAND_NAME, siteOrigin } from '../../config/branding';
+import { useAccountSettingsBackHref } from '../../hooks/useAccountSettingsBackHref';
 
 import '../../styles/scss/pages/_welcome-email-template.scss';
 
 export default function WelcomeEmailTemplatePage() {
-  const navigate = useNavigate();
+  const accountSettingsBack = useAccountSettingsBackHref('more');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [subject, setSubject] = useState('');
@@ -80,12 +81,10 @@ export default function WelcomeEmailTemplatePage() {
       <PageHeader
         title="Welcome email template"
         subtitle="Invitation emails use this template. Placeholders are replaced when sending."
+        backHref={accountSettingsBack}
       />
 
       <div className="welcome-email-page__actions">
-        <Button variant="secondary" icon={ArrowLeft} onClick={() => navigate('/admin/account-settings')}>
-          Cancel
-        </Button>
         <Button variant="secondary" icon={RotateCcw} onClick={onReset}>
           Reset default
         </Button>

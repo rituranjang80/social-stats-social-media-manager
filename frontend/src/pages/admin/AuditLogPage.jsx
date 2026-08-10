@@ -15,6 +15,7 @@ import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import EmptyState from '../../components/ui/EmptyState';
 import { auditAPI } from '../../services/api';
+import { useFromAccountSettingsBack } from '../../hooks/useFromAccountSettingsBack';
 
 const RESULT_VARIANT = {
   success: 'success',
@@ -26,6 +27,7 @@ export default function AuditLogPage() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState({ action: '', result: '', search: '' });
+  const backHref = useFromAccountSettingsBack('more');
 
   function refetch() {
     setLoading(true);
@@ -46,6 +48,7 @@ export default function AuditLogPage() {
       <PageHeader
         title="Audit log"
         subtitle={`Every write action ${BRAND_NAME} performed on your behalf`}
+        backHref={backHref}
       />
 
       <div style={{ padding: '0 24px' }}>

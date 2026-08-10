@@ -12,7 +12,7 @@
  * Available to all roles (admin, staff, client).
  */
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   User, Lock, Building2, Camera, Save, Loader2,
   Eye, EyeOff, CheckCircle, AlertTriangle, X,
@@ -51,10 +51,10 @@ const TAB_GROUPS = [
   {
     label: 'Workspace',
     items: [
-      { id: 'notifications',   label: 'Notifications',    icon: Bell },
+  //    { id: 'notifications',   label: 'Notifications',    icon: Bell },
       { id: 'workspace',       label: 'Workspace features', icon: Layers },
       { id: 'appearance',      label: 'Appearance',       icon: Palette },
-      { id: 'shortcuts',       label: 'Keyboard',         icon: Keyboard },
+    //  { id: 'shortcuts',       label: 'Keyboard',         icon: Keyboard },
     ],
   },
   {
@@ -79,7 +79,23 @@ const TABS = TAB_GROUPS.flatMap((g) => g.items);
 export default function UserSettingsPage() {
   const { user, refreshAuth, logout } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [tab, setTab] = useState('profile');
+
+  useEffect(() => {
+    const fromQuery = searchParams.get('tab');
+    if (fromQuery && TABS.some((t) => t.id === fromQuery)) {
+      setTab(fromQuery);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (tab !== 'more' || searchParams.get('tab') !== 'more') return;
+    const id = requestAnimationFrame(() => {
+      document.getElementById('settings-more-links')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [tab, searchParams]);
 
   return (
     <div style={s.page}>

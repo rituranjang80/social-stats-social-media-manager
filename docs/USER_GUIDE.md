@@ -170,6 +170,8 @@ the top bar and account menu on every page.
 
 **Appearance** (`/admin/account-settings` → **Appearance**): under **Theme** (`#settings-appearance-mode`), choose **Light**, **Dark**, **System**, or one of **seven** full themes (**Ocean**, **Violet**, **Emerald**, **Sunset**, **Rose**, **Indigo**, **Midnight**). Each option restyles the entire app (backgrounds, text, buttons, borders) immediately; saved in `localStorage` as `theme`.
 
+**More settings** (`/admin/account-settings` → **More settings**): links open full pages (team, clients, welcome email, audit log, error logs, help). Use **Back** at the top left to return to the More settings list (`?tab=more`).
+
 **Compose features (in addition to caption + media + schedule):**
 - **Brightbean-aligned chrome** — Create/Edit header with back + Preview,
   workspace/status context, orange accents, stone surfaces, account-style

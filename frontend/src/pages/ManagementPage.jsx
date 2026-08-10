@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import PageHeader from '../components/layout/PageHeader';
 import SegmentedTabs from '../components/ui/SegmentedTabs';
+import { useFromAccountSettingsBack } from '../hooks/useFromAccountSettingsBack';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -887,12 +888,14 @@ const TABS = [
 
 export default function ManagementPage() {
   const [activeTab, setTab] = useState('staff');
+  const backHref = useFromAccountSettingsBack('more');
 
   return (
     <div className="app-page app-page--md">
       <PageHeader
         title="Access Management"
         subtitle="Manage staff permissions, user access, and role defaults"
+        backHref={backHref}
       />
 
       <SegmentedTabs

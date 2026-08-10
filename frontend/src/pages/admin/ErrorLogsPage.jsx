@@ -15,6 +15,7 @@ import EmptyState from '../../components/ui/EmptyState';
 import toast from '../../components/ui/toast';
 import { errorMonitoringAPI } from '../../services/api';
 import { confirmDialog } from '../../services/dialog';
+import { useFromAccountSettingsBack } from '../../hooks/useFromAccountSettingsBack';
 
 const SEVERITY_VARIANT = {
   INFO: 'default',
@@ -44,6 +45,7 @@ export default function ErrorLogsPage() {
     severity: '',
     resolved: '',
   });
+  const backHref = useFromAccountSettingsBack('more');
 
   const pageSize = 50;
 
@@ -133,6 +135,7 @@ export default function ErrorLogsPage() {
       <PageHeader
         title="Error logs"
         subtitle="All captured backend exceptions stored in the database (staff / superadmin)"
+        backHref={backHref}
       />
 
       <div style={{ padding: '0 24px' }}>

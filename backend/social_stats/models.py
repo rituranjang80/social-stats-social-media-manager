@@ -2512,7 +2512,6 @@ from .security.audit import SecurityAuditLog  # noqa: E402,F401
 
 # ── error monitoring ──────────────────────────────────────────────────
 from .error_monitoring.models import ErrorLog  # noqa: E402,F401
-from .post_management_models import PostManagementStatusChange  # noqa: E402,F401
 
 # ── security build-out — privacy / data-subject rights ────────────────
 from .security.privacy_models import (  # noqa: E402,F401

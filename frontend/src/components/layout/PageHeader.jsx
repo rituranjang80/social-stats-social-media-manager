@@ -14,7 +14,7 @@ import { ChevronLeft } from 'lucide-react';
  * Restyled with new design tokens (). Public API unchanged:
  * <PageHeader title subtitle action actions backHref meta eyebrow />
  */
-export default function PageHeader({ title, subtitle, action, actions, backHref, meta = [], eyebrow = null }) {
+export default function PageHeader({ title, subtitle, action, actions, backHref, backLabel = 'Back', meta = [], eyebrow = null }) {
   const navigate = useNavigate();
   const actionContent = action || actions || null;
 
@@ -41,23 +41,55 @@ export default function PageHeader({ title, subtitle, action, actions, backHref,
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flex: 1, minWidth: 0 }}>
         {backHref && (
           <button
+            type="button"
             onClick={() => navigate(backHref)}
             aria-label="Back"
             style={{
-              width: 36, height: 36,
-              borderRadius: 'var(--radius-md)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '10px 16px 10px 12px',
+              minHeight: 'unset',
+              minWidth: 'unset',
+              borderRadius: 'var(--radius-pill)',
               border: '1px solid var(--border-default)',
-              background: 'var(--surface-card)',
+              background: 'linear-gradient(180deg, var(--surface-card) 0%, var(--surface-sunken) 100%)',
+              boxShadow: 'var(--shadow-xs)',
               color: 'var(--text-primary)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', flexShrink: 0,
+              fontSize: 13,
+              fontWeight: 600,
+              fontFamily: 'inherit',
+              cursor: 'pointer',
+              flexShrink: 0,
               WebkitTapHighlightColor: 'transparent',
               transition: 'var(--transition-fast)',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--surface-hover)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--surface-card)'; }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'var(--brand-primary)';
+              e.currentTarget.style.boxShadow = 'var(--shadow-glow)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--border-default)';
+              e.currentTarget.style.boxShadow = 'var(--shadow-xs)';
+            }}
           >
-            <ChevronLeft size={16} />
+            <span
+              aria-hidden
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 'var(--radius-pill)',
+                background: 'var(--brand-primary-soft)',
+                color: 'var(--brand-primary-hover)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <ChevronLeft size={16} strokeWidth={2.5} />
+            </span>
+            {backLabel}
           </button>
         )}
         <div style={{ minWidth: 0, flex: 1 }}>

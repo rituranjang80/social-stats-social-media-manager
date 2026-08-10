@@ -7,7 +7,7 @@
  *  Released under the MIT License — see LICENSE. Keep this notice.
  * ========================================================================== */
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Search, Rocket, Plug, PenSquare, Inbox, CreditCard, Wrench, Shield, BookOpen, ArrowRight, MessageCircle,
 } from 'lucide-react';
@@ -17,6 +17,7 @@ import Badge from '../components/ui/Badge';
 import Input from '../components/ui/Input';
 import Meta from '../components/Meta';
 import { BRAND_NAME } from '../config/branding';
+import SettingsBackButton from '../components/settings/SettingsBackButton';
 
 const CATEGORIES = [
   { id: 'getting-started', icon: Rocket,    color: '#00CCF5', title: 'Getting started',     count: 12, body: 'Sign-up, workspace setup, inviting your team.' },
@@ -40,6 +41,8 @@ const POPULAR = [
 
 export default function HelpCenterPage() {
   const [query, setQuery] = useState('');
+  const location = useLocation();
+  const fromAccountSettings = Boolean(location.state?.fromAccountSettings);
   const filtered = useMemo(() => {
     if (!query.trim()) return CATEGORIES;
     const q = query.toLowerCase();
@@ -56,6 +59,11 @@ export default function HelpCenterPage() {
         title="Help Center"
         description={`Setup guides, troubleshooting steps, FAQs, and answers to common questions about using ${BRAND_NAME}.`}
       />
+      {fromAccountSettings && (
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '96px 32px 0' }}>
+          <SettingsBackButton tab="more" />
+        </div>
+      )}
       {/* Hero with search */}
       <section style={{ padding: '128px 32px 56px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <div

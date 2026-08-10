@@ -899,11 +899,12 @@ export function CrossLinksSection({ user }) {
       title="More settings"
       description="Some areas live as their own pages. Jump to them here."
     >
-      <div style={{ display: 'grid', gap: 10 }}>
+      <div style={{ display: 'grid', gap: 10 }} id="settings-more-links">
         {LINKS.map((l) => (
           <Link
             key={l.to}
             to={l.to}
+            state={{ fromAccountSettings: true }}
             style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
               padding: 16,
