@@ -16,9 +16,11 @@ import urllib.parse
 import requests as http_requests
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.shortcuts import redirect
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import UserProfile, ensure_client_profile
@@ -50,9 +52,49 @@ MICROSOFT_TENANT = 'common'
 FRONTEND_URL = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
 FRONTEND_CALLBACK = FRONTEND_URL + '/auth/callback'
 
+AUTH_CALLBACK_CACHE_PREFIX = 'auth_callback:'
+AUTH_CALLBACK_CONSUMED_PREFIX = 'auth_callback_used:'
+AUTH_CALLBACK_TTL_SECONDS = int(getattr(settings, 'AUTH_CALLBACK_TTL_SECONDS', 300))
+AUTH_CALLBACK_REPLAY_SECONDS = int(getattr(settings, 'AUTH_CALLBACK_REPLAY_SECONDS', 60))
+
 
 def _frontend_error(msg):
     return redirect(f'{FRONTEND_URL}/login?error={urllib.parse.quote(msg)}')
+
+
+def _redirect_social_login_success(access: str, refresh: str, *, state: str | None = None):
+    """Redirect with a short-lived code — avoids nginx 502 from oversized Location headers."""
+    code = secrets.token_urlsafe(24)
+    cache.set(
+        f'{AUTH_CALLBACK_CACHE_PREFIX}{code}',
+        {'access': access, 'refresh': refresh},
+        timeout=AUTH_CALLBACK_TTL_SECONDS,
+    )
+    params = {'code': code}
+    if state:
+        params['state'] = state
+    return redirect(f'{FRONTEND_CALLBACK}?{urllib.parse.urlencode(params)}')
+
+
+@api_view(['POST', 'GET'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def social_auth_exchange(request):
+    """Exchange one-time auth callback code for JWT pair (after Google/Facebook/Microsoft login)."""
+    code = (request.data.get('code') or request.query_params.get('code') or '').strip()
+    if not code:
+        return Response({'error': 'code is required.'}, status=400)
+    cache_key = f'{AUTH_CALLBACK_CACHE_PREFIX}{code}'
+    consumed_key = f'{AUTH_CALLBACK_CONSUMED_PREFIX}{code}'
+    payload = cache.get(cache_key)
+    if not payload:
+        payload = cache.get(consumed_key)
+        if payload:
+            return Response(payload)
+        return Response({'error': 'Invalid or expired sign-in code. Please try again.'}, status=400)
+    cache.delete(cache_key)
+    cache.set(consumed_key, payload, timeout=AUTH_CALLBACK_REPLAY_SECONDS)
+    return Response(payload)
 
 
 def is_google_social_login_state(state: str) -> bool:
@@ -133,8 +175,8 @@ def handle_google_social_oauth_callback(request):
     except Exception:
         has_client = False
     if not has_client:
-        return redirect(f'{FRONTEND_CALLBACK}?access={access}&refresh={refresh}&state=self')
-    return redirect(f'{FRONTEND_CALLBACK}?access={access}&refresh={refresh}')
+        return _redirect_social_login_success(access, refresh, state='self')
+    return _redirect_social_login_success(access, refresh)
 
 def _make_jwt(user):
     """Build JWT tokens with the same custom claims as our login view."""
@@ -303,8 +345,8 @@ def facebook_social_callback(request):
     except Exception:
         has_client = False
     if not has_client:
-        return redirect(f'{FRONTEND_CALLBACK}?access={access}&refresh={refresh}&state=self')
-    return redirect(f'{FRONTEND_CALLBACK}?access={access}&refresh={refresh}')
+        return _redirect_social_login_success(access, refresh, state='self')
+    return _redirect_social_login_success(access, refresh)
 
 
 # ── Microsoft ──────────────────────────────────────────────────────────────────
@@ -384,5 +426,5 @@ def microsoft_social_callback(request):
     except Exception:
         has_client = False
     if not has_client:
-        return redirect(f'{FRONTEND_CALLBACK}?access={access}&refresh={refresh}&state=self')
-    return redirect(f'{FRONTEND_CALLBACK}?access={access}&refresh={refresh}')
+        return _redirect_social_login_success(access, refresh, state='self')
+    return _redirect_social_login_success(access, refresh)

@@ -403,6 +403,23 @@ CELERY_BEAT_SCHEDULER    = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_TASK_ALWAYS_EAGER = _env_bool('CELERY_TASK_ALWAYS_EAGER', DEBUG)
 CELERY_TASK_EAGER_PROPAGATES = _env_bool('CELERY_TASK_EAGER_PROPAGATES', CELERY_TASK_ALWAYS_EAGER)
 
+# Shared cache (social login code exchange, AI, etc.). Set CACHE_REDIS_URL in Docker.
+_cache_redis = os.environ.get('CACHE_REDIS_URL', '').strip()
+if _cache_redis:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': _cache_redis,
+        },
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'social-stats-default',
+        },
+    }
+
 # Post Management — scheduled client digest email (Draft / Pending Review / On Hold)
 POST_MANAGEMENT_DIGEST_ENABLED = _env_bool('POST_MANAGEMENT_DIGEST_ENABLED', False)
 POST_MANAGEMENT_DIGEST_LOOKBACK_DAYS = int(os.environ.get('POST_MANAGEMENT_DIGEST_LOOKBACK_DAYS', '30'))

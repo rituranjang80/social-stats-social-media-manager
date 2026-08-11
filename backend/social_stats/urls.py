@@ -44,6 +44,7 @@ from .oauth_views import (
 )
 from .social_auth_views import (
     google_social_start, google_social_callback,
+    social_auth_exchange,
     microsoft_social_start, microsoft_social_callback,
     facebook_social_start, facebook_social_callback,
 )
@@ -433,6 +434,7 @@ urlpatterns = [
     # Social login (Google + Facebook + Microsoft — client-only)
     path('auth/social/google/start/',            google_social_start,       name='google_social_start'),
     path('auth/social/google/callback/',         google_social_callback,    name='google_social_callback'),
+    path('auth/social/exchange/',                social_auth_exchange,      name='social_auth_exchange'),
     path('auth/social/facebook/start/',          facebook_social_start,     name='facebook_social_start'),
     path('auth/social/facebook/callback/',       facebook_social_callback,  name='facebook_social_callback'),
     path('auth/social/microsoft/start/',         microsoft_social_start,    name='microsoft_social_start'),

@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Fixed — Sign in with Google “link expired”
+
+- **Google sign-in worked only on the second try:** On `/auth/callback`, **AuthProvider** could hydrate stale JWTs in parallel with the code exchange and clear fresh tokens; **AuthCallbackPage** stored tokens in `localStorage` but never called **`refreshAuth`**, so protected routes still saw `user=null`. Callback now skips initial hydrate, clears stale JWTs before exchange, and updates auth context before redirect.
+- **`/auth/callback?code=…` stuck on spinner (dev):** React StrictMode unmounted the first effect while an exchange was in flight, then the remount skipped work because the code was marked in-flight — tokens never applied. **AuthCallbackPage** now shares one exchange promise per code and keeps the loading screen visible through exchange + `/auth/me/` before redirect.
+- **React StrictMode** (dev) could exchange the same OAuth `code` twice; the second call failed. **AuthCallbackPage** dedupes via a shared promise; backend allows a **60s idempotent replay** of a consumed code so double-mount is safe.
+
+- **Root cause:** nginx rejected the backend redirect because JWT access + refresh tokens in the `Location` header exceeded default proxy buffer size (`upstream sent too big header`).
+- **Fix:** Social login redirects to `/auth/callback?code=…`; frontend exchanges via **`POST /api/auth/social/exchange/`** (no auth header; `@authentication_classes([])` + `AllowAny`). Gateway nginx **`proxy_buffer_size`** increased as a safety net.
+- **Follow-up:** Stale browser JWT no longer breaks the exchange call (`publicApi` + empty auth classes on the exchange view).
+
 ### Added — Post Management digest emails & multi-template editor
 
 - **Analytics → Post Management** default range is the **last 30 days** with stat cards for **Draft**, **Pending Review**, and **On Hold** (same buckets as the digest job).

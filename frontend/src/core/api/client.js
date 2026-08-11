@@ -128,7 +128,7 @@ api.interceptors.response.use(
     }
     const original = error.config;
     const url = String(original?.url || '');
-    if (url.includes('/auth/refresh/')) {
+    if (url.includes('/auth/refresh/') || url.includes('/auth/social/exchange/')) {
       return Promise.reject(error);
     }
     if (error.response?.status !== 401 || original?._retry) {

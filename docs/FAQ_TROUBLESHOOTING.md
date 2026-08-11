@@ -195,6 +195,21 @@ Authorized redirect URIs**. For local dev, also add `http://127.0.0.1:8000/api/o
 if you open the app via `127.0.0.1`. Ensure **OAuth consent screen** is configured
 and your Google account is a **Test user** while the app is in Testing mode.
 
+### “502 Bad Gateway” after Google sign-in on `/api/oauth/google/callback/`
+Usually **nginx buffer size**: the old flow put full JWTs in the redirect URL.
+Current builds use a short **`?code=`** exchange at **`POST /api/auth/social/exchange/`**.
+Rebuild/restart the **gateway** container after pulling. If it persists, confirm
+**`GOOGLE_CLIENT_ID`** / **`GOOGLE_CLIENT_SECRET`** (or **`GOOGLE_AUTH_*`**) are set
+in backend env and the redirect URI matches Google Cloud exactly.
+
+### Google sign-in only works on the second attempt
+The first return to **`/auth/callback?code=…`** can fail if an **old JWT** is still
+in browser storage: the app may clear tokens while the callback is exchanging the
+code, or protected pages redirect to **`/login`** because auth context was never
+updated. Current builds skip initial session hydrate on **`/auth/callback`**, clear
+stale tokens before exchange, and call **`refreshAuth`** before redirect. Hard-refresh
+**`/login`** once after updating the frontend if you still see the old behavior.
+
 ### Brightbean HTML 404 or missing CSS/JS
 Files must live under `frontend/public/Brightbean/` and the **gateway** must be
 rebuilt (`docker compose --env-file .env up -d --build gateway`). Use URLs like

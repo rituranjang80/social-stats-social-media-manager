@@ -1,87 +1,147 @@
 /* ============================================================================
- *  Social Stats — Social Media Management & Marketing Platform
- *  Author    : Chandrabhan Shekhawat
- *  Company   : Gigai Kripa Services
- *  Website   : https://gigaikripaservices.com/
- *  Copyright (c) 2026 Chandrabhan Shekhawat / Gigai Kripa Services.
- *  Released under the MIT License — see LICENSE. Keep this notice.
+ *  AuthCallbackPage — OAuth return URL: /auth/callback?code=…
+ *  Shows loading while POST /api/auth/social/exchange/ returns JWTs, then /me.
  * ========================================================================== */
-/**
- * AuthCallbackPage — handles the redirect from social login (Google / Microsoft).
- * The backend redirects here with ?access=...&refresh=... in the URL.
- * We store the tokens, fetch /me, then send the user to the right place.
- */
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/api';
+import { useAuth } from '../hooks/useAuth';
+
+/** One shared promise per code (StrictMode-safe: both mounts await the same exchange). */
+const exchangePromises = new Map();
+/** Ensure we only apply tokens + navigate once per code. */
+const finishedCodes = new Set();
+
+function exchangeCodeOnce(code) {
+  if (exchangePromises.has(code)) {
+    return exchangePromises.get(code);
+  }
+  const promise = authAPI.exchangeSocialCode(code)
+    .then((res) => {
+      const tokens = res.data || {};
+      if (!tokens.access || !tokens.refresh) {
+        throw new Error('missing tokens');
+      }
+      return tokens;
+    });
+  exchangePromises.set(code, promise);
+  return promise;
+}
+
+function navigateAfterProfile(user, state, navigate) {
+  const role = user.role;
+  const onboardingComplete = user.onboarding_complete;
+  const clientId = user.client_id;
+  if (role === 'superadmin' || role === 'staff') {
+    navigate('/admin', { replace: true });
+  } else if (user.account_type === 'end_user') {
+    navigate('/u', { replace: true });
+  } else if (state === 'self' || (role === 'client' && !clientId)) {
+    navigate('/pending', { replace: true });
+  } else if (!onboardingComplete) {
+    navigate('/dashboard/onboarding', { replace: true });
+  } else {
+    navigate('/dashboard', { replace: true });
+  }
+}
 
 export default function AuthCallbackPage() {
   const navigate = useNavigate();
+  const { refreshAuth } = useAuth();
   const [error, setError] = useState('');
+  const [phase, setPhase] = useState('idle'); // idle | exchange | profile
 
   useEffect(() => {
-    const params   = new URLSearchParams(window.location.search);
-    const access   = params.get('access');
-    const refresh  = params.get('refresh');
+    const params = new URLSearchParams(window.location.search);
     const errorMsg = params.get('error');
+    const code = params.get('code');
+    const access = params.get('access');
+    const refresh = params.get('refresh');
+    const state = params.get('state');
 
     if (errorMsg) {
       setError(decodeURIComponent(errorMsg));
-      setTimeout(() => navigate('/login'), 3500);
-      return;
+      setTimeout(() => navigate('/login', { replace: true }), 3500);
+      return undefined;
     }
 
-    if (!access || !refresh) {
-      setError('Missing tokens. Redirecting to login…');
-      setTimeout(() => navigate('/login'), 2000);
-      return;
+    async function finishWithTokens(finishKey, accessToken, refreshToken) {
+      if (finishedCodes.has(finishKey)) return;
+      finishedCodes.add(finishKey);
+      setPhase('profile');
+      const user = await refreshAuth(accessToken, refreshToken);
+      navigateAfterProfile(user, state, navigate);
     }
 
-    localStorage.setItem('access_token',  access);
-    localStorage.setItem('refresh_token', refresh);
+    if (code) {
+      // Drop stale JWTs so nothing else sends them while we exchange the OAuth code.
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
 
-    const state = params.get('state');
+      setPhase('exchange');
 
-    authAPI.me()
-      .then(res => {
-        const role = res.data.role;
-        const onboardingComplete = res.data.onboarding_complete;
-        const clientId = res.data.client_id;
-        if (role === 'superadmin' || role === 'staff') {
-          navigate('/admin');
-        } else if (state === 'self' || (role === 'client' && !clientId)) {
-          navigate('/pending');
-        } else if (!onboardingComplete) {
-          navigate('/dashboard/onboarding');
-        } else {
-          navigate('/dashboard');
-        }
-      })
-      .catch(() => {
+      exchangeCodeOnce(code)
+        .then(async (tokens) => {
+          window.history.replaceState({}, '', '/auth/callback');
+          await finishWithTokens(code, tokens.access, tokens.refresh);
+        })
+        .catch((err) => {
+          if (finishedCodes.has(code)) return;
+          const msg = err?.response?.data?.error;
+          setError(
+            typeof msg === 'string' && msg
+              ? msg
+              : 'Sign-in link expired. Redirecting to login…',
+          );
+          setTimeout(() => navigate('/login', { replace: true }), 2500);
+        });
+
+      return undefined;
+    }
+
+    if (access && refresh) {
+      finishWithTokens('legacy-query', access, refresh).catch(() => {
         localStorage.clear();
         setError('Authentication failed. Redirecting to login…');
-        setTimeout(() => navigate('/login'), 2000);
+        setTimeout(() => navigate('/login', { replace: true }), 2000);
       });
-  }, [navigate]);
+      return undefined;
+    }
 
+    setError('Missing sign-in code. Redirecting to login…');
+    setTimeout(() => navigate('/login', { replace: true }), 2000);
+    return undefined;
+  }, [navigate, refreshAuth]);
+
+  const message =
+    phase === 'profile'
+      ? 'Loading your profile…'
+      : 'Completing sign-in…';
 
   return (
     <div style={styles.page}>
       <div style={styles.card}>
         {error ? (
           <>
-            <div style={styles.errorIcon}>✕</div>
+            <div style={styles.errorIcon} aria-hidden>✕</div>
             <p style={styles.errorText}>{error}</p>
           </>
         ) : (
           <>
-            <div style={styles.spinner} />
-            <p style={styles.msg}>Signing you in…</p>
+            <div style={styles.spinner} role="status" aria-live="polite">
+              <span className="sr-only">{message}</span>
+            </div>
+            <p style={styles.msg}>{message}</p>
+            <p style={styles.sub}>Signing you in securely</p>
           </>
         )}
       </div>
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+        .sr-only {
+          position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+          overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+        }
       `}</style>
     </div>
   );
@@ -112,7 +172,8 @@ const styles = {
     margin: '0 auto 20px',
     animation: 'spin 0.8s linear infinite',
   },
-  msg: { fontSize: 15, color: 'var(--text-secondary)', margin: 0 },
+  msg: { fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 6px' },
+  sub: { fontSize: 13, color: 'var(--text-secondary)', margin: 0 },
   errorIcon: {
     width: 48,
     height: 48,

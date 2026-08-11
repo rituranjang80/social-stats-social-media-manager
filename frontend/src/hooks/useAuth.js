@@ -17,6 +17,13 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // OAuth callback exchanges ?code= itself — skip stale-token hydrate (race clears fresh JWTs).
+    const path = typeof window !== 'undefined' ? window.location.pathname || '' : '';
+    if (path.startsWith('/auth/callback')) {
+      setLoading(false);
+      return undefined;
+    }
+
     const token = localStorage.getItem('access_token');
     if (!token) {
       setLoading(false);

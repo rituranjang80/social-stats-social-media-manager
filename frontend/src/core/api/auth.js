@@ -1,4 +1,4 @@
-import api from './client';
+import api, { publicApi } from './client';
 
 export const profileAPI = {
   get:               ()       => api.get('/profile/'),
@@ -13,6 +13,7 @@ export const authAPI = {
   login:              (email, password, termsAccepted) => api.post('/auth/login/', { username: email, password, terms_accepted: termsAccepted }),
   me:                 ()              => api.get('/auth/me/'),
   refresh:            (refresh)       => api.post('/auth/refresh/', { refresh }),
+  exchangeSocialCode: (code)          => publicApi.post('/auth/social/exchange/', { code }),
   signup:             (data)          => api.post('/auth/signup/', data),
   verifyEmail:        (token)         => api.get('/auth/verify-email/', { params: { token } }),
   resendVerification: (email)         => api.post('/auth/resend-verification/', { email }),
