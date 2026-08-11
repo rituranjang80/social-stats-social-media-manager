@@ -1,11 +1,32 @@
 some issue here social platform name must be come one time and proper work thex expand collapse social platform name must be show when collapse so easily click and expand it
 
+we not required vertical channel name 
+
+we required channel name then below content  channel name must be expand and collapse if expand then content show 
+deflut channel name must be expand
+
+//*[@id="main-content"]/div/div/div
+
+/html/body/div[2]
+
+if we double click on  //*[@id="main-content"]/div/div/div/div[1]]  this be open full screen center padding  pop-up drag and drop with resize  with scroll bar
+this must be open//*[@id="main-content"]/div/div/div/div[1]
+
+if we double click on    this be open pop-up drag and drop with resize  with scroll bar
+
+currenly open this /html/body/div[2]
+but we require the this //*[@id="composer-main-center"]
+
+
+
+this object //*[@id="composer-main-center"]
+currently this object open //*[@id="main-content"]/div/div/div/div[2] we not require this object
 
 I want all the item or menu in  xpath //*[@id="root"]/div[1]/aside it we show on xpath //*[@id=":r1:-rail-label"]/div/div
 please see the reference file is frontend\src\components\shell\FeatureSidebar.jsx and hide the code of nothing code remove if require the comment commented code also note deleted all functionality working correctely
 
 
-
+still open this
 
 still many place show the Social Stats i want to change post4u
 

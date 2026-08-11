@@ -8,6 +8,7 @@
  * ========================================================================== */
 import { useEffect, useRef, useState } from 'react';
 import { Sparkles, Loader2, X, Check, RefreshCw, Copy } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 import Button from '../ui/Button';
 import { aiV2API } from '../../services/api';

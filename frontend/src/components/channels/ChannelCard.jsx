@@ -42,7 +42,7 @@ export default function ChannelCard({
       ].filter(Boolean).join(' ')}
       role="option"
       aria-selected={selected}
-      aria-label={`${displayName}${handle ? ` (${handle})` : ''} — ${selected ? 'selected' : 'not selected'}`}
+      //aria-label={`${displayName}${handle ? ` (${handle})` : ''} — ${selected ? 'selected' : 'not selected'}`}
       title={tooltip}
       disabled={disabled}
       onClick={() => onToggle?.(id)}
@@ -63,7 +63,7 @@ export default function ChannelCard({
       </span>
 
       <span className="channel-card__meta">
-        <span className="channel-card__name">{displayName}</span>
+        {/* <span className="channel-card__name">{displayName}</span> */}
         {!picker && handle ? <span className="channel-card__handle">{handle}</span> : null}
         {!picker ? (
           <span className="channel-card__footer">
