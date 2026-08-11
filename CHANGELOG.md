@@ -12,7 +12,9 @@
 - **Fix:** Social login redirects to `/auth/callback?code=…`; frontend exchanges via **`POST /api/auth/social/exchange/`** (no auth header; `@authentication_classes([])` + `AllowAny`). Gateway nginx **`proxy_buffer_size`** increased as a safety net.
 - **Follow-up:** Stale browser JWT no longer breaks the exchange call (`publicApi` + empty auth classes on the exchange view).
 
-### Added — Post Management digest emails & multi-template editor
+### Changed — Composer live preview layout
+
+- **Preview panel** (`#composer-preview`): **accordion** per channel — channel name row (chevron) with post mockup **directly below** when expanded; first/active channel starts open. **Collapse** restores the original right-rail position (panel hidden, edge chevron on the right). **Double-click** the preview panel (not buttons/media) to open a **floating, draggable** live preview popup; drag by the header grip, Esc or ✕ to close.
 
 - **Analytics → Post Management** default range is the **last 30 days** with stat cards for **Draft**, **Pending Review**, and **On Hold** (same buckets as the digest job).
 - **Celery beat** task `send-post-management-client-digest` emails each **active client** when those statuses have posts in the lookback window. Template: **Account settings → Email templates → Client approval** (`GET/PUT /api/invitations/email-templates/client-approval/`). Schedule via **`POST_MANAGEMENT_DIGEST_*`** env vars; manual run: `python manage.py send_post_management_digest --dry-run`.

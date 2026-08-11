@@ -21,7 +21,7 @@ export function ComposerPreviewCard({
         </div>
         <div>
           <div className="composer-preview-card__name">{handle}</div>
-          <div className="composer-preview-card__meta">{meta.label} · just now</div>
+          <div className="composer-preview-card__meta">Just now</div>
         </div>
       </div>
 

@@ -14,7 +14,7 @@ function renderPanel(overrides = {}) {
     platforms: ['facebook', 'instagram'],
     activePreview: 'facebook',
     onSelectPreview: jest.fn(),
-    content: '',
+    content: 'Hello world',
     mediaAssets: [],
     mediaType: 'text',
     user: null,
@@ -30,18 +30,34 @@ describe('ComposerPreviewPanel', () => {
     localStorage.clear();
   });
 
-  test('renders selected platform tabs and reports a tab selection', async () => {
+  test('default channel is expanded and shows preview content below', () => {
+    renderPanel();
+
+    const facebook = screen.getByRole('button', { name: /Facebook/i });
+    expect(facebook).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText('Hello world')).toBeInTheDocument();
+  });
+
+  test('clicking channel header toggles expand/collapse', async () => {
     const user = userEvent.setup();
-    const { props } = renderPanel();
-    const facebook = screen.getByRole('tab', { name: 'Facebook' });
-    const instagram = screen.getByRole('tab', { name: 'Instagram' });
+    renderPanel();
 
-    expect(facebook).toHaveAttribute('aria-selected', 'true');
-    expect(instagram).toHaveAttribute('aria-selected', 'false');
+    const facebook = screen.getByRole('button', { name: /Facebook/i });
+    await user.click(facebook);
+    expect(facebook).toHaveAttribute('aria-expanded', 'false');
 
-    await user.click(instagram);
+    await user.click(facebook);
+    expect(facebook).toHaveAttribute('aria-expanded', 'true');
+  });
 
-    expect(props.onSelectPreview).toHaveBeenCalledWith('instagram');
+  test('double-clicking preview panel opens floating popup', async () => {
+    const user = userEvent.setup();
+    renderPanel();
+
+    await user.dblClick(document.getElementById('composer-preview'));
+
+    expect(screen.getByRole('dialog', { name: 'Floating live preview' })).toBeInTheDocument();
+    expect(screen.getAllByText('Hello world').length).toBeGreaterThanOrEqual(1);
   });
 
   test('requests expansion changes and persists the rendered expansion state', async () => {
@@ -57,13 +73,12 @@ describe('ComposerPreviewPanel', () => {
     expect(screen.getByRole('button', { name: 'Expand preview panel' }))
       .toHaveAttribute('aria-expanded', 'false');
     expect(localStorage.getItem(COMPOSER_PREVIEW_STORAGE_KEY)).toBe('0');
-    expect(readComposerPreviewExpanded()).toBe(false);
   });
 
-  test('does not render hardcoded platform tabs when no channels are selected', () => {
+  test('does not render channel sections when no channels are selected', () => {
     renderPanel({ platforms: [], activePreview: '' });
 
-    expect(screen.queryByRole('tab')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Facebook/i })).not.toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('Select a channel');
   });
 });

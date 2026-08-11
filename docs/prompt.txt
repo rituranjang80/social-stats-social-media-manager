@@ -1,3 +1,6 @@
+some issue here social platform name must be come one time and proper work thex expand collapse social platform name must be show when collapse so easily click and expand it
+
+
 I want all the item or menu in  xpath //*[@id="root"]/div[1]/aside it we show on xpath //*[@id=":r1:-rail-label"]/div/div
 please see the reference file is frontend\src\components\shell\FeatureSidebar.jsx and hide the code of nothing code remove if require the comment commented code also note deleted all functionality working correctely
 

@@ -1,0 +1,699 @@
+# Cursor Prompt — Generate Complete Current Application URL Inventory
+
+## OBJECTIVE
+
+Analyze the **entire existing application** and generate a complete, accurate inventory of **ALL URLs/routes currently available in the application**.
+
+Do NOT modify, delete, refactor, rename, or break any existing code.
+
+This is an **analysis and documentation task only**.
+
+---
+
+## 1. SCAN THE ENTIRE PROJECT
+
+First inspect the complete project structure.
+
+Identify all relevant:
+
+* React routes
+* React Router routes
+* Django URLs
+* Django REST Framework routes
+* API endpoints
+* ViewSets
+* routers
+* nested routers
+* authentication URLs
+* admin URLs
+* management URLs
+* analytics URLs
+* social-media URLs
+* workspace URLs
+* team URLs
+* client URLs
+* settings URLs
+* media URLs
+* composer URLs
+* calendar URLs
+* video URLs
+* reporting URLs
+* webhook URLs
+* OAuth callback URLs
+* health-check URLs
+* utility endpoints
+
+Do NOT rely only on manually known URLs.
+
+Search the source code.
+
+---
+
+# 2. FRONTEND URLS
+
+Inspect all frontend routing files and identify every route.
+
+Search for patterns such as:
+
+```text
+<Route
+createBrowserRouter
+createHashRouter
+useRoutes
+path:
+react-router
+RouterProvider
+```
+
+For every frontend route identify:
+
+* URL/path
+* Component/page
+* Parent route
+* Child route
+* Layout
+* Authentication requirement
+* Permission/RBAC requirement
+* Workspace requirement
+* Status
+
+Example:
+
+| Type     | URL                          | Component | Auth | RBAC                 |
+| -------- | ---------------------------- | --------- | ---- | -------------------- |
+| Frontend | `/admin/analytics/analytics` | Analytics | Yes  | Analytics permission |
+| Frontend | `/admin/analytics/calendar`  | Calendar  | Yes  | Analytics permission |
+
+Do not invent values.
+
+Use the actual source code.
+
+---
+
+# 3. DJANGO URLS
+
+Search the complete Django backend for:
+
+```text
+urlpatterns
+path(
+re_path(
+include(
+router.register(
+DefaultRouter
+SimpleRouter
+```
+
+Inspect:
+
+```text
+urls.py
+views.py
+viewsets.py
+routers.py
+api/
+```
+
+Identify every backend URL.
+
+---
+
+# 4. DRF API ENDPOINTS
+
+Identify every Django REST Framework endpoint.
+
+For each endpoint provide:
+
+* HTTP method
+* URL
+* View/ViewSet
+* Serializer
+* Authentication
+* Permission
+* Workspace scope
+* Purpose
+
+Example:
+
+| Method | API URL    | View             | Permission | Purpose         |
+| ------ | ---------- | ---------------- | ---------- | --------------- |
+| GET    | `/api/...` | AnalyticsViewSet | ...        | Analytics data  |
+| POST   | `/api/...` | SyncView         | ...        | Synchronization |
+
+If a ViewSet automatically generates routes, inspect the router and list the generated routes.
+
+---
+
+# 5. AUTHENTICATION URLs
+
+Identify all authentication-related URLs, including:
+
+```text
+login
+logout
+register
+refresh token
+password reset
+email verification
+invitation
+OAuth
+social login
+callback
+```
+
+Include both frontend and backend URLs where applicable.
+
+---
+
+# 6. SOCIAL MEDIA URLs
+
+Identify all routes related to:
+
+* Facebook
+* Instagram
+* LinkedIn
+* YouTube
+* TikTok
+* X/Twitter
+* Pinterest
+* Threads
+* Other supported platforms
+
+Include:
+
+* Connect
+* OAuth authorization
+* OAuth callback
+* Disconnect
+* Account management
+* Publishing
+* Scheduling
+* Analytics
+* Sync
+* Webhooks
+
+Only list platforms actually implemented in the application.
+
+---
+
+# 7. APPLICATION MODULES
+
+Group URLs by application module.
+
+At minimum check:
+
+```text
+Dashboard
+Analytics
+Calendar
+Composer
+Media
+Video
+Social Accounts
+Social Channels
+Posts
+Scheduling
+Approval
+Clients
+Users
+Teams
+Workspaces
+Management
+RBAC
+Settings
+Account Settings
+Notifications
+Reports
+Billing
+Authentication
+Integrations
+Webhooks
+API
+```
+
+Do not assume every module exists.
+
+Only report what is actually present.
+
+---
+
+# 8. URL PARAMETERS
+
+For dynamic URLs, preserve their actual parameters.
+
+For example:
+
+```text
+/admin/clients/:id
+/admin/workspaces/:workspaceId
+/admin/posts/:postId
+```
+
+Document:
+
+```text
+Parameter
+Type
+Purpose
+```
+
+If the application uses query parameters, document them separately.
+
+Example:
+
+```text
+/admin/analytics/calendar?mode=list
+```
+
+Document:
+
+```text
+mode
+Possible values: list, calendar, ...
+```
+
+Only include values that are actually supported by the code.
+
+---
+
+# 9. DUPLICATE / ALIAS ROUTES
+
+Identify duplicate or alias URLs that point to the same page/component.
+
+Example:
+
+```text
+/admin/analytics
+/admin/analytics/analytics
+```
+
+If both exist, report both and identify whether they render:
+
+* same component
+* redirect
+* different component
+
+---
+
+# 10. REDIRECTS
+
+Identify all redirects.
+
+For each redirect provide:
+
+```text
+Source URL
+Destination URL
+Condition
+```
+
+Example:
+
+```text
+/admin
+    ↓
+/admin/dashboard
+```
+
+Do not miss authentication redirects.
+
+---
+
+# 11. PROTECTED ROUTES
+
+Identify whether each frontend route requires:
+
+```text
+Authentication
+Admin role
+Specific permission
+Workspace access
+Team access
+Client access
+```
+
+Use the application's actual RBAC implementation.
+
+Do NOT infer permissions based only on the URL name.
+
+---
+
+# 12. WORKSPACE-AWARE ROUTES
+
+Identify routes where the current workspace affects the data.
+
+For example:
+
+```text
+/admin/analytics/analytics
+/admin/analytics/calendar
+/admin/analytics/composer
+```
+
+Document:
+
+```text
+Workspace-aware: Yes/No
+Workspace source:
+Workspace validation:
+```
+
+---
+
+# 13. API BASE URL
+
+Find the application's API configuration.
+
+Determine the actual API base URL from:
+
+* `.env`
+* Django configuration
+* React configuration
+* Axios configuration
+* Fetch wrapper
+* API client
+* environment configuration
+
+Do NOT hardcode or assume:
+
+```text
+http://localhost:8000/api
+```
+
+if the project uses another value.
+
+Show the configuration source.
+
+---
+
+# 14. ENVIRONMENT URLS
+
+Inspect `.env` and environment configuration files.
+
+Identify URL-related configuration such as:
+
+```text
+API_URL
+BACKEND_URL
+FRONTEND_URL
+BASE_URL
+OAUTH_REDIRECT_URI
+WEBHOOK_URL
+MEDIA_URL
+```
+
+Do NOT expose secrets.
+
+Never print:
+
+```text
+CLIENT_SECRET
+API_SECRET
+ACCESS_TOKEN
+PASSWORD
+PRIVATE_KEY
+```
+
+Only show the variable name and safe URL value where appropriate.
+
+---
+
+# 15. WEBHOOK ENDPOINTS
+
+Search the project for webhook endpoints.
+
+Look for:
+
+```text
+webhook
+callback
+verify
+signature
+event
+subscription
+```
+
+Document:
+
+* URL
+* HTTP method
+* Social platform/service
+* Purpose
+* Authentication/signature validation
+
+---
+
+# 16. URL → SOURCE CODE MAPPING
+
+For every URL, identify the source code responsible for it.
+
+Example:
+
+```text
+URL:
+http://localhost:3000/admin/analytics/calendar
+
+Frontend:
+src/pages/analytics/Calendar.jsx
+
+Router:
+src/routes/...
+
+Backend:
+...
+
+API:
+...
+```
+
+Use the actual project paths.
+
+---
+
+# 17. COMPLETE URL INVENTORY
+
+Create a master table with these columns:
+
+| # | Type | Method | URL | Module | Frontend Component | Backend View | Auth | RBAC | Workspace | Source File | Status |
+| - | ---- | ------ | --- | ------ | ------------------ | ------------ | ---- | ---- | --------- | ----------- | ------ |
+
+Types should include only what actually exists, for example:
+
+```text
+Frontend
+API
+Webhook
+OAuth
+Redirect
+Static
+```
+
+---
+
+# 18. URL STATUS
+
+Determine the status from the source code:
+
+```text
+Active
+Redirect
+Deprecated
+Disabled
+Feature Flag Disabled
+Incomplete
+```
+
+Do not guess.
+
+If status cannot be determined, use:
+
+```text
+Unknown
+```
+
+---
+
+# 19. BROKEN / ORPHAN ROUTES
+
+Also identify:
+
+### Orphan frontend routes
+
+Routes that exist in the router but appear to have no usable page/component.
+
+### Orphan backend endpoints
+
+Endpoints that appear registered but have no frontend usage.
+
+### Missing frontend routes
+
+If frontend code references a URL that is not registered, report it.
+
+### Missing backend endpoints
+
+If frontend API calls reference an endpoint that does not exist, report it.
+
+### Broken links
+
+Search for:
+
+```text
+href=
+navigate(
+<Link
+window.location
+fetch(
+axios
+apiClient
+```
+
+and identify URLs that appear invalid or unregistered.
+
+---
+
+# 20. DO NOT CHANGE APPLICATION
+
+This task must NOT:
+
+* change routes
+* change components
+* change API endpoints
+* change database
+* change permissions
+* change `.env`
+* change navigation
+* change React code
+* change Django code
+
+Only analyze and document.
+
+---
+
+# 21. OUTPUT FILE
+
+Create a documentation file in the project:
+
+```text
+docs/application-url-inventory.md
+```
+
+If the project already has a suitable documentation folder, follow the existing structure.
+
+Also create:
+
+```text
+docs/application-url-inventory.csv
+```
+
+The CSV should contain the complete URL inventory.
+
+Do not overwrite an existing documentation file without first checking it.
+
+If an inventory already exists, update it while preserving useful existing documentation.
+
+---
+
+# 22. SUMMARY
+
+At the top of the Markdown document provide:
+
+```text
+Total Frontend Routes:
+Total API Endpoints:
+Total Webhook Endpoints:
+Total OAuth Routes:
+Total Redirects:
+Total Protected Routes:
+Total Workspace-Aware Routes:
+Total Potentially Broken Routes:
+```
+
+Use actual discovered counts.
+
+---
+
+# 23. IMPORTANT — NO ASSUMPTIONS
+
+Do NOT generate URLs based on naming conventions.
+
+For example, do not assume:
+
+```text
+/admin/users
+/admin/reports
+/admin/billing
+```
+
+exist just because the application has user/report/billing code.
+
+Only include a URL if it is actually registered, referenced, or clearly implemented.
+
+---
+
+# 24. FINAL REPORT
+
+After completing the scan, provide a concise summary:
+
+```text
+URL INVENTORY COMPLETE
+
+Frontend Routes: X
+API Endpoints: X
+Webhooks: X
+OAuth Routes: X
+Redirects: X
+Potential Broken Routes: X
+```
+
+Then list the most important findings:
+
+1. Missing routes
+2. Broken API references
+3. Duplicate routes
+4. Unused routes
+5. Security/RBAC inconsistencies
+6. Workspace-scope inconsistencies
+7. Potentially exposed sensitive endpoints
+
+Do not modify these issues automatically.
+
+---
+
+## STRICT RULE
+
+**SCAN FIRST → UNDERSTAND ROUTING → DOCUMENT → REPORT.**
+
+Do not make architectural changes.
+
+Do not invent URLs.
+
+Do not hardcode URLs.
+
+Do not expose secrets.
+
+Do not break any existing functionality.
+
+The final URL inventory must represent the **actual current application source code**, not an assumed application structure.
+
+on page http://localhost:3000/admin/account-settings
+there may be many option
+
+//*[@id="main-content"]/div/div/div[2]/div[2]/div/div[2]/a[1]
+//*[@id="main-content"]/div/div/div[2]/div[2]/div/div[2]/a[2]
+
+whenever he click on it a react component open
+add a beautifull back button on left side of it if click then return to parents button must name back
+
+on page http://localhost:3000/admin/clients
+
+xpath //*[@id="main-content"]/div/div/div[4]
+there must be action delete and Sent Invitations
+
+
+on page 
+http://localhost:3000/admin/analytics/post-management
+last one month the stats is Draft, On hold,Pending Review
+if there are any data check using python the  send the email of all client it date time must configure from .env file
+template get from http://localhost:3000/admin/account-settings/welcome-email-template
+also change page that support multiple template (Welcome template, Client approval template, later me add more
+http://localhost:3000/admin/account-settings/welcome-email-template
