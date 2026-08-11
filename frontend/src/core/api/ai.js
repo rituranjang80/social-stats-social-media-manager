@@ -14,7 +14,9 @@ export const aiAPI = {
 };
 
 export const aiV2API = {
-  compose:         (data) => api.post('/ai/v2/compose/',          data),
+    compose:         (data) => api.post('/ai/v2/compose/',          data),
+    composerGenerate: (data) => api.post('/ai/v2/composer-generate/', data),
+    generationLimits: (params) => api.get('/ai/v2/generation-limits/', { params }),
   rewrite:         (data) => api.post('/ai/v2/rewrite/',          data),
   extend:          (data) => api.post('/ai/v2/extend/',           data),
   summarize:       (data) => api.post('/ai/v2/summarize/',        data),

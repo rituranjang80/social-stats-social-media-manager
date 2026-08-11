@@ -12,6 +12,11 @@
 - **Fix:** Social login redirects to `/auth/callback?code=…`; frontend exchanges via **`POST /api/auth/social/exchange/`** (no auth header; `@authentication_classes([])` + `AllowAny`). Gateway nginx **`proxy_buffer_size`** increased as a safety net.
 - **Follow-up:** Stale browser JWT no longer breaks the exchange call (`publicApi` + empty auth classes on the exchange view).
 
+### Added — Composer AI studio modal (subscription quotas)
+
+- **Write with AI** on **Analytics → Composer** opens a **centered full-size modal** (not a small corner popover) to generate **text**, **image**, **video**, or **all** in one flow. Shows **plan quota meters** (Free: 4 text / 1 image / 2 video per month; Lite / Pro / Enterprise tiers with higher limits). Respects RBAC permission **`ai.compose`** from **Management → Permissions**; users without it see a clear access message.
+- **API:** `GET /api/ai/v2/generation-limits/`, `POST /api/ai/v2/composer-generate/`; existing `/ai/v2/compose/` now enforces **`ai.compose`** and text quotas.
+
 ### Changed — Composer live preview layout
 
 - **Preview panel** (`#composer-preview`): **accordion** per channel — channel name row (chevron) with post mockup **directly below** when expanded; first/active channel starts open. **Collapse** restores the original right-rail position (panel hidden, edge chevron on the right). **Double-click** the preview panel (not buttons/media) to open a **floating, draggable** live preview popup; drag by the header grip, Esc or ✕ to close.

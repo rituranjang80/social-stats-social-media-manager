@@ -35,9 +35,11 @@ from .models import (
 # ─────────────────────────────────────────────────────────────────────────────
 _LEGACY_PLAN_TO_SKU = {
     'free':           'eu-free',
+    'lite':           'eu-lite',
     'pro':            'eu-pro',
     'premium':        'eu-premium',
-    'agency_managed': 'eu-free',  # agency-managed workspaces stay on the free tier
+    'enterprise':     'eu-premium',
+    'agency_managed': 'eu-free',
 }
 
 
@@ -133,14 +135,29 @@ def get_usage(client: Client) -> dict:
 # Limit checks (called by views before performing the action)
 # ─────────────────────────────────────────────────────────────────────────────
 def check_limit(client: Client, key: str, *, increment: int = 1) -> tuple[bool, str | None, dict | None]:
-    """Returns (ok, reason_if_blocked, info_dict).
-
-    Payments were removed — the product is free and open-source, so every
-    quota is unlimited for both account types. This always allows the action.
-    `get_usage()` still reports live counts for the in-app meter.
-    """
+    """Returns (ok, reason_if_blocked, info_dict). None limit = unlimited."""
     sub = get_or_create_subscription(client)
-    return (True, None, {'current': None, 'limit': None, 'plan': sub.plan})
+    limit = get_plan(sub.plan)['limits'].get(key)
+    if limit is None:
+        return True, None, {'current': None, 'limit': None, 'plan': sub.plan}
+
+    if key == 'ai_generations_per_month':
+        current = _ai_generations_this_period(sub)
+    elif key == 'posts_per_month':
+        current = _posts_this_period(sub)
+    elif key == 'connected_platforms':
+        current = _connected_platforms(client)
+    elif key == 'active_relations':
+        current = _active_relations(client)
+    else:
+        current = 0
+
+    info = {'current': current, 'limit': limit, 'plan': sub.plan}
+    if limit == 0:
+        return False, f'Not available on your current plan.', info
+    if current + increment > limit:
+        return False, f'Plan limit reached ({current}/{limit}). Upgrade to continue.', info
+    return True, None, info
 
 
 # ─────────────────────────────────────────────────────────────────────────────

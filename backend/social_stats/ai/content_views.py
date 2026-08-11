@@ -37,6 +37,8 @@ from rest_framework.response import Response
 from ..models import Client, PostMetric
 from ..ai_helpers import brand_voice_prompt
 from ..ai_views import _resolved_client                 # reuse existing tenant guard
+from .access import require_ai_compose
+from .generation_limits import check_generation_limit
 from . import AIClient, AIError, RateLimited, prompts
 
 logger = logging.getLogger(__name__)
@@ -94,6 +96,13 @@ def compose(request):
     """
     client, err = _resolved_client(request)
     if err: return err
+
+    denied = require_ai_compose(request)
+    if denied: return denied
+
+    ok, reason, _ = check_generation_limit(client, 'text')
+    if not ok:
+        return Response({'error': reason}, status=402)
 
     topic = (request.data.get('topic') or '').strip()
     if not topic:

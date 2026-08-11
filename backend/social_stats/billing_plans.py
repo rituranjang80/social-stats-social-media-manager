@@ -1,69 +1,58 @@
 # ============================================================================
 #  Social Stats — Social Media Management & Marketing Platform
-#  Author    : Chandrabhan Shekhawat
-#  Company   : Gigai Kripa Services
-#  Website   : https://gigaikripaservices.com/
-#  Copyright (c) 2026 Chandrabhan Shekhawat / Gigai Kripa Services.
-#  Released under the MIT License — see LICENSE. Keep this notice.
+#  Plan catalog with per-tier AI generation quotas (text / image / video).
 # ============================================================================
-"""
-Plan catalog — retained only so existing imports (usage_limits, serializers,
-the account-type model) keep resolving. The product is now free and
-open-source: there are no paid tiers and every quota is unlimited.
-
-Every plan's `limits` are `None` (unlimited). `get_limit()` returns `None` for
-any key, so `usage_limits.check_limit()` always allows the action. The two
-account *types* (end_user vs agency) still exist for role separation — that
-lives in the permission layer, not here.
-"""
 from __future__ import annotations
 
 
-def _unlimited(sku: str, side: str, label: str) -> dict:
-    """A plan whose every quota is unlimited."""
+def _plan(sku: str, side: str, label: str, *, text: int | None, image: int | None, video: int | None) -> dict:
     return {
-        'sku':      sku,
-        'side':     side,
-        'label':    label,
-        'price':    0,
+        'sku': sku,
+        'side': side,
+        'label': label,
+        'price': 0,
         'currency': 'INR',
-        'features': ['All features included — free to self-host'],
-        # Every known limit key maps to None (= unlimited). get_limit() also
-        # returns None for any key not listed, so nothing is ever gated.
+        'features': [
+            f'Text AI: {"unlimited" if text is None else text}/month',
+            f'Image AI: {"unlimited" if image is None else image}/month',
+            f'Video AI: {"unlimited" if video is None else video}/month',
+        ],
         'limits': {
-            'workspaces':               None,
-            'connected_platforms':      None,
-            'posts_per_month':          None,
+            'workspaces': None,
+            'connected_platforms': None,
+            'posts_per_month': None,
             'ai_generations_per_month': None,
-            'analytics_history_days':   None,
-            'active_relations':         None,
-            'managed_clients':          None,
+            'ai_text_generations_per_month': text,
+            'ai_image_generations_per_month': image,
+            'ai_video_generations_per_month': video,
+            'analytics_history_days': None,
+            'active_relations': None,
+            'managed_clients': None,
         },
     }
 
 
-# End-user (B2C) and agency (B2B) plan SKUs are kept so historical
-# Subscription.plan values still resolve to a valid (unlimited) plan dict.
-EU_FREE           = _unlimited('eu-free',           'end_user', 'Free')
-EU_PRO            = _unlimited('eu-pro',            'end_user', 'Pro')
-EU_PREMIUM        = _unlimited('eu-premium',        'end_user', 'Premium')
-AGENCY_STARTER    = _unlimited('agency-starter',    'agency',   'Starter')
-AGENCY_GROWTH     = _unlimited('agency-growth',     'agency',   'Growth')
-AGENCY_SCALE      = _unlimited('agency-scale',      'agency',   'Scale')
-AGENCY_ENTERPRISE = _unlimited('agency-enterprise', 'agency',   'Enterprise')
+# End-user tiers — Free / Lite / Pro / Enterprise
+EU_FREE = _plan('eu-free', 'end_user', 'Free', text=4, image=1, video=2)
+EU_LITE = _plan('eu-lite', 'end_user', 'Lite', text=20, image=5, video=10)
+EU_PRO = _plan('eu-pro', 'end_user', 'Pro', text=100, image=30, video=60)
+EU_ENTERPRISE = _plan('eu-premium', 'end_user', 'Enterprise', text=None, image=None, video=None)
 
+# Agency tiers (higher defaults)
+AGENCY_STARTER = _plan('agency-starter', 'agency', 'Starter', text=50, image=15, video=30)
+AGENCY_GROWTH = _plan('agency-growth', 'agency', 'Growth', text=200, image=60, video=120)
+AGENCY_SCALE = _plan('agency-scale', 'agency', 'Scale', text=500, image=150, video=300)
+AGENCY_ENTERPRISE = _plan('agency-enterprise', 'agency', 'Enterprise', text=None, image=None, video=None)
 
 PLANS = {
     p['sku']: p for p in [
-        EU_FREE, EU_PRO, EU_PREMIUM,
+        EU_FREE, EU_LITE, EU_PRO, EU_ENTERPRISE,
         AGENCY_STARTER, AGENCY_GROWTH, AGENCY_SCALE, AGENCY_ENTERPRISE,
     ]
 }
 
 
 def get_plan(sku: str) -> dict:
-    """Return a plan dict; falls back to eu-free if the sku is unknown so
-    callers always get a valid (unlimited) limit-bag."""
     return PLANS.get(sku) or EU_FREE
 
 
@@ -74,5 +63,7 @@ def list_plans(side: str | None = None) -> list[dict]:
 
 
 def get_limit(sku: str, key: str):
-    """Always None — every quota is unlimited now that the product is free."""
+    plan = get_plan(sku)
+    if key in plan['limits']:
+        return plan['limits'][key]
     return None

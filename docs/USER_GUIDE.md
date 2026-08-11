@@ -186,6 +186,7 @@ the top bar and account menu on every page.
   **small network icon** on the avatar, and the **connected account name**.
   Existing connections backfill photos on the next OAuth status load; reconnect if a
   platform still shows initials only.
+  **Write with AI** — **Write with AI** in the Caption card opens a **centered modal** to generate **text**, **image**, **video**, or **all** at once. Quota meters reflect your workspace **subscription plan** (e.g. **Free**: 4 text / 1 image / 2 video generations per month). Requires the **`ai.compose`** permission (Management → Permissions). Optional image upload powers image-to-post; without a photo, AI writes an image-post caption + visual concept. Video mode returns a short-form script (hook, scenes, CTA).
   **Media Library** in the caption card opens an in-composer picker modal
   (does not leave the page); selected assets appear in the media row and are
   saved/published with the post. Use the replace control on a media thumbnail

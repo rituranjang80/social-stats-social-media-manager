@@ -36,7 +36,6 @@ export default function ComposerCaptionEditor({
           platform={platform || 'instagram'}
           onInsert={onInsertAi}
           size="sm"
-          align="right"
         />
       )}
     >

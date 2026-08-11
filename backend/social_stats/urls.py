@@ -127,6 +127,10 @@ from .ai_views import (
     rewrite, translate, generate_image_caption, content_calendar,
     train_brand_voice, get_brand_voice,
 )
+from .ai.composer_generate_views import (
+    composer_generate      as ai_v2_composer_generate,
+    generation_limits      as ai_v2_generation_limits,
+)
 from .ai.content_views import (
     compose          as ai_v2_compose,
     rewrite_v2       as ai_v2_rewrite,
@@ -546,6 +550,8 @@ urlpatterns = [
     # New endpoints flow through the centralised AIClient (cache + rate-limit + cost).
     # Existing /ai/* endpoints above remain unchanged.
     path('ai/v2/compose/',          ai_v2_compose,           name='ai_v2_compose'),
+    path('ai/v2/composer-generate/', ai_v2_composer_generate, name='ai_v2_composer_generate'),
+    path('ai/v2/generation-limits/', ai_v2_generation_limits, name='ai_v2_generation_limits'),
     path('ai/v2/rewrite/',          ai_v2_rewrite,           name='ai_v2_rewrite'),
     path('ai/v2/extend/',           ai_v2_extend,            name='ai_v2_extend'),
     path('ai/v2/summarize/',        ai_v2_summarize,         name='ai_v2_summarize'),
